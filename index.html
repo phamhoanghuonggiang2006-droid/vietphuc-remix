@@ -14,33 +14,62 @@
     <link href="https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
     <script>
       // ========================================================
-      // CÁC BIẾN LINK ẢNH CỐ ĐỊNH CHUẨN QUY CHẾ (THEO YÊU CẦU CỦA NGƯỜI DÙNG)
+      // CÁC BIẾN LINK ẢNH & KHO DỮ LIỆU CỔ PHỤC (VIỆT PHỤC REMIX)
       // ========================================================
-      // 1. Hạt Khuy Cúc Áo (Ngũ Thường)
-      window.LINK_ANH_CUC_AO = "1.png";
-      window.LINK_ANH_CUC_KIM_LOAI = "1.png";
-      window.LINK_ANH_CUC_NGOC = "2.png";
-      window.LINK_ANH_CUC_GO = "3.png";
-      window.LINK_ANH_CUC_VAI = "4.png";
+      // 1. Kho Khuy Cúc Áo (Ngũ Thường: Nhân - Nghĩa - Lễ - Trí - Tín)
+      window.LINK_ANH_CUC_AO = "/1.png";
+      window.LINK_ANH_CUC_DONG_BAT_BUU = "/1.png";
+      window.LINK_ANH_CUC_KIM_LOAI = "/1.png";
+      window.LINK_ANH_CUC_NGOC = "/2.png";
+      window.LINK_ANH_CUC_NGOC_BICH = "/2.png";
+      window.LINK_ANH_CUC_GO = "/3.png";
+      window.LINK_ANH_CUC_GO_TRAM = "/3.png";
+      window.LINK_ANH_CUC_BAC_HOA_SEN = "/1.png";
+      window.LINK_ANH_CUC_XA_CU = "/2.png";
+      window.LINK_ANH_CUC_VAI = "/4.png";
 
-      // 2. Thân Dưới Phối Cùng (Quần / Chân Váy Hiện Đại)
-      window.LINK_ANH_THAN_DUOI = "5.png";
-      window.LINK_ANH_QUAN_LINEN = "5.png";
-      window.LINK_ANH_VAY_XEP_LY = "6.png";
-      window.LINK_ANH_QUAN_JEANS = "7.png";
+      window.HERITAGE_BUTTONS = {
+        DONG_BAT_BUU: { id: "btn-metal-copper", name: "Cúc Đồng Đúc Bát Bửu", vibe: "Đồng cổ tròn đĩnh đạc", nguThuong: "Đạo Ngũ Thường (Nhân, Nghĩa, Lễ, Trí, Tín)", isTaboo: false, src: "/1.png" },
+        NGOC_BICH: { id: "btn-jade-green", name: "Cúc Ngọc Bích Cẩm Thạch", vibe: "Vương giả", nguThuong: "Chữ Nhân (Ôn nhuận như ngọc)", isTaboo: false, src: "/2.png" },
+        GO_TRAM: { id: "btn-wood-agarwood", name: "Cúc Gỗ Trầm Hương Khắc Chữ Thọ", vibe: "Nho nhã", nguThuong: "Chữ Tín & Lễ (Trường thọ)", isTaboo: false, src: "/3.png" },
+        BAC_HOA_SEN: { id: "btn-silver-lotus", name: "Cúc Bạc Chạm Hoa Sen", vibe: "Mới - Thanh tao", nguThuong: "Chữ Liêm & Trí (Thanh cao thoát tục)", isTaboo: false, src: "/1.png" },
+        XA_CU: { id: "btn-mother-of-pearl", name: "Cúc Xà Cừ Khảm Ốc Ánh Kim", vibe: "Mới - Tinh xảo", nguThuong: "Chữ Mỹ & Lễ (Mỹ nghệ cung đình ngũ sắc)", isTaboo: false, src: "/2.png" },
+        VAI_TAU: { id: "btn-chinese-cloth", name: "Cúc Vải Tết Dây / Cúc Tàu", vibe: "Cảnh báo phạm húy Taboo Alert", nguThuong: "Vi phạm quy chế y quan nước Nam", isTaboo: true, src: "/4.png" }
+      };
 
-      // 3. Giày / Guốc
-      window.LINK_ANH_GIAY = "8.png";
-      window.LINK_ANH_GUOC_MOC = "8.png";
-      window.LINK_ANH_HAI_THEU = "9.png";
-      window.LINK_ANH_SNEAKERS = "10.png";
+      // 2. Kho Bảng Màu Sắc Phục (Ngũ Hành & Giai Tầng Y Quan)
+      window.HERITAGE_COLORS = {
+        THANH_THIEN: { name: "Xanh Thanh Thiên", hex: "#2B5B84", element: "Mộc / Thủy", giaiTang: "Văn nhân sĩ phu", meaning: "Trời quang mây tạnh, trung chính, an nhiên" },
+        TIM_CHINH_SAC: { name: "Tím Chính Sắc", hex: "#5E3A58", element: "Hỏa giao Thổ", giaiTang: "Quý tộc Cố đô Huế", meaning: "Đoan trang, trầm mặc cố đô Huế" },
+        DO_BA_TRAU: { name: "Đỏ Bã Trầu", hex: "#7A222C", element: "Hỏa", giaiTang: "Hỷ sự vương tộc", meaning: "Hỷ sự, cát tường, vinh hoa phú quý" },
+        XANH_REU_TRAM: { name: "Xanh Rêu Trầm", hex: "#334D3C", element: "Mộc", giaiTang: "Cao sĩ ẩn dật", meaning: "Rêu phong cổ kính, nho nhã, thâm sâu" },
+        NAU_SONG: { name: "Nâu Sồng", hex: "#4A3525", element: "Thổ", giaiTang: "Bách tính & Thiền tịnh", meaning: "Mộc mạc, bền bỉ, củ nâu quê hương Đại Việt" },
+        TRANG_NGA_HA_DONG: { name: "Trắng Ngà Lụa Hà Đông", hex: "#F2EAD8", element: "Kim", giaiTang: "Kinh kỳ thượng lưu", meaning: "Bạch lụa Vạn Phúc thuần khiết, thanh cao" },
+        VANG_MINH_HOANG: { name: "Vàng Minh Hoàng", hex: "#F5B014", element: "Thổ Hoàng Cực", giaiTang: "Thiên Tử Triều Nguyễn", isTaboo: true, meaning: "Cấm kỵ Hoàng gia, chỉ dành riêng cho Thiên Tử" }
+      };
 
-      // 4. Phụ Kiện Đi Kèm
-      window.LINK_ANH_PHU_KIEN = "11.png";
-      window.LINK_ANH_QUAT_GIAY = "11.png";
-      window.LINK_ANH_KHAN_DONG = "12.png";
-      window.LINK_ANH_BOI_NGOC = "13.png";
-      window.LINK_ANH_DONG_HO = "14.png";
+      // 3. Thân Dưới Phối Cùng (Quần / Chân Váy Hiện Đại)
+      window.LINK_ANH_THAN_DUOI = "/5.png";
+      window.LINK_ANH_QUAN_LUA = "/5.png";
+      window.LINK_ANH_QUAN_LINEN = "/5.png";
+      window.LINK_ANH_VAY_XEP_LY = "/6.png";
+      window.LINK_ANH_QUAN_JEANS = "/7.png";
+
+      // 4. Giày / Guốc
+      window.LINK_ANH_GIAY = "/8.png";
+      window.LINK_ANH_GUOC_MOC = "/8.png";
+      window.LINK_ANH_HAI_THEU = "/9.png";
+      window.LINK_ANH_SNEAKERS = "/10.png";
+      window.LINK_ANH_CHUNKY_LOAFERS = "/10.png";
+
+      // 5. Phụ Kiện Đi Kèm
+      window.LINK_ANH_PHU_KIEN = "/11.png";
+      window.LINK_ANH_QUAT_GIAY = "/11.png";
+      window.LINK_ANH_KHAN_DONG = "/12.png";
+      window.LINK_ANH_KHAN_VANH_DAY = "/12.png";
+      window.LINK_ANH_BOI_NGOC = "/13.png";
+      window.LINK_ANH_KIENG_BAC = "/13.png";
+      window.LINK_ANH_DONG_HO = "/14.png";
     </script>
   </head>
   <body class="bg-[#0e0e11] text-[#ede8dc] antialiased selection:bg-[#c9a84c]/30 selection:text-[#faedd0]">

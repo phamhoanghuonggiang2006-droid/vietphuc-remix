@@ -15,6 +15,8 @@ import {
   LINK_ANH_CUC_KIM_LOAI,
   LINK_ANH_CUC_NGOC,
   LINK_ANH_CUC_GO,
+  LINK_ANH_CUC_BAC_HOA_SEN,
+  LINK_ANH_CUC_XA_CU,
   LINK_ANH_CUC_VAI,
   LINK_ANH_QUAN_LUA,
   LINK_ANH_QUAN_LINEN,
@@ -58,15 +60,15 @@ const ITEMS_LIST: ItemConfigSpec[] = [
   // 1. Khuy Cúc
   {
     id: 'btn-metal-copper',
-    name: 'Cúc Kim Loại (Đồng Chạm)',
+    name: 'Cúc Đồng Đúc Bát Bửu (Đồng cổ đĩnh đạc)',
     category: 'Hạt Khuy Cúc Áo (Ngũ Thường)',
     defaultSrc: LINK_ANH_CUC_KIM_LOAI,
     fileLabel: '1.png',
-    note: 'Chuẩn quy chuẩn Nguyễn, tượng trưng Ngũ Thường'
+    note: 'Chuẩn quy chuẩn Nguyễn, tượng trưng đạo Ngũ Thường'
   },
   {
     id: 'btn-jade-green',
-    name: 'Cúc Ngọc (Cẩm Thạch)',
+    name: 'Cúc Ngọc Bích Cẩm Thạch (Vương giả)',
     category: 'Hạt Khuy Cúc Áo (Ngũ Thường)',
     defaultSrc: LINK_ANH_CUC_NGOC,
     fileLabel: '2.png',
@@ -74,15 +76,31 @@ const ITEMS_LIST: ItemConfigSpec[] = [
   },
   {
     id: 'btn-wood-agarwood',
-    name: 'Cúc Gỗ (Trầm Hương Chữ Thọ)',
+    name: 'Cúc Gỗ Trầm Hương Khắc Chữ Thọ (Nho nhã)',
     category: 'Hạt Khuy Cúc Áo (Ngũ Thường)',
     defaultSrc: LINK_ANH_CUC_GO,
     fileLabel: '3.png',
     note: 'Tao nhã cổ điển, phong thái văn nhân xứ Huế'
   },
   {
+    id: 'btn-silver-lotus',
+    name: 'Cúc Bạc Chạm Hoa Sen (Mới - Thanh tao)',
+    category: 'Hạt Khuy Cúc Áo (Ngũ Thường)',
+    defaultSrc: LINK_ANH_CUC_BAC_HOA_SEN,
+    fileLabel: 'cuc-bac.png',
+    note: 'Thanh tao thoát tục, chạm khắc hoa sen tinh xảo'
+  },
+  {
+    id: 'btn-mother-of-pearl',
+    name: 'Cúc Xà Cừ Khảm Ốc Ánh Kim (Mới - Tinh xảo)',
+    category: 'Hạt Khuy Cúc Áo (Ngũ Thường)',
+    defaultSrc: LINK_ANH_CUC_XA_CU,
+    fileLabel: 'cuc-xa-cu.png',
+    note: 'Mỹ nghệ hoàng gia tinh tế, xà cừ óng ánh ngũ sắc'
+  },
+  {
     id: 'btn-chinese-cloth',
-    name: 'Cúc Vải / Cúc Tàu (Sườn Xám)',
+    name: 'Cúc Vải Tết Dây / Cúc Tàu (Sườn Xám)',
     category: 'Hạt Khuy Cúc Áo (Ngũ Thường)',
     defaultSrc: LINK_ANH_CUC_VAI,
     fileLabel: '4.png',

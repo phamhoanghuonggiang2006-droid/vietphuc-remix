@@ -106,10 +106,168 @@ export interface DualMetricEvaluation {
   badgeTitle: string;
   stylistQuote: string;
   subAdvice: string;
+  nguThuongAnalysis: string;
+  nguHanhAnalysis: string;
   isTaboo: boolean;
   isAnachronism: boolean;
   canAutoFix: boolean;
 }
+
+export interface ButtonHeritageInfo {
+  title: string;
+  nguThuong: string;
+  moral: string;
+  genzQuote: string;
+  isTaboo: boolean;
+}
+
+export interface ColorHeritageInfo {
+  title: string;
+  nguHanh: string;
+  giaiTang: string;
+  meaning: string;
+  genzQuote: string;
+  isImperialRestricted: boolean;
+}
+
+export const getButtonHeritageInfo = (buttonId: string): ButtonHeritageInfo => {
+  const bId = (buttonId || '').toLowerCase();
+  if (bId.includes('silver') || bId.includes('bac') || bId.includes('sen')) {
+    return {
+      title: 'Cúc Bạc Chạm Hoa Sen',
+      nguThuong: 'Chữ Liêm & Trí (Thanh tao thoát tục)',
+      moral: 'Đúc bạc trắng sáng chạm hoa sen thanh khiết, tượng trưng cốt cách liêm khiết, minh triết của bậc hiền sĩ.',
+      genzQuote: 'Cúc bạc hoa sen chạm khắc thanh tao xỉu ngang, aura tiên khí thoát tục chuẩn "bạch nguyệt quang" vạn người mê!',
+      isTaboo: false
+    };
+  }
+  if (bId.includes('pearl') || bId.includes('xa_cu') || bId.includes('xa-cu') || bId.includes('oc')) {
+    return {
+      title: 'Cúc Xà Cừ Khảm Ốc Ánh Kim',
+      nguThuong: 'Chữ Mỹ & Lễ (Mỹ nghệ Cung đình)',
+      moral: 'Vỏ ốc xà cừ óng ánh ngũ sắc khảm kim chỉ, đỉnh cao mỹ nghệ cung đình, tượng trưng lễ nghi tôn nghiêm và sự hoàn mỹ.',
+      genzQuote: 'Cúc xà cừ khảm ốc ngũ sắc lấp lánh như dải ngân hà, bắt sáng cực nghệ, đúng chuẩn visual slay chấn động vương triều!',
+      isTaboo: false
+    };
+  }
+  if (bId.includes('jade') || bId.includes('ngoc')) {
+    return {
+      title: 'Cúc Ngọc Bích Cẩm Thạch',
+      nguThuong: 'Chữ Nhân & Đức (Ôn nhuận như ngọc)',
+      moral: 'Ngọc phỉ thúy vương giả, tượng trưng đức tính nhân hậu, bao dung, cốt cách vương tôn cao quý.',
+      genzQuote: 'Cúc ngọc cẩm thạch vương giả flex nhẹ nhưng sát thương cực cao, vừa quyền quý vừa toát thần thái "rich kid" chốn cung đình!',
+      isTaboo: false
+    };
+  }
+  if (bId.includes('wood') || bId.includes('go') || bId.includes('tram')) {
+    return {
+      title: 'Cúc Gỗ Trầm Hương Khắc Chữ Thọ',
+      nguThuong: 'Chữ Tín & Lễ (Văn nhân trường thọ)',
+      moral: 'Trầm hương tụ khí đất trời, khắc chữ Thọ cát tường, tượng trưng chữ Tín bền chặt và phong thái an nhiên.',
+      genzQuote: 'Cúc gỗ trầm chữ Thọ ngát hương an nhiên, phong thái danh sĩ thi thư chuẩn "học bá cổ phong" mười điểm không có nhưng!',
+      isTaboo: false
+    };
+  }
+  if (bId.includes('chinese') || bId.includes('cloth') || bId.includes('vai') || bId.includes('tau')) {
+    return {
+      title: 'Cúc Vải Tết Dây / Cúc Tàu',
+      nguThuong: 'Phạm Húy Quy Chuẩn Y Quan Nước Nam',
+      moral: 'Y quan nước Nam chuẩn mực luôn đơm khuy rời (kim loại/gỗ/ngọc). Cúc vải bện sườn xám là dị bản lai căng.',
+      genzQuote: 'Ớ mây zing gút chóp nhưng cúc vải Tàu này triều đình lắc đầu nguầy nguậy nha! Y quan nước Nam chỉ chuộng khuy đúc, thay nút ngay kẻo bị lính tuần tra hỏi thăm nè!',
+      isTaboo: true
+    };
+  }
+  // Mặc định Cúc Đồng Đúc Bát Bửu
+  return {
+    title: 'Cúc Đồng Đúc Bát Bửu',
+    nguThuong: 'Ngũ Thường (Nhân, Nghĩa, Lễ, Trí, Tín)',
+    moral: 'Đồng cổ đúc tròn đĩnh đạc chạm Bát Bửu, hội tụ đủ 5 đức tính nền tảng của bậc chính nhân quân tử.',
+    genzQuote: 'Nút đồng đúc Bát Bửu sáng choang uy tín, chuẩn vibe "quân tử bất phàm", nết na không chỗ chê!',
+    isTaboo: false
+  };
+};
+
+export const getColorHeritageInfo = (color: ColorOption): ColorHeritageInfo => {
+  const hex = (color.hex || '').toUpperCase();
+  if (hex === '#2B5B84') {
+    return {
+      title: 'Xanh Thanh Thiên',
+      nguHanh: 'Hành Thủy (Thủy sinh Mộc)',
+      giaiTang: 'Văn nhân sĩ phu & Bậc trí giả',
+      meaning: 'Trời xanh quang đãng, tượng trưng tâm hồn phóng khoáng, quang minh lỗi lạc.',
+      genzQuote: 'Tone Thanh Thiên dịu mát làm dịu cả mùa hè, chuẩn vibe "nam thần/nữ thần học phủ" thanh lịch thư thái!',
+      isImperialRestricted: false
+    };
+  }
+  if (hex === '#5E3A58') {
+    return {
+      title: 'Tím Chính Sắc',
+      nguHanh: 'Hỏa giao Thổ',
+      giaiTang: 'Quý tộc hoàng tộc & Mệnh phụ Cung đình Huế',
+      meaning: 'Sắc tím thâm nghiêm đài các, tượng trưng đức hạnh kín đáo, đoan trang và quyền quý.',
+      genzQuote: 'Tím Chính Sắc thâm trầm hoàng gia, diện vào là aura quyền lực toát ra ngùn ngụt, sang chảnh không đối thủ!',
+      isImperialRestricted: false
+    };
+  }
+  if (hex === '#7A222C') {
+    return {
+      title: 'Đỏ Bã Trầu',
+      nguHanh: 'Hành Hỏa (Hỏa nhiệt thành)',
+      giaiTang: 'Hỷ sự vương tộc, Lễ phục hôn lễ',
+      meaning: 'Đượm vị trầu cau sắt son, tượng trưng hỷ khí, lòng trung trinh và phúc lộc song toàn.',
+      genzQuote: 'Đỏ Bã Trầu trầm ấm nồng nàn, vừa tôn da vừa hack tuổi, diện đi tiệc hay đón Tết thì spotlight thuộc về bạn chắc luôn!',
+      isImperialRestricted: false
+    };
+  }
+  if (hex === '#334D3C') {
+    return {
+      title: 'Xanh Rêu Trầm',
+      nguHanh: 'Hành Mộc (Mộc trường cửu)',
+      giaiTang: 'Bậc cao sĩ ẩn dật & Danh gia vọng tộc',
+      meaning: 'Rêu phong thành quách cổ, tượng trưng sự điềm đạm, khiêm nhường và thâm sâu bền bỉ.',
+      genzQuote: 'Xanh Rêu Trầm vibe "old money" cổ phong, điềm đạm mà cuốn hút lạ kỳ, nhìn một lần là nhớ cả đời!',
+      isImperialRestricted: false
+    };
+  }
+  if (hex === '#4A3525') {
+    return {
+      title: 'Nâu Sồng',
+      nguHanh: 'Hành Thổ (Thổ dưỡng vạn vật)',
+      giaiTang: 'Bách tính nhân dân & Thiền phái Trúc Lâm',
+      meaning: 'Đất mẹ mộc mạc, tượng trưng đức cần cù chất phác, tâm hồn an yên tự tại.',
+      genzQuote: 'Nâu Sồng mộc mạc đậm chất Zen thiền tịnh, phối đồ cực kỳ có gu, phong thái "quiet luxury" đỉnh nóc kịch trần!',
+      isImperialRestricted: false
+    };
+  }
+  if (hex === '#F2EAD8') {
+    return {
+      title: 'Trắng Ngà Lụa Hà Đông',
+      nguHanh: 'Hành Kim (Kim thanh khiết)',
+      giaiTang: 'Kinh kỳ thượng lưu & Áo lót Đơn Y cốt cách',
+      meaning: 'Tơ tằm tơ ngà Vạn Phúc thanh nhã, tượng trưng cốt cách trong sạch, đoan chính không tì vết.',
+      genzQuote: 'Trắng Ngà lụa Hà Đông mềm mướt như mây, sáng bừng khung hình, nhẹ nhàng chuẩn "bạch nguyệt quang" xứ kinh kỳ!',
+      isImperialRestricted: false
+    };
+  }
+  if (hex === '#F5B014' || color.isImperialRestricted) {
+    return {
+      title: 'Vàng Minh Hoàng',
+      nguHanh: 'Hành Thổ Hoàng Cực (Trung ương Mậu Kỷ Thổ)',
+      giaiTang: 'Thiên Tử Triều Nguyễn (Cấm Kỵ Tuyệt Đối Dành Cho Thứ Dân)',
+      meaning: 'Sắc vàng tối thượng của Hoàng đế. Thứ dân mặc sẽ phạm tội khi quân!',
+      genzQuote: 'Ố dề rồi bạn ơi! Vàng Minh Hoàng chói lòa này thời xưa chỉ Hoàng Đế mới dám mặc thôi, thứ dân diện vào là bay màu đấy nha!',
+      isImperialRestricted: true
+    };
+  }
+  return {
+    title: color.vietnameseName || color.name,
+    nguHanh: color.element || 'Hòa hợp Ngũ Hành',
+    giaiTang: 'Thanh lịch truyền thống',
+    meaning: color.meaning || 'Sắc phục cổ truyền tao nhã',
+    genzQuote: 'Màu sắc kết hợp rất có gu, tôn vinh nét đẹp văn hóa Việt!',
+    isImperialRestricted: !!color.isImperialRestricted
+  };
+};
 
 export const computeRealtimeDualMetrics = (
   garment: HeritageItem,
@@ -134,6 +292,13 @@ export const computeRealtimeDualMetrics = (
   const isAnachronism = (isCeremonialRobe && (shoesId === 'shoes-white-sneakers' || accessoryId === 'acc-smartwatch')) ||
                         (!isCeremonialRobe && accessoryId === 'acc-smartwatch');
 
+  // Lấy chi tiết Ngũ Thường và Ngũ Hành
+  const buttonInfo = getButtonHeritageInfo(buttonId);
+  const colorInfo = getColorHeritageInfo(color);
+
+  const nguThuongAnalysis = `${buttonInfo.title} [${buttonInfo.nguThuong}]: ${buttonInfo.moral}`;
+  const nguHanhAnalysis = `${colorInfo.title} [${colorInfo.nguHanh} - ${colorInfo.giaiTang}]: ${colorInfo.meaning}`;
+
   // 1. TÍNH ĐỘ CHUẨN DI SẢN (HERITAGE SCORE %)
   let heritage = 100;
   if (!hasDonY) heritage -= 25;
@@ -149,8 +314,16 @@ export const computeRealtimeDualMetrics = (
   // 2. TÍNH SLAY SCORE (%)
   let slay = 78;
   // Tone màu hài hòa
-  if (color.hex === '#2B5B84' || color.hex === '#7A222C' || color.hex === '#1D5C42' || color.hex === '#5E3A58') {
+  if (color.hex === '#2B5B84' || color.hex === '#7A222C' || color.hex === '#334D3C' || color.hex === '#5E3A58') {
     slay += 10;
+  } else if (color.hex === '#F2EAD8' || color.hex === '#4A3525') {
+    slay += 8;
+  }
+  // Cúc áo thẩm mỹ & triết lý
+  if (buttonId === 'btn-silver-lotus' || buttonId === 'btn-mother-of-pearl') {
+    slay += 10;
+  } else if (buttonId === 'btn-jade-green' || buttonId === 'btn-metal-copper' || buttonId === 'btn-wood-agarwood') {
+    slay += 7;
   }
   // Thân dưới cá tính & duyên dáng
   if (bottomId === 'bottom-pleated-midi-skirt' || bottomId === 'bottom-silk-wide-pants' || bottomId === 'bottom-linen-wide-pants') {
@@ -175,18 +348,26 @@ export const computeRealtimeDualMetrics = (
   if (isAnachronism) slay -= 8;
   slay = Math.max(45, Math.min(99, slay));
 
-  // 3. PHÂN ĐỊNH 4 KỊCH BẢN VÀ LỜI BÌNH AI STYLIST GEN Z
+  // 3. PHÂN ĐỊNH 4 KỊCH BẢN VÀ LỜI BÌNH AI STYLIST GEN Z (KẾT HỢP NGŨ THƯỜNG & NGŨ HÀNH)
   // KỊCH BẢN 1: CẢNH BÁO CẤM KỴ (TABOO ALERT)
   if (isTabooAlert) {
+    const quote = isChineseButton 
+      ? `“Cảnh báo hú hồn: ${buttonInfo.genzQuote} Cụ Nguồn gật đầu khen cá tính nhưng Triều Đình hơi rén nhé! Đổi sang Cúc Bạc Hoa Sen hoặc Cúc Đồng Đúc Bát Bửu cho chuẩn gu nào!”`
+      : `“Ủa alo bạn hiền! Sắc ${colorInfo.title} (${colorInfo.nguHanh}) là đại cấm kỵ hoàng triều: ${colorInfo.genzQuote} Đổi ngay sang Xanh Thanh Thiên hay Tím Chính Sắc cho vừa slay vừa an toàn nào!”`;
+
+    const advice = isChineseButton 
+      ? `Quy chuẩn Y quan nước Nam luôn là khuy rời đúc kim loại/gỗ/ngọc (đại diện Ngũ Thường Nhân-Nghĩa-Lễ-Trí-Tín), tuyệt đối cấm cúc vải bện kiểu Tàu lai căng!` 
+      : `Sắc Vàng Minh Hoàng là đặc quyền tối thượng của bậc Thiên Tử Triều Nguyễn. Thứ dân mặc sẽ vi phạm quy chế y quan triều đình!`;
+
     return {
       slayScore: slay,
       heritageScore: heritage,
       scenario: 'taboo',
       badgeTitle: 'Cảnh Báo Cấm Kỵ (Taboo Alert)',
-      stylistQuote: '“Cảnh báo nhẹ: Phối kiểu này Cụ Nguồn gật đầu khen cá tính nhưng Triều Đình hơi rén nhé! Đổi sang Guốc Mộc cho chuẩn gu nào.”',
-      subAdvice: isChineseButton 
-        ? 'Quy chuẩn Y quan nước Nam luôn là khuy rời đúc kim loại/gỗ/ngọc, tuyệt đối cấm cúc vải bện kiểu Tàu lai căng!' 
-        : 'Sắc Vàng Minh Hoàng là đặc quyền tối thượng của bậc Thiên Tử Triều Nguyễn. Thứ dân mặc sẽ vi phạm quy chế y quan!',
+      stylistQuote: quote,
+      subAdvice: advice,
+      nguThuongAnalysis,
+      nguHanhAnalysis,
       isTaboo: true,
       isAnachronism: false,
       canAutoFix: true
@@ -200,8 +381,10 @@ export const computeRealtimeDualMetrics = (
       heritageScore: heritage,
       scenario: 'anachronism',
       badgeTitle: 'Lỗi Lạc Quẻ (Anachronism)',
-      stylistQuote: '“Ủa alo bạn hiền! Áo lễ tôn nghiêm mà \'cưỡi\' đôi Sneakers quẹt Smartwatch trông hơi cấn cấn đó nha! Đổi sang Guốc Mộc hoặc Hài Thêu Cung Đình để vừa chuẩn di sản vừa slay hết nấc nào!”',
+      stylistQuote: `“Ủa alo bạn hiền! Áo lễ ${garment.name} phối cùng ${buttonInfo.title} và sắc ${colorInfo.title} (${colorInfo.nguHanh}) đang rất đỉnh chóp, mà 'cưỡi' đôi Sneakers quẹt Smartwatch trông hơi cấn cấn đó nha! Đổi sang Guốc Mộc hoặc Hài Thêu Cung Đình để vừa chuẩn di sản vừa slay hết nấc nào!”`,
       subAdvice: `${garment.name} là lễ phục trang trọng, sự kết hợp với giày thể thao hoặc đồng hồ thông minh tạo ra sự cọc cạch thị giác đối với y quan truyền thống.`,
+      nguThuongAnalysis,
+      nguHanhAnalysis,
       isTaboo: false,
       isAnachronism: true,
       canAutoFix: true
@@ -215,8 +398,10 @@ export const computeRealtimeDualMetrics = (
       heritageScore: heritage,
       scenario: 'heritage',
       badgeTitle: 'Chuẩn Cổ Phong (Match > 90%)',
-      stylistQuote: '“Úi chà! Bộ này diện đi quẩy Hội An là hết nước chấm, vừa chuẩn Ngũ Thường vừa đậm chất Slay!”',
-      subAdvice: 'Khen ngợi am hiểu văn hóa sâu sắc! Tôn vinh nếp áo sa tà bay bổng, 5 cúc Ngũ Thường sáng ngời khí chất quân tử.',
+      stylistQuote: `“Úi chà! Bộ này diện đi quẩy Hội An là hết nước chấm, vừa chuẩn Ngũ Thường vừa đậm chất Slay! Sắc ${colorInfo.title} (${colorInfo.nguHanh}) quyện cùng ${buttonInfo.title} (${buttonInfo.nguThuong}) - ${buttonInfo.genzQuote}”`,
+      subAdvice: `Bản phối đạt tỷ lệ vàng cổ phong: Phù hợp ${colorInfo.giaiTang}, tôn vinh đạo Ngũ Thường và cốt cách đoan chính của cổ nhân.`,
+      nguThuongAnalysis,
+      nguHanhAnalysis,
       isTaboo: false,
       isAnachronism: false,
       canAutoFix: false
@@ -230,11 +415,13 @@ export const computeRealtimeDualMetrics = (
     scenario: 'modern_polite',
     badgeTitle: 'Cách Tân Lịch Sự (Match 70-89%)',
     stylistQuote: !hasDonY 
-      ? '“Gu phối đồ bén ngót và duyên dáng lắm nhen! Cách tân rất có duyên, nhưng nhớ mặc đủ Áo Đơn Y lót trong để 10/10 không có nhưng nhé!”'
-      : '“Bản phối giao thoa cổ kim rất duyên dáng! Vừa tôn vinh nét đẹp truyền thống vừa giữ trọn sự phóng khoáng đương đại.”',
+      ? `“Gu phối đồ bén ngót với sắc ${colorInfo.title} và ${buttonInfo.title}! Cách tân rất có duyên, nhưng nhớ mặc đủ Áo Đơn Y lót trong để 10/10 không có nhưng nhé!”`
+      : `“Bản phối giao thoa cổ kim cực slay! Sắc ${colorInfo.title} (${colorInfo.nguHanh}) đi cùng ${buttonInfo.title} (${buttonInfo.nguThuong}) tạo nên phong thái ${colorInfo.giaiTang} phóng khoáng và cuốn hút!”`,
     subAdvice: !hasDonY 
       ? 'Nhắc nhở: Lớp Áo Đơn Y trắng cổ đứng cao hơn áo ngoài 2mm là biểu tượng cốt cách sạch sẽ, đoan chính của cổ nhân.' 
-      : 'Phối đồ hài hòa, thanh lịch và phù hợp cho các buổi dạo phố, cà phê, sự kiện văn hóa nghệ thuật.',
+      : `Sự kết hợp tinh tế giữa quy chuẩn Ngũ Thường (${buttonInfo.nguThuong}) và bảng màu Ngũ Hành tương sinh, phù hợp dạo phố, cà phê và sự kiện văn hóa nghệ thuật.`,
+    nguThuongAnalysis,
+    nguHanhAnalysis,
     isTaboo: false,
     isAnachronism: false,
     canAutoFix: !hasDonY
@@ -739,7 +926,7 @@ export const RemixStudio: React.FC = () => {
             <div className="min-w-0 flex-1 space-y-1">
               <div className="flex items-center gap-2">
                 <span className="text-xs font-bold text-[#e5c365]">AI Stylist Cổ Phục Viễn Đông</span>
-                <span className="text-[10px] text-stone-400 font-medium hidden sm:inline">• Thẩm định văn phong Gen Z</span>
+                <span className="text-[10px] text-stone-400 font-medium hidden sm:inline">• Thẩm định văn phong Gen Z & Triết lý Di sản</span>
               </div>
               <p className="text-sm sm:text-base font-semibold italic text-stone-100 leading-relaxed">
                 {dualMetrics.stylistQuote}
@@ -747,6 +934,32 @@ export const RemixStudio: React.FC = () => {
               <p className="text-xs text-stone-300/90 leading-relaxed pt-0.5">
                 {dualMetrics.subAdvice}
               </p>
+
+              {/* CHI TIẾT THẨM ĐỊNH NGŨ THƯỜNG & NGŨ HÀNH GIAI TẦNG */}
+              <div className="pt-2.5 grid grid-cols-1 md:grid-cols-2 gap-2.5 text-[11px]">
+                <div className="p-2.5 rounded-xl bg-white/[0.04] border border-[#c5a059]/25 flex items-start gap-2 shadow-sm">
+                  <span className="text-base shrink-0 leading-none mt-0.5">🔘</span>
+                  <div className="min-w-0">
+                    <span className="font-bold text-[#e5c365] block uppercase text-[10px] tracking-wider">
+                      Đạo Ngũ Thường (Khuy Cúc)
+                    </span>
+                    <span className="text-stone-200 leading-snug block mt-0.5 font-medium">
+                      {dualMetrics.nguThuongAnalysis}
+                    </span>
+                  </div>
+                </div>
+                <div className="p-2.5 rounded-xl bg-white/[0.04] border border-[#c5a059]/25 flex items-start gap-2 shadow-sm">
+                  <span className="text-base shrink-0 leading-none mt-0.5">🎨</span>
+                  <div className="min-w-0">
+                    <span className="font-bold text-[#e5c365] block uppercase text-[10px] tracking-wider">
+                      Ngũ Hành & Giai Tầng (Sắc Phục)
+                    </span>
+                    <span className="text-stone-200 leading-snug block mt-0.5 font-medium">
+                      {dualMetrics.nguHanhAnalysis}
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -941,7 +1154,7 @@ export const RemixStudio: React.FC = () => {
               <span className="text-xs text-stone-400">Màu sắc triều Nguyễn</span>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5">
               {TRADITIONAL_COLORS.map((col) => {
                 const isSelected = selectedColorHex === col.hex;
                 return (
@@ -955,24 +1168,29 @@ export const RemixStudio: React.FC = () => {
                         playColorPickSound();
                       }
                     }}
-                    className={`p-2.5 rounded-xl border text-left flex items-start gap-2.5 transition-all relative cursor-pointer ${
+                    className={`p-2.5 rounded-xl border text-left flex items-start gap-2.5 transition-all relative cursor-pointer group ${
                       isSelected
-                        ? 'bg-[#1b1b22] border-[#c5a059] shadow-sm'
+                        ? col.isImperialRestricted
+                          ? 'bg-rose-950/60 border-rose-500 shadow-md ring-1 ring-rose-500'
+                          : 'bg-[#1b1b22] border-[#c5a059] shadow-sm ring-1 ring-[#c5a059]'
                         : 'bg-[#101014] border-[#22222a] hover:border-[#333342]'
                     }`}
                   >
                     <span 
-                      className="w-4 h-4 rounded shrink-0 border border-white/20 mt-0.5" 
+                      className="w-5 h-5 rounded-lg shrink-0 border border-white/20 mt-0.5 shadow-sm" 
                       style={{ backgroundColor: col.hex }} 
                     />
-                    <div className="min-w-0">
+                    <div className="min-w-0 flex-1">
                       <div className="text-xs font-semibold text-stone-200 truncate flex items-center gap-1">
                         <span>{col.name}</span>
                         {col.isImperialRestricted && (
-                          <span className="text-xs text-rose-400 font-bold" title="Cấm kỵ Hoàng quyền">!</span>
+                          <span className="text-[10px] bg-rose-500/20 text-rose-300 px-1 py-0.2 rounded border border-rose-500/40 font-bold" title="Cấm kỵ Hoàng quyền">Cấm kỵ</span>
                         )}
                       </div>
-                      <div className="text-[11px] text-stone-400 mt-0.5">{col.hex}</div>
+                      <div className="text-[10px] text-[#c5a059] font-medium mt-0.5 truncate">
+                        {col.element || 'Ngũ Hành'}
+                      </div>
+                      <div className="text-[10px] text-stone-400 font-mono mt-0.5">{col.hex}</div>
                     </div>
                   </button>
                 );
@@ -1056,7 +1274,7 @@ export const RemixStudio: React.FC = () => {
                 <span className="text-xs text-rose-400 font-semibold">*Cấm cúc vải Tàu</span>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {buttonOptions.map(item => {
                   const isSelected = selectedButtonId === item.id;
                   const isTaboo = item.id === 'btn-chinese-cloth';
@@ -1090,6 +1308,8 @@ export const RemixStudio: React.FC = () => {
                             if (item.id === 'btn-metal-copper') e.currentTarget.src = '/1.png';
                             if (item.id === 'btn-jade-green') e.currentTarget.src = '/2.png';
                             if (item.id === 'btn-wood-agarwood') e.currentTarget.src = '/3.png';
+                            if (item.id === 'btn-silver-lotus') e.currentTarget.src = '/1.png';
+                            if (item.id === 'btn-mother-of-pearl') e.currentTarget.src = '/2.png';
                             if (item.id === 'btn-chinese-cloth') e.currentTarget.src = '/4.png';
                           }}
                           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 

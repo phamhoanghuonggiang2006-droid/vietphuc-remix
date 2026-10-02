@@ -25,13 +25,33 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
   // Determine button color, label and style
   const getButtonConfig = () => {
     const bType = (buttonType || '').toLowerCase();
+    if (bType.includes('silver') || bType.includes('bac') || bType.includes('sen')) {
+      return {
+        id: 'btn-silver-lotus',
+        fill: 'url(#btnSilverLotus)',
+        stroke: '#CBD5E1',
+        cordColor: '#E2E8F0',
+        label: 'Cúc Bạc Chạm Hoa Sen (Mới - Thanh Tao)',
+        isTaboo: false
+      };
+    }
+    if (bType.includes('pearl') || bType.includes('xa_cu') || bType.includes('xa-cu') || bType.includes('oc')) {
+      return {
+        id: 'btn-mother-of-pearl',
+        fill: 'url(#btnMotherOfPearl)',
+        stroke: '#FDE68A',
+        cordColor: '#EDE9FE',
+        label: 'Cúc Xà Cừ Khảm Ốc Ánh Kim (Mới - Tinh Xảo)',
+        isTaboo: false
+      };
+    }
     if (bType.includes('jade') || bType.includes('ngoc')) {
       return {
         id: 'btn-jade-green',
         fill: 'url(#btnJadeGreen)',
         stroke: '#E5C365',
         cordColor: '#10B981',
-        label: 'Cúc Ngọc (Ngọc Bích / Cẩm Thạch)',
+        label: 'Cúc Ngọc Bích Cẩm Thạch (Vương Giả)',
         isTaboo: false
       };
     }
@@ -41,7 +61,7 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
         fill: 'url(#btnWoodAgarwood)',
         stroke: '#C5A059',
         cordColor: '#D4AF37',
-        label: 'Cúc Gỗ (Trầm Hương Khắc Chữ Thọ)',
+        label: 'Cúc Gỗ Trầm Hương Khắc Chữ Thọ (Nho Nhã)',
         isTaboo: false
       };
     }
@@ -51,7 +71,7 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
         fill: 'url(#btnChineseCloth)',
         stroke: '#991B1B',
         cordColor: '#DC2626',
-        label: 'Cúc Vải / Cúc Tàu (Phạm Húy Triều Đình)',
+        label: 'Cúc Vải Tết Dây / Cúc Tàu (Phạm Húy Taboo Alert)',
         isTaboo: true
       };
     }
@@ -60,7 +80,7 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
       fill: 'url(#btnMetalCopper)',
       stroke: '#E5C365',
       cordColor: '#E5C365',
-      label: 'Cúc Kim Loại (Đồng Chạm Bát Bửu)',
+      label: 'Cúc Đồng Đúc Bát Bửu (Đồng Cổ Đĩnh Đạc)',
       isTaboo: false
     };
   };
@@ -74,6 +94,8 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
     const isChinese = buttonConfig.isTaboo;
     const isJade = buttonConfig.id === 'btn-jade-green';
     const isWood = buttonConfig.id === 'btn-wood-agarwood';
+    const isSilver = buttonConfig.id === 'btn-silver-lotus';
+    const isMotherOfPearl = buttonConfig.id === 'btn-mother-of-pearl';
 
     return (
       <g key={`${cx}-${cy}`} filter="url(#softShadowFilter)">
@@ -104,7 +126,7 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
             <circle cx={cx} cy={cy} r={radius * 0.3} fill="#991B1B" />
           </g>
         ) : isJade ? (
-          // Cúc Ngọc (Ngọc Bích / Cẩm Thạch Xanh Quý Phái Bọc Vàng Hoàng Cung)
+          // Cúc Ngọc Bích Cẩm Thạch (Vương Giả)
           <g>
             {/* Vành Khảm Vàng Hoàng Cung */}
             <circle cx={cx} cy={cy} r={radius} fill="#E5C365" stroke="#C5A059" strokeWidth="1" />
@@ -123,7 +145,7 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
             <circle cx={cx + radius * 0.25} cy={cy + radius * 0.25} r={radius * 0.18} fill="#A7F3D0" opacity="0.65" />
           </g>
         ) : isWood ? (
-          // Cúc Gỗ (Trầm Hương Khắc Chữ Thọ)
+          // Cúc Gỗ Trầm Hương Khắc Chữ Thọ (Nho Nhã)
           <g>
             {/* Thân Hạt Cúc Gỗ Trầm Hương Nâu Ấm */}
             <circle cx={cx} cy={cy} r={radius} fill="url(#btnWoodAgarwood)" stroke="#4A2800" strokeWidth="1.4" />
@@ -148,8 +170,51 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
             <line x1={cx} y1={cy - radius * 0.25} x2={cx} y2={cy + radius * 0.25} stroke="#E5C365" strokeWidth="0.8" />
             <circle cx={cx - radius * 0.3} cy={cy - radius * 0.3} r={radius * 0.2} fill="#FDE68A" opacity="0.65" />
           </g>
+        ) : isSilver ? (
+          // Cúc Bạc Chạm Hoa Sen (Mới - Thanh Tao)
+          <g>
+            {/* Vành Bạc Sáng Khắc Hạt Li Ti */}
+            <circle cx={cx} cy={cy} r={radius} fill="url(#btnSilverLotus)" stroke="#CBD5E1" strokeWidth="1.2" />
+            <circle cx={cx} cy={cy} r={radius * 0.78} fill="none" stroke="#FFFFFF" strokeWidth="0.7" strokeDasharray="1.5 1.5" />
+            {/* Hoa Sen Chạm Nổi Giữa Tâm */}
+            <path
+              d={`M ${cx} ${cy + radius * 0.35} C ${cx - radius * 0.45} ${cy + radius * 0.15}, ${cx - radius * 0.45} ${cy - radius * 0.3}, ${cx} ${cy - radius * 0.4} C ${cx + radius * 0.45} ${cy - radius * 0.3}, ${cx + radius * 0.45} ${cy + radius * 0.15}, ${cx} ${cy + radius * 0.35} Z`}
+              fill="#F8FAFC"
+              stroke="#64748B"
+              strokeWidth="0.6"
+            />
+            <circle cx={cx} cy={cy - radius * 0.1} r={radius * 0.18} fill="#E2E8F0" />
+            {/* Vệt Sáng Bạc Lấp Lánh */}
+            <circle cx={cx - radius * 0.3} cy={cy - radius * 0.3} r={radius * 0.22} fill="#FFFFFF" opacity="0.95" />
+          </g>
+        ) : isMotherOfPearl ? (
+          // Cúc Xà Cừ Khảm Ốc Ánh Kim (Mới - Tinh Xảo)
+          <g>
+            {/* Vỏ Xà Cừ Óng Ánh Ngũ Sắc */}
+            <circle cx={cx} cy={cy} r={radius} fill="url(#btnMotherOfPearl)" stroke="#FDE68A" strokeWidth="1.2" />
+            {/* Viền Khảm Kim Tuyến Vàng */}
+            <circle cx={cx} cy={cy} r={radius * 0.8} fill="none" stroke="#D97706" strokeWidth="0.6" strokeDasharray="2 1.5" />
+            {/* Họa Tiết Cánh Hoa Khảm Ốc Ánh Kim */}
+            <path
+              d={`M ${cx} ${cy - radius * 0.45} L ${cx + radius * 0.35} ${cy} L ${cx} ${cy + radius * 0.45} L ${cx - radius * 0.35} ${cy} Z`}
+              fill="#FEF08A"
+              stroke="#B45309"
+              strokeWidth="0.6"
+              opacity="0.85"
+            />
+            {/* Vệt Phản Quang Xà Cừ Óng Ánh */}
+            <ellipse
+              cx={cx - radius * 0.25}
+              cy={cy - radius * 0.25}
+              rx={radius * 0.35}
+              ry={radius * 0.2}
+              transform={`rotate(-25 ${cx - radius * 0.25} ${cy - radius * 0.25})`}
+              fill="#FFFFFF"
+              opacity="0.9"
+            />
+          </g>
         ) : (
-          // Cúc Kim Loại (Đồng Chạm Bát Bửu Vàng Óng)
+          // Cúc Đồng Đúc Bát Bửu (Đồng Cổ Đĩnh Đạc)
           <g>
             {/* Khuy Đồng Tròn Đầy Đặn */}
             <circle cx={cx} cy={cy} r={radius} fill="url(#btnMetalCopper)" stroke="#E5C365" strokeWidth="1.6" />
@@ -274,6 +339,21 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
             <stop offset="0%" stopColor="#F87171" />
             <stop offset="50%" stopColor="#DC2626" />
             <stop offset="100%" stopColor="#7F1D1D" />
+          </radialGradient>
+
+          <radialGradient id="btnSilverLotus" cx="35%" cy="35%" r="65%">
+            <stop offset="0%" stopColor="#FFFFFF" />
+            <stop offset="30%" stopColor="#E2E8F0" />
+            <stop offset="70%" stopColor="#94A3B8" />
+            <stop offset="100%" stopColor="#475569" />
+          </radialGradient>
+
+          <radialGradient id="btnMotherOfPearl" cx="35%" cy="35%" r="65%">
+            <stop offset="0%" stopColor="#FFFBEB" />
+            <stop offset="25%" stopColor="#FDE68A" />
+            <stop offset="50%" stopColor="#DDD6FE" />
+            <stop offset="75%" stopColor="#A7F3D0" />
+            <stop offset="100%" stopColor="#6EE7B7" />
           </radialGradient>
 
           <linearGradient id="goldTrim" x1="0%" y1="0%" x2="100%" y2="0%">

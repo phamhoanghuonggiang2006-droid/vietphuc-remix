@@ -169,6 +169,7 @@ export interface ColorOption {
   name: string;
   vietnameseName: string;
   hex: string;
+  element: string;
   isImperialRestricted: boolean;
   meaning: string;
   recommendedFor: string;
@@ -176,59 +177,66 @@ export interface ColorOption {
 
 export const TRADITIONAL_COLORS: ColorOption[] = [
   {
-    name: 'Thanh Thiên',
+    name: 'Xanh Thanh Thiên',
     vietnameseName: 'Xanh Thanh Thiên (Trời quang)',
     hex: '#2B5B84',
+    element: 'Hành Mộc / Thủy',
     isImperialRestricted: false,
     meaning: 'Biểu tượng của trời quang mây tạnh, sự trung chính, an nhiên và tri thức sâu rộng.',
     recommendedFor: 'Áo Ngũ Thân & Áo Tấc nam nữ'
   },
   {
-    name: 'Tím Hoa Cà',
-    vietnameseName: 'Tím Hoa Cà Cố Đô',
+    name: 'Tím Chính Sắc',
+    vietnameseName: 'Tím Chính Sắc (Cố Đô Huế)',
     hex: '#5E3A58',
+    element: 'Hành Hỏa giao Thổ',
     isImperialRestricted: false,
-    meaning: 'Sắc tím trầm mặc xứ Huế, gợi vẻ đoan trang, kín đáo, sâu lắng của người phụ nữ.',
+    meaning: 'Sắc tím trầm mặc xứ Huế, gợi vẻ đoan trang, kín đáo, sâu lắng của mệnh phụ hoàng gia.',
     recommendedFor: 'Áo Nhật Bình & Áo Tấc'
   },
   {
     name: 'Đỏ Bã Trầu',
-    vietnameseName: 'Đỏ Bã Trầu (Huyết Dụ)',
+    vietnameseName: 'Đỏ Bã Trầu (Huyết Dụ Cát Tường)',
     hex: '#7A222C',
+    element: 'Hành Hỏa',
     isImperialRestricted: false,
     meaning: 'Tượng trưng cho sự hoan hỷ, hôn lễ cát tường, vinh hoa phú quý và sức sống dồi dào.',
     recommendedFor: 'Áo Nhật Bình, Lễ phục cưới'
   },
   {
-    name: 'Ngọc Bích',
-    vietnameseName: 'Xanh Lục Ngọc Bích',
-    hex: '#1D5C42',
+    name: 'Xanh Rêu Trầm',
+    vietnameseName: 'Xanh Rêu Trầm (Cổ Kính)',
+    hex: '#334D3C',
+    element: 'Hành Mộc',
     isImperialRestricted: false,
-    meaning: 'Sự sinh sôi nảy nở, cốt cách thanh tao như ngọc lành không tì vết.',
-    recommendedFor: 'Áo Ngũ Thân hiện đại'
+    meaning: 'Nét rêu phong cổ kính ngàn năm trên tường thành cố đô, trầm tĩnh, nho nhã, thâm sâu.',
+    recommendedFor: 'Áo Ngũ Thân, Áo Giao Lĩnh phong cách Classical'
   },
   {
-    name: 'Nâu Chàm',
-    vietnameseName: 'Nâu Chàm Cổ Phong',
-    hex: '#3E2A1E',
+    name: 'Nâu Sồng',
+    vietnameseName: 'Nâu Sồng (Chất Mộc Đất Mẹ)',
+    hex: '#4A3525',
+    element: 'Hành Thổ',
     isImperialRestricted: false,
-    meaning: 'Màu sắc truyền thống mộc mạc, bền bỉ của lụa tơ tằm nhuộm củ nâu và lá chàm.',
+    meaning: 'Màu sắc truyền thống mộc mạc của lụa tơ tằm nhuộm củ nâu, cốt cách thanh bần tao nhã.',
     recommendedFor: 'Áo Ngũ Thân phong cách Minimalist'
   },
   {
-    name: 'Bạch Tuyết Đơn Y',
-    vietnameseName: 'Trắng Ngà Bạch Lụa (Đơn Y)',
-    hex: '#F4EFE6',
+    name: 'Trắng Ngà Lụa Hà Đông',
+    vietnameseName: 'Trắng Ngà Lụa Hà Đông (Thuần Khiết)',
+    hex: '#F2EAD8',
+    element: 'Hành Kim',
     isImperialRestricted: false,
-    meaning: 'Màu của sự thuần khiết, thanh cao, là lớp áo nền tảng bắt buộc của người mặc y quan.',
-    recommendedFor: 'Áo Đơn Y lót trong'
+    meaning: 'Bạch lụa Vạn Phúc - Hà Đông trứ danh mềm mại óng ả, thuần khiết và thanh cao bậc nhất.',
+    recommendedFor: 'Áo Đơn Y lót trong & Lễ phục trang nhã'
   },
   {
     name: 'Vàng Minh Hoàng',
     vietnameseName: 'Vàng Minh Hoàng (Cấm Kỵ Triều Đình)',
     hex: '#F5B014',
+    element: 'Hành Thổ Hoàng Cực',
     isImperialRestricted: true,
-    meaning: 'Màu tối thượng của bậc Thiên Tử Triều Nguyễn. Thứ dân mặc sẽ phạm quy chế y quan!',
+    meaning: 'Màu tối thượng của bậc Thiên Tử Triều Nguyễn. Thứ dân mặc sẽ vi phạm quy chế y quan!',
     recommendedFor: 'Chỉ dành cho Thiên Tử thời xưa'
   }
 ];
@@ -237,11 +245,16 @@ export const TRADITIONAL_COLORS: ColorOption[] = [
 // CÁC BIẾN LINK ẢNH CỐ ĐỊNH CHUẨN QUY CHẾ (THEO YÊU CẦU CỦA NGƯỜI DÙNG)
 // ========================================================
 // 1. Hạt Khuy Cúc Áo (Ngũ Thường)
+export const LINK_ANH_CUC_DONG_BAT_BUU = '/1.png';
 export const LINK_ANH_CUC_KIM_LOAI = '/1.png';
+export const LINK_ANH_CUC_NGOC_BICH = '/2.png';
 export const LINK_ANH_CUC_NGOC = '/2.png';
+export const LINK_ANH_CUC_GO_TRAM = '/3.png';
 export const LINK_ANH_CUC_GO = '/3.png';
+export const LINK_ANH_CUC_BAC_HOA_SEN = '/1.png';
+export const LINK_ANH_CUC_XA_CU = '/2.png';
 export const LINK_ANH_CUC_VAI = '/4.png';
-export const LINK_ANH_CUC_AO = LINK_ANH_CUC_KIM_LOAI;
+export const LINK_ANH_CUC_AO = LINK_ANH_CUC_DONG_BAT_BUU;
 
 // 2. Thân Dưới Phối Cùng (Quần / Chân Váy Hiện Đại)
 export const LINK_ANH_QUAN_LUA = '/5.png';
@@ -279,42 +292,60 @@ export interface ModernRemixItem {
 }
 
 export const REMIX_ITEMS: ModernRemixItem[] = [
-  // Buttons (Khuy cúc áo - gán biến LINK_ANH_*)
+  // Buttons (Kho Khuy Cúc Áo - 6 loại chuẩn quy chuẩn)
   {
     id: 'btn-metal-copper',
     category: 'button',
-    name: 'Cúc Kim Loại (Đồng Chạm Bát Bửu)',
-    styleVibe: 'Chuẩn quy chuẩn Nguyễn',
+    name: 'Cúc Đồng Đúc Bát Bửu (Đồng cổ tròn đĩnh đạc)',
+    styleVibe: 'Đạo Ngũ Thường - Nhân Nghĩa Lễ Trí Tín',
     isCulturallyRespectful: true,
-    description: 'Khuy kim loại đúc thủ công tròn trịa, sáng bóng bền đẹp, tượng trưng Ngũ Thường.',
-    thumbnailUrl: LINK_ANH_CUC_KIM_LOAI
+    description: 'Khuy đồng đúc thủ công chạm nổi họa tiết Bát Bửu, đĩnh đạc, tượng trưng đức tính người quân tử.',
+    thumbnailUrl: LINK_ANH_CUC_DONG_BAT_BUU
   },
   {
     id: 'btn-jade-green',
     category: 'button',
-    name: 'Cúc Ngọc (Ngọc Bích / Cẩm Thạch)',
-    styleVibe: 'Hoàng tộc sang trọng',
+    name: 'Cúc Ngọc Bích Cẩm Thạch (Vương giả)',
+    styleVibe: 'Hoàng tộc vương giả, thanh thuần',
     isCulturallyRespectful: true,
     description: 'Chất liệu ngọc phỉ thúy tôn nét quyền quý, làm điểm nhấn thanh nhã cung đình.',
-    thumbnailUrl: LINK_ANH_CUC_NGOC
+    thumbnailUrl: LINK_ANH_CUC_NGOC_BICH
   },
   {
     id: 'btn-wood-agarwood',
     category: 'button',
-    name: 'Cúc Gỗ (Trầm Hương Khắc Chữ Thọ)',
-    styleVibe: 'Tao nhã cổ điển',
+    name: 'Cúc Gỗ Trầm Hương Khắc Chữ Thọ (Nho nhã)',
+    styleVibe: 'Văn nhân nho nhã, an nhiên',
     isCulturallyRespectful: true,
-    description: 'Gỗ thơm tự nhiên, ấm áp và đượm phong thái văn nhân tao nhã xứ An Nam.',
-    thumbnailUrl: LINK_ANH_CUC_GO
+    description: 'Gỗ thơm tự nhiên thoang thoảng, khắc chữ Thọ cát tường, ấm áp đượm phong thái văn nhân xứ Huế.',
+    thumbnailUrl: LINK_ANH_CUC_GO_TRAM
+  },
+  {
+    id: 'btn-silver-lotus',
+    category: 'button',
+    name: 'Cúc Bạc Chạm Hoa Sen (Mới - Thanh tao)',
+    styleVibe: 'Cốt cách thanh cao thoát tục',
+    isCulturallyRespectful: true,
+    description: 'Đúc bạc trắng sáng chạm hoa sen Đại Việt thanh khiết, tượng trưng tiết tháo trong sạch không vướng bụi trần.',
+    thumbnailUrl: LINK_ANH_CUC_BAC_HOA_SEN
+  },
+  {
+    id: 'btn-mother-of-pearl',
+    category: 'button',
+    name: 'Cúc Xà Cừ Khảm Ốc Ánh Kim (Mới - Tinh xảo)',
+    styleVibe: 'Kỹ nghệ tinh xảo, phản quang ngũ sắc',
+    isCulturallyRespectful: true,
+    description: 'Vỏ ốc xà cừ khảm chỉ kim lấp lánh phản quang ngũ sắc kỳ ảo dưới ánh sáng, đỉnh cao mỹ nghệ cung đình.',
+    thumbnailUrl: LINK_ANH_CUC_XA_CU
   },
   {
     id: 'btn-chinese-cloth',
     category: 'button',
-    name: 'Cúc Vải / Cúc Tàu (Bện Dây Sườn Xám)',
+    name: 'Cúc Vải Tết Dây / Cúc Tàu (Tùy chọn cảnh báo phạm húy Taboo Alert)',
     styleVibe: 'Vi phạm quy chuẩn y quan',
     isCulturallyRespectful: false,
     tabooTrigger: 'NO_CHINESE_BUTTON',
-    description: 'Cúc bện vải của trang phục Mãn Thanh / Trung Hoa, hoàn toàn cấm kỵ trong y quan Việt.',
+    description: 'Cúc bện vải kiểu sườn xám Mãn Thanh / Trung Hoa, hoàn toàn cấm kỵ trong y quan Việt.',
     thumbnailUrl: LINK_ANH_CUC_VAI
   },
 
