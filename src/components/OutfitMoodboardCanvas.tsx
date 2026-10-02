@@ -949,7 +949,7 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
 
             {/* 1. HEAD ZONE: KHĂN ĐÓNG (ĐỘI LÊN ĐẦU MA NƠ CANH) */}
             {isKhanDongSelected && (
-              <div className="relative z-30 flex flex-col items-center -mb-10 sm:-mb-12 transition-all duration-300">
+              <div className="relative z-30 flex flex-col items-center -mb-4 sm:-mb-5 transition-all duration-300">
                 <div 
                   className="relative group cursor-pointer"
                   onClick={() => setActiveHotspot(activeHotspot === 'head' ? null : 'head')}
