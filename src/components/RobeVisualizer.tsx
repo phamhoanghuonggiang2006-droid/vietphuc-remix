@@ -27,21 +27,21 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
     switch (buttonType) {
       case 'btn-jade-green':
         return {
-          fill: 'url(#btnJadeGreen)',
+          fill: '#10B981',
           stroke: '#E5C365',
           label: 'Cúc Ngọc (Ngọc Bích / Cẩm Thạch)',
           isTaboo: false
         };
       case 'btn-wood-agarwood':
         return {
-          fill: 'url(#btnWoodAgarwood)',
+          fill: '#8B5A2B',
           stroke: '#C5A059',
           label: 'Cúc Gỗ (Trầm Hương Khắc Chữ Thọ)',
           isTaboo: false
         };
       case 'btn-chinese-cloth':
         return {
-          fill: 'url(#btnChineseCloth)',
+          fill: '#DC2626',
           stroke: '#991B1B',
           label: 'Cúc Vải / Cúc Tàu (Phạm Húy Triều Đình)',
           isTaboo: true
@@ -49,7 +49,7 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
       case 'btn-metal-copper':
       default:
         return {
-          fill: 'url(#btnMetalCopper)',
+          fill: '#E5C365',
           stroke: '#785918',
           label: 'Cúc Kim Loại (Đồng Chạm Bát Bửu)',
           isTaboo: false
@@ -86,30 +86,49 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
         className="w-full h-full max-w-[360px] drop-shadow-[0_15px_30px_rgba(0,0,0,0.6)] transition-all duration-500"
       >
         <defs>
-          {/* Gradients */}
-          <linearGradient id={`robeGrad-${type}`} x1="0%" y1="0%" x2="100%" y2="100%">
+          {/* PURE SILK FABRIC GRADIENT: Absolutely NO black or muddy tones! Keeps White Ngà pure and colors luminous */}
+          <linearGradient id={`robeGrad-${type}`} x1="0%" y1="0%" x2="0%" y2="100%">
             <stop offset="0%" stopColor={primaryColor} stopOpacity="1" />
-            <stop offset="35%" stopColor={primaryColor} stopOpacity="0.96" />
-            <stop offset="70%" stopColor={primaryColor} stopOpacity="0.85" />
-            <stop offset="100%" stopColor="#08080c" stopOpacity="0.92" />
+            <stop offset="50%" stopColor={primaryColor} stopOpacity="0.98" />
+            <stop offset="100%" stopColor={primaryColor} stopOpacity="0.94" />
           </linearGradient>
 
-          {/* Brocade Jacquard Pattern (Vân Gấm Hoàng Gia Triều Nguyễn) */}
-          <pattern id={`brocade-${type}`} width="48" height="48" patternUnits="userSpaceOnUse">
-            {/* Subtle damask cloud scroll & lotus motif */}
-            <path d="M 12 12 Q 24 4 36 12 Q 44 24 36 36 Q 24 44 12 36 Q 4 24 12 12 Z" fill="none" stroke="#FFF" strokeWidth="0.6" strokeOpacity="0.14" />
-            <path d="M 24 16 Q 30 20 24 24 Q 18 20 24 16 Z" fill="#FFF" fillOpacity="0.1" />
-            <path d="M 0 24 Q 6 18 12 24 Q 6 30 0 24 Z" fill="none" stroke="#D4AF37" strokeWidth="0.5" strokeOpacity="0.16" />
-            <path d="M 36 24 Q 42 18 48 24 Q 42 30 36 24 Z" fill="none" stroke="#D4AF37" strokeWidth="0.5" strokeOpacity="0.16" />
-            <circle cx="24" cy="24" r="2" fill="#D4AF37" fillOpacity="0.25" />
+          {/* Wavy Damask/Brocade Grid (Vân Gấm Lượn Sóng Hoàng Gia Triều Nguyễn) */}
+          <pattern id={`brocade-${type}`} width="40" height="40" patternUnits="userSpaceOnUse">
+            <path 
+              d="M 0 20 C 10 10, 30 10, 40 20 C 50 30, 70 30, 80 20" 
+              fill="none" 
+              stroke="#FFFFFF" 
+              strokeWidth="0.8" 
+              strokeOpacity="0.14" 
+            />
+            <path 
+              d="M 20 0 C 10 10, 10 30, 20 40 C 30 50, 30 70, 20 80" 
+              fill="none" 
+              stroke="#FFFFFF" 
+              strokeWidth="0.8" 
+              strokeOpacity="0.14" 
+            />
+            {/* Subtle center gold rosette point */}
+            <circle cx="20" cy="20" r="1.2" fill="#E5C365" fillOpacity="0.25" />
+            <circle cx="0" cy="0" r="1.2" fill="#E5C365" fillOpacity="0.25" />
           </pattern>
 
-          {/* Silk Sheen Overlay */}
+          {/* Silk Sheen Overlay: Pure White Light Highlight ONLY (Zero black stops) */}
           <linearGradient id="silkSheen" x1="15%" y1="0%" x2="85%" y2="100%">
-            <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.22" />
-            <stop offset="30%" stopColor="#FFFFFF" stopOpacity="0.05" />
-            <stop offset="65%" stopColor="#000000" stopOpacity="0.08" />
-            <stop offset="100%" stopColor="#000000" stopOpacity="0.32" />
+            <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.18" />
+            <stop offset="35%" stopColor="#FFFFFF" stopOpacity="0.06" />
+            <stop offset="70%" stopColor="#FFFFFF" stopOpacity="0.0" />
+            <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0.06" />
+          </linearGradient>
+
+          {/* Ngũ Sắc Spectrum for Nhật Bình Collar Frame */}
+          <linearGradient id="nhatBinhRainbow" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#2563EB" />   {/* Xanh lam */}
+            <stop offset="25%" stopColor="#10B981" />  {/* Xanh lục */}
+            <stop offset="50%" stopColor="#F59E0B" />  {/* Vàng kim */}
+            <stop offset="75%" stopColor="#DC2626" />  {/* Đỏ điều */}
+            <stop offset="100%" stopColor="#2563EB" /> {/* Xanh lam */}
           </linearGradient>
 
           {/* 3D Button Radial Gradients */}
@@ -161,461 +180,434 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
           </linearGradient>
 
           <filter id="shadowFilter" x="-10%" y="-10%" width="120%" height="120%">
-            <feDropShadow dx="0" dy="5" stdDeviation="6" floodColor="#000" floodOpacity="0.5"/>
+            <feDropShadow dx="0" dy="4" stdDeviation="5" floodColor="#000" floodOpacity="0.4"/>
           </filter>
         </defs>
 
-        {/* HAUTE COUTURE MANNEQUIN: HEAD & NECK (RÕ SHAPE ĐẦU VÀ CỔ) */}
-        <g id="mannequin-head-neck" filter="url(#shadowFilter)">
-          {/* Neck (Cổ ma nơ canh thuôn dài vào cổ áo) */}
-          <path
-            d="M 184 56 L 184 96 Q 200 99 216 96 L 216 56 Z"
-            fill="url(#mannequinSkin)"
-            stroke="url(#mannequinGold)"
-            strokeWidth="1.6"
-          />
-          {/* Subtle neck contours (Đường gân cơ cổ thon dài) */}
-          <path d="M 193 64 Q 195 82 194 92" stroke="#8E7B68" strokeWidth="0.9" strokeOpacity="0.5" strokeLinecap="round" fill="none" />
-          <path d="M 207 64 Q 205 82 206 92" stroke="#8E7B68" strokeWidth="0.9" strokeOpacity="0.5" strokeLinecap="round" fill="none" />
-
-          {/* Top Cranial Knot / Búi Tóc Cổ Phục */}
-          <ellipse cx="200" cy="18" rx="14" ry="9" fill="url(#mannequinSkin)" stroke="url(#mannequinGold)" strokeWidth="1.6" />
-          <circle cx="200" cy="18" r="3" fill="#FFF3B0" />
-
-          {/* Head & Sculpted Jaw (Đầu & khung cằm ma nơ canh thời trang) */}
-          <path
-            d="M 172 42 C 166 16, 234 16, 228 42 C 228 60, 215 74, 200 78 C 185 74, 172 60, 172 42 Z"
-            fill="url(#mannequinSkin)"
-            stroke="url(#mannequinGold)"
-            strokeWidth="1.8"
-          />
-
-          {/* Haute Couture Stylized Eyebrows (Cặp chân mày lá liễu thanh thoát) */}
-          <path d="M 183 38 Q 190 35 195 38" stroke="#8E7B68" strokeWidth="1.2" strokeLinecap="round" fill="none" />
-          <path d="M 205 38 Q 210 35 217 38" stroke="#8E7B68" strokeWidth="1.2" strokeLinecap="round" fill="none" />
-
-          {/* Stylized Nose Bridge (Sống mũi cao thanh tú) */}
-          <path
-            d="M 200 34 L 202 48 L 198 52 L 201 54"
-            stroke="#8E7B68"
-            strokeWidth="1.2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            fill="none"
-          />
-
-          {/* Lips line (Đường viền môi thanh lịch) */}
-          <path d="M 193 63 Q 200 66 207 63" stroke="#8E7B68" strokeWidth="1.4" strokeLinecap="round" fill="none" />
-
-          {/* Sculpted cheek facet (Nét vát gò má Haute Couture) */}
-          <path
-            d="M 178 48 Q 188 64 200 73 Q 212 64 222 48"
-            stroke="#C5A059"
-            strokeWidth="0.8"
-            strokeOpacity="0.45"
-            fill="none"
+        {/* ROYAL EXHIBITION HANGER (Móc Treo Hoàng Gia Tối Giản Cổ Điển) */}
+        <g id="royal-hanger">
+          {/* Ring hook at top */}
+          <circle cx="200" cy="48" r="8" stroke="#424250" strokeWidth="2.2" fill="none" />
+          {/* Stem post */}
+          <line x1="200" y1="56" x2="200" y2="70" stroke="#424250" strokeWidth="2.2" strokeLinecap="round" />
+          {/* Curved dark wooden hanger arch supporting the neckline */}
+          <path 
+            d="M 148 94 Q 200 80 252 94 L 246 74 Q 200 60 154 74 Z" 
+            fill="#22222c" 
+            stroke="#3a3a46" 
+            strokeWidth="1"
           />
         </g>
 
-        {/* 1. NGŨ THÂN TAY CHẼN */}
+        {/* HAUTE COUTURE MANNEQUIN: HEAD & NECK (KHI HIỂN THỊ TRÊN CANVAS HOẶC MODAL) */}
+        {borderless && (
+          <g id="mannequin-head-neck" filter="url(#shadowFilter)">
+            {/* Neck (Cổ ma nơ canh thuôn dài vào cổ áo) */}
+            <path
+              d="M 184 56 L 184 96 Q 200 99 216 96 L 216 56 Z"
+              fill="url(#mannequinSkin)"
+              stroke="url(#mannequinGold)"
+              strokeWidth="1.6"
+            />
+            {/* Subtle neck contours */}
+            <path d="M 193 64 Q 195 82 194 92" stroke="#8E7B68" strokeWidth="0.9" strokeOpacity="0.5" strokeLinecap="round" fill="none" />
+            <path d="M 207 64 Q 205 82 206 92" stroke="#8E7B68" strokeWidth="0.9" strokeOpacity="0.5" strokeLinecap="round" fill="none" />
+
+            {/* Top Cranial Knot / Búi Tóc Cổ Phục */}
+            <ellipse cx="200" cy="18" rx="14" ry="9" fill="url(#mannequinSkin)" stroke="url(#mannequinGold)" strokeWidth="1.6" />
+            <circle cx="200" cy="18" r="3" fill="#FFF3B0" />
+
+            {/* Head & Sculpted Jaw */}
+            <path
+              d="M 172 42 C 166 16, 234 16, 228 42 C 228 60, 215 74, 200 78 C 185 74, 172 60, 172 42 Z"
+              fill="url(#mannequinSkin)"
+              stroke="url(#mannequinGold)"
+              strokeWidth="1.8"
+            />
+
+            {/* Eyebrows */}
+            <path d="M 183 38 Q 190 35 195 38" stroke="#8E7B68" strokeWidth="1.2" strokeLinecap="round" fill="none" />
+            <path d="M 205 38 Q 210 35 217 38" stroke="#8E7B68" strokeWidth="1.2" strokeLinecap="round" fill="none" />
+
+            {/* Stylized Nose Bridge */}
+            <path
+              d="M 200 34 L 202 48 L 198 52 L 201 54"
+              stroke="#8E7B68"
+              strokeWidth="1.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              fill="none"
+            />
+
+            {/* Lips line */}
+            <path d="M 193 63 Q 200 66 207 63" stroke="#8E7B68" strokeWidth="1.4" strokeLinecap="round" fill="none" />
+
+            {/* Sculpted cheek facet */}
+            <path
+              d="M 178 48 Q 188 64 200 73 Q 212 64 222 48"
+              stroke="#C5A059"
+              strokeWidth="0.8"
+              strokeOpacity="0.45"
+              fill="none"
+            />
+          </g>
+        )}
+
+        {/* 1. NGŨ THÂN TAY CHẼN (DÁNG TỰ NHIÊN, KHÔNG ĐƠ, TAY THON XUÔI THEO VÓC DÁNG) */}
         {type === 'ngu_than' && (
-          <g>
-            {/* Sleeves (Tay Chẽn ôm gọn) */}
+          <g id="robe-ngu-than">
+            {/* Main Robe Path: Seamless flowing silhouette with natural sloping shoulders */}
             <path
-              d="M 120 120 L 40 240 L 70 255 L 135 175 Z"
+              d="M 170 110 
+                 L 132 126 
+                 L 80 240 
+                 L 100 292 
+                 L 128 235 
+                 L 128 480 
+                 L 272 480 
+                 L 272 235 
+                 L 300 292 
+                 L 320 240 
+                 L 268 126 
+                 L 230 110 Z"
               fill={`url(#robeGrad-${type})`}
               stroke="#2e2e38"
               strokeWidth="1.2"
             />
-            {/* Brocade pattern on left sleeve */}
-            <path d="M 120 120 L 40 240 L 70 255 L 135 175 Z" fill={`url(#brocade-${type})`} />
-            <path d="M 120 120 L 40 240 L 70 255 L 135 175 Z" fill="url(#silkSheen)" opacity="0.5" />
-
+            {/* Brocade Jacquard Pattern */}
             <path
-              d="M 280 120 L 360 240 L 330 255 L 265 175 Z"
-              fill={`url(#robeGrad-${type})`}
-              stroke="#2e2e38"
-              strokeWidth="1.2"
+              d="M 170 110 L 132 126 L 80 240 L 100 292 L 128 235 L 128 480 L 272 480 L 272 235 L 300 292 L 320 240 L 268 126 L 230 110 Z"
+              fill={`url(#brocade-${type})`}
             />
-            {/* Brocade pattern on right sleeve */}
-            <path d="M 280 120 L 360 240 L 330 255 L 265 175 Z" fill={`url(#brocade-${type})`} />
-            <path d="M 280 120 L 360 240 L 330 255 L 265 175 Z" fill="url(#silkSheen)" opacity="0.5" />
-
-            {/* Fitted cuff detail */}
-            <path d="M 40 240 L 70 255" stroke="rgba(255,255,255,0.25)" strokeWidth="3" />
-            <path d="M 360 240 L 330 255" stroke="rgba(255,255,255,0.25)" strokeWidth="3" />
-
-            {/* 2 BÀN TAY MA NƠ CANH CAO CẤP (RÕ SHAPE 2 BÀN TAY VỚI CÁC NGÓN TAY THON THẢ) */}
-            <g id="mannequin-hands-ngu-than">
-              {/* Bàn tay trái */}
-              <g transform="translate(52, 246) rotate(32)" filter="url(#shadowFilter)">
-                <path
-                  d="M -8 0 C -10 12, -14 26, -10 36 C -8 42, -2 46, 2 44 C 6 42, 8 36, 6 26 C 5 16, 7 0, 7 0 Z"
-                  fill="url(#mannequinSkin)"
-                  stroke="url(#mannequinGold)"
-                  strokeWidth="1.5"
-                />
-                {/* Ngón cái tách nhẹ */}
-                <path
-                  d="M 6 12 C 11 16, 12 24, 9 28 C 7 30, 5 28, 4 23"
-                  fill="url(#mannequinSkin)"
-                  stroke="url(#mannequinGold)"
-                  strokeWidth="1.3"
-                />
-                {/* Đường kẽ 4 ngón tay thon dài */}
-                <path d="M 1 28 L 0 42" stroke="#8E7B68" strokeWidth="1.1" strokeLinecap="round" />
-                <path d="M -3 27 L -4 40" stroke="#8E7B68" strokeWidth="1.1" strokeLinecap="round" />
-                <path d="M -6 25 L -8 36" stroke="#8E7B68" strokeWidth="1.1" strokeLinecap="round" />
-              </g>
-
-              {/* Bàn tay phải */}
-              <g transform="translate(348, 246) rotate(-32)" filter="url(#shadowFilter)">
-                <path
-                  d="M 8 0 C 10 12, 14 26, 10 36 C 8 42, 2 46, -2 44 C -6 42, -8 36, -6 26 C -5 16, -7 0, -7 0 Z"
-                  fill="url(#mannequinSkin)"
-                  stroke="url(#mannequinGold)"
-                  strokeWidth="1.5"
-                />
-                {/* Ngón cái tách nhẹ */}
-                <path
-                  d="M -6 12 C -11 16, -12 24, -9 28 C -7 30, -5 28, -4 23"
-                  fill="url(#mannequinSkin)"
-                  stroke="url(#mannequinGold)"
-                  strokeWidth="1.3"
-                />
-                {/* Đường kẽ 4 ngón tay thon dài */}
-                <path d="M -1 28 L 0 42" stroke="#8E7B68" strokeWidth="1.1" strokeLinecap="round" />
-                <path d="M 3 27 L 4 40" stroke="#8E7B68" strokeWidth="1.1" strokeLinecap="round" />
-                <path d="M 6 25 L 8 36" stroke="#8E7B68" strokeWidth="1.1" strokeLinecap="round" />
-              </g>
-            </g>
-
-            {/* Back panels shadow */}
+            {/* Soft Pure White Silk Sheen (Zero black!) */}
             <path
-              d="M 130 115 L 270 115 L 305 450 L 95 450 Z"
-              fill="#0a0a0e"
-              opacity="0.5"
+              d="M 170 110 L 132 126 L 80 240 L 100 292 L 128 235 L 128 480 L 272 480 L 272 235 L 300 292 L 320 240 L 268 126 L 230 110 Z"
+              fill="url(#silkSheen)"
+              opacity="0.55"
             />
 
-            {/* Main 5 Panels Body (Thân áo ngũ thân & vạt kép) */}
-            <path
-              d="M 135 110 L 265 110 L 295 440 L 105 440 Z"
-              fill={`url(#robeGrad-${type})`}
-              stroke="#3a3a46"
-              strokeWidth="1.5"
-            />
-            {/* Brocade & Silk Sheen on Main Body */}
-            <path d="M 135 110 L 265 110 L 295 440 L 105 440 Z" fill={`url(#brocade-${type})`} />
-            <path d="M 135 110 L 265 110 L 295 440 L 105 440 Z" fill="url(#silkSheen)" opacity="0.6" />
+            {/* Folded Cuffs with Gold Trim (Viền Cửa Tay Áo Gấp Nếp Tinh Tế) */}
+            <line x1="79" y1="282" x2="101" y2="294" stroke="#E5C365" strokeWidth="2.5" strokeLinecap="round" />
+            <line x1="321" y1="282" x2="299" y2="294" stroke="#E5C365" strokeWidth="2.5" strokeLinecap="round" />
 
-            {/* Tà áo vạt con bên phải khép chéo */}
+            {/* Bottom Hem Gold Trim (Viền Lai Áo) */}
+            <line x1="128" y1="480" x2="272" y2="480" stroke="#E5C365" strokeWidth="2" strokeLinecap="round" />
+
+            {/* Đường trung phẫu chính giữa tà áo (Traditional center seam) */}
+            <line x1="200" y1="175" x2="200" y2="480" stroke="rgba(255,255,255,0.22)" strokeWidth="1.2" strokeDasharray="3 3" />
+
+            {/* Tà vạt con khép kín sang phải (Curved right lapel line) */}
             <path
-              d="M 185 110 Q 220 140 230 180 L 240 440"
-              stroke="rgba(0,0,0,0.4)"
-              strokeWidth="2.5"
-              fill="none"
-            />
-            {/* Subtle highlight fold line */}
-            <path
-              d="M 184 110 Q 219 140 229 180 L 239 440"
-              stroke="rgba(255,255,255,0.18)"
-              strokeWidth="1"
+              d="M 185 110 Q 220 145 226 195 L 232 290"
+              stroke="rgba(255,255,255,0.25)"
+              strokeWidth="1.4"
+              strokeLinecap="round"
               fill="none"
             />
 
-            {/* Đường trung phẫu chính giữa tà áo */}
-            <line x1="200" y1="180" x2="200" y2="440" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" strokeDasharray="3 3" />
-          </g>
-        )}
-
-        {/* 2. ÁO TẤC (TAY THỤNG) */}
-        {type === 'ao_tac' && (
-          <g>
-            {/* Massive Ceremonial Flowing Sleeves (Tay Thụng buông rộng 35-40cm) */}
-            <path
-              d="M 125 115 L 15 175 L 15 350 L 115 310 L 135 175 Z"
-              fill={`url(#robeGrad-${type})`}
-              stroke="#3a3a46"
-              strokeWidth="1.5"
-            />
-            <path d="M 125 115 L 15 175 L 15 350 L 115 310 L 135 175 Z" fill={`url(#brocade-${type})`} />
-            <path d="M 125 115 L 15 175 L 15 350 L 115 310 L 135 175 Z" fill="url(#silkSheen)" opacity="0.6" />
-
-            <path
-              d="M 275 115 L 385 175 L 385 350 L 285 310 L 265 175 Z"
-              fill={`url(#robeGrad-${type})`}
-              stroke="#3a3a46"
-              strokeWidth="1.5"
-            />
-            <path d="M 275 115 L 385 175 L 385 350 L 285 310 L 265 175 Z" fill={`url(#brocade-${type})`} />
-            <path d="M 275 115 L 385 175 L 385 350 L 285 310 L 265 175 Z" fill="url(#silkSheen)" opacity="0.6" />
-
-            {/* Sleeve folds / nếp gấp lụa */}
-            <path d="M 25 210 Q 65 240 120 230" stroke="rgba(255,255,255,0.2)" strokeWidth="1.5" fill="none"/>
-            <path d="M 375 210 Q 335 240 280 230" stroke="rgba(255,255,255,0.2)" strokeWidth="1.5" fill="none"/>
-
-            {/* 2 BÀN TAY MA NƠ CANH (ÁO TẤC TAY THỤNG BUÔNG THẢ THANH TAO) */}
-            <g id="mannequin-hands-ao-tac">
-              <g transform="translate(68, 325) rotate(15)" filter="url(#shadowFilter)">
-                <path
-                  d="M -7 0 C -9 12, -13 24, -9 34 C -7 40, -1 43, 3 41 C 7 39, 8 33, 6 24 C 5 15, 6 0, 6 0 Z"
-                  fill="url(#mannequinSkin)"
-                  stroke="url(#mannequinGold)"
-                  strokeWidth="1.5"
-                />
-                <path d="M 5 10 C 10 14, 11 22, 8 26 C 6 28, 4 26, 3 21" fill="url(#mannequinSkin)" stroke="url(#mannequinGold)" strokeWidth="1.2" />
-                <path d="M 1 25 L 0 39" stroke="#8E7B68" strokeWidth="1.1" strokeLinecap="round" />
-                <path d="M -3 24 L -4 37" stroke="#8E7B68" strokeWidth="1.1" strokeLinecap="round" />
-                <path d="M -6 22 L -7 33" stroke="#8E7B68" strokeWidth="1.1" strokeLinecap="round" />
-              </g>
-              <g transform="translate(332, 325) rotate(-15)" filter="url(#shadowFilter)">
-                <path
-                  d="M 7 0 C 9 12, 13 24, 9 34 C 7 40, 1 43, -3 41 C -7 39, -8 33, -6 24 C -5 15, -6 0, -6 0 Z"
-                  fill="url(#mannequinSkin)"
-                  stroke="url(#mannequinGold)"
-                  strokeWidth="1.5"
-                />
-                <path d="M -5 10 C -10 14, -11 22, -8 26 C -6 28, -4 26, -3 21" fill="url(#mannequinSkin)" stroke="url(#mannequinGold)" strokeWidth="1.2" />
-                <path d="M -1 25 L 0 39" stroke="#8E7B68" strokeWidth="1.1" strokeLinecap="round" />
-                <path d="M 3 24 L 4 37" stroke="#8E7B68" strokeWidth="1.1" strokeLinecap="round" />
-                <path d="M 6 22 L 7 33" stroke="#8E7B68" strokeWidth="1.1" strokeLinecap="round" />
-              </g>
-            </g>
-
-            {/* Body */}
-            <path
-              d="M 130 110 L 270 110 L 305 450 L 95 450 Z"
-              fill={`url(#robeGrad-${type})`}
-              stroke="#3a3a46"
-              strokeWidth="1.5"
-            />
-            <path d="M 130 110 L 270 110 L 305 450 L 95 450 Z" fill={`url(#brocade-${type})`} />
-            <path d="M 130 110 L 270 110 L 305 450 L 95 450 Z" fill="url(#silkSheen)" opacity="0.6" />
-
-            {/* Overlap fold */}
-            <path
-              d="M 185 110 Q 225 150 235 200 L 250 450"
-              stroke="rgba(0,0,0,0.5)"
-              strokeWidth="2.5"
-              fill="none"
-            />
-          </g>
-        )}
-
-        {/* 3. ÁO NHẬT BÌNH */}
-        {type === 'nhat_binh' && (
-          <g>
-            {/* Sleeves with Ngũ Sắc rainbow stripe at cuffs */}
-            <path
-              d="M 125 115 L 30 160 L 30 260 L 130 210 Z"
-              fill={`url(#robeGrad-${type})`}
-              stroke="#3a3a46"
-              strokeWidth="1.5"
-            />
-            <path d="M 125 115 L 30 160 L 30 260 L 130 210 Z" fill={`url(#brocade-${type})`} />
-            <path d="M 125 115 L 30 160 L 30 260 L 130 210 Z" fill="url(#silkSheen)" opacity="0.6" />
-
-            <path
-              d="M 275 115 L 370 160 L 370 260 L 270 210 Z"
-              fill={`url(#robeGrad-${type})`}
-              stroke="#3a3a46"
-              strokeWidth="1.5"
-            />
-            <path d="M 275 115 L 370 160 L 370 260 L 270 210 Z" fill={`url(#brocade-${type})`} />
-            <path d="M 275 115 L 370 160 L 370 260 L 270 210 Z" fill="url(#silkSheen)" opacity="0.6" />
-
-            {/* Ngũ Sắc Bands on Left Sleeve */}
-            <g transform="translate(30, 220)">
-              <rect x="0" y="0" width="10" height="40" fill="#E5C365" />
-              <rect x="10" y="0" width="10" height="40" fill="#2B5B84" />
-              <rect x="20" y="0" width="10" height="40" fill="#F4EFE6" />
-              <rect x="30" y="0" width="10" height="40" fill="#7A222C" />
-            </g>
-            {/* Ngũ Sắc Bands on Right Sleeve */}
-            <g transform="translate(330, 220)">
-              <rect x="0" y="0" width="10" height="40" fill="#7A222C" />
-              <rect x="10" y="0" width="10" height="40" fill="#F4EFE6" />
-              <rect x="20" y="0" width="10" height="40" fill="#2B5B84" />
-              <rect x="30" y="0" width="10" height="40" fill="#E5C365" />
-            </g>
-
-            {/* 2 BÀN TAY MA NƠ CANH (ÁO NHẬT BÌNH DƯỚI DẢI NGŨ SẮC) */}
-            <g id="mannequin-hands-nhat-binh">
-              <g transform="translate(52, 252) rotate(32)" filter="url(#shadowFilter)">
-                <path
-                  d="M -8 0 C -10 12, -14 26, -10 36 C -8 42, -2 46, 2 44 C 6 42, 8 36, 6 26 C 5 16, 7 0, 7 0 Z"
-                  fill="url(#mannequinSkin)"
-                  stroke="url(#mannequinGold)"
-                  strokeWidth="1.5"
-                />
-                <path d="M 6 12 C 11 16, 12 24, 9 28 C 7 30, 5 28, 4 23" fill="url(#mannequinSkin)" stroke="url(#mannequinGold)" strokeWidth="1.3" />
-                <path d="M 1 28 L 0 42" stroke="#8E7B68" strokeWidth="1.1" strokeLinecap="round" />
-                <path d="M -3 27 L -4 40" stroke="#8E7B68" strokeWidth="1.1" strokeLinecap="round" />
-                <path d="M -6 25 L -8 36" stroke="#8E7B68" strokeWidth="1.1" strokeLinecap="round" />
-              </g>
-              <g transform="translate(348, 252) rotate(-32)" filter="url(#shadowFilter)">
-                <path
-                  d="M 8 0 C 10 12, 14 26, 10 36 C 8 42, 2 46, -2 44 C -6 42, -8 36, -6 26 C -5 16, -7 0, -7 0 Z"
-                  fill="url(#mannequinSkin)"
-                  stroke="url(#mannequinGold)"
-                  strokeWidth="1.5"
-                />
-                <path d="M -6 12 C -11 16, -12 24, -9 28 C -7 30, -5 28, -4 23" fill="url(#mannequinSkin)" stroke="url(#mannequinGold)" strokeWidth="1.3" />
-                <path d="M -1 28 L 0 42" stroke="#8E7B68" strokeWidth="1.1" strokeLinecap="round" />
-                <path d="M 3 27 L 4 40" stroke="#8E7B68" strokeWidth="1.1" strokeLinecap="round" />
-                <path d="M 6 25 L 8 36" stroke="#8E7B68" strokeWidth="1.1" strokeLinecap="round" />
-              </g>
-            </g>
-
-            {/* Main Body */}
-            <path
-              d="M 130 110 L 270 110 L 300 445 L 100 445 Z"
-              fill={`url(#robeGrad-${type})`}
-              stroke="#3a3a46"
-              strokeWidth="1.5"
-            />
-            <path d="M 130 110 L 270 110 L 300 445 L 100 445 Z" fill={`url(#brocade-${type})`} />
-            <path d="M 130 110 L 270 110 L 300 445 L 100 445 Z" fill="url(#silkSheen)" opacity="0.6" />
-
-            {/* Signature Nhật Bình Y-Shaped Rectangular Neckband (Vạt Cổ Chữ Y) */}
-            <path
-              d="M 155 110 L 175 180 L 175 445 L 225 445 L 225 180 L 245 110 Z"
-              fill="#181822"
-              stroke="url(#goldTrim)"
-              strokeWidth="2"
-            />
-            {/* Gold trim embroidery on collar */}
-            <line x1="180" y1="185" x2="180" y2="445" stroke="#C5A059" strokeWidth="1" strokeDasharray="4 2" />
-            <line x1="220" y1="185" x2="220" y2="445" stroke="#C5A059" strokeWidth="1" strokeDasharray="4 2" />
-
-            {/* Phượng Ổ (Circular Phoenix Roundel) Embroidered on chest */}
-            <g transform="translate(200, 240)">
-              <circle cx="0" cy="0" r="22" fill="none" stroke="url(#goldTrim)" strokeWidth="1.5" />
-              <circle cx="0" cy="0" r="17" fill="#7A222C" opacity="0.6" />
-              {/* Stylized Phoenix Silhouette */}
-              <path
-                d="M -7 -4 Q 0 -14 7 -4 Q 12 3 5 11 Q 0 14 -7 8 Q -12 2 -7 -4 Z"
-                fill="#E5C365"
-              />
-              <path d="M 0 -8 L 0 -13 M -3 -10 L 0 -13 L 3 -10" stroke="#FFF3B0" strokeWidth="1" />
-            </g>
-
-            {/* Thủy Ba Tam Sơn (Wave & 3 Mountains Pattern at Hem) */}
-            <g transform="translate(100, 415)">
-              <rect x="0" y="0" width="200" height="30" fill="#0d1b2a" opacity="0.9" />
-              {/* Waves */}
-              <path
-                d="M 0 20 Q 25 5 50 20 Q 75 5 100 20 Q 125 5 150 20 Q 175 5 200 20 L 200 30 L 0 30 Z"
-                fill="#2B5B84"
-              />
-              {/* Tam Sơn (3 peaks) in middle */}
-              <polygon points="100,2 108,18 92,18" fill="#E5C365" />
-              <polygon points="85,8 92,18 78,18" fill="#C5A059" />
-              <polygon points="115,8 122,18 108,18" fill="#C5A059" />
-            </g>
-          </g>
-        )}
-
-        {/* CỔ ĐỨNG (Mandarin Collar) */}
-        <g id="collar-group">
-          {/* Áo Đơn Y (White Inner Standing Collar) - Must peek 3mm above outer collar */}
-          {hasDonY ? (
-            <path
-              d="M 160 88 C 160 84, 240 84, 240 88 L 242 108 L 158 108 Z"
-              fill="#F8F6F0"
-              stroke="#D4CEBE"
-              strokeWidth="1.5"
-              filter="url(#shadowFilter)"
-            />
-          ) : (
-            /* Taboo warning visual: bare skin collar */
-            <path
-              d="M 165 92 C 165 89, 235 89, 235 92 L 235 108 L 165 108 Z"
-              fill="#c68a6d"
-              opacity="0.7"
-            />
-          )}
-
-          {/* Outer High Standing Collar (Cổ đứng áo ngoài) */}
-          <path
-            d="M 162 94 C 162 91, 238 91, 238 94 L 243 118 L 157 118 Z"
-            fill={primaryColor}
-            stroke="#1d1d24"
-            strokeWidth="1.5"
-          />
-          {/* Subtle gold collar rim */}
-          <path
-            d="M 162 94 C 162 91, 238 91, 238 94"
-            stroke="#E5C365"
-            strokeWidth="1.5"
-            fill="none"
-          />
-        </g>
-
-        {/* 5 CÚC ÁO NGŨ THƯỜNG (Cúc Kim Loại / Cúc Ngọc vs Cúc Vải) */}
-        {type !== 'nhat_binh' && (
-          <g id="buttons-group">
-            {/* Button 1: Collar center right */}
-            <circle cx="218" cy="98" r={isChineseButton ? "6" : "5.5"} fill={buttonFill} stroke={buttonConfig.stroke} strokeWidth="1.2" filter="url(#shadowFilter)" />
-            {!isChineseButton && <circle cx="216.5" cy="96.5" r="1.5" fill="#FFF" fillOpacity="0.75" />}
-            {isChineseButton && <line x1="212" y1="98" x2="224" y2="98" stroke="#FFF" strokeWidth="1" />}
-
-            {/* Button 2: Upper chest opening */}
-            <circle cx="224" cy="116" r={isChineseButton ? "6" : "5.5"} fill={buttonFill} stroke={buttonConfig.stroke} strokeWidth="1.2" filter="url(#shadowFilter)" />
-            {!isChineseButton && <circle cx="222.5" cy="114.5" r="1.5" fill="#FFF" fillOpacity="0.75" />}
-            {isChineseButton && <line x1="218" y1="116" x2="230" y2="116" stroke="#FFF" strokeWidth="1" />}
-
-            {/* Button 3: Under right armpit (Nách phải) */}
-            <circle cx="236" cy="148" r={isChineseButton ? "6" : "5.5"} fill={buttonFill} stroke={buttonConfig.stroke} strokeWidth="1.2" filter="url(#shadowFilter)" />
-            {!isChineseButton && <circle cx="234.5" cy="146.5" r="1.5" fill="#FFF" fillOpacity="0.75" />}
-            {isChineseButton && <line x1="230" y1="148" x2="242" y2="148" stroke="#FFF" strokeWidth="1" />}
-
-            {/* Button 4: Upper waist (Sườn trên) */}
-            <circle cx="238" cy="186" r={isChineseButton ? "6" : "5.5"} fill={buttonFill} stroke={buttonConfig.stroke} strokeWidth="1.2" filter="url(#shadowFilter)" />
-            {!isChineseButton && <circle cx="236.5" cy="184.5" r="1.5" fill="#FFF" fillOpacity="0.75" />}
-            {isChineseButton && <line x1="232" y1="186" x2="244" y2="186" stroke="#FFF" strokeWidth="1" />}
-
-            {/* Button 5: Lower flank (Sườn dưới) */}
-            <circle cx="242" cy="226" r={isChineseButton ? "6" : "5.5"} fill={buttonFill} stroke={buttonConfig.stroke} strokeWidth="1.2" filter="url(#shadowFilter)" />
-            {!isChineseButton && <circle cx="240.5" cy="224.5" r="1.5" fill="#FFF" fillOpacity="0.75" />}
-            {isChineseButton && <line x1="236" y1="226" x2="248" y2="226" stroke="#FFF" strokeWidth="1" />}
-          </g>
-        )}
-
-        {/* Nhật Bình Button (Middle chest closure) */}
-        {type === 'nhat_binh' && (
-          <g id="nhat-binh-closure">
-            {isChineseButton ? (
-              // Chinese cloth knot on Nhật Bình (Taboo violation)
-              <g transform="translate(200, 185)">
-                <circle cx="0" cy="0" r="7" fill="#DC2626" stroke="#991B1B" strokeWidth="1.5" />
-                <line x1="-8" y1="0" x2="8" y2="0" stroke="#FFF" strokeWidth="1.5" />
-                <line x1="0" y1="-8" x2="0" y2="8" stroke="#FFF" strokeWidth="1.5" />
-                <circle cx="0" cy="22" r="6" fill="#DC2626" stroke="#991B1B" strokeWidth="1" />
-                <line x1="-6" y1="22" x2="6" y2="22" stroke="#FFF" strokeWidth="1.2" />
-              </g>
-            ) : (
-              <g transform="translate(200, 185)">
-                {/* Royal Brooch / Jade Loop Closure */}
-                <circle cx="0" cy="0" r="8" fill={buttonFill} stroke={buttonConfig.stroke} strokeWidth="1.8" filter="url(#shadowFilter)" />
-                <circle cx="0" cy="0" r="3" fill="#FFF" opacity="0.6" />
-                <line x1="0" y1="8" x2="0" y2="22" stroke={buttonConfig.stroke} strokeWidth="1.8" />
-                <circle cx="0" cy="22" r="5" fill={buttonFill} stroke={buttonConfig.stroke} strokeWidth="1.2" />
+            {/* 2 BÀN TAY MA NƠ CANH THỜI TRANG (Lộ nhẹ ở cửa tay áo chẽn) */}
+            {borderless && (
+              <g id="mannequin-hands-ngu-than">
+                <g transform="translate(86, 290) rotate(24)" filter="url(#shadowFilter)">
+                  <path
+                    d="M -7 0 C -9 10, -12 22, -9 30 C -7 36, -1 39, 2 37 C 5 35, 7 30, 5 22 C 4 14, 6 0, 6 0 Z"
+                    fill="url(#mannequinSkin)"
+                    stroke="url(#mannequinGold)"
+                    strokeWidth="1.3"
+                  />
+                  <path d="M 5 10 C 9 13, 10 20, 7 24 C 5 26, 3 24, 2 20" fill="url(#mannequinSkin)" stroke="url(#mannequinGold)" strokeWidth="1.1" />
+                  <path d="M 0 24 L 0 35" stroke="#8E7B68" strokeWidth="0.9" strokeLinecap="round" />
+                  <path d="M -3 23 L -4 33" stroke="#8E7B68" strokeWidth="0.9" strokeLinecap="round" />
+                </g>
+                <g transform="translate(314, 290) rotate(-24)" filter="url(#shadowFilter)">
+                  <path
+                    d="M 7 0 C 9 10, 12 22, 9 30 C 7 36, 1 39, -2 37 C -5 35, -7 30, -5 22 C -4 14, -6 0, -6 0 Z"
+                    fill="url(#mannequinSkin)"
+                    stroke="url(#mannequinGold)"
+                    strokeWidth="1.3"
+                  />
+                  <path d="M -5 10 C -9 13, -10 20, -7 24 C -5 26, -3 24, -2 20" fill="url(#mannequinSkin)" stroke="url(#mannequinGold)" strokeWidth="1.1" />
+                  <path d="M 0 24 L 0 35" stroke="#8E7B68" strokeWidth="0.9" strokeLinecap="round" />
+                  <path d="M 3 23 L 4 33" stroke="#8E7B68" strokeWidth="0.9" strokeLinecap="round" />
+                </g>
               </g>
             )}
           </g>
         )}
 
+        {/* 2. ÁO TẤC (TAY THỤNG) (TAY RỘNG BUÔNG THẢ TỰ NHIÊN, NẾP GẤP TRỌNG LỰC MỀM MẠI) */}
+        {type === 'ao_tac' && (
+          <g id="robe-ao-tac">
+            {/* Main Robe Path: Majestic Wide Ceremonial Flowing Sleeves dropping straight down */}
+            <path
+              d="M 170 110 
+                 L 135 126 
+                 L 50 180 
+                 L 54 420 
+                 L 128 370 
+                 L 128 480 
+                 L 272 480 
+                 L 272 370 
+                 L 346 420 
+                 L 350 180 
+                 L 265 126 
+                 L 230 110 Z"
+              fill={`url(#robeGrad-${type})`}
+              stroke="#2e2e38"
+              strokeWidth="1.2"
+            />
+            {/* Brocade Jacquard Pattern */}
+            <path
+              d="M 170 110 L 135 126 L 50 180 L 54 420 L 128 370 L 128 480 L 272 480 L 272 370 L 346 420 L 350 180 L 265 126 L 230 110 Z"
+              fill={`url(#brocade-${type})`}
+            />
+            {/* Soft Pure White Silk Sheen (Zero black!) */}
+            <path
+              d="M 170 110 L 135 126 L 50 180 L 54 420 L 128 370 L 128 480 L 272 480 L 272 370 L 346 420 L 350 180 L 265 126 L 230 110 Z"
+              fill="url(#silkSheen)"
+              opacity="0.55"
+            />
+
+            {/* Tay Thụng Vertical Drape Crease Lines (Nếp buông rủ thanh nhã như trong ảnh mẫu) */}
+            <line x1="92" y1="205" x2="76" y2="405" stroke="rgba(255,255,255,0.22)" strokeWidth="1.2" strokeLinecap="round" />
+            <line x1="308" y1="205" x2="324" y2="405" stroke="rgba(255,255,255,0.22)" strokeWidth="1.2" strokeLinecap="round" />
+
+            {/* Bottom Hem Gold Trim */}
+            <line x1="128" y1="480" x2="272" y2="480" stroke="#E5C365" strokeWidth="2" strokeLinecap="round" />
+
+            {/* Curved overlap fold */}
+            <path
+              d="M 185 110 Q 225 150 232 205 L 238 310"
+              stroke="rgba(255,255,255,0.25)"
+              strokeWidth="1.4"
+              strokeLinecap="round"
+              fill="none"
+            />
+
+            {/* 2 BÀN TAY MA NƠ CANH TRONG TAY ÁO THỤNG */}
+            {borderless && (
+              <g id="mannequin-hands-ao-tac">
+                <g transform="translate(90, 370) rotate(15)" filter="url(#shadowFilter)">
+                  <path
+                    d="M -7 0 C -9 10, -12 20, -9 28 C -7 34, -1 37, 2 35 C 5 33, 7 28, 5 20 C 4 13, 6 0, 6 0 Z"
+                    fill="url(#mannequinSkin)"
+                    stroke="url(#mannequinGold)"
+                    strokeWidth="1.2"
+                  />
+                  <path d="M 0 20 L 0 30" stroke="#8E7B68" strokeWidth="0.9" strokeLinecap="round" />
+                </g>
+                <g transform="translate(310, 370) rotate(-15)" filter="url(#shadowFilter)">
+                  <path
+                    d="M 7 0 C 9 10, 12 20, 9 28 C 7 34, 1 37, -2 35 C -5 33, -7 28, -5 20 C -4 13, -6 0, -6 0 Z"
+                    fill="url(#mannequinSkin)"
+                    stroke="url(#mannequinGold)"
+                    strokeWidth="1.2"
+                  />
+                  <path d="M 0 20 L 0 30" stroke="#8E7B68" strokeWidth="0.9" strokeLinecap="round" />
+                </g>
+              </g>
+            )}
+          </g>
+        )}
+
+        {/* 3. ÁO NHẬT BÌNH (CỔ CẦU VỒNG, DẢI KẾT LỘC ĐỎ - XANH RỦ XUỐNG, 5 SỌC CẦU VỒNG CỬA TAY) */}
+        {type === 'nhat_binh' && (
+          <g id="robe-nhat-binh">
+            {/* Dark back under-panels adding regal depth */}
+            <polygon points="120,240 120,480 88,480 88,300" fill="#14141c" />
+            <polygon points="280,240 280,480 312,480 312,300" fill="#14141c" />
+
+            {/* Main Robe Silhouette */}
+            <path
+              d="M 170 110 
+                 L 132 126 
+                 L 34 235 
+                 L 52 335 
+                 L 116 295 
+                 L 116 480 
+                 L 284 480 
+                 L 284 295 
+                 L 348 335 
+                 L 366 235 
+                 L 268 126 
+                 L 230 110 Z"
+              fill={`url(#robeGrad-${type})`}
+              stroke="#2e2e38"
+              strokeWidth="1.2"
+            />
+            {/* Brocade Jacquard Pattern */}
+            <path
+              d="M 170 110 L 132 126 L 34 235 L 52 335 L 116 295 L 116 480 L 284 480 L 284 295 L 348 335 L 366 235 L 268 126 L 230 110 Z"
+              fill={`url(#brocade-${type})`}
+            />
+            {/* Soft Pure White Silk Sheen (Zero black!) */}
+            <path
+              d="M 170 110 L 132 126 L 34 235 L 52 335 L 116 295 L 116 480 L 284 480 L 284 295 L 348 335 L 366 235 L 268 126 L 230 110 Z"
+              fill="url(#silkSheen)"
+              opacity="0.55"
+            />
+
+            {/* 5 Ngũ Sắc Rainbow Stripes at Left Sleeve Cuff (5 dải màu ngũ hành chuẩn triều Nguyễn) */}
+            <g transform="translate(34, 235) rotate(22)">
+              <rect x="0" y="0" width="13" height="74" fill="#2563EB" /> {/* Lam */}
+              <rect x="13" y="0" width="13" height="74" fill="#10B981" /> {/* Lục */}
+              <rect x="26" y="0" width="13" height="74" fill="#F59E0B" /> {/* Vàng */}
+              <rect x="39" y="0" width="13" height="74" fill="#EF4444" /> {/* Đỏ */}
+              <rect x="52" y="0" width="13" height="74" fill="#FFFFFF" /> {/* Trắng */}
+            </g>
+
+            {/* 5 Ngũ Sắc Rainbow Stripes at Right Sleeve Cuff */}
+            <g transform="translate(296, 260) rotate(-22)">
+              <rect x="0" y="0" width="13" height="74" fill="#FFFFFF" /> {/* Trắng */}
+              <rect x="13" y="0" width="13" height="74" fill="#EF4444" /> {/* Đỏ */}
+              <rect x="26" y="0" width="13" height="74" fill="#F59E0B" /> {/* Vàng */}
+              <rect x="39" y="0" width="13" height="74" fill="#10B981" /> {/* Lục */}
+              <rect x="52" y="0" width="13" height="74" fill="#2563EB" /> {/* Lam */}
+            </g>
+
+            {/* Scalloped Wave Hem with Gold Trim (Viền thủy ba uốn lượn mềm mại dưới tà) */}
+            <path
+              d="M 116 480 Q 158 488 200 480 Q 242 488 284 480"
+              stroke="#E5C365"
+              strokeWidth="2.5"
+              fill="none"
+              strokeLinecap="round"
+            />
+
+            {/* SIGNATURE KHUNG CỔ NHẬT BÌNH (Rectangular Rainbow Neckband Frame) */}
+            <g id="nhat-binh-collar-frame">
+              {/* Outer gold-bordered rainbow neckband */}
+              <path
+                d="M 152 130 L 152 285 L 172 285 L 172 152 L 228 152 L 228 285 L 248 285 L 248 130 Z"
+                fill="url(#nhatBinhRainbow)"
+                stroke="#E5C365"
+                strokeWidth="2"
+              />
+              {/* Inner gold border */}
+              <path
+                d="M 172 285 L 172 152 L 228 152 L 228 285"
+                stroke="#E5C365"
+                strokeWidth="1.5"
+                fill="none"
+              />
+
+              {/* White Pearl Studs along Left Pillar (Hạt ngọc đính viền cổ áo) */}
+              <circle cx="162" cy="162" r="2.8" fill="#FFFFFF" stroke="#D4CEBE" strokeWidth="0.8" />
+              <circle cx="162" cy="194" r="2.8" fill="#FFFFFF" stroke="#D4CEBE" strokeWidth="0.8" />
+              <circle cx="162" cy="226" r="2.8" fill="#FFFFFF" stroke="#D4CEBE" strokeWidth="0.8" />
+              <circle cx="162" cy="258" r="2.8" fill="#FFFFFF" stroke="#D4CEBE" strokeWidth="0.8" />
+
+              {/* White Pearl Studs along Right Pillar */}
+              <circle cx="238" cy="162" r="2.8" fill="#FFFFFF" stroke="#D4CEBE" strokeWidth="0.8" />
+              <circle cx="238" cy="194" r="2.8" fill="#FFFFFF" stroke="#D4CEBE" strokeWidth="0.8" />
+              <circle cx="238" cy="226" r="2.8" fill="#FFFFFF" stroke="#D4CEBE" strokeWidth="0.8" />
+              <circle cx="238" cy="258" r="2.8" fill="#FFFFFF" stroke="#D4CEBE" strokeWidth="0.8" />
+            </g>
+
+            {/* DẢI KẾT LỘC HOÀNG GIA (Two Long Flowing Ribbons: Red & Green with Gold Tips) */}
+            <g id="nhat-binh-ribbons">
+              {/* Central Brooch / Cúc Áo Nhật Bình */}
+              <circle cx="200" cy="285" r="9" fill={isChineseButton ? "#DC2626" : buttonFill} stroke="#E5C365" strokeWidth="2" filter="url(#shadowFilter)" />
+              <circle cx="200" cy="285" r="3.5" fill="#FFFFFF" />
+
+              {/* Left Ribbon: Crimson Red (Dải lụa đỏ thắm) */}
+              <rect x="186" y="294" width="12" height="156" fill="#DC2626" rx="1" />
+              <rect x="186" y="445" width="12" height="5" fill="#E5C365" />
+
+              {/* Right Ribbon: Emerald Green (Dải lụa xanh ngọc) */}
+              <rect x="202" y="294" width="12" height="156" fill="#10B981" rx="1" />
+              <rect x="202" y="445" width="12" height="5" fill="#E5C365" />
+            </g>
+          </g>
+        )}
+
+        {/* CỔ ĐỨNG (MANDARIN COLLAR) & ÁO ĐƠN Y TRẮNG */}
+        <g id="collar-group">
+          {/* Áo Đơn Y (White Inner Standing Collar) - Must peek 3mm above outer collar */}
+          {hasDonY ? (
+            <path
+              d="M 174 94 Q 200 90 226 94 L 228 108 Q 200 105 172 108 Z"
+              fill="#FFFFFF"
+              stroke="#D4CEBE"
+              strokeWidth="1.2"
+              filter="url(#shadowFilter)"
+            />
+          ) : (
+            /* Taboo warning visual: bare skin collar */
+            <path
+              d="M 174 94 Q 200 90 226 94 L 228 108 Q 200 105 172 108 Z"
+              fill="#c68a6d"
+              opacity="0.75"
+            />
+          )}
+
+          {/* Outer High Standing Collar (Cổ đứng áo ngoài) */}
+          <path
+            d="M 170 104 Q 200 100 230 104 L 232 130 Q 200 126 168 130 Z"
+            fill={`url(#robeGrad-${type})`}
+            stroke="#E5C365"
+            strokeWidth="1.6"
+          />
+          {/* Brocade pattern on collar */}
+          <path
+            d="M 170 104 Q 200 100 230 104 L 232 130 Q 200 126 168 130 Z"
+            fill={`url(#brocade-${type})`}
+          />
+          {/* Gold collar rims */}
+          <path d="M 170 104 Q 200 100 230 104" stroke="#E5C365" strokeWidth="1.6" fill="none" />
+          <path d="M 168 130 Q 200 126 232 130" stroke="#E5C365" strokeWidth="1.6" fill="none" />
+        </g>
+
+        {/* 5 CÚC ÁO NGŨ THƯỜNG (Cúc Kim Loại / Cúc Ngọc / Cúc Gỗ) */}
+        {type !== 'nhat_binh' && (
+          <g id="buttons-group">
+            {/* Button 1: Collar center right */}
+            <g transform="translate(220, 117)">
+              <line x1="-7" y1="0" x2="7" y2="0" stroke={isChineseButton ? "#DC2626" : buttonConfig.stroke} strokeWidth="1.5" strokeLinecap="round" />
+              <circle cx="0" cy="0" r={isChineseButton ? "6" : "5.2"} fill={buttonFill} stroke="#FFFFFF" strokeWidth="1.2" filter="url(#shadowFilter)" />
+              <circle cx="0" cy="0" r="2" fill="#FFFFFF" fillOpacity="0.8" />
+            </g>
+
+            {/* Button 2: Upper chest opening */}
+            <g transform="translate(222, 158)">
+              <line x1="-7" y1="0" x2="7" y2="0" stroke={isChineseButton ? "#DC2626" : buttonConfig.stroke} strokeWidth="1.5" strokeLinecap="round" />
+              <circle cx="0" cy="0" r={isChineseButton ? "6" : "5.2"} fill={buttonFill} stroke="#FFFFFF" strokeWidth="1.2" filter="url(#shadowFilter)" />
+              <circle cx="0" cy="0" r="2" fill="#FFFFFF" fillOpacity="0.8" />
+            </g>
+
+            {/* Button 3: Mid chest */}
+            <g transform="translate(226, 202)">
+              <line x1="-7" y1="0" x2="7" y2="0" stroke={isChineseButton ? "#DC2626" : buttonConfig.stroke} strokeWidth="1.5" strokeLinecap="round" />
+              <circle cx="0" cy="0" r={isChineseButton ? "6" : "5.2"} fill={buttonFill} stroke="#FFFFFF" strokeWidth="1.2" filter="url(#shadowFilter)" />
+              <circle cx="0" cy="0" r="2" fill="#FFFFFF" fillOpacity="0.8" />
+            </g>
+
+            {/* Button 4: Upper waist / flank */}
+            <g transform="translate(228, 246)">
+              <line x1="-7" y1="0" x2="7" y2="0" stroke={isChineseButton ? "#DC2626" : buttonConfig.stroke} strokeWidth="1.5" strokeLinecap="round" />
+              <circle cx="0" cy="0" r={isChineseButton ? "6" : "5.2"} fill={buttonFill} stroke="#FFFFFF" strokeWidth="1.2" filter="url(#shadowFilter)" />
+              <circle cx="0" cy="0" r="2" fill="#FFFFFF" fillOpacity="0.8" />
+            </g>
+
+            {/* Button 5: Lower flank */}
+            <g transform="translate(232, 292)">
+              <line x1="-7" y1="0" x2="7" y2="0" stroke={isChineseButton ? "#DC2626" : buttonConfig.stroke} strokeWidth="1.5" strokeLinecap="round" />
+              <circle cx="0" cy="0" r={isChineseButton ? "6" : "5.2"} fill={buttonFill} stroke="#FFFFFF" strokeWidth="1.2" filter="url(#shadowFilter)" />
+              <circle cx="0" cy="0" r="2" fill="#FFFFFF" fillOpacity="0.8" />
+            </g>
+          </g>
+        )}
+
         {/* INTERACTIVE HOTSPOTS (Clickable Markers when interactive=true) */}
         {interactive && (
-          <g>
+          <g id="hotspots-interactive">
             {/* Hotspot 1: Cổ Áo Đơn Y */}
             <g
               className="cursor-pointer transition-transform hover:scale-110"
               onClick={() => onSelectHotspot && onSelectHotspot('collar')}
             >
-              <circle cx="200" cy="90" r="14" fill="#d4af37" fillOpacity="0.25" className="animate-pulse" />
-              <circle cx="200" cy="90" r="6" fill="#d4af37" stroke="#111" strokeWidth="1.5" />
+              <circle cx="200" cy="98" r="14" fill="#d4af37" fillOpacity="0.25" className="animate-pulse" />
+              <circle cx="200" cy="98" r="6" fill="#d4af37" stroke="#111" strokeWidth="1.5" />
             </g>
 
             {/* Hotspot 2: 5 Cúc Ngũ Thường */}
@@ -624,8 +616,8 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
                 className="cursor-pointer transition-transform hover:scale-110"
                 onClick={() => onSelectHotspot && onSelectHotspot('buttons')}
               >
-                <circle cx="230" cy="165" r="14" fill="#d4af37" fillOpacity="0.25" className="animate-pulse" />
-                <circle cx="230" cy="165" r="6" fill="#d4af37" stroke="#111" strokeWidth="1.5" />
+                <circle cx="226" cy="180" r="14" fill="#d4af37" fillOpacity="0.25" className="animate-pulse" />
+                <circle cx="226" cy="180" r="6" fill="#d4af37" stroke="#111" strokeWidth="1.5" />
               </g>
             )}
 
@@ -638,7 +630,7 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
               <circle cx="160" cy="270" r="6" fill="#d4af37" stroke="#111" strokeWidth="1.5" />
             </g>
 
-            {/* Hotspot 4: Nhật Bình Pattern (Phượng Ổ / Thủy Ba) */}
+            {/* Hotspot 4: Nhật Bình Pattern (Khung Cổ Cầu Vồng / Dải Kết Lộc) */}
             {type === 'nhat_binh' && (
               <g
                 className="cursor-pointer transition-transform hover:scale-110"
