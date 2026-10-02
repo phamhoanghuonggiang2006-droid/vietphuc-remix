@@ -1217,17 +1217,41 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
               </g>
             </g>
 
-            {/* ĐƯỜNG XẺ VẠT VAI PHẢI & KHUY CÀI CỔ KÍN ĐÁO (Bên vai phải) */}
-            <path
-              d="M 226 95 C 235 102, 244 112, 248 126"
-              stroke="#FFFFFF"
-              strokeWidth="1.2"
-              strokeOpacity="0.4"
-              fill="none"
-            />
-            {/* 2 Khuy cài nhỏ kín đáo bên vai phải */}
-            {renderAuthenticButton(228, 98, 3.5, false)}
-            {renderAuthenticButton(242, 116, 3.5, false)}
+            {/* ĐƯỜNG VẠT ÁO XẺ LỆCH SANG SƯỜN PHẢI (Kéo dài tha thướt xuống eo & nách phải) */}
+            <g id="vien-linh-extended-flap" filter="url(#softShadowFilter)">
+              {/* Bóng đổ của nếp vạt đè lên thân trong */}
+              <path
+                d="M 224 94 C 235 102, 244 116, 246 128 C 251 155, 258 188, 268 220"
+                stroke="rgba(0,0,0,0.35)"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                fill="none"
+              />
+              {/* Đường vạt áo ngoài màu trắng sáng thanh thoát */}
+              <path
+                d="M 224 94 C 235 102, 244 116, 246 128 C 251 155, 258 188, 268 220"
+                stroke="#FFFFFF"
+                strokeWidth="1.6"
+                strokeOpacity="0.55"
+                strokeLinecap="round"
+                fill="none"
+              />
+              {/* Chỉ viền kim tuyến vàng thêu mép vạt áo */}
+              <path
+                d="M 224 94 C 235 102, 244 116, 246 128 C 251 155, 258 188, 268 220"
+                stroke="#E5C365"
+                strokeWidth="0.8"
+                strokeDasharray="4 2"
+                strokeOpacity="0.75"
+                fill="none"
+              />
+            </g>
+
+            {/* CÚC ÁO VIÊN LĨNH TO RÕ RÀNG (Kích thước chuẩn, đơm quai cài sang 2 bên vạt) */}
+            {/* Cúc 1: Ở vai/chân cổ trên đường vạt áo */}
+            {renderAuthenticButton(244, 124, 6.5, true)}
+            {/* Cúc 2: Dưới thân vạt áo kéo dài tha thướt */}
+            {renderAuthenticButton(254, 172, 6.2, true)}
 
             {/* CỔ ÁO VIÊN LĨNH: Cổ tròn viền nhẹ ôm khít chân cổ */}
             <g id="vien-linh-collar-group" filter="url(#softShadowFilter)">
