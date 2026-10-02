@@ -80,6 +80,8 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
 
       {/* SVG Garment Illustration */}
       <svg
+        id="robe-visualizer-svg"
+        xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 400 500"
         className="w-full h-full max-w-[360px] drop-shadow-[0_15px_30px_rgba(0,0,0,0.6)] transition-all duration-500"
       >

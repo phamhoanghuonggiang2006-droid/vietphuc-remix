@@ -213,142 +213,315 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
       ctx.fill();
       ctx.stroke();
 
-      // Load 2D images
-      const [accImg, botImg, shoeImg] = await Promise.all([
+      // Helper to draw image contained without distortion
+      const drawContainedImage = (
+        targetCtx: CanvasRenderingContext2D,
+        img: HTMLImageElement,
+        x: number,
+        y: number,
+        w: number,
+        h: number
+      ) => {
+        if (!img || !img.width || !img.height) return;
+        const imgRatio = img.width / img.height;
+        const targetRatio = w / h;
+        let drawW = w;
+        let drawH = h;
+        let drawX = x;
+        let drawY = y;
+        if (imgRatio > targetRatio) {
+          drawW = w;
+          drawH = w / imgRatio;
+          drawY = y + (h - drawH) / 2;
+        } else {
+          drawH = h;
+          drawW = h * imgRatio;
+          drawX = x + (w - drawW) / 2;
+        }
+        targetCtx.drawImage(img, drawX, drawY, drawW, drawH);
+      };
+
+      // Load Robe Image (from uploadedImage or serialized RobeVisualizer SVG)
+      const loadRobeImage = async (): Promise<HTMLImageElement | null> => {
+        if (uploadedImage) {
+          return await loadImage(uploadedImage);
+        }
+        const svgEl = (document.querySelector('#export-robe-container svg') as SVGSVGElement | null)
+          || (document.getElementById('robe-visualizer-svg') as SVGSVGElement | null)
+          || (document.querySelector('svg[id^="robe-visualizer"]') as SVGSVGElement | null);
+
+        if (svgEl) {
+          try {
+            const cloned = svgEl.cloneNode(true) as SVGSVGElement;
+            cloned.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+            cloned.setAttribute('width', '800');
+            cloned.setAttribute('height', '1000');
+            const xml = new XMLSerializer().serializeToString(cloned);
+            const blob = new Blob([xml], { type: 'image/svg+xml;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const img = await loadImage(url);
+            URL.revokeObjectURL(url);
+            return img;
+          } catch (err) {
+            console.warn('Could not serialize Robe SVG:', err);
+          }
+        }
+        return null;
+      };
+
+      // Load all images in parallel
+      const [robeImg, accImg, botImg, shoeImg] = await Promise.all([
+        loadRobeImage(),
         loadImage(accessoryCanvasImg),
         loadImage(bottomCanvasImg),
         loadImage(shoesCanvasImg)
       ]);
 
-      // Left Garment Card inside Showcase
-      ctx.fillStyle = 'rgba(197, 160, 89, 0.12)';
+      // Left Garment Card inside Showcase (Haute Couture Centerpiece)
+      const leftCardX = 110;
+      const leftCardY = 280;
+      const leftCardW = 500;
+      const leftCardH = 790;
+
+      // Card Background with dark glass + gold border
+      ctx.fillStyle = 'rgba(16, 14, 22, 0.9)';
       ctx.beginPath();
-      ctx.roundRect(110, 280, 500, 790, 16);
+      ctx.roundRect(leftCardX, leftCardY, leftCardW, leftCardH, 16);
       ctx.fill();
-      ctx.strokeStyle = 'rgba(197, 160, 89, 0.4)';
+      ctx.strokeStyle = 'rgba(197, 160, 89, 0.45)';
+      ctx.lineWidth = 1.5;
       ctx.stroke();
 
+      // Top Header inside card
       ctx.textAlign = 'center';
-      ctx.font = 'bold 22px serif';
+      ctx.font = 'bold 20px serif';
       ctx.fillStyle = '#E5C365';
-      ctx.fillText('Y PHỤC HOÀNG GIA CHÍNH', 360, 325);
-      ctx.font = '14px sans-serif';
-      ctx.fillStyle = '#A8A29E';
-      ctx.fillText('Quy chế triều Nguyễn (1802 - 1945)', 360, 350);
+      ctx.fillText('Y PHỤC HOÀNG GIA CHÍNH', leftCardX + leftCardW / 2, leftCardY + 45);
 
-      // Color circle preview
-      ctx.fillStyle = selectedColorHex;
+      ctx.font = '600 12px sans-serif';
+      ctx.fillStyle = '#C5A059';
+      ctx.fillText('DI SẢN TRIỀU NGUYỄN • ĐẠI LỄ PHỤC CUNG ĐÌNH', leftCardX + leftCardW / 2, leftCardY + 68);
+
+      // Robe Display Zone with Ambient Aura Glow
+      const robeZoneX = leftCardX + 30;
+      const robeZoneY = leftCardY + 95;
+      const robeZoneW = leftCardW - 60; // 440
+      const robeZoneH = 490;
+
+      // Soft circular aura behind robe
+      const aura = ctx.createRadialGradient(
+        leftCardX + leftCardW / 2, 
+        robeZoneY + robeZoneH / 2, 
+        40, 
+        leftCardX + leftCardW / 2, 
+        robeZoneY + robeZoneH / 2, 
+        230
+      );
+      aura.addColorStop(0, `${selectedColorHex}28`);
+      aura.addColorStop(0.5, 'rgba(197, 160, 89, 0.08)');
+      aura.addColorStop(1, 'transparent');
+      ctx.fillStyle = aura;
       ctx.beginPath();
-      ctx.arc(360, 480, 80, 0, Math.PI * 2);
+      ctx.arc(leftCardX + leftCardW / 2, robeZoneY + robeZoneH / 2, 230, 0, Math.PI * 2);
       ctx.fill();
-      ctx.strokeStyle = '#E5C365';
-      ctx.lineWidth = 3;
-      ctx.stroke();
 
+      // Draw the Robe Image!
+      if (robeImg) {
+        drawContainedImage(ctx, robeImg, robeZoneX, robeZoneY, robeZoneW, robeZoneH);
+      } else {
+        // Fallback: draw stylish color preview pill if image unavailable
+        ctx.fillStyle = selectedColorHex;
+        ctx.beginPath();
+        ctx.arc(leftCardX + leftCardW / 2, robeZoneY + robeZoneH / 2, 90, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#E5C365';
+        ctx.lineWidth = 3;
+        ctx.stroke();
+      }
+
+      // Elegant Robe Details under the visualizer
       ctx.textAlign = 'center';
-      ctx.font = 'bold 24px sans-serif';
+      ctx.font = 'bold 24px serif';
       ctx.fillStyle = '#FFFFFF';
-      ctx.fillText(activeGarment.name, 360, 610);
+      ctx.fillText(activeGarment.name, leftCardX + leftCardW / 2, leftCardY + 630);
 
-      ctx.font = '16px sans-serif';
+      ctx.font = '500 15px sans-serif';
       ctx.fillStyle = '#E5C365';
-      ctx.fillText(activeColor.vietnameseName, 360, 640);
+      ctx.fillText(`Sắc ${activeColor.vietnameseName.split('(')[0]} • Lụa Tơ Tằm Cung Đình`, leftCardX + leftCardW / 2, leftCardY + 660);
 
-      ctx.font = '15px sans-serif';
+      // Two Luxury Status Pill Badges
+      const badgeY = leftCardY + 685;
+      const badgeH = 32;
+
+      // Badge 1: Đơn Y Status
+      const b1W = 190;
+      const b1X = leftCardX + leftCardW / 2 - b1W - 8;
+      ctx.fillStyle = hasDonY ? 'rgba(52, 211, 153, 0.15)' : 'rgba(248, 113, 113, 0.15)';
+      ctx.beginPath();
+      ctx.roundRect(b1X, badgeY, b1W, badgeH, 16);
+      ctx.fill();
+      ctx.strokeStyle = hasDonY ? 'rgba(52, 211, 153, 0.5)' : 'rgba(248, 113, 113, 0.5)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      ctx.font = '600 12px sans-serif';
       ctx.fillStyle = hasDonY ? '#34D399' : '#F87171';
-      ctx.fillText(hasDonY ? '✓ Cổ Đơn Y trắng thanh nhã' : '✗ Cảnh báo: Thiếu Đơn Y trắng', 360, 680);
+      ctx.fillText(hasDonY ? '✓ Cổ Đơn Y Trắng' : '⚠️ Thiếu Đơn Y Trắng', b1X + b1W / 2, badgeY + 20);
 
-      ctx.font = '14px sans-serif';
+      // Badge 2: Cúc áo Status
+      const b2W = 190;
+      const b2X = leftCardX + leftCardW / 2 + 8;
+      ctx.fillStyle = isChineseButtonSelected ? 'rgba(248, 113, 113, 0.15)' : 'rgba(229, 195, 101, 0.15)';
+      ctx.beginPath();
+      ctx.roundRect(b2X, badgeY, b2W, badgeH, 16);
+      ctx.fill();
+      ctx.strokeStyle = isChineseButtonSelected ? 'rgba(248, 113, 113, 0.5)' : 'rgba(229, 195, 101, 0.5)';
+      ctx.stroke();
+
+      ctx.font = '600 12px sans-serif';
       ctx.fillStyle = isChineseButtonSelected ? '#F87171' : '#E5C365';
-      ctx.fillText(isChineseButtonSelected ? '✗ Vi phạm: Cúc vải Tàu' : `✓ ${activeButtonItem.name.split('(')[0]}`, 360, 715);
+      ctx.fillText(isChineseButtonSelected ? '✗ Cúc Vải Tàu' : `✓ ${activeButtonItem.name.split('(')[0]}`, b2X + b2W / 2, badgeY + 20);
 
-      ctx.font = 'italic 14px sans-serif';
+      // Subtle fine divider
+      ctx.strokeStyle = 'rgba(197, 160, 89, 0.25)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(leftCardX + 100, leftCardY + 740);
+      ctx.lineTo(leftCardX + leftCardW - 100, leftCardY + 740);
+      ctx.stroke();
+
+      // Clean concise heritage note
+      ctx.font = 'italic 13px serif';
       ctx.fillStyle = '#D6D3D1';
-      ctx.fillText(`“${activeGarment.dynasty} • ${activeGarment.subName}”`, 360, 770);
+      ctx.fillText(`“${activeGarment.dynasty} • ${activeGarment.subName.slice(0, 46)}”`, leftCardX + leftCardW / 2, leftCardY + 765);
 
-      // Right 3 Component Cards
-      // 1. Phụ Kiện Card
-      ctx.fillStyle = 'rgba(12, 12, 18, 0.8)';
-      ctx.strokeStyle = 'rgba(197, 160, 89, 0.3)';
+      // Right 3 Component Cards (Editorial Lookbook Style)
+      const rightCardX = 640;
+      const rightCardW = 450;
+      const rightCardH = 250;
+      const cardGap = 20;
+
+      const rightItems = [
+        {
+          badge: '01 • PHỤ KIỆN ĐI KÈM',
+          name: activeAccessoryItem.name,
+          vibe: activeAccessoryItem.styleVibe,
+          note: activeAccessoryItem.isCulturallyRespectful ? '✓ Tôn vinh vẻ tôn nghiêm cung đình' : '⚠️ Chi tiết phối phá cách hiện đại',
+          noteColor: activeAccessoryItem.isCulturallyRespectful ? '#34D399' : '#FBBF24',
+          sub: 'Chế tác thủ công tinh xảo',
+          img: accImg
+        },
+        {
+          badge: '02 • THÂN DƯỚI REMIX',
+          name: activeBottomItem.name,
+          vibe: activeBottomItem.styleVibe,
+          note: '✓ Phom dáng buông rủ, tôn vinh vạt áo',
+          noteColor: '#34D399',
+          sub: 'Chất vải tự nhiên nhẹ mát, thoáng khí',
+          img: botImg
+        },
+        {
+          badge: '03 • GIÀY / GUỐC PHỐI',
+          name: activeShoesItem.name,
+          vibe: activeShoesItem.styleVibe,
+          note: activeShoesItem.id === 'shoes-sneakers' ? '⚠️ Điểm nhấn đương đại phá cách' : '✓ Hồn xưa mộc mạc, thanh nhã',
+          noteColor: activeShoesItem.id === 'shoes-sneakers' ? '#FBBF24' : '#34D399',
+          sub: 'Thủ công truyền thống Việt Nam',
+          img: shoeImg
+        }
+      ];
+
+      rightItems.forEach((item, index) => {
+        const cardY = 280 + index * (rightCardH + cardGap);
+
+        // Card Container
+        ctx.fillStyle = 'rgba(16, 14, 22, 0.85)';
+        ctx.beginPath();
+        ctx.roundRect(rightCardX, cardY, rightCardW, rightCardH, 16);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(197, 160, 89, 0.35)';
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+
+        // 2D Image Box
+        const imgBoxX = rightCardX + 18;
+        const imgBoxY = cardY + 22;
+        const imgBoxW = 140;
+        const imgBoxH = 206;
+
+        ctx.fillStyle = 'rgba(8, 8, 12, 0.9)';
+        ctx.beginPath();
+        ctx.roundRect(imgBoxX, imgBoxY, imgBoxW, imgBoxH, 12);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(197, 160, 89, 0.25)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        if (item.img) {
+          drawContainedImage(ctx, item.img, imgBoxX + 10, imgBoxY + 10, imgBoxW - 20, imgBoxH - 20);
+        }
+
+        // Text Content
+        const textX = rightCardX + 175;
+
+        // Category Tag
+        ctx.textAlign = 'left';
+        ctx.font = 'bold 11px sans-serif';
+        ctx.fillStyle = '#E5C365';
+        ctx.fillText(item.badge, textX, cardY + 48);
+
+        // Item Name
+        ctx.font = 'bold 20px serif';
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillText(item.name.length > 20 ? item.name.slice(0, 20) + '...' : item.name, textX, cardY + 80);
+
+        // Vibe
+        ctx.font = '500 14px sans-serif';
+        ctx.fillStyle = '#C5A059';
+        ctx.fillText(item.vibe, textX, cardY + 112);
+
+        // Thin Separator
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(textX, cardY + 130);
+        ctx.lineTo(rightCardX + rightCardW - 20, cardY + 130);
+        ctx.stroke();
+
+        // Verification / Heritage Note
+        ctx.font = '500 13px sans-serif';
+        ctx.fillStyle = item.noteColor;
+        ctx.fillText(item.note, textX, cardY + 160);
+
+        // Sub description
+        ctx.font = '12px sans-serif';
+        ctx.fillStyle = '#8E7B68';
+        ctx.fillText(item.sub, textX, cardY + 192);
+      });
+
+      // 5. Bottom Palette & Specifications Panel (Certificate Style)
+      const btmX = 80;
+      const btmY = 1115;
+      const btmW = 1040;
+      const btmH = 345;
+
+      ctx.fillStyle = 'rgba(14, 12, 18, 0.9)';
       ctx.beginPath();
-      ctx.roundRect(640, 280, 450, 245, 14);
+      ctx.roundRect(btmX, btmY, btmW, btmH, 20);
       ctx.fill();
+      ctx.strokeStyle = 'rgba(197, 160, 89, 0.35)';
+      ctx.lineWidth = 1.5;
       ctx.stroke();
-      if (accImg) {
-        ctx.drawImage(accImg, 660, 310, 120, 120);
-      }
+
+      // Left Column: Color Palette & Appraisal
       ctx.textAlign = 'left';
-      ctx.font = 'bold 12px sans-serif';
-      ctx.fillStyle = '#C5A059';
-      ctx.fillText('PHỤ KIỆN ĐI KÈM', 800, 325);
-      ctx.font = 'bold 18px sans-serif';
-      ctx.fillStyle = '#FFFFFF';
-      ctx.fillText(activeAccessoryItem.name, 800, 355);
-      ctx.font = '13px sans-serif';
+      ctx.font = 'bold 15px sans-serif';
+      ctx.fillStyle = '#E5C365';
+      ctx.fillText('BẢNG SẮC TỘC OUTFIT (COLOR HARMONY)', btmX + 40, btmY + 45);
+
+      ctx.font = '12px sans-serif';
       ctx.fillStyle = '#A8A29E';
-      ctx.fillText(activeAccessoryItem.styleVibe, 800, 385);
-      ctx.fillStyle = '#D4AF37';
-      ctx.fillText(activeAccessoryItem.description.slice(0, 45) + '...', 800, 410);
-
-      // 2. Thân Dưới Card
-      ctx.fillStyle = 'rgba(12, 12, 18, 0.8)';
-      ctx.strokeStyle = 'rgba(197, 160, 89, 0.3)';
-      ctx.beginPath();
-      ctx.roundRect(640, 550, 450, 245, 14);
-      ctx.fill();
-      ctx.stroke();
-      if (botImg) {
-        ctx.drawImage(botImg, 660, 580, 120, 120);
-      }
-      ctx.textAlign = 'left';
-      ctx.font = 'bold 12px sans-serif';
-      ctx.fillStyle = '#C5A059';
-      ctx.fillText('THÂN DƯỚI REMIX', 800, 595);
-      ctx.font = 'bold 18px sans-serif';
-      ctx.fillStyle = '#FFFFFF';
-      ctx.fillText(activeBottomItem.name, 800, 625);
-      ctx.font = '13px sans-serif';
-      ctx.fillStyle = '#A8A29E';
-      ctx.fillText(activeBottomItem.styleVibe, 800, 655);
-      ctx.fillStyle = '#D4AF37';
-      ctx.fillText(activeBottomItem.description.slice(0, 45) + '...', 800, 680);
-
-      // 3. Giày / Guốc Card
-      ctx.fillStyle = 'rgba(12, 12, 18, 0.8)';
-      ctx.strokeStyle = 'rgba(197, 160, 89, 0.3)';
-      ctx.beginPath();
-      ctx.roundRect(640, 820, 450, 245, 14);
-      ctx.fill();
-      ctx.stroke();
-      if (shoeImg) {
-        ctx.drawImage(shoeImg, 660, 850, 120, 120);
-      }
-      ctx.textAlign = 'left';
-      ctx.font = 'bold 12px sans-serif';
-      ctx.fillStyle = '#C5A059';
-      ctx.fillText('GIÀY / GUỐC PHỐI', 800, 865);
-      ctx.font = 'bold 18px sans-serif';
-      ctx.fillStyle = '#FFFFFF';
-      ctx.fillText(activeShoesItem.name, 800, 895);
-      ctx.font = '13px sans-serif';
-      ctx.fillStyle = '#A8A29E';
-      ctx.fillText(activeShoesItem.styleVibe, 800, 925);
-      ctx.fillStyle = '#D4AF37';
-      ctx.fillText(activeShoesItem.description.slice(0, 45) + '...', 800, 950);
-
-      // 5. Bottom Palette & Specifications Panel
-      ctx.fillStyle = 'rgba(14, 14, 20, 0.85)';
-      ctx.strokeStyle = 'rgba(197, 160, 89, 0.3)';
-      ctx.beginPath();
-      ctx.roundRect(80, 1120, 1040, 340, 20);
-      ctx.fill();
-      ctx.stroke();
-
-      // Section 5.1: Color Palette
-      ctx.textAlign = 'left';
-      ctx.font = 'bold 14px sans-serif';
-      ctx.fillStyle = '#C5A059';
-      ctx.fillText('BẢNG SẮC TỘC OUTFIT (COLOR HARMONY)', 120, 1165);
+      ctx.fillText('Hệ quy chuẩn sắc phục & ngũ hành cung đình Triều Nguyễn', btmX + 40, btmY + 68);
 
       const swatches = [
         { color: selectedColorHex, label: 'Màu Áo Chính', hex: selectedColorHex },
@@ -358,65 +531,73 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
       ];
 
       swatches.forEach((sw, idx) => {
-        const swX = 120 + idx * 95;
-        const swY = 1220;
+        const swX = btmX + 40 + idx * 115;
+        const swY = btmY + 95;
+
+        // Swatch circle
         ctx.fillStyle = sw.color;
         ctx.beginPath();
-        ctx.arc(swX + 25, swY + 25, 25, 0, Math.PI * 2);
+        ctx.arc(swX + 24, swY + 24, 24, 0, Math.PI * 2);
         ctx.fill();
         ctx.strokeStyle = '#C5A059';
         ctx.lineWidth = 1.5;
         ctx.stroke();
 
         ctx.textAlign = 'center';
-        ctx.font = '11px sans-serif';
-        ctx.fillStyle = '#D6D3D1';
-        ctx.fillText(sw.label, swX + 25, swY + 70);
-        ctx.fillStyle = '#888';
-        ctx.fillText(sw.hex, swX + 25, swY + 86);
+        ctx.font = 'bold 12px sans-serif';
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillText(sw.label, swX + 24, swY + 68);
+        ctx.font = '11px monospace';
+        ctx.fillStyle = '#C5A059';
+        ctx.fillText(sw.hex, swX + 24, swY + 85);
       });
 
-      // Taboo status description
+      // Appraisal Status Banner
       ctx.textAlign = 'left';
-      ctx.font = '13px sans-serif';
+      ctx.font = '500 14px sans-serif';
       ctx.fillStyle = hasActiveTaboo ? '#F87171' : '#34D399';
       ctx.fillText(
         hasActiveTaboo 
-          ? '⚠️ Lưu ý: Phát hiện chi tiết chưa tối ưu theo quy chế triều đình.' 
-          : '✓ Thẩm định: Bộ phối tuân thủ hài hòa quy chuẩn ngũ thường và thẩm mỹ hiện đại.',
-        120, 1400
+          ? '⚠️ Thẩm định: Phát hiện chi tiết phá cách cần điều chỉnh theo quy chế triều đình.' 
+          : '✓ Thẩm định: Bộ phối đạt chuẩn quy chế Y quan Triều Nguyễn & thẩm mỹ đương đại.',
+        btmX + 40, btmY + 235
       );
 
-      // Section 5.2: Royal Vermilion Seal Stamp
-      ctx.save();
-      ctx.translate(940, 1270);
-      ctx.rotate(-0.05);
-      ctx.strokeStyle = '#B91C1C';
-      ctx.lineWidth = 5;
-      ctx.strokeRect(-75, -75, 150, 150);
+      ctx.font = '12px sans-serif';
+      ctx.fillStyle = '#78716C';
+      ctx.fillText('Dự thi Sáng tạo Di sản • Nền tảng HeritStyle AI', btmX + 40, btmY + 275);
+      ctx.fillText(`Xuất bản: ${new Date().toLocaleDateString('vi-VN')} • Bản sắc Cố Đô trường tồn`, btmX + 40, btmY + 298);
 
+      // Right Column: Royal Vermilion Seal Stamp
+      ctx.save();
+      ctx.translate(btmX + btmW - 145, btmY + 165);
+      ctx.rotate(-0.04);
+
+      // Outer Red Box
+      ctx.strokeStyle = '#991B1B';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.roundRect(-75, -75, 150, 150, 8);
+      ctx.stroke();
+
+      // Inner Red Box
       ctx.strokeStyle = '#DC2626';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(-68, -68, 136, 136);
+      ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      ctx.roundRect(-68, -68, 136, 136, 6);
+      ctx.stroke();
 
       ctx.textAlign = 'center';
       ctx.font = 'bold 16px serif';
       ctx.fillStyle = '#DC2626';
-      ctx.fillText('DI SẢN', 0, -32);
+      ctx.fillText('DI SẢN', 0, -30);
       ctx.font = 'bold 20px serif';
-      ctx.fillText('CHUẨN Y QUAN', 0, 0);
+      ctx.fillText('CHUẨN Y QUAN', 0, 3);
       ctx.font = 'bold 15px serif';
-      ctx.fillText('THẨM ĐỊNH', 0, 28);
-      ctx.font = '600 13px sans-serif';
-      ctx.fillText('2026', 0, 50);
+      ctx.fillText('THẨM ĐỊNH', 0, 32);
+      ctx.font = 'bold 13px sans-serif';
+      ctx.fillText('2026', 0, 52);
       ctx.restore();
-
-      // Section 5.3: QR / Verification signature line
-      ctx.textAlign = 'left';
-      ctx.font = '12px sans-serif';
-      ctx.fillStyle = '#78716C';
-      ctx.fillText('Dự thi Sáng tạo Di sản • Nền tảng HeritStyle AI', 540, 1340);
-      ctx.fillText(`Xuất ngày: ${new Date().toLocaleDateString('vi-VN')}`, 540, 1365);
 
       // 6. Trigger PNG Download
       const dataUrl = canvas.toDataURL('image/png');
@@ -1131,14 +1312,23 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
               
               {/* Item 1: Áo Cổ Phục Chính */}
               <div className="bg-[#161622]/95 backdrop-blur-xl border border-[#c5a059]/40 rounded-2xl p-4 sm:p-5 shadow-2xl flex flex-col sm:flex-row items-center sm:items-start gap-4 hover:border-[#c5a059] transition-all">
-                <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-xl bg-black/80 border border-[#c5a059]/50 p-2 shrink-0 flex flex-col items-center justify-center relative overflow-hidden">
-                  <span 
-                    className="w-12 h-12 rounded-full border-2 border-white/30 shadow-lg mb-1" 
-                    style={{ backgroundColor: selectedColorHex }}
-                  />
-                  <span className="text-[10px] text-[#c5a059] font-semibold text-center truncate max-w-full px-1">
-                    {activeColor.vietnameseName.split('(')[0]}
-                  </span>
+                <div className="w-24 h-28 sm:w-28 sm:h-32 rounded-xl bg-black/80 border border-[#c5a059]/50 p-1 shrink-0 flex items-center justify-center relative overflow-hidden">
+                  {uploadedImage ? (
+                    <img 
+                      src={uploadedImage} 
+                      alt={activeGarment.name} 
+                      className="w-full h-full object-cover rounded-lg"
+                    />
+                  ) : (
+                    <RobeVisualizer
+                      type={activeGarment.svgType}
+                      primaryColor={selectedColorHex}
+                      hasDonY={hasDonY}
+                      buttonType={activeButtonItem.id}
+                      interactive={false}
+                      borderless={true}
+                    />
+                  )}
                 </div>
                 <div className="min-w-0 flex-1 text-center sm:text-left">
                   <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-1">
@@ -1407,6 +1597,22 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
           </div>
         </div>
       )}
+
+      {/* Dedicated Offscreen Robe Visualizer for Poster Export */}
+      <div 
+        id="export-robe-container" 
+        className="sr-only fixed -left-[9999px] -top-[9999px] pointer-events-none opacity-0 select-none" 
+        aria-hidden="true"
+      >
+        <RobeVisualizer
+          type={activeGarment.svgType}
+          primaryColor={selectedColorHex}
+          hasDonY={hasDonY}
+          buttonType={activeButtonItem.id}
+          interactive={false}
+          borderless={true}
+        />
+      </div>
     </div>
   );
 };
