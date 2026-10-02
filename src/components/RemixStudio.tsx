@@ -1,4 +1,4 @@
-import React, { useState, useRef, useMemo } from 'react';
+import React, { useState, useRef } from 'react';
 import { 
   HERITAGE_GARMENTS, 
   TRADITIONAL_COLORS, 
@@ -11,8 +11,6 @@ import {
   LINK_ANH_CUC_KIM_LOAI,
   LINK_ANH_CUC_NGOC,
   LINK_ANH_CUC_GO,
-  LINK_ANH_CUC_BAC_HOA_SEN,
-  LINK_ANH_CUC_XA_CU,
   LINK_ANH_CUC_VAI,
   LINK_ANH_QUAN_LUA,
   LINK_ANH_QUAN_LINEN,
@@ -466,97 +464,74 @@ export const RemixStudio: React.FC = () => {
   const shoesOptions = REMIX_ITEMS.filter(i => i.category === 'shoes');
   const accessoryOptions = REMIX_ITEMS.filter(i => i.category === 'accessory');
 
-  // Local storage key for custom uploaded item images
-  const STORAGE_KEY_CUSTOM_IMAGES = 'heritstyle_custom_item_images';
+  // 6 Sản phẩm mới hỗ trợ tải ảnh thủ công theo yêu cầu của bạn Giang
+  const UPLOADABLE_NEW_ITEM_IDS = [
+    'btn-silver-lotus',        // Cúc Bạc Chạm Hoa Sen
+    'btn-mother-of-pearl',     // Cúc Xà Cừ Khảm Ốc Ánh Kim
+    'bottom-silk-wide-pants',  // Quần Ống Sớ Lụa
+    'shoes-chunky-loafers',    // Chunky Loafers
+    'acc-khan-dong',           // Khăn Đóng Chữ Nhân
+    'acc-khan-vanh-day'        // Khăn Vành Dây
+  ];
 
-  const [customItemImages, setCustomItemImages] = useState<Record<string, string>>(() => {
+  const isUploadableItem = (itemId: string) => UPLOADABLE_NEW_ITEM_IDS.includes(itemId);
+
+  // State lưu trữ ảnh tải lên thủ công của người dùng (persisted in localStorage)
+  const [customItemImages, setCustomItemImages] = useState<{ [itemId: string]: string }>(() => {
     try {
-      const saved = localStorage.getItem(STORAGE_KEY_CUSTOM_IMAGES);
+      const saved = localStorage.getItem('heritstyle_custom_item_images');
       return saved ? JSON.parse(saved) : {};
     } catch {
       return {};
     }
   });
 
+  const [uploadToastMessage, setUploadToastMessage] = useState<string | null>(null);
   const [isCustomImageModalOpen, setIsCustomImageModalOpen] = useState<boolean>(false);
-  const itemFileInputRef = useRef<HTMLInputElement>(null);
-  const [targetUploadItemId, setTargetUploadItemId] = useState<string | null>(null);
 
-  const triggerUploadForItem = (itemId: string, e?: React.MouseEvent) => {
-    if (e) {
-      e.stopPropagation();
-    }
-    setTargetUploadItemId(itemId);
-    if (itemFileInputRef.current) {
-      itemFileInputRef.current.value = '';
-      itemFileInputRef.current.click();
-    }
-  };
-
-  const handleItemImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !targetUploadItemId) return;
-
+  const handleUploadItemImage = (itemId: string, file: File) => {
+    if (!file) return;
     const reader = new FileReader();
-    reader.onload = (event) => {
-      const dataUrl = event.target?.result as string;
+    reader.onload = (e) => {
+      const dataUrl = e.target?.result as string;
       if (dataUrl) {
         setCustomItemImages(prev => {
-          const next = { ...prev, [targetUploadItemId]: dataUrl };
+          const next = { ...prev, [itemId]: dataUrl };
           try {
-            localStorage.setItem(STORAGE_KEY_CUSTOM_IMAGES, JSON.stringify(next));
-          } catch {}
+            localStorage.setItem('heritstyle_custom_item_images', JSON.stringify(next));
+          } catch (err) {
+            console.warn('LocalStorage quota', err);
+          }
           return next;
         });
-        playColorPickSound();
+        setUploadToastMessage(`Đã cập nhật ảnh thủ công thành công!`);
+        setTimeout(() => setUploadToastMessage(null), 3500);
       }
     };
     reader.readAsDataURL(file);
   };
 
-  const handleResetItemImage = (itemId: string, e?: React.MouseEvent) => {
-    if (e) {
-      e.stopPropagation();
-    }
+  const handleResetItemImage = (itemId: string) => {
     setCustomItemImages(prev => {
       const next = { ...prev };
       delete next[itemId];
       try {
-        localStorage.setItem(STORAGE_KEY_CUSTOM_IMAGES, JSON.stringify(next));
-      } catch {}
+        localStorage.setItem('heritstyle_custom_item_images', JSON.stringify(next));
+      } catch (err) {
+        console.warn(err);
+      }
       return next;
     });
-    playButtonClinkSound();
+    setUploadToastMessage(`Đã khôi phục ảnh mặc định.`);
+    setTimeout(() => setUploadToastMessage(null), 3000);
   };
 
-  // Helper to get image URL for any item (hỗ trợ ảnh tải lên thủ công hoặc ảnh mặc định)
+  // Helper to get image URL for any item (ưu tiên ảnh tải thủ công)
   const getItemImageUrl = (itemId: string, defaultThumbnail?: string): string => {
-    if (customItemImages[itemId]) {
-      return customItemImages[itemId];
-    }
-    return defaultThumbnail || '';
+    return customItemImages[itemId] || defaultThumbnail || '';
   };
 
-  // Currently active selected items
-  const activeButtonItem = buttonOptions.find(b => b.id === selectedButtonId) || buttonOptions[0];
-  const activeBottomItem = bottomOptions.find(b => b.id === selectedBottomId) || bottomOptions[0];
-  const activeShoesItem = shoesOptions.find(s => s.id === selectedShoesId) || shoesOptions[0];
-  const activeAccessoryItem = accessoryOptions.find(a => a.id === selectedAccessoryId) || accessoryOptions[0];
-
-  // Effective items enriched with custom uploaded images
-  const effectiveActiveButtonItem = useMemo(() => {
-    const item = buttonOptions.find(b => b.id === selectedButtonId) || buttonOptions[0];
-    if (customItemImages[item.id]) {
-      return {
-        ...item,
-        thumbnailUrl: customItemImages[item.id]
-      };
-    }
-    return item;
-  }, [buttonOptions, selectedButtonId, customItemImages]);
-
-  const effectiveActiveBottomItem = useMemo(() => {
-    const item = bottomOptions.find(b => b.id === selectedBottomId) || bottomOptions[0];
+  const resolveItemWithCustomImage = <T extends ModernRemixItem>(item: T): T => {
     if (customItemImages[item.id]) {
       return {
         ...item,
@@ -565,39 +540,13 @@ export const RemixStudio: React.FC = () => {
       };
     }
     return item;
-  }, [bottomOptions, selectedBottomId, customItemImages]);
+  };
 
-  const effectiveActiveShoesItem = useMemo(() => {
-    const item = shoesOptions.find(s => s.id === selectedShoesId) || shoesOptions[0];
-    if (customItemImages[item.id]) {
-      return {
-        ...item,
-        thumbnailUrl: customItemImages[item.id],
-        canvas2dUrl: customItemImages[item.id]
-      };
-    }
-    return item;
-  }, [shoesOptions, selectedShoesId, customItemImages]);
-
-  const effectiveActiveAccessoryItem = useMemo(() => {
-    const item = accessoryOptions.find(a => a.id === selectedAccessoryId) || accessoryOptions[0];
-    if (customItemImages[item.id]) {
-      return {
-        ...item,
-        thumbnailUrl: customItemImages[item.id],
-        canvas2dUrl: customItemImages[item.id]
-      };
-    }
-    return item;
-  }, [accessoryOptions, selectedAccessoryId, customItemImages]);
-
-  const effectiveUploadedGarmentImage = useMemo(() => {
-    if (uploadedImage) return uploadedImage;
-    if (customItemImages[selectedGarmentId]) {
-      return customItemImages[selectedGarmentId];
-    }
-    return null;
-  }, [uploadedImage, customItemImages, selectedGarmentId]);
+  // Currently active selected items (tự động đồng bộ ảnh tải lên thủ công vào Canvas & Moodboard)
+  const activeButtonItem = resolveItemWithCustomImage(buttonOptions.find(b => b.id === selectedButtonId) || buttonOptions[0]);
+  const activeBottomItem = resolveItemWithCustomImage(bottomOptions.find(b => b.id === selectedBottomId) || bottomOptions[0]);
+  const activeShoesItem = resolveItemWithCustomImage(shoesOptions.find(s => s.id === selectedShoesId) || shoesOptions[0]);
+  const activeAccessoryItem = resolveItemWithCustomImage(accessoryOptions.find(a => a.id === selectedAccessoryId) || accessoryOptions[0]);
 
   // Real-time Dual-Metric Evaluation: Slay Score & Độ Chuẩn Di Sản
   const dualMetrics = computeRealtimeDualMetrics(
@@ -890,7 +839,20 @@ export const RemixStudio: React.FC = () => {
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={() => setIsCustomImageModalOpen(true)}
+              className="px-3.5 py-1.5 text-xs text-[#e5c365] hover:text-[#f5f2eb] border border-[#c5a059]/40 hover:border-[#c5a059] rounded-lg transition-colors flex items-center gap-1.5 bg-[#1b1b24] cursor-pointer shadow-sm"
+              title="Quản lý toàn bộ kho ảnh tùy chỉnh đã tải lên"
+            >
+              <ImageIcon className="w-3.5 h-3.5" />
+              <span>Kho ảnh thủ công</span>
+              {Object.keys(customItemImages).length > 0 && (
+                <span className="w-4 h-4 rounded-full bg-[#c5a059] text-stone-950 text-[10px] font-bold flex items-center justify-center">
+                  {Object.keys(customItemImages).length}
+                </span>
+              )}
+            </button>
             <button
               onClick={() => {
                 setSelectedGarmentId('ngu-than-tay-chen');
@@ -1109,63 +1071,29 @@ export const RemixStudio: React.FC = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
               {HERITAGE_GARMENTS.map((item) => {
                 const isSelected = selectedGarmentId === item.id;
-                const isNewGarment = item.id === 'ao-giao-linh' || item.id === 'ao-vien-linh';
-                const hasCustomGarmentImg = Boolean(customItemImages[item.id]);
-
                 return (
-                  <div
+                  <button
                     key={item.id}
                     onClick={() => {
                       setSelectedGarmentId(item.id);
                       setSelectedColorHex(item.defaultColor);
                       playGarmentSelectSound();
                     }}
-                    className={`text-left p-3.5 rounded-xl border transition-all relative cursor-pointer flex flex-col justify-between ${
+                    className={`text-left p-3.5 rounded-xl border transition-all relative cursor-pointer ${
                       isSelected
-                        ? 'bg-[#1b1b22] border-[#c5a059] shadow-sm ring-1 ring-[#c5a059]'
+                        ? 'bg-[#1b1b22] border-[#c5a059] shadow-sm'
                         : 'bg-[#101014] border-[#22222a] hover:border-[#383845]'
                     }`}
                   >
-                    <div>
-                      <div className="flex items-center justify-between gap-1 mb-1">
-                        <div className="font-bold text-sm text-[#f5f2eb] truncate">{item.name}</div>
-                        {isNewGarment && (
-                          <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#c5a059]/20 text-[#e5c365] border border-[#c5a059]/40 shrink-0">
-                            ✨ Mới
-                          </span>
-                        )}
-                      </div>
-                      <div className="text-xs text-[#c5a059]">{item.dynasty}</div>
-                      <p className="text-xs text-stone-300 line-clamp-2 mt-2 leading-relaxed">
-                        {item.subName}
-                      </p>
-                    </div>
-
-                    {/* NÚT TẢI ẢNH LÊN CHO SẢN PHẨM MỚI (ÁO GIAO LĨNH & ÁO VIÊN LĨNH) */}
-                    {isNewGarment && (
-                      <div className="mt-3 pt-2.5 border-t border-white/10 flex items-center justify-between gap-1.5">
-                        <button
-                          type="button"
-                          onClick={(e) => triggerUploadForItem(item.id, e)}
-                          className="flex-1 py-1.5 px-2 rounded-lg bg-[#c5a059]/20 hover:bg-[#c5a059]/35 border border-[#c5a059]/50 text-[#f5ecd5] hover:text-white text-[11px] font-semibold flex items-center justify-center gap-1.5 transition-all shadow-sm cursor-pointer group/btn"
-                          title={`Tải ảnh chụp thực tế cho ${item.name}`}
-                        >
-                          <Upload className="w-3.5 h-3.5 text-[#e5c365] group-hover/btn:scale-110 transition-transform" />
-                          <span>{hasCustomGarmentImg ? 'Đổi ảnh' : 'Tải ảnh lên'}</span>
-                        </button>
-                        {hasCustomGarmentImg && (
-                          <button
-                            type="button"
-                            onClick={(e) => handleResetItemImage(item.id, e)}
-                            className="p-1.5 rounded-lg bg-stone-800/80 hover:bg-rose-950/80 border border-white/10 text-stone-300 hover:text-rose-200 text-[10px] flex items-center gap-1 cursor-pointer transition-all shrink-0"
-                            title="Đặt lại ảnh mặc định"
-                          >
-                            <RotateCcw className="w-3 h-3" />
-                          </button>
-                        )}
-                      </div>
+                    {isSelected && (
+                      <span className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-[#c5a059]" />
                     )}
-                  </div>
+                    <div className="font-bold text-sm text-[#f5f2eb]">{item.name}</div>
+                    <div className="text-xs text-[#c5a059] mt-0.5">{item.dynasty}</div>
+                    <p className="text-xs text-stone-300 line-clamp-2 mt-2 leading-relaxed">
+                      {item.subName}
+                    </p>
+                  </button>
                 );
               })}
             </div>
@@ -1427,20 +1355,9 @@ export const RemixStudio: React.FC = () => {
             {/* B. HẠT KHUY CÚC ÁO (1.png, 2.png, 3.png, 4.png) */}
             <div className="space-y-3 pt-1">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <label className="text-xs font-semibold text-stone-200">
-                    Hạt Khuy Cúc Áo (Ngũ Thường):
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => setIsCustomImageModalOpen(true)}
-                    className="text-[11px] text-[#c5a059] hover:text-[#e5c365] bg-[#c5a059]/10 hover:bg-[#c5a059]/20 px-2 py-0.5 rounded border border-[#c5a059]/30 flex items-center gap-1 cursor-pointer transition-all"
-                    title="Xem & quản lý tất cả ảnh sản phẩm"
-                  >
-                    <ImageIcon className="w-3 h-3" />
-                    <span>Kho ảnh tùy chỉnh</span>
-                  </button>
-                </div>
+                <label className="text-xs font-semibold text-stone-200">
+                  Hạt Khuy Cúc Áo (Ngũ Thường):
+                </label>
                 <span className="text-xs text-rose-400 font-semibold">*Cấm cúc vải Tàu</span>
               </div>
 
@@ -1448,7 +1365,7 @@ export const RemixStudio: React.FC = () => {
                 {buttonOptions.map(item => {
                   const isSelected = selectedButtonId === item.id;
                   const isTaboo = item.id === 'btn-chinese-cloth';
-                  const isNewButton = item.id === 'btn-silver-lotus' || item.id === 'btn-mother-of-pearl' || item.name.includes('Mới');
+                  const isUploadable = isUploadableItem(item.id);
                   const hasCustomImg = Boolean(customItemImages[item.id]);
                   const imgSrc = getItemImageUrl(item.id, item.thumbnailUrl);
 
@@ -1488,27 +1405,20 @@ export const RemixStudio: React.FC = () => {
                             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
                           />
                           {hasCustomImg && (
-                            <span className="absolute bottom-0 inset-x-0 bg-emerald-950/90 text-emerald-300 text-[8px] font-bold text-center py-0.5 leading-none">
-                              Ảnh riêng
+                            <span className="absolute bottom-0 inset-x-0 bg-emerald-600/90 text-white text-[8px] font-bold text-center py-0.5 leading-none shadow">
+                              Ảnh bạn
                             </span>
                           )}
                         </div>
 
                         <div className="min-w-0 flex-1">
-                          <div className="font-semibold flex items-center justify-between gap-1">
-                            <span className="truncate text-xs">{item.name}</span>
-                            <div className="flex items-center gap-1 shrink-0">
-                              {isNewButton && (
-                                <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-[#c5a059]/20 text-[#e5c365] border border-[#c5a059]/40">
-                                  Mới
-                                </span>
-                              )}
-                              {item.isCulturallyRespectful ? (
-                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                              ) : (
-                                <AlertTriangle className="w-3.5 h-3.5 text-rose-400 shrink-0 animate-pulse" />
-                              )}
-                            </div>
+                          <div className="font-semibold flex items-center justify-between">
+                            <span className="truncate pr-1 text-xs">{item.name}</span>
+                            {item.isCulturallyRespectful ? (
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                            ) : (
+                              <AlertTriangle className="w-3.5 h-3.5 text-rose-400 shrink-0 animate-pulse" />
+                            )}
                           </div>
                           <div className={`text-[11px] mt-0.5 font-medium ${isTaboo ? 'text-rose-400' : 'text-[#c5a059]'}`}>
                             {item.styleVibe}
@@ -1519,51 +1429,37 @@ export const RemixStudio: React.FC = () => {
                         </div>
                       </div>
 
-                      {/* NÚT TẢI ẢNH LÊN CHO SẢN PHẨM MỚI (CÚC BẠC HOA SEN, CÚC XÀ CỪ KHẢM ỐC, ...) */}
-                      {isNewButton ? (
-                        <div className="mt-2.5 pt-2 border-t border-white/10 flex items-center justify-between gap-1.5">
-                          <button
-                            type="button"
-                            onClick={(e) => triggerUploadForItem(item.id, e)}
-                            className="flex-1 py-1.5 px-2 rounded-lg bg-gradient-to-r from-[#c5a059]/25 to-amber-500/20 hover:from-[#c5a059]/40 hover:to-amber-500/30 border border-[#c5a059]/60 text-[#f5ecd5] hover:text-white text-[11px] font-semibold flex items-center justify-center gap-1.5 transition-all shadow-sm cursor-pointer group/btn"
-                            title={`Tải ảnh chụp thực tế cho ${item.name}`}
+                      {/* Nút Tải Ảnh Lên Thủ Công cho sản phẩm mới */}
+                      {isUploadable && (
+                        <div className="mt-2.5 pt-2 border-t border-white/10 flex items-center gap-1.5" onClick={e => e.stopPropagation()}>
+                          <label 
+                            className={`flex-1 py-1.5 px-2 rounded-lg text-[11px] font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-all shadow-sm ${
+                              hasCustomImg
+                                ? 'bg-emerald-950/60 hover:bg-emerald-900/70 text-emerald-300 border border-emerald-500/50'
+                                : 'bg-[#c5a059]/20 hover:bg-[#c5a059]/30 text-[#e5c365] border border-[#c5a059]/50 hover:border-[#e5c365]'
+                            }`}
+                            title="Tải ảnh cúc áo thủ công từ máy tính của bạn"
                           >
-                            <Upload className="w-3.5 h-3.5 text-[#e5c365] group-hover/btn:scale-110 transition-transform" />
+                            <Upload className="w-3 h-3 shrink-0" />
                             <span>{hasCustomImg ? 'Đổi ảnh thủ công' : 'Tải ảnh lên'}</span>
-                          </button>
-
+                            <input 
+                              type="file" 
+                              accept="image/*" 
+                              className="hidden" 
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) handleUploadItemImage(item.id, file);
+                              }} 
+                            />
+                          </label>
                           {hasCustomImg && (
                             <button
                               type="button"
-                              onClick={(e) => handleResetItemImage(item.id, e)}
-                              className="p-1.5 px-2 rounded-lg bg-stone-800/80 hover:bg-rose-950/80 border border-white/10 hover:border-rose-500/50 text-stone-300 hover:text-rose-200 text-[10px] flex items-center gap-1 cursor-pointer transition-all shrink-0"
+                              onClick={() => handleResetItemImage(item.id)}
+                              className="p-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-rose-300 border border-stone-600/40"
                               title="Khôi phục ảnh mặc định"
                             >
                               <RotateCcw className="w-3 h-3" />
-                              <span className="hidden sm:inline">Đặt lại</span>
-                            </button>
-                          )}
-                        </div>
-                      ) : (
-                        <div className="mt-2 pt-1.5 border-t border-white/5 flex items-center justify-between opacity-80 hover:opacity-100 transition-opacity">
-                          <button
-                            type="button"
-                            onClick={(e) => triggerUploadForItem(item.id, e)}
-                            className="text-[10px] text-stone-400 hover:text-[#e5c365] flex items-center gap-1 cursor-pointer transition-colors"
-                            title={`Tải ảnh tùy chỉnh cho ${item.name}`}
-                          >
-                            <Upload className="w-3 h-3" />
-                            <span>{hasCustomImg ? 'Đổi ảnh' : 'Tải ảnh riêng'}</span>
-                          </button>
-                          {hasCustomImg && (
-                            <button
-                              type="button"
-                              onClick={(e) => handleResetItemImage(item.id, e)}
-                              className="text-[10px] text-stone-400 hover:text-rose-400 flex items-center gap-0.5 cursor-pointer transition-colors"
-                              title="Đặt lại ảnh mặc định"
-                            >
-                              <RotateCcw className="w-2.5 h-2.5" />
-                              <span>Đặt lại</span>
                             </button>
                           )}
                         </div>
@@ -1609,6 +1505,8 @@ export const RemixStudio: React.FC = () => {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {bottomOptions.map(item => {
                   const isSelected = selectedBottomId === item.id;
+                  const isUploadable = isUploadableItem(item.id);
+                  const hasCustomImg = Boolean(customItemImages[item.id]);
                   const imgSrc = getItemImageUrl(item.id, item.thumbnailUrl);
 
                   return (
@@ -1618,7 +1516,7 @@ export const RemixStudio: React.FC = () => {
                         setSelectedBottomId(item.id);
                         playFabricRustleSound();
                       }}
-                      className={`rounded-xl border overflow-hidden text-left transition-all cursor-pointer flex flex-col relative group ${
+                      className={`rounded-xl border overflow-hidden text-left transition-all cursor-pointer flex flex-col justify-between relative group ${
                         isSelected
                           ? 'bg-[#1b1b24] border-[#c5a059] shadow-md ring-1 ring-[#c5a059]'
                           : 'bg-[#101014] border-[#22222a] hover:border-[#383848]'
@@ -1637,8 +1535,13 @@ export const RemixStudio: React.FC = () => {
                           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                         />
                         {isSelected && (
-                          <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-[#c5a059] text-stone-950 flex items-center justify-center font-bold text-xs shadow">
+                          <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-[#c5a059] text-stone-950 flex items-center justify-center font-bold text-xs shadow z-10">
                             ✓
+                          </div>
+                        )}
+                        {hasCustomImg && (
+                          <div className="absolute top-2 left-2 px-1.5 py-0.5 rounded bg-emerald-600/90 text-white font-bold text-[9px] shadow flex items-center gap-1 z-10">
+                            <span>📸 Ảnh bạn</span>
                           </div>
                         )}
                       </div>
@@ -1647,10 +1550,46 @@ export const RemixStudio: React.FC = () => {
                         <div>
                           <div className="font-bold text-xs text-[#f5f2eb] line-clamp-1">{item.name}</div>
                           <div className="text-[11px] text-[#c5a059] mt-0.5">{item.styleVibe}</div>
+                          <p className="text-[11px] text-stone-400 line-clamp-2 leading-relaxed pt-1">
+                            {item.description}
+                          </p>
                         </div>
-                        <p className="text-[11px] text-stone-400 line-clamp-2 leading-relaxed pt-1">
-                          {item.description}
-                        </p>
+
+                        {/* Nút Tải Ảnh Lên Thủ Công cho sản phẩm mới */}
+                        {isUploadable && (
+                          <div className="mt-2.5 pt-2 border-t border-white/10 flex items-center gap-1.5" onClick={e => e.stopPropagation()}>
+                            <label 
+                              className={`flex-1 py-1.5 px-2 rounded-lg text-[11px] font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-all shadow-sm ${
+                                hasCustomImg
+                                  ? 'bg-emerald-950/60 hover:bg-emerald-900/70 text-emerald-300 border border-emerald-500/50'
+                                  : 'bg-[#c5a059]/20 hover:bg-[#c5a059]/30 text-[#e5c365] border border-[#c5a059]/50 hover:border-[#e5c365]'
+                              }`}
+                              title="Tải ảnh Quần Ống Sớ Lụa thủ công từ máy tính"
+                            >
+                              <Upload className="w-3.5 h-3.5 shrink-0" />
+                              <span>{hasCustomImg ? 'Đổi ảnh' : 'Tải ảnh lên'}</span>
+                              <input 
+                                type="file" 
+                                accept="image/*" 
+                                className="hidden" 
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) handleUploadItemImage(item.id, file);
+                                }} 
+                              />
+                            </label>
+                            {hasCustomImg && (
+                              <button
+                                type="button"
+                                onClick={() => handleResetItemImage(item.id)}
+                                className="p-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-rose-300 border border-stone-600/40"
+                                title="Khôi phục ảnh mặc định"
+                              >
+                                <RotateCcw className="w-3.5 h-3.5" />
+                              </button>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </div>
                   );
@@ -1669,6 +1608,8 @@ export const RemixStudio: React.FC = () => {
                 {shoesOptions.map(item => {
                   const isSelected = selectedShoesId === item.id;
                   const isSneakerClash = item.id === 'shoes-white-sneakers' && (activeGarment.id === 'ao-tac' || activeGarment.id === 'ao-nhat-binh' || activeGarment.id === 'ao-vien-linh');
+                  const isUploadable = isUploadableItem(item.id);
+                  const hasCustomImg = Boolean(customItemImages[item.id]);
                   const imgSrc = getItemImageUrl(item.id, item.thumbnailUrl);
 
                   return (
@@ -1678,7 +1619,7 @@ export const RemixStudio: React.FC = () => {
                         setSelectedShoesId(item.id);
                         playWoodClogSound();
                       }}
-                      className={`rounded-xl border overflow-hidden text-left transition-all cursor-pointer flex flex-col relative group ${
+                      className={`rounded-xl border overflow-hidden text-left transition-all cursor-pointer flex flex-col justify-between relative group ${
                         isSelected
                           ? isSneakerClash
                             ? 'bg-amber-950/40 border-amber-500 ring-1 ring-amber-500'
@@ -1699,12 +1640,17 @@ export const RemixStudio: React.FC = () => {
                           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                         />
                         {isSelected && (
-                          <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-[#c5a059] text-stone-950 flex items-center justify-center font-bold text-xs shadow">
+                          <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-[#c5a059] text-stone-950 flex items-center justify-center font-bold text-xs shadow z-10">
                             ✓
                           </div>
                         )}
+                        {hasCustomImg && (
+                          <div className="absolute top-2 left-2 px-1.5 py-0.5 rounded bg-emerald-600/90 text-white font-bold text-[9px] shadow flex items-center gap-1 z-10">
+                            <span>📸 Ảnh bạn</span>
+                          </div>
+                        )}
                         {isSneakerClash && (
-                          <div className="absolute bottom-2 left-2 right-2 bg-amber-950/90 text-amber-200 border border-amber-500/50 text-[10px] px-1.5 py-0.5 rounded font-semibold text-center">
+                          <div className="absolute bottom-2 left-2 right-2 bg-amber-950/90 text-amber-200 border border-amber-500/50 text-[10px] px-1.5 py-0.5 rounded font-semibold text-center z-10">
                             ⚠️ Cân nhắc lễ phục
                           </div>
                         )}
@@ -1714,10 +1660,46 @@ export const RemixStudio: React.FC = () => {
                         <div>
                           <div className="font-bold text-xs text-[#f5f2eb] line-clamp-1">{item.name}</div>
                           <div className="text-[11px] text-[#c5a059] mt-0.5">{item.styleVibe}</div>
+                          <p className="text-[11px] text-stone-400 line-clamp-2 leading-relaxed pt-1">
+                            {item.description}
+                          </p>
                         </div>
-                        <p className="text-[11px] text-stone-400 line-clamp-2 leading-relaxed pt-1">
-                          {item.description}
-                        </p>
+
+                        {/* Nút Tải Ảnh Lên Thủ Công cho sản phẩm mới */}
+                        {isUploadable && (
+                          <div className="mt-2.5 pt-2 border-t border-white/10 flex items-center gap-1.5" onClick={e => e.stopPropagation()}>
+                            <label 
+                              className={`flex-1 py-1.5 px-2 rounded-lg text-[11px] font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-all shadow-sm ${
+                                hasCustomImg
+                                  ? 'bg-emerald-950/60 hover:bg-emerald-900/70 text-emerald-300 border border-emerald-500/50'
+                                  : 'bg-[#c5a059]/20 hover:bg-[#c5a059]/30 text-[#e5c365] border border-[#c5a059]/50 hover:border-[#e5c365]'
+                              }`}
+                              title="Tải ảnh Chunky Loafers thủ công từ máy tính"
+                            >
+                              <Upload className="w-3.5 h-3.5 shrink-0" />
+                              <span>{hasCustomImg ? 'Đổi ảnh' : 'Tải ảnh lên'}</span>
+                              <input 
+                                type="file" 
+                                accept="image/*" 
+                                className="hidden" 
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) handleUploadItemImage(item.id, file);
+                                }} 
+                              />
+                            </label>
+                            {hasCustomImg && (
+                              <button
+                                type="button"
+                                onClick={() => handleResetItemImage(item.id)}
+                                className="p-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-rose-300 border border-stone-600/40"
+                                title="Khôi phục ảnh mặc định"
+                              >
+                                <RotateCcw className="w-3.5 h-3.5" />
+                              </button>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </div>
                   );
@@ -1736,6 +1718,8 @@ export const RemixStudio: React.FC = () => {
                 {accessoryOptions.map(item => {
                   const isSelected = selectedAccessoryId === item.id;
                   const isSmartwatch = item.id === 'acc-smartwatch';
+                  const isUploadable = isUploadableItem(item.id);
+                  const hasCustomImg = Boolean(customItemImages[item.id]);
                   const imgSrc = getItemImageUrl(item.id, item.thumbnailUrl);
 
                   return (
@@ -1745,7 +1729,7 @@ export const RemixStudio: React.FC = () => {
                         setSelectedAccessoryId(item.id);
                         playFanFlutterSound();
                       }}
-                      className={`rounded-xl border overflow-hidden text-left transition-all cursor-pointer flex flex-col relative group ${
+                      className={`rounded-xl border overflow-hidden text-left transition-all cursor-pointer flex flex-col justify-between relative group ${
                         isSelected
                           ? isSmartwatch
                             ? 'bg-rose-950/40 border-rose-500 ring-1 ring-rose-500'
@@ -1771,6 +1755,11 @@ export const RemixStudio: React.FC = () => {
                             ✓
                           </div>
                         )}
+                        {hasCustomImg && (
+                          <div className="absolute top-2 left-2 px-1 py-0.5 rounded bg-emerald-600/90 text-white font-bold text-[8px] shadow flex items-center gap-0.5 z-10">
+                            <span>📸 Tự tải</span>
+                          </div>
+                        )}
                       </div>
 
                       <div className="p-2.5 space-y-1.5 flex-1 flex flex-col justify-between">
@@ -1783,6 +1772,42 @@ export const RemixStudio: React.FC = () => {
                             {item.description}
                           </p>
                         </div>
+
+                        {/* Nút Tải Ảnh Lên Thủ Công cho sản phẩm mới */}
+                        {isUploadable && (
+                          <div className="mt-2 pt-1.5 border-t border-white/10 flex items-center gap-1" onClick={e => e.stopPropagation()}>
+                            <label 
+                              className={`flex-1 py-1 px-1.5 rounded-lg text-[10px] font-bold flex items-center justify-center gap-1 cursor-pointer transition-all shadow-sm ${
+                                hasCustomImg
+                                  ? 'bg-emerald-950/60 hover:bg-emerald-900/70 text-emerald-300 border border-emerald-500/50'
+                                  : 'bg-[#c5a059]/20 hover:bg-[#c5a059]/30 text-[#e5c365] border border-[#c5a059]/50 hover:border-[#e5c365]'
+                              }`}
+                              title={`Tải ảnh ${item.name} thủ công từ máy tính`}
+                            >
+                              <Upload className="w-3 h-3 shrink-0" />
+                              <span className="truncate">{hasCustomImg ? 'Đổi ảnh' : 'Tải ảnh lên'}</span>
+                              <input 
+                                type="file" 
+                                accept="image/*" 
+                                className="hidden" 
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) handleUploadItemImage(item.id, file);
+                                }} 
+                              />
+                            </label>
+                            {hasCustomImg && (
+                              <button
+                                type="button"
+                                onClick={() => handleResetItemImage(item.id)}
+                                className="p-1 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-rose-300 border border-stone-600/40 shrink-0"
+                                title="Khôi phục ảnh mặc định"
+                              >
+                                <RotateCcw className="w-3 h-3" />
+                              </button>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </div>
                   );
@@ -1850,12 +1875,12 @@ export const RemixStudio: React.FC = () => {
             activeGarment={activeGarment}
             activeColor={activeColor}
             selectedColorHex={selectedColorHex}
-            activeButtonItem={effectiveActiveButtonItem}
-            activeBottomItem={effectiveActiveBottomItem}
-            activeShoesItem={effectiveActiveShoesItem}
-            activeAccessoryItem={effectiveActiveAccessoryItem}
+            activeButtonItem={activeButtonItem}
+            activeBottomItem={activeBottomItem}
+            activeShoesItem={activeShoesItem}
+            activeAccessoryItem={activeAccessoryItem}
             hasDonY={selectedLayerId === 'layer-don-y-white'}
-            uploadedImage={effectiveUploadedGarmentImage}
+            uploadedImage={uploadedImage}
             isChineseButtonSelected={isChineseButtonSelected}
             isImperialYellowSelected={isImperialYellowSelected}
             isTabooClashSelected={isTabooClashSelected}
@@ -2227,14 +2252,18 @@ export const RemixStudio: React.FC = () => {
         </div>
       )}
 
-      {/* Hidden File Input for Direct Item Upload */}
-      <input
-        type="file"
-        ref={itemFileInputRef}
-        onChange={handleItemImageFileChange}
-        accept="image/png,image/jpeg,image/webp,image/gif"
-        className="hidden"
-      />
+      {/* Toast thông báo tải ảnh thủ công thành công */}
+      {uploadToastMessage && (
+        <div className="fixed bottom-6 right-6 z-50 bg-[#161622]/95 border border-[#c5a059] text-[#f5f2eb] px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3 animate-fadeIn backdrop-blur-xl ring-1 ring-[#c5a059]/40">
+          <div className="w-8 h-8 rounded-full bg-[#c5a059]/20 text-[#e5c365] flex items-center justify-center shrink-0 border border-[#c5a059]/30">
+            <Check className="w-4 h-4" />
+          </div>
+          <div className="text-xs">
+            <div className="font-bold text-[#e5c365]">Thao tác thành công!</div>
+            <div className="text-stone-300 mt-0.5">{uploadToastMessage}</div>
+          </div>
+        </div>
+      )}
 
       {/* Modal Quản lý toàn bộ ảnh tùy chỉnh */}
       {isCustomImageModalOpen && (
@@ -2246,19 +2275,25 @@ export const RemixStudio: React.FC = () => {
             setCustomItemImages(prev => {
               const updated = { ...prev, [itemId]: dataUrl };
               try {
-                localStorage.setItem(STORAGE_KEY_CUSTOM_IMAGES, JSON.stringify(updated));
-              } catch {}
+                localStorage.setItem('heritstyle_custom_item_images', JSON.stringify(updated));
+              } catch (err) {
+                console.warn(err);
+              }
               return updated;
             });
-            playColorPickSound();
+            setUploadToastMessage('Đã cập nhật ảnh thành công!');
+            setTimeout(() => setUploadToastMessage(null), 3000);
           }}
           onResetImage={(itemId) => handleResetItemImage(itemId)}
           onResetAll={() => {
             setCustomItemImages({});
             try {
-              localStorage.removeItem(STORAGE_KEY_CUSTOM_IMAGES);
-            } catch {}
-            playButtonClinkSound();
+              localStorage.removeItem('heritstyle_custom_item_images');
+            } catch (err) {
+              console.warn(err);
+            }
+            setUploadToastMessage('Đã khôi phục toàn bộ ảnh mặc định.');
+            setTimeout(() => setUploadToastMessage(null), 3000);
           }}
         />
       )}
