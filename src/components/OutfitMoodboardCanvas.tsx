@@ -98,6 +98,34 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
     },
   ];
 
+  // Map of 4 Heritage Background Images from /backgrounds/
+  const BACKGROUND_IMAGES: Record<HeritageBackground, { src: string; alt: string; tint: string; glow: string }> = {
+    studio: {
+      src: '/backgrounds/studio-cung-dinh.png',
+      alt: 'Studio Cung Đình',
+      tint: 'from-[#0e0e14]/70 via-black/30 to-[#08080c]/80',
+      glow: 'rgba(212, 175, 55, 0.12)'
+    },
+    hue: {
+      src: '/backgrounds/co-do-hue.png',
+      alt: 'Cố Đô Huế - Đại Nội',
+      tint: 'from-[#220d18]/75 via-black/40 to-[#0d070b]/85',
+      glow: 'rgba(224, 122, 95, 0.15)'
+    },
+    hoian: {
+      src: '/backgrounds/pho-co-hoi-an.png',
+      alt: 'Phố Cổ Hội An',
+      tint: 'from-[#22160a]/70 via-black/35 to-[#080d14]/85',
+      glow: 'rgba(255, 209, 102, 0.16)'
+    },
+    thanglong: {
+      src: '/backgrounds/hoang-thanh-thang-long.png',
+      alt: 'Hoàng Thành Thăng Long - Đoan Môn',
+      tint: 'from-[#141610]/75 via-black/40 to-[#090b0e]/85',
+      glow: 'rgba(197, 160, 89, 0.14)'
+    },
+  };
+
   // ==========================================
   // EXPORT POSTER LOOKBOOK (HTML5 CANVAS PNG)
   // ==========================================
@@ -121,27 +149,54 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
         });
       };
 
-      // 1. Background fill based on selectedBg
-      const bgGrad = ctx.createLinearGradient(0, 0, 0, 1600);
-      if (selectedBg === 'hue') {
-        bgGrad.addColorStop(0, '#1c0f16');
-        bgGrad.addColorStop(0.5, '#28131d');
-        bgGrad.addColorStop(1, '#0e070c');
-      } else if (selectedBg === 'hoian') {
-        bgGrad.addColorStop(0, '#1c150c');
-        bgGrad.addColorStop(0.5, '#261b0e');
-        bgGrad.addColorStop(1, '#0a0d14');
-      } else if (selectedBg === 'thanglong') {
-        bgGrad.addColorStop(0, '#151012');
-        bgGrad.addColorStop(0.5, '#1e1417');
-        bgGrad.addColorStop(1, '#090b0e');
+      // 1. Draw real background photo if available, with dreamy soft overlay
+      const bgImg = await loadImage(BACKGROUND_IMAGES[selectedBg]?.src || '/backgrounds/studio-cung-dinh.png');
+      if (bgImg) {
+        ctx.save();
+        const hRatio = canvas.width / bgImg.width;
+        const vRatio = canvas.height / bgImg.height;
+        const ratio = Math.max(hRatio, vRatio);
+        const centerShift_x = (canvas.width - bgImg.width * ratio) / 2;
+        const centerShift_y = (canvas.height - bgImg.height * ratio) / 2;
+        ctx.drawImage(
+          bgImg,
+          0,
+          0,
+          bgImg.width,
+          bgImg.height,
+          centerShift_x,
+          centerShift_y,
+          bgImg.width * ratio,
+          bgImg.height * ratio
+        );
+
+        // Atmospheric dark overlay to keep outfit in clear spotlight
+        ctx.fillStyle = 'rgba(10, 10, 15, 0.72)';
+        ctx.fillRect(0, 0, 1200, 1600);
+        ctx.restore();
       } else {
-        bgGrad.addColorStop(0, '#0c0c12');
-        bgGrad.addColorStop(0.5, '#14141f');
-        bgGrad.addColorStop(1, '#08080c');
+        // Fallback gradient
+        const bgGrad = ctx.createLinearGradient(0, 0, 0, 1600);
+        if (selectedBg === 'hue') {
+          bgGrad.addColorStop(0, '#1c0f16');
+          bgGrad.addColorStop(0.5, '#28131d');
+          bgGrad.addColorStop(1, '#0e070c');
+        } else if (selectedBg === 'hoian') {
+          bgGrad.addColorStop(0, '#1c150c');
+          bgGrad.addColorStop(0.5, '#261b0e');
+          bgGrad.addColorStop(1, '#0a0d14');
+        } else if (selectedBg === 'thanglong') {
+          bgGrad.addColorStop(0, '#151012');
+          bgGrad.addColorStop(0.5, '#1e1417');
+          bgGrad.addColorStop(1, '#090b0e');
+        } else {
+          bgGrad.addColorStop(0, '#0c0c12');
+          bgGrad.addColorStop(0.5, '#14141f');
+          bgGrad.addColorStop(1, '#08080c');
+        }
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, 1200, 1600);
       }
-      ctx.fillStyle = bgGrad;
-      ctx.fillRect(0, 0, 1200, 1600);
 
       // Subtle Radial Glow behind outfit
       const radialGlow = ctx.createRadialGradient(600, 650, 50, 600, 650, 550);
@@ -628,100 +683,58 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
   // HERITAGE BACKGROUND ARTWORK
   // ==========================================
   const renderHeritageBackgroundArt = () => {
-    switch (selectedBg) {
-      case 'hue':
-        return (
-          <div className="absolute inset-0 pointer-events-none overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-b from-[#2a131b] via-[#1a0c14] to-[#0d070b]" />
-            <div className="absolute top-10 left-1/2 -translate-x-1/2 w-64 h-64 rounded-full bg-gradient-to-b from-[#e07a5f]/25 to-transparent blur-3xl" />
-            
-            {/* Ngọ Môn Curved Palace Roofline Silhouette */}
-            <svg viewBox="0 0 500 200" preserveAspectRatio="none" className="absolute bottom-0 inset-x-0 w-full h-32 opacity-25">
-              <path
-                d="M 0 200 L 0 140 Q 60 145 100 120 Q 140 100 160 80 Q 180 110 210 115 L 210 100 Q 230 75 250 50 Q 270 75 290 100 L 290 115 Q 320 110 340 80 Q 360 100 400 120 Q 440 145 500 140 L 500 200 Z"
-                fill="#080407"
-              />
-              <path d="M 160 80 Q 155 70 150 72" stroke="#e5c365" strokeWidth="2" fill="none" opacity="0.6" />
-              <path d="M 340 80 Q 345 70 350 72" stroke="#e5c365" strokeWidth="2" fill="none" opacity="0.6" />
-              <circle cx="250" cy="46" r="4" fill="#e5c365" opacity="0.8" />
-            </svg>
+    const currentBg = BACKGROUND_IMAGES[selectedBg] || BACKGROUND_IMAGES.studio;
+    return (
+      <div className="absolute inset-0 pointer-events-none overflow-hidden transition-all duration-700 select-none">
+        {/* Real Heritage Photo - Softly blurred & dreamy atmospheric perspective */}
+        <img
+          key={selectedBg}
+          src={currentBg.src}
+          alt={currentBg.alt}
+          className="absolute inset-0 w-full h-full object-cover object-center scale-105 filter blur-[1.5px] transition-all duration-700 opacity-45 brightness-90 contrast-110"
+        />
 
-            {/* Torches & warm ember sparks */}
+        {/* Ambient Color Tone Overlay based on heritage location */}
+        <div className={`absolute inset-0 bg-gradient-to-b ${currentBg.tint} transition-all duration-700`} />
+
+        {/* Center Spotlight: Radial gradient keeping the garment pop out with zero darkness in center */}
+        <div 
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: 'radial-gradient(circle at 50% 48%, rgba(255,255,255,0.08) 0%, rgba(14,14,20,0.2) 42%, rgba(10,10,15,0.88) 92%)'
+          }}
+        />
+
+        {/* Atmospheric Floating Light Particles for Dreamy "Mờ mờ ảo ảo" Effect */}
+        {selectedBg === 'hue' && (
+          <>
             <div className="absolute top-20 left-12 w-2 h-2 rounded-full bg-[#f4a261] blur-sm animate-pulse" />
             <div className="absolute top-36 right-16 w-3 h-3 rounded-full bg-[#e76f51] blur-sm animate-pulse" style={{ animationDelay: '1s' }} />
             <div className="absolute bottom-28 left-20 w-2.5 h-2.5 rounded-full bg-[#e5c365] blur-sm animate-pulse" style={{ animationDelay: '1.5s' }} />
-          </div>
-        );
-
-      case 'hoian':
-        return (
-          <div className="absolute inset-0 pointer-events-none overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-b from-[#1c180e] via-[#14181f] to-[#080d14]" />
-            <div className="absolute top-8 right-12 w-24 h-24 rounded-full bg-[#ffd166]/15 blur-2xl" />
-            
-            {/* Glowing Silk Lanterns */}
-            <svg viewBox="0 0 400 300" className="absolute inset-0 w-full h-full opacity-60">
-              <g transform="translate(60, 40)">
-                <line x1="0" y1="0" x2="0" y2="40" stroke="#c5a059" strokeWidth="1" strokeDasharray="2 2" />
-                <ellipse cx="0" cy="55" rx="14" ry="20" fill="#ffd166" fillOpacity="0.4" />
-                <ellipse cx="0" cy="55" rx="9" ry="15" fill="#f4a261" fillOpacity="0.7" />
-                <line x1="0" y1="75" x2="0" y2="95" stroke="#e76f51" strokeWidth="1.5" />
-              </g>
-              <g transform="translate(340, 60)">
-                <line x1="0" y1="0" x2="0" y2="35" stroke="#c5a059" strokeWidth="1" strokeDasharray="2 2" />
-                <circle cx="0" cy="50" r="16" fill="#e63946" fillOpacity="0.5" />
-                <circle cx="0" cy="50" r="10" fill="#ff758f" fillOpacity="0.7" />
-                <line x1="0" y1="66" x2="0" y2="85" stroke="#e63946" strokeWidth="1.5" />
-              </g>
-              <g transform="translate(95, 110)">
-                <line x1="0" y1="0" x2="0" y2="25" stroke="#c5a059" strokeWidth="1" strokeDasharray="2 2" />
-                <ellipse cx="0" cy="38" rx="11" ry="16" fill="#2a9d8f" fillOpacity="0.4" />
-                <line x1="0" y1="54" x2="0" y2="70" stroke="#2a9d8f" strokeWidth="1" />
-              </g>
-            </svg>
-
-            {/* River water reflection ripples */}
-            <div className="absolute bottom-0 inset-x-0 h-16 bg-gradient-to-t from-[#0a1118]/80 to-transparent border-t border-[#f4a261]/10" />
-          </div>
-        );
-
-      case 'thanglong':
-        return (
-          <div className="absolute inset-0 pointer-events-none overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-b from-[#181215] via-[#141217] to-[#0a0a0f]" />
-            <div className="absolute top-12 left-1/2 -translate-x-1/2 w-80 h-32 bg-[#c5a059]/10 blur-3xl" />
-
-            {/* Đoan Môn Brick Citadel Silhouette */}
-            <svg viewBox="0 0 500 200" preserveAspectRatio="none" className="absolute bottom-0 inset-x-0 w-full h-28 opacity-25">
-              <rect x="0" y="100" width="500" height="100" fill="#08080c" />
-              <path d="M 215 200 L 215 145 Q 250 120 285 145 L 285 200 Z" fill="#141217" />
-              <path d="M 130 200 L 130 155 Q 160 135 190 155 L 190 200 Z" fill="#141217" />
-              <path d="M 310 200 L 310 155 Q 340 135 370 155 L 370 200 Z" fill="#141217" />
-              <rect x="180" y="70" width="140" height="30" fill="#08080c" />
-              <polygon points="170,70 250,45 330,70" fill="#0c0b10" />
-            </svg>
-
-            <svg viewBox="0 0 300 120" className="absolute top-6 left-6 w-36 h-20 opacity-20">
-              <path d="M 20 80 Q 50 40 90 70 Q 130 30 180 65 Q 220 50 250 80" stroke="#c5a059" strokeWidth="1.5" fill="none" />
-            </svg>
-          </div>
-        );
-
-      case 'studio':
-      default:
-        return (
-          <div className="absolute inset-0 pointer-events-none overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-b from-[#0c0c12] via-[#12121a] to-[#08080c]" />
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[340px] h-[520px] bg-gradient-to-b from-[#c5a059]/15 via-[#c5a059]/03 to-transparent blur-2xl" />
-            
-            {/* Gold dust motes */}
-            <div className="absolute top-24 left-1/4 w-1.5 h-1.5 rounded-full bg-[#e5c365] opacity-40 blur-[0.5px]" />
-            <div className="absolute top-48 right-1/4 w-1.5 h-1.5 rounded-full bg-[#e5c365] opacity-50 blur-[0.5px]" />
-            <div className="absolute top-72 left-1/3 w-1 h-1 rounded-full bg-[#e5c365] opacity-30" />
-            <div className="absolute bottom-36 right-1/3 w-1 h-1 rounded-full bg-[#e5c365] opacity-35" />
-          </div>
-        );
-    }
+          </>
+        )}
+        {selectedBg === 'hoian' && (
+          <>
+            <div className="absolute top-10 left-10 w-3 h-3 rounded-full bg-[#ffd166] blur-sm animate-pulse" />
+            <div className="absolute top-24 right-14 w-2.5 h-2.5 rounded-full bg-[#e63946] blur-sm animate-pulse" style={{ animationDelay: '0.8s' }} />
+            <div className="absolute bottom-24 right-20 w-2 h-2 rounded-full bg-[#f4a261] blur-sm animate-pulse" style={{ animationDelay: '1.6s' }} />
+          </>
+        )}
+        {selectedBg === 'thanglong' && (
+          <>
+            <div className="absolute top-16 left-16 w-2.5 h-2.5 rounded-full bg-[#e5c365] blur-sm animate-pulse" />
+            <div className="absolute top-28 right-24 w-2 h-2 rounded-full bg-[#a3b18a] blur-sm animate-pulse" style={{ animationDelay: '1.2s' }} />
+          </>
+        )}
+        {selectedBg === 'studio' && (
+          <>
+            <div className="absolute top-20 left-1/4 w-1.5 h-1.5 rounded-full bg-[#e5c365] opacity-60 blur-[0.5px] animate-pulse" />
+            <div className="absolute top-44 right-1/4 w-2 h-2 rounded-full bg-[#e5c365] opacity-70 blur-[0.5px] animate-pulse" style={{ animationDelay: '0.7s' }} />
+            <div className="absolute bottom-32 left-1/3 w-1.5 h-1.5 rounded-full bg-[#e5c365] opacity-50 animate-pulse" style={{ animationDelay: '1.4s' }} />
+          </>
+        )}
+      </div>
+    );
   };
 
   return (
