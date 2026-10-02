@@ -106,7 +106,6 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
 
           {/* Hoa Văn Gấm Đoàn Thọ & Cúc Dây Triều Nguyễn (Chuẩn Ảnh Mẫu 01_163.jpg) */}
           <pattern id={`brocade-${type}`} width="60" height="60" patternUnits="userSpaceOnUse">
-            {/* Vân Mây Lượn Sóng Nhẹ */}
             <path
               d="M 0 30 C 15 18, 45 42, 60 30 M 30 0 C 42 15, 18 45, 30 60"
               fill="none"
@@ -114,7 +113,7 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
               strokeWidth="0.8"
               strokeOpacity="0.14"
             />
-            {/* Đồ Án Đoàn Thọ Tròn (Chữ Thọ Hoàng Cung Dệt Chìm) */}
+            {/* Đồ Án Đoàn Thọ Tròn */}
             <g transform="translate(30, 30)">
               <circle cx="0" cy="0" r="11" fill="none" stroke="#E5C365" strokeWidth="0.9" strokeOpacity="0.35" />
               <circle cx="0" cy="0" r="8.5" fill="none" stroke="#E5C365" strokeWidth="0.5" strokeOpacity="0.25" strokeDasharray="2 1.5" />
@@ -122,21 +121,32 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
               <line x1="0" y1="-5.5" x2="0" y2="5.5" stroke="#FFFFFF" strokeWidth="0.8" strokeOpacity="0.35" />
               <path d="M -4 -3 L 4 -3 M -4 3 L 4 3" stroke="#FFFFFF" strokeWidth="0.7" strokeOpacity="0.3" />
             </g>
-            {/* Điểm Chấm Hoa Mai Kim Hoàn */}
             <circle cx="0" cy="0" r="1.4" fill="#E5C365" fillOpacity="0.35" />
             <circle cx="60" cy="0" r="1.4" fill="#E5C365" fillOpacity="0.35" />
             <circle cx="0" cy="60" r="1.4" fill="#E5C365" fillOpacity="0.35" />
             <circle cx="60" cy="60" r="1.4" fill="#E5C365" fillOpacity="0.35" />
           </pattern>
 
-          {/* Dải Màu Bản Cổ Nhật Bình (Gấm Thêu Cung Đình) */}
-          <linearGradient id="nhatBinhCollarRainbow" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#1E3A8A" />
-            <stop offset="22%" stopColor="#047857" />
-            <stop offset="48%" stopColor="#D97706" />
-            <stop offset="74%" stopColor="#C2410C" />
-            <stop offset="100%" stopColor="#B91C1C" />
-          </linearGradient>
+          {/* Đồ Án Phượng Ổ Hoàng Gia (Biểu Tượng Chuẩn Nhật Bình Hoàng Tộc) */}
+          <g id="phuong-o-symbol">
+            <circle cx="0" cy="0" r="16" fill="none" stroke="#E5C365" strokeWidth="1.4" />
+            <circle cx="0" cy="0" r="13.5" fill="none" stroke="#FFF3B0" strokeWidth="0.6" strokeDasharray="2 1.5" />
+            <circle cx="0" cy="0" r="11" fill="#7F1D1D" fillOpacity="0.35" />
+            {/* Phượng Hoàng Ngũ Sắc Cuộn Tròn */}
+            <path d="M -7 -4 C -4 -10, 6 -9, 8 -2 C 9 6, 1 10, -6 7 C -9 4, -8 -1, -2 0 C 4 1, 6 -4, 2 -7 C -2 -8, -5 -6, -7 -4 Z" fill="#E5C365" />
+            <path d="M 0 -7 C 5 -11, 10 -5, 8 2 C 6 7, 0 10, -6 7" fill="none" stroke="#2563EB" strokeWidth="1.1" strokeLinecap="round" />
+            <path d="M 2 -4 C 7 -7, 10 -2, 7 4" fill="none" stroke="#10B981" strokeWidth="0.9" strokeLinecap="round" />
+            <path d="M -3 -9 L 0 -7 L 3 -9" fill="none" stroke="#F87171" strokeWidth="0.9" />
+            <circle cx="-3" cy="-6" r="1.2" fill="#FFF" />
+          </g>
+
+          {/* Cụm Hoa Rơi Điểm Xuyết (Floral Blossom Sprig) */}
+          <g id="flower-sprig-symbol">
+            <circle cx="0" cy="0" r="4.2" fill="#E11D48" stroke="#FFF3B0" strokeWidth="0.8" />
+            <circle cx="0" cy="0" r="1.8" fill="#FDE047" />
+            <path d="M -4 2.5 C -7 4, -7 8, -4 7 C -2 6, -3 3.5, -4 2.5 Z" fill="#059669" />
+            <path d="M 4 2.5 C 7 4, 7 8, 4 7 C 2 6, 3 3.5, 4 2.5 Z" fill="#059669" />
+          </g>
 
           {/* 3D Button Radial Gradients */}
           <radialGradient id="btnMetalCopper" cx="35%" cy="35%" r="65%">
@@ -205,7 +215,6 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
 
         {/* HAUTE COUTURE MANNEQUIN: HEAD & NECK */}
         <g id="mannequin-head-neck" filter="url(#softShadowFilter)">
-          {/* Cổ Ma Nơ Canh */}
           <path
             d="M 184 56 L 184 96 Q 200 99 216 96 L 216 56 Z"
             fill="url(#mannequinSkin)"
@@ -226,7 +235,6 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
             stroke="url(#mannequinGold)"
             strokeWidth="1.8"
           />
-          {/* Mày, Mũi, Môi */}
           <path d="M 183 38 Q 190 35 195 38" stroke="#8E7B68" strokeWidth="1.2" strokeLinecap="round" fill="none" />
           <path d="M 205 38 Q 210 35 217 38" stroke="#8E7B68" strokeWidth="1.2" strokeLinecap="round" fill="none" />
           <path d="M 200 34 L 202 48 L 198 52 L 201 54" stroke="#8E7B68" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
@@ -236,14 +244,9 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
 
         {/* ======================================================== */}
         {/* 1. ÁO NGŨ THÂN TAY CHẼN (Chuẩn Ảnh Mẫu Khamphahue)        */}
-        {/* Vai xuôi liền tay, tay chẽn thon mềm, tà suông xẻ hông   */}
         {/* ======================================================== */}
         {type === 'ngu_than' && (
           <g id="ao-ngu-than-tay-chen">
-            {/* Lớp Quần Lụa Trắng Lộ Qua Tà Xẻ Hông (Bên Trong) */}
-            <path d="M 96 360 L 90 480 L 128 480 L 120 360 Z" fill="#F8F6F0" opacity="0.9" />
-            <path d="M 304 360 L 310 480 L 272 480 L 280 360 Z" fill="#F8F6F0" opacity="0.9" />
-
             {/* Tay Áo Trái: Cắt liền vai, ôm thon mềm mại qua cùi chỏ về cổ tay */}
             <path
               d="M 160 100 C 135 108, 105 125, 78 175 C 65 200, 72 245, 92 278 C 98 284, 114 278, 118 268 C 104 235, 108 200, 130 185 Z"
@@ -254,7 +257,7 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
             <path d="M 160 100 C 135 108, 105 125, 78 175 C 65 200, 72 245, 92 278 C 98 284, 114 278, 118 268 C 104 235, 108 200, 130 185 Z" fill={`url(#brocade-${type})`} />
             <path d="M 160 100 C 135 108, 105 125, 78 175 C 65 200, 72 245, 92 278 C 98 284, 114 278, 118 268 C 104 235, 108 200, 130 185 Z" fill="url(#silkSheen)" />
 
-            {/* Tay Áo Phải: Cắt liền vai, ôm thon mềm mại */}
+            {/* Tay Áo Phải */}
             <path
               d="M 240 100 C 265 108, 295 125, 322 175 C 335 200, 328 245, 308 278 C 302 284, 286 278, 282 268 C 296 235, 292 200, 270 185 Z"
               fill={`url(#robeGrad-${type})`}
@@ -264,11 +267,11 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
             <path d="M 240 100 C 265 108, 295 125, 322 175 C 335 200, 328 245, 308 278 C 302 284, 286 278, 282 268 C 296 235, 292 200, 270 185 Z" fill={`url(#brocade-${type})`} />
             <path d="M 240 100 C 265 108, 295 125, 322 175 C 335 200, 328 245, 308 278 C 302 284, 286 278, 282 268 C 296 235, 292 200, 270 185 Z" fill="url(#silkSheen)" />
 
-            {/* Viền Kim Hoàn Cửa Tay Chẽn (Tự Nhiên) */}
+            {/* Viền Kim Hoàn Cửa Tay Chẽn */}
             <path d="M 90 274 C 96 280, 112 276, 116 268" stroke="#E5C365" strokeWidth="2.5" strokeLinecap="round" fill="none" />
             <path d="M 310 274 C 304 280, 288 276, 284 268" stroke="#E5C365" strokeWidth="2.5" strokeLinecap="round" fill="none" />
 
-            {/* 2 Bàn Tay Ma Nơ Canh Thon Thả Thoát Ra Tự Nhiên */}
+            {/* 2 Bàn Tay Ma Nơ Canh */}
             <g id="mannequin-hands-ngu-than">
               <g transform="translate(94, 274) rotate(32)" filter="url(#softShadowFilter)">
                 <path d="M -7 0 C -9 12, -13 24, -9 34 C -7 40, -1 43, 3 41 C 7 39, 8 33, 6 24 C 5 15, 6 0, 6 0 Z" fill="url(#mannequinSkin)" stroke="url(#mannequinGold)" strokeWidth="1.5" />
@@ -328,15 +331,10 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
 
         {/* ======================================================== */}
         {/* 2. ÁO TẤC / TAY THỤNG (Chuẩn Ảnh Mẫu 01_163.jpg)          */}
-        {/* Tay thụng buông rủ sâu lượn sóng, vạt rộng quyền quý     */}
         {/* ======================================================== */}
         {type === 'ao_tac' && (
           <g id="ao-tac-tay-thung">
-            {/* Lớp Quần Lụa Trắng Dưới Tà Áo Tấc */}
-            <path d="M 85 380 L 80 480 L 125 480 L 115 380 Z" fill="#F8F6F0" opacity="0.9" />
-            <path d="M 315 380 L 320 480 L 275 480 L 285 380 Z" fill="#F8F6F0" opacity="0.9" />
-
-            {/* Tay Áo Trái Thụng Buông Rủ Sâu (Dáng Võng Cung Mềm Mại) */}
+            {/* Tay Áo Trái Thụng Buông Rủ Sâu */}
             <path
               d="M 160 100 C 130 108, 90 135, 52 185 C 40 230, 38 310, 48 375 C 55 405, 88 418, 118 390 C 130 378, 135 340, 134 260 Z"
               fill={`url(#robeGrad-${type})`}
@@ -362,7 +360,7 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
             {/* Nếp Rủ Lụa Tay Thụng Phải */}
             <path d="M 325 220 C 335 290, 332 360, 305 390" stroke="rgba(255,255,255,0.25)" strokeWidth="1.4" strokeLinecap="round" fill="none" />
 
-            {/* 2 Bàn Tay Ma Nơ Canh Buông Rủ Dưới Ống Tay Thụng */}
+            {/* 2 Bàn Tay Ma Nơ Canh */}
             <g id="mannequin-hands-ao-tac">
               <g transform="translate(85, 360) rotate(16)" filter="url(#softShadowFilter)">
                 <path d="M -7 0 C -9 12, -13 24, -9 34 C -7 40, -1 43, 3 41 C 7 39, 8 33, 6 24 C 5 15, 6 0, 6 0 Z" fill="url(#mannequinSkin)" stroke="url(#mannequinGold)" strokeWidth="1.5" />
@@ -408,60 +406,67 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
         )}
 
         {/* ======================================================== */}
-        {/* 3. ÁO NHẬT BÌNH (Chuẩn Mẫu edit-1-nb1 Cung Đình Huế)       */}
-        {/* Bản cổ U thêu hoa, Phượng Ổ, Thủy Ba Tam Sơn, Dải Rủ     */}
+        {/* 3. ÁO NHẬT BÌNH CHUẨN THIẾT KẾ CUNG ĐÌNH TRIỀU NGUYỄN     */}
+        {/* Dựa trên bản vẽ kỹ thuật lịch sử chính xác của Giang    */}
         {/* ======================================================== */}
         {type === 'nhat_binh' && (
-          <g id="ao-nhat-binh">
-            {/* Lớp Vạt Áo Sau & Vạt Trong Rủ Đậm Chiều Sâu */}
-            <path d="M 92 280 C 85 360, 78 440, 70 472 L 105 472 Z" fill="#24151C" opacity="0.55" />
-            <path d="M 308 280 C 315 360, 322 440, 330 472 L 295 472 Z" fill="#24151C" opacity="0.55" />
+          <g id="ao-nhat-binh-authentic">
+            {/* Lớp áo trong / tà trong có chiều sâu */}
+            <path d="M 128 200 L 90 475 L 110 475 L 135 200 Z" fill="#24151C" opacity="0.4" />
+            <path d="M 272 200 L 310 475 L 290 475 L 265 200 Z" fill="#24151C" opacity="0.4" />
 
-            {/* Tay Áo Trái: Cắt liền vai, dáng tay rộng lượn cong tự nhiên */}
+            {/* Ống Tay Áo Trái: Cắt liền vai, vươn rộng ngang, cửa tay thẳng đứng */}
             <path
-              d="M 155 106 C 120 115, 80 145, 42 205 C 32 235, 42 270, 72 278 C 96 284, 115 260, 130 220 Z"
+              d="M 155 106 L 20 118 L 20 242 C 55 242, 95 235, 128 198 Z"
               fill={`url(#robeGrad-${type})`}
-              stroke="rgba(255,255,255,0.22)"
+              stroke="rgba(255,255,255,0.25)"
               strokeWidth="1.2"
             />
-            <path d="M 155 106 C 120 115, 80 145, 42 205 C 32 235, 42 270, 72 278 C 96 284, 115 260, 130 220 Z" fill={`url(#brocade-${type})`} />
-            <path d="M 155 106 C 120 115, 80 145, 42 205 C 32 235, 42 270, 72 278 C 96 284, 115 260, 130 220 Z" fill="url(#silkSheen)" />
+            <path d="M 155 106 L 20 118 L 20 242 C 55 242, 95 235, 128 198 Z" fill={`url(#brocade-${type})`} />
+            <path d="M 155 106 L 20 118 L 20 242 C 55 242, 95 235, 128 198 Z" fill="url(#silkSheen)" />
 
-            {/* Tay Áo Phải */}
+            {/* Ống Tay Áo Phải: Cắt liền vai, vươn rộng ngang, cửa tay thẳng đứng */}
             <path
-              d="M 245 106 C 280 115, 320 145, 358 205 C 368 235, 358 270, 328 278 C 304 284, 285 260, 270 220 Z"
+              d="M 245 106 L 380 118 L 380 242 C 345 242, 305 235, 272 198 Z"
               fill={`url(#robeGrad-${type})`}
-              stroke="rgba(255,255,255,0.22)"
+              stroke="rgba(255,255,255,0.25)"
               strokeWidth="1.2"
             />
-            <path d="M 245 106 C 280 115, 320 145, 358 205 C 368 235, 358 270, 328 278 C 304 284, 285 260, 270 220 Z" fill={`url(#brocade-${type})`} />
-            <path d="M 245 106 C 280 115, 320 145, 358 205 C 368 235, 358 270, 328 278 C 304 284, 285 260, 270 220 Z" fill="url(#silkSheen)" />
+            <path d="M 245 106 L 380 118 L 380 242 C 345 242, 305 235, 272 198 Z" fill={`url(#brocade-${type})`} />
+            <path d="M 245 106 L 380 118 L 380 242 C 345 242, 305 235, 272 198 Z" fill="url(#silkSheen)" />
 
-            {/* DẢI NGŨ SẮC CỬA TAY (Chuẩn Cung Đình: Lam, Lục, Hoàng, Xích, Bạch) */}
-            <g transform="translate(42, 205) rotate(40)">
-              <rect x="0" y="0" width="10" height="74" fill="#1E3A8A" />
-              <rect x="10" y="0" width="10" height="74" fill="#047857" />
-              <rect x="20" y="0" width="10" height="74" fill="#D97706" />
-              <rect x="30" y="0" width="10" height="74" fill="#B91C1C" />
-              <rect x="40" y="0" width="10" height="74" fill="#F8F6F0" />
-            </g>
-            <g transform="translate(318, 252) rotate(-40)">
-              <rect x="0" y="0" width="10" height="74" fill="#F8F6F0" />
-              <rect x="10" y="0" width="10" height="74" fill="#B91C1C" />
-              <rect x="20" y="0" width="10" height="74" fill="#D97706" />
-              <rect x="30" y="0" width="10" height="74" fill="#047857" />
-              <rect x="40" y="0" width="10" height="74" fill="#1E3A8A" />
+            {/* DẢI NGŨ SẮC CỬA TAY ĐỨNG CHUẨN XÁC THEO REFERENCE (Xanh lá, Trắng, Xanh lam, Vàng kim) */}
+            {/* Cửa tay trái */}
+            <g id="cuff-stripes-left">
+              <rect x="20" y="118" width="9" height="124" fill="#047857" />
+              <line x1="24.5" y1="120" x2="24.5" y2="240" stroke="#E5C365" strokeWidth="0.8" strokeDasharray="3 2" />
+              <rect x="29" y="118" width="9" height="124" fill="#FAF7F0" />
+              <line x1="33.5" y1="120" x2="33.5" y2="240" stroke="#E5C365" strokeWidth="0.8" strokeDasharray="3 2" />
+              <rect x="38" y="118" width="10" height="124" fill="#14243B" />
+              <line x1="43" y1="120" x2="43" y2="240" stroke="#E5C365" strokeWidth="0.8" strokeDasharray="3 2" />
+              <rect x="48" y="118" width="5" height="124" fill="#E5C365" />
             </g>
 
-            {/* 2 Bàn Tay Ma Nơ Canh */}
+            {/* Cửa tay phải */}
+            <g id="cuff-stripes-right">
+              <rect x="347" y="118" width="5" height="124" fill="#E5C365" />
+              <rect x="352" y="118" width="10" height="124" fill="#14243B" />
+              <line x1="357" y1="120" x2="357" y2="240" stroke="#E5C365" strokeWidth="0.8" strokeDasharray="3 2" />
+              <rect x="362" y="118" width="9" height="124" fill="#FAF7F0" />
+              <line x1="366.5" y1="120" x2="366.5" y2="240" stroke="#E5C365" strokeWidth="0.8" strokeDasharray="3 2" />
+              <rect x="371" y="118" width="9" height="124" fill="#047857" />
+              <line x1="375.5" y1="120" x2="375.5" y2="240" stroke="#E5C365" strokeWidth="0.8" strokeDasharray="3 2" />
+            </g>
+
+            {/* 2 Bàn Tay Ma Nơ Canh Xuất Hiện Dưới Ống Tay Thụng Rộng */}
             <g id="mannequin-hands-nhat-binh">
-              <g transform="translate(74, 272) rotate(30)" filter="url(#softShadowFilter)">
+              <g transform="translate(42, 248) rotate(20)" filter="url(#softShadowFilter)">
                 <path d="M -7 0 C -9 12, -13 24, -9 34 C -7 40, -1 43, 3 41 C 7 39, 8 33, 6 24 C 5 15, 6 0, 6 0 Z" fill="url(#mannequinSkin)" stroke="url(#mannequinGold)" strokeWidth="1.5" />
                 <path d="M 5 10 C 10 14, 11 22, 8 26 C 6 28, 4 26, 3 21" fill="url(#mannequinSkin)" stroke="url(#mannequinGold)" strokeWidth="1.2" />
                 <path d="M 1 25 L 0 39" stroke="#8E7B68" strokeWidth="1.1" strokeLinecap="round" />
                 <path d="M -3 24 L -4 37" stroke="#8E7B68" strokeWidth="1.1" strokeLinecap="round" />
               </g>
-              <g transform="translate(326, 272) rotate(-30)" filter="url(#softShadowFilter)">
+              <g transform="translate(358, 248) rotate(-20)" filter="url(#softShadowFilter)">
                 <path d="M 7 0 C 9 12, 13 24, 9 34 C 7 40, 1 43, -3 41 C -7 39, -8 33, -6 24 C -5 15, -6 0, -6 0 Z" fill="url(#mannequinSkin)" stroke="url(#mannequinGold)" strokeWidth="1.5" />
                 <path d="M -5 10 C -10 14, -11 22, -8 26 C -6 28, -4 26, -3 21" fill="url(#mannequinSkin)" stroke="url(#mannequinGold)" strokeWidth="1.2" />
                 <path d="M -1 25 L 0 39" stroke="#8E7B68" strokeWidth="1.1" strokeLinecap="round" />
@@ -469,109 +474,225 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
               </g>
             </g>
 
-            {/* Thân Áo Nhật Bình Suông Dài Uy Nghi */}
+            {/* THÂN ÁO CHÍNH: DÁNG CHỮ A ĐỐI KHÂM (XẺ GIỮA) */}
             <path
-              d="M 155 106 C 135 110, 130 160, 128 240 C 126 330, 118 410, 98 474 C 145 480, 255 480, 302 474 C 282 410, 274 330, 272 240 C 270 160, 265 110, 245 106 Z"
+              d="M 155 106 C 140 110, 132 150, 128 198 C 124 260, 114 360, 90 475 C 145 484, 255 484, 310 475 C 286 360, 276 260, 272 198 C 268 150, 260 110, 245 106 Z"
               fill={`url(#robeGrad-${type})`}
               stroke="rgba(255,255,255,0.25)"
               strokeWidth="1.2"
             />
-            <path d="M 155 106 C 135 110, 130 160, 128 240 C 126 330, 118 410, 98 474 C 145 480, 255 480, 302 474 C 282 410, 274 330, 272 240 C 270 160, 265 110, 245 106 Z" fill={`url(#brocade-${type})`} />
-            <path d="M 155 106 C 135 110, 130 160, 128 240 C 126 330, 118 410, 98 474 C 145 480, 255 480, 302 474 C 282 410, 274 330, 272 240 C 270 160, 265 110, 245 106 Z" fill="url(#silkSheen)" />
+            <path d="M 155 106 C 140 110, 132 150, 128 198 C 124 260, 114 360, 90 475 C 145 484, 255 484, 310 475 C 286 360, 276 260, 272 198 C 268 150, 260 110, 245 106 Z" fill={`url(#brocade-${type})`} />
+            <path d="M 155 106 C 140 110, 132 150, 128 198 C 124 260, 114 360, 90 475 C 145 484, 255 484, 310 475 C 286 360, 276 260, 272 198 C 268 150, 260 110, 245 106 Z" fill="url(#silkSheen)" />
 
-            {/* ĐỒ ÁN PHƯỢNG Ổ HOÀNG GIA (2 Bên Vai / Ngực Áo Nhật Bình) */}
-            <g transform="translate(138, 160)" opacity="0.85">
-              <circle cx="0" cy="0" r="14" fill="none" stroke="#E5C365" strokeWidth="1.2" strokeDasharray="3 2" />
-              {/* Phượng Hoàng Cuộn Tròn */}
-              <path d="M -7 -4 C -4 -10, 6 -8, 7 0 C 8 7, 0 10, -5 6 C -9 2, -5 -2, 0 0" fill="none" stroke="#FFF3B0" strokeWidth="1.4" strokeLinecap="round" />
-              <circle cx="-5" cy="-6" r="1.5" fill="#E5C365" />
-            </g>
-            <g transform="translate(262, 160)" opacity="0.85">
-              <circle cx="0" cy="0" r="14" fill="none" stroke="#E5C365" strokeWidth="1.2" strokeDasharray="3 2" />
-              <path d="M 7 -4 C 4 -10, -6 -8, -7 0 C -8 7, 0 10, 5 6 C 9 2, 5 -2, 0 0" fill="none" stroke="#FFF3B0" strokeWidth="1.4" strokeLinecap="round" />
-              <circle cx="5" cy="-6" r="1.5" fill="#E5C365" />
-            </g>
+            {/* ĐƯỜNG XẺ ĐỐI KHÂM CHÍNH GIỮA THÂN TRƯỚC */}
+            <line x1="200" y1="215" x2="200" y2="480" stroke="#1D1D26" strokeWidth="1.5" />
 
-            {/* ĐỒ ÁN THỦY BA TAM SƠN (Sóng Nước Ngũ Sắc & 3 Ngọn Núi Thiêng Ở Chân Vạt) */}
-            <g id="thuy-ba-tam-son" transform="translate(100, 385)">
-              {/* Sóng Nước Dập Dềnh Lớp Dưới */}
-              <path d="M 0 85 C 30 75, 70 95, 100 85 C 130 75, 170 95, 200 85 L 202 89 C 170 99, 130 79, 100 89 C 70 99, 30 79, 0 89 Z" fill="#E5C365" />
-              {/* Các Dải Sóng Ngũ Sắc Chéo Cung Đình */}
-              <g opacity="0.8">
-                <path d="M 30 85 L 75 45 L 85 45 L 40 85 Z" fill="#1E3A8A" />
-                <path d="M 45 85 L 88 45 L 98 45 L 55 85 Z" fill="#047857" />
-                <path d="M 60 85 L 100 45 L 110 45 L 70 85 Z" fill="#D97706" />
-                <path d="M 140 85 L 100 45 L 90 45 L 130 85 Z" fill="#B91C1C" />
-                <path d="M 155 85 L 112 45 L 102 45 L 145 85 Z" fill="#F8F6F0" />
-                <path d="M 170 85 L 125 45 L 115 45 L 160 85 Z" fill="#1E3A8A" />
+            {/* DẢI LỤA TRẮNG DỌC CHÍNH GIỮA (Từ Chân Cúc Xuống Tam Sơn) */}
+            <rect x="197" y="218" width="6" height="128" fill="#FAF7F0" stroke="#E5C365" strokeWidth="0.8" />
+
+            {/* 6 ĐỒ ÁN PHƯỢNG Ổ HOÀNG GIA CHUẨN XÁC THEO REFERENCE */}
+            {/* 2 Phượng Ổ Trên Vai */}
+            <use href="#phuong-o-symbol" x="112" y="162" />
+            <use href="#phuong-o-symbol" x="288" y="162" />
+            {/* 2 Phượng Ổ Giữa Ngực Cạnh Bản Cổ */}
+            <use href="#phuong-o-symbol" x="145" y="235" />
+            <use href="#phuong-o-symbol" x="255" y="235" />
+            {/* 2 Phượng Ổ Ở Thân Dưới */}
+            <use href="#phuong-o-symbol" x="142" y="335" />
+            <use href="#phuong-o-symbol" x="258" y="335" />
+
+            {/* CÁC CỤM HOA RƠI ĐIỂM XUYẾT (Mai/Mẫu Đơn) */}
+            <use href="#flower-sprig-symbol" x="145" y="128" />
+            <use href="#flower-sprig-symbol" x="255" y="128" />
+            <use href="#flower-sprig-symbol" x="98" y="240" />
+            <use href="#flower-sprig-symbol" x="302" y="240" />
+            <use href="#flower-sprig-symbol" x="145" y="280" />
+            <use href="#flower-sprig-symbol" x="255" y="280" />
+            <use href="#flower-sprig-symbol" x="110" y="405" />
+            <use href="#flower-sprig-symbol" x="290" y="405" />
+
+            {/* ======================================================== */}
+            {/* ĐỒ ÁN THỦY BA TAM SƠN KINH ĐIỂN CHÂN VẠT (Sóng Chéo Ngũ Sắc) */}
+            {/* ======================================================== */}
+            <g id="thuy-ba-authentic">
+              {/* Dải Sóng Chéo Đối Xứng Bên Trái (Nghiêng 45 độ lên trục giữa) */}
+              <g id="diagonal-waves-left">
+                <polygon points="90,474 135,420 143,420 95,474" fill="#162846" />
+                <polygon points="95,474 143,420 151,420 101,474" fill="#FAF7F0" />
+                <polygon points="101,474 151,420 159,420 107,474" fill="#EAB308" />
+                <polygon points="107,474 159,420 167,420 113,474" fill="#DC2626" />
+                <polygon points="113,474 167,420 175,420 119,474" fill="#047857" />
+                <polygon points="119,474 175,420 183,420 125,474" fill="#7C3AED" />
+                <polygon points="125,474 183,420 191,420 131,474" fill="#EA580C" />
+                <polygon points="131,474 191,420 199,420 137,474" fill="#1E3A8A" />
+                <polygon points="137,474 199,420 200,420 200,432 145,474" fill="#FAF7F0" />
+                <polygon points="145,474 200,432 200,444 155,474" fill="#EAB308" />
+                <polygon points="155,474 200,444 200,456 168,474" fill="#DC2626" />
+                <polygon points="168,474 200,456 200,468 182,474" fill="#047857" />
+                <polygon points="182,474 200,468 200,474 200,474" fill="#162846" />
               </g>
-              {/* Tam Sơn (Ba Đỉnh Núi Thiêng Ở Giữa Sóng) */}
-              <polygon points="100,28 112,50 88,50" fill="#E5C365" stroke="#FFF3B0" strokeWidth="1" />
-              <polygon points="86,36 94,50 78,50" fill="#D4AF37" stroke="#FFF3B0" strokeWidth="0.8" />
-              <polygon points="114,36 122,50 106,50" fill="#D4AF37" stroke="#FFF3B0" strokeWidth="0.8" />
+
+              {/* Dải Sóng Chéo Đối Xứng Bên Phải (Nghiêng 45 độ lên trục giữa) */}
+              <g id="diagonal-waves-right">
+                <polygon points="310,474 265,420 257,420 305,474" fill="#162846" />
+                <polygon points="305,474 257,420 249,420 299,474" fill="#FAF7F0" />
+                <polygon points="299,474 249,420 241,420 293,474" fill="#EAB308" />
+                <polygon points="293,474 241,420 233,420 287,474" fill="#DC2626" />
+                <polygon points="287,474 233,420 225,420 281,474" fill="#047857" />
+                <polygon points="281,474 225,420 217,420 275,474" fill="#7C3AED" />
+                <polygon points="275,474 217,420 209,420 269,474" fill="#EA580C" />
+                <polygon points="269,474 209,420 201,420 263,474" fill="#1E3A8A" />
+                <polygon points="263,474 201,420 200,420 200,432 255,474" fill="#FAF7F0" />
+                <polygon points="255,474 200,432 200,444 245,474" fill="#EAB308" />
+                <polygon points="245,474 200,444 200,456 232,474" fill="#DC2626" />
+                <polygon points="232,474 200,456 200,468 218,474" fill="#047857" />
+                <polygon points="218,474 200,468 200,474 200,474" fill="#162846" />
+              </g>
+
+              {/* Các Cung Sóng Tròn (Sóng Cuộn Thủy Ba) Phía Trên */}
+              <path
+                d="M 95 435 C 120 395, 160 395, 185 435"
+                fill="none"
+                stroke="#165A73"
+                strokeWidth="12"
+                opacity="0.9"
+              />
+              <path
+                d="M 95 435 C 120 395, 160 395, 185 435"
+                fill="none"
+                stroke="#25859E"
+                strokeWidth="4"
+              />
+              <path
+                d="M 215 435 C 240 395, 280 395, 305 435"
+                fill="none"
+                stroke="#165A73"
+                strokeWidth="12"
+                opacity="0.9"
+              />
+              <path
+                d="M 215 435 C 240 395, 280 395, 305 435"
+                fill="none"
+                stroke="#25859E"
+                strokeWidth="4"
+              />
+
+              {/* Vòm Sóng Lớn Trung Tâm (Nâng Đỡ Tam Sơn) */}
+              <path
+                d="M 152 435 C 170 380, 230 380, 248 435"
+                fill="none"
+                stroke="#0E3D52"
+                strokeWidth="18"
+              />
+              <path
+                d="M 152 435 C 170 380, 230 380, 248 435"
+                fill="none"
+                stroke="#38BDF8"
+                strokeWidth="2.5"
+              />
+
+              {/* Ngũ Sắc Tường Vân (Mây Cuộn Ngũ Sắc Quanh Núi) */}
+              <g id="rolling-clouds" transform="translate(200, 395)">
+                <circle cx="-38" cy="0" r="7" fill="#F472B6" opacity="0.8" />
+                <circle cx="-28" cy="-5" r="8" fill="#FDE047" opacity="0.8" />
+                <circle cx="-16" cy="-2" r="7" fill="#38BDF8" opacity="0.8" />
+                <circle cx="38" cy="0" r="7" fill="#F472B6" opacity="0.8" />
+                <circle cx="28" cy="-5" r="8" fill="#FDE047" opacity="0.8" />
+                <circle cx="16" cy="-2" r="7" fill="#38BDF8" opacity="0.8" />
+                <circle cx="0" cy="2" r="9" fill="#FAF7F0" />
+              </g>
+
+              {/* ĐỈNH NÚI TAM SƠN HOÀNG GIA (Ba Ngọn Núi Thiêng) */}
+              <g id="tam-son-peaks" transform="translate(200, 345)">
+                {/* Núi Chính Giữa Vươn Cao */}
+                <path d="M 0 -22 L 12 28 L -12 28 Z" fill="#0D4859" stroke="#E5C365" strokeWidth="1.2" />
+                <line x1="0" y1="-22" x2="0" y2="28" stroke="#FFF3B0" strokeWidth="1" />
+                {/* Núi Trái */}
+                <path d="M -16 -6 L -4 28 L -24 28 Z" fill="#0E3D52" stroke="#E5C365" strokeWidth="1" />
+                {/* Núi Phải */}
+                <path d="M 16 -6 L 24 28 L 4 28 Z" fill="#0E3D52" stroke="#E5C365" strokeWidth="1" />
+                {/* Khí Thiêng / Lửa Ngọc Đỉnh Núi */}
+                <circle cx="0" cy="-24" r="2.5" fill="#EAB308" />
+              </g>
+
+              {/* Dải Viền Gấm Mây Sóng Đáy Gấu Áo */}
+              <path
+                d="M 90 472 C 145 464, 255 464, 310 472 L 310 482 C 255 474, 145 474, 90 482 Z"
+                fill="#6B1724"
+                stroke="#E5C365"
+                strokeWidth="1.6"
+              />
+              <path
+                d="M 90 472 C 145 464, 255 464, 310 472"
+                stroke="#FFF3B0"
+                strokeWidth="2.2"
+                fill="none"
+              />
             </g>
 
-            {/* Gấu Áo Lượn Sóng Thuyền Hoàng Gia */}
+            {/* ======================================================== */}
+            {/* BẢN CỔ NHẬT BÌNH CHỮ U ĐỐI KHÂM (Xanh Chàm Cung Đình Viền Vàng) */}
+            {/* ======================================================== */}
+            {/* Bản Cổ Chữ U */}
             <path
-              d="M 98 474 C 145 464, 255 464, 302 474"
+              d="M 152 112 L 248 112 L 248 230 L 226 230 L 226 148 L 174 148 L 174 230 L 152 230 Z"
+              fill="#12233C"
               stroke="#E5C365"
-              strokeWidth="3"
-              strokeLinecap="round"
+              strokeWidth="2.5"
+            />
+            {/* Viền Kim Tuyến Kép Bên Trong Bản Cổ */}
+            <path
+              d="M 155 115 L 245 115 L 245 227 L 229 227 L 229 145 L 171 145 L 171 227 L 155 227 Z"
               fill="none"
-            />
-
-            {/* BẢN CỔ CHỮ NHẬT NHẬT BÌNH (Chữ U To Bản Đối Khâm Thêu Gấm Cung Đình) */}
-            <path
-              d="M 154 120 C 154 115, 246 115, 246 120 L 246 288 L 226 288 L 226 148 L 174 148 L 174 288 L 154 288 Z"
-              fill="url(#nhatBinhCollarRainbow)"
-              stroke="#E5C365"
-              strokeWidth="2.2"
-            />
-            {/* Viền Chỉ Kim Tuyến Bên Trong Bản Cổ */}
-            <path
-              d="M 174 288 L 174 148 L 226 148 L 226 288"
               stroke="#FFF3B0"
-              strokeWidth="1"
-              fill="none"
+              strokeWidth="0.8"
             />
 
-            {/* 10 Hạt Ngọc Trai Trắng Đính Dọc Hai Bên Bản Cổ */}
-            <g id="nhat-binh-pearls">
-              <circle cx="164" cy="165" r="2.8" fill="#FFFFFF" stroke="#E5C365" strokeWidth="0.8" filter="url(#softShadowFilter)" />
-              <circle cx="164" cy="195" r="2.8" fill="#FFFFFF" stroke="#E5C365" strokeWidth="0.8" filter="url(#softShadowFilter)" />
-              <circle cx="164" cy="225" r="2.8" fill="#FFFFFF" stroke="#E5C365" strokeWidth="0.8" filter="url(#softShadowFilter)" />
-              <circle cx="164" cy="255" r="2.8" fill="#FFFFFF" stroke="#E5C365" strokeWidth="0.8" filter="url(#softShadowFilter)" />
-              <circle cx="164" cy="278" r="2.8" fill="#FFFFFF" stroke="#E5C365" strokeWidth="0.8" filter="url(#softShadowFilter)" />
-
-              <circle cx="236" cy="165" r="2.8" fill="#FFFFFF" stroke="#E5C365" strokeWidth="0.8" filter="url(#softShadowFilter)" />
-              <circle cx="236" cy="195" r="2.8" fill="#FFFFFF" stroke="#E5C365" strokeWidth="0.8" filter="url(#softShadowFilter)" />
-              <circle cx="236" cy="225" r="2.8" fill="#FFFFFF" stroke="#E5C365" strokeWidth="0.8" filter="url(#softShadowFilter)" />
-              <circle cx="236" cy="255" r="2.8" fill="#FFFFFF" stroke="#E5C365" strokeWidth="0.8" filter="url(#softShadowFilter)" />
-              <circle cx="236" cy="278" r="2.8" fill="#FFFFFF" stroke="#E5C365" strokeWidth="0.8" filter="url(#softShadowFilter)" />
+            {/* Hoa Văn Hồi Văn & Cúc Dây Thêu Vàng Trên Bản Cổ Xanh Chàm */}
+            <g id="collar-embroidery" stroke="#E5C365" strokeWidth="0.8" fill="none" opacity="0.6">
+              <path d="M 163 125 L 163 220" strokeDasharray="4 3" />
+              <path d="M 237 125 L 237 220" strokeDasharray="4 3" />
+              <circle cx="163" cy="140" r="2.5" fill="#E5C365" />
+              <circle cx="163" cy="170" r="2.5" fill="#E5C365" />
+              <circle cx="163" cy="200" r="2.5" fill="#E5C365" />
+              <circle cx="237" cy="140" r="2.5" fill="#E5C365" />
+              <circle cx="237" cy="170" r="2.5" fill="#E5C365" />
+              <circle cx="237" cy="200" r="2.5" fill="#E5C365" />
             </g>
 
-            {/* DẢI RỦ TRƯỚC NGỰC (2 Dải Lụa Đỏ & Xanh Buông Thướt Tha Xuống Gấu) */}
-            <g id="nhat-binh-ribbons">
-              <rect x="186" y="302" width="12" height="162" fill="#B91C1C" rx="1.5" />
-              <rect x="186" y="460" width="12" height="4" fill="#E5C365" rx="0.5" />
+            {/* Lớp Cổ Áo Đơn Y Bên Trong Bản Cổ (Thêu Phượng & Sóng Nước) */}
+            <g id="collar-inner-panel">
+              {/* Lớp Đơn Y Trắng Ngà Thêu Hoa Phượng */}
+              <path
+                d="M 174 112 C 174 88, 226 88, 226 112 L 226 160 L 174 160 Z"
+                fill="#FAF7F0"
+                stroke="#E5C365"
+                strokeWidth="1.2"
+              />
+              <path d="M 188 128 C 195 120, 205 120, 212 128" stroke="#1E3A8A" strokeWidth="1" fill="none" />
+              <circle cx="200" cy="122" r="1.8" fill="#E5C365" />
 
-              <rect x="202" y="302" width="12" height="162" fill="#047857" rx="1.5" />
-              <rect x="202" y="460" width="12" height="4" fill="#E5C365" rx="0.5" />
+              {/* Mảng Thêu Sóng Nước Dưới Cổ Đơn Y (Trong Lòng Bản Cổ) */}
+              <rect x="174" y="160" width="52" height="52" fill="#0D4859" />
+              <path d="M 174 212 C 185 195, 215 195, 226 212" fill="#165A73" />
+              <path d="M 185 212 C 193 198, 207 198, 215 212" fill="#FAF7F0" />
+            </g>
 
-              {/* Cúc Hoa Mai Hoàng Cung Ngay Chân Bản Cổ */}
+            {/* CÚC CÀI NGỌC TRẮNG HOÀNG GIA CHÍNH GIỮA CHÂN BẢN CỔ */}
+            <g id="nhat-binh-brooch" transform="translate(200, 215)" filter="url(#softShadowFilter)">
               {isChineseButton ? (
-                <g transform="translate(200, 296)">
-                  <circle cx="0" cy="0" r="9" fill="#DC2626" stroke="#991B1B" strokeWidth="1.6" filter="url(#softShadowFilter)" />
+                // Cúc Vải Tàu (Phạm Húy Triều Đình)
+                <g>
+                  <circle cx="0" cy="0" r="9" fill="#DC2626" stroke="#991B1B" strokeWidth="1.6" />
                   <line x1="-9" y1="0" x2="9" y2="0" stroke="#FFF" strokeWidth="1.5" />
                   <line x1="0" y1="-9" x2="0" y2="9" stroke="#FFF" strokeWidth="1.5" />
                 </g>
               ) : (
-                <g transform="translate(200, 296)" filter="url(#softShadowFilter)">
-                  <circle cx="0" cy="0" r="10" fill={buttonFill} stroke="#FFFFFF" strokeWidth="1.8" />
-                  <circle cx="0" cy="0" r="5" fill="#FFFFFF" fillOpacity="0.45" />
-                  <line x1="-5" y1="0" x2="5" y2="0" stroke="#FFF" strokeWidth="1.4" />
-                  <line x1="0" y1="-5" x2="0" y2="5" stroke="#FFF" strokeWidth="1.4" />
-                  <circle cx="0" cy="0" r="2.2" fill="#FFF3B0" />
+                // Cúc Ngọc Trắng Khảm Vàng Hoàng Gia
+                <g>
+                  <circle cx="0" cy="0" r="9" fill="#FAF7F0" stroke="#E5C365" strokeWidth="2.2" />
+                  <circle cx="0" cy="0" r="6" fill="#F1EFEA" stroke="#FFF3B0" strokeWidth="0.8" />
+                  <circle cx="-2" cy="-2" r="2.2" fill="#FFFFFF" fillOpacity="0.8" />
                 </g>
               )}
             </g>
@@ -583,7 +704,7 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
         {/* ======================================================== */}
         {type !== 'nhat_binh' && (
           <g id="mandarin-collar-group">
-            {/* Áo Đơn Y (White Inner Collar Peeking 2-3mm Evenly) */}
+            {/* Áo Đơn Y peeking 2-3mm */}
             {hasDonY ? (
               <path
                 d="M 168 88 C 168 83, 232 83, 232 88 L 234 100 L 166 100 Z"
@@ -600,14 +721,13 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
               />
             )}
 
-            {/* Cổ Đứng Áo Ngoài Ôm Khít Tròn Mềm Chân Cổ */}
+            {/* Cổ Đứng Áo Ngoài */}
             <path
               d="M 166 94 C 166 89, 234 89, 234 94 L 240 116 L 160 116 Z"
               fill={primaryColor}
               stroke="rgba(255,255,255,0.25)"
               strokeWidth="1.2"
             />
-            {/* Viền Kim Tuyến Bo Tròn Mép Cổ */}
             <path
               d="M 166 94 C 166 89, 234 89, 234 94"
               stroke="#E5C365"
@@ -615,14 +735,6 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
               strokeLinecap="round"
               fill="none"
             />
-          </g>
-        )}
-
-        {/* Cổ Đơn Y bên trong Bản Cổ Nhật Bình */}
-        {type === 'nhat_binh' && hasDonY && (
-          <g id="nhat-binh-inner-collar">
-            <rect x="174" y="112" width="52" height="14" fill="#FFFFFF" stroke="#E5C365" strokeWidth="1.2" rx="1" />
-            <circle cx="200" cy="119" r="2.2" fill="#E5C365" />
           </g>
         )}
 
@@ -639,7 +751,6 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
               { id: 5, cx: 240, cy: 284, cordLen: 12 }
             ].map(btn => (
               <g key={btn.id} filter="url(#softShadowFilter)">
-                {/* Dây Khuy Tết Ngang Tinh Xảo */}
                 <line
                   x1={btn.cx - btn.cordLen}
                   y1={btn.cy}
@@ -654,7 +765,7 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
                   <g>
                     <circle cx={btn.cx} cy={btn.cy} r="6.2" fill="#DC2626" stroke="#991B1B" strokeWidth="1.4" />
                     <line x1={btn.cx - 5} y1={btn.cy} x2={btn.cx + 5} y2={btn.cy} stroke="#FFF" strokeWidth="1.2" />
-                    <line x1={btn.cx} y1={btn.cy - 5} x2={btn.cx} y2={btn.cy + 5} stroke="#FFF" strokeWidth="1.2" />
+                    <line x1={btn.cx} y1={btn.cy - 5} x2={btn.cx + 5} y2={btn.cy} stroke="#FFF" strokeWidth="1.2" />
                   </g>
                 ) : (
                   <g>
