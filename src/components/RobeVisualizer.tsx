@@ -27,21 +27,21 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
     switch (buttonType) {
       case 'btn-jade-green':
         return {
-          fill: '#10B981',
+          fill: 'url(#btnJadeGreen)',
           stroke: '#E5C365',
           label: 'Cúc Ngọc (Ngọc Bích / Cẩm Thạch)',
           isTaboo: false
         };
       case 'btn-wood-agarwood':
         return {
-          fill: '#8B5A2B',
+          fill: 'url(#btnWoodAgarwood)',
           stroke: '#C5A059',
           label: 'Cúc Gỗ (Trầm Hương Khắc Chữ Thọ)',
           isTaboo: false
         };
       case 'btn-chinese-cloth':
         return {
-          fill: '#DC2626',
+          fill: 'url(#btnChineseCloth)',
           stroke: '#991B1B',
           label: 'Cúc Vải / Cúc Tàu (Phạm Húy Triều Đình)',
           isTaboo: true
@@ -49,7 +49,7 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
       case 'btn-metal-copper':
       default:
         return {
-          fill: '#E5C365',
+          fill: 'url(#btnMetalCopper)',
           stroke: '#785918',
           label: 'Cúc Kim Loại (Đồng Chạm Bát Bửu)',
           isTaboo: false
@@ -87,9 +87,56 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
           {/* Gradients */}
           <linearGradient id={`robeGrad-${type}`} x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor={primaryColor} stopOpacity="1" />
-            <stop offset="60%" stopColor={primaryColor} stopOpacity="0.88" />
-            <stop offset="100%" stopColor="#08080c" stopOpacity="0.9" />
+            <stop offset="35%" stopColor={primaryColor} stopOpacity="0.96" />
+            <stop offset="70%" stopColor={primaryColor} stopOpacity="0.85" />
+            <stop offset="100%" stopColor="#08080c" stopOpacity="0.92" />
           </linearGradient>
+
+          {/* Brocade Jacquard Pattern (Vân Gấm Hoàng Gia Triều Nguyễn) */}
+          <pattern id={`brocade-${type}`} width="48" height="48" patternUnits="userSpaceOnUse">
+            {/* Subtle damask cloud scroll & lotus motif */}
+            <path d="M 12 12 Q 24 4 36 12 Q 44 24 36 36 Q 24 44 12 36 Q 4 24 12 12 Z" fill="none" stroke="#FFF" strokeWidth="0.6" strokeOpacity="0.14" />
+            <path d="M 24 16 Q 30 20 24 24 Q 18 20 24 16 Z" fill="#FFF" fillOpacity="0.1" />
+            <path d="M 0 24 Q 6 18 12 24 Q 6 30 0 24 Z" fill="none" stroke="#D4AF37" strokeWidth="0.5" strokeOpacity="0.16" />
+            <path d="M 36 24 Q 42 18 48 24 Q 42 30 36 24 Z" fill="none" stroke="#D4AF37" strokeWidth="0.5" strokeOpacity="0.16" />
+            <circle cx="24" cy="24" r="2" fill="#D4AF37" fillOpacity="0.25" />
+          </pattern>
+
+          {/* Silk Sheen Overlay */}
+          <linearGradient id="silkSheen" x1="15%" y1="0%" x2="85%" y2="100%">
+            <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.22" />
+            <stop offset="30%" stopColor="#FFFFFF" stopOpacity="0.05" />
+            <stop offset="65%" stopColor="#000000" stopOpacity="0.08" />
+            <stop offset="100%" stopColor="#000000" stopOpacity="0.32" />
+          </linearGradient>
+
+          {/* 3D Button Radial Gradients */}
+          <radialGradient id="btnMetalCopper" cx="35%" cy="35%" r="65%">
+            <stop offset="0%" stopColor="#FFF3B0" />
+            <stop offset="35%" stopColor="#E5C365" />
+            <stop offset="75%" stopColor="#A67C28" />
+            <stop offset="100%" stopColor="#4A3408" />
+          </radialGradient>
+
+          <radialGradient id="btnJadeGreen" cx="35%" cy="35%" r="65%">
+            <stop offset="0%" stopColor="#A7F3D0" />
+            <stop offset="35%" stopColor="#10B981" />
+            <stop offset="80%" stopColor="#047857" />
+            <stop offset="100%" stopColor="#064E3B" />
+          </radialGradient>
+
+          <radialGradient id="btnWoodAgarwood" cx="35%" cy="35%" r="65%">
+            <stop offset="0%" stopColor="#D4A373" />
+            <stop offset="40%" stopColor="#8B5A2B" />
+            <stop offset="85%" stopColor="#583110" />
+            <stop offset="100%" stopColor="#2E1705" />
+          </radialGradient>
+
+          <radialGradient id="btnChineseCloth" cx="40%" cy="40%" r="60%">
+            <stop offset="0%" stopColor="#F87171" />
+            <stop offset="50%" stopColor="#DC2626" />
+            <stop offset="100%" stopColor="#7F1D1D" />
+          </radialGradient>
 
           <linearGradient id="goldTrim" x1="0%" y1="0%" x2="100%" y2="0%">
             <stop offset="0%" stopColor="#E5C365" />
@@ -98,7 +145,7 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
           </linearGradient>
 
           <filter id="shadowFilter" x="-10%" y="-10%" width="120%" height="120%">
-            <feDropShadow dx="0" dy="6" stdDeviation="8" floodColor="#000" floodOpacity="0.6"/>
+            <feDropShadow dx="0" dy="5" stdDeviation="6" floodColor="#000" floodOpacity="0.5"/>
           </filter>
         </defs>
 
@@ -112,15 +159,23 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
               stroke="#2e2e38"
               strokeWidth="1.2"
             />
+            {/* Brocade pattern on left sleeve */}
+            <path d="M 120 120 L 40 240 L 70 255 L 135 175 Z" fill={`url(#brocade-${type})`} />
+            <path d="M 120 120 L 40 240 L 70 255 L 135 175 Z" fill="url(#silkSheen)" opacity="0.5" />
+
             <path
               d="M 280 120 L 360 240 L 330 255 L 265 175 Z"
               fill={`url(#robeGrad-${type})`}
               stroke="#2e2e38"
               strokeWidth="1.2"
             />
+            {/* Brocade pattern on right sleeve */}
+            <path d="M 280 120 L 360 240 L 330 255 L 265 175 Z" fill={`url(#brocade-${type})`} />
+            <path d="M 280 120 L 360 240 L 330 255 L 265 175 Z" fill="url(#silkSheen)" opacity="0.5" />
+
             {/* Fitted cuff detail */}
-            <path d="M 40 240 L 70 255" stroke="rgba(255,255,255,0.2)" strokeWidth="3" />
-            <path d="M 360 240 L 330 255" stroke="rgba(255,255,255,0.2)" strokeWidth="3" />
+            <path d="M 40 240 L 70 255" stroke="rgba(255,255,255,0.25)" strokeWidth="3" />
+            <path d="M 360 240 L 330 255" stroke="rgba(255,255,255,0.25)" strokeWidth="3" />
 
             {/* Back panels shadow */}
             <path
@@ -136,17 +191,27 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
               stroke="#3a3a46"
               strokeWidth="1.5"
             />
+            {/* Brocade & Silk Sheen on Main Body */}
+            <path d="M 135 110 L 265 110 L 295 440 L 105 440 Z" fill={`url(#brocade-${type})`} />
+            <path d="M 135 110 L 265 110 L 295 440 L 105 440 Z" fill="url(#silkSheen)" opacity="0.6" />
 
             {/* Tà áo vạt con bên phải khép chéo */}
             <path
               d="M 185 110 Q 220 140 230 180 L 240 440"
               stroke="rgba(0,0,0,0.4)"
-              strokeWidth="2"
+              strokeWidth="2.5"
+              fill="none"
+            />
+            {/* Subtle highlight fold line */}
+            <path
+              d="M 184 110 Q 219 140 229 180 L 239 440"
+              stroke="rgba(255,255,255,0.18)"
+              strokeWidth="1"
               fill="none"
             />
 
             {/* Đường trung phẫu chính giữa tà áo */}
-            <line x1="200" y1="180" x2="200" y2="440" stroke="rgba(255,255,255,0.12)" strokeWidth="1.5" strokeDasharray="3 3" />
+            <line x1="200" y1="180" x2="200" y2="440" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" strokeDasharray="3 3" />
           </g>
         )}
 
@@ -160,15 +225,21 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
               stroke="#3a3a46"
               strokeWidth="1.5"
             />
+            <path d="M 125 115 L 15 175 L 15 350 L 115 310 L 135 175 Z" fill={`url(#brocade-${type})`} />
+            <path d="M 125 115 L 15 175 L 15 350 L 115 310 L 135 175 Z" fill="url(#silkSheen)" opacity="0.6" />
+
             <path
               d="M 275 115 L 385 175 L 385 350 L 285 310 L 265 175 Z"
               fill={`url(#robeGrad-${type})`}
               stroke="#3a3a46"
               strokeWidth="1.5"
             />
+            <path d="M 275 115 L 385 175 L 385 350 L 285 310 L 265 175 Z" fill={`url(#brocade-${type})`} />
+            <path d="M 275 115 L 385 175 L 385 350 L 285 310 L 265 175 Z" fill="url(#silkSheen)" opacity="0.6" />
+
             {/* Sleeve folds / nếp gấp lụa */}
-            <path d="M 25 210 Q 65 240 120 230" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" fill="none"/>
-            <path d="M 375 210 Q 335 240 280 230" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" fill="none"/>
+            <path d="M 25 210 Q 65 240 120 230" stroke="rgba(255,255,255,0.2)" strokeWidth="1.5" fill="none"/>
+            <path d="M 375 210 Q 335 240 280 230" stroke="rgba(255,255,255,0.2)" strokeWidth="1.5" fill="none"/>
 
             {/* Body */}
             <path
@@ -177,6 +248,9 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
               stroke="#3a3a46"
               strokeWidth="1.5"
             />
+            <path d="M 130 110 L 270 110 L 305 450 L 95 450 Z" fill={`url(#brocade-${type})`} />
+            <path d="M 130 110 L 270 110 L 305 450 L 95 450 Z" fill="url(#silkSheen)" opacity="0.6" />
+
             {/* Overlap fold */}
             <path
               d="M 185 110 Q 225 150 235 200 L 250 450"
@@ -197,12 +271,18 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
               stroke="#3a3a46"
               strokeWidth="1.5"
             />
+            <path d="M 125 115 L 30 160 L 30 260 L 130 210 Z" fill={`url(#brocade-${type})`} />
+            <path d="M 125 115 L 30 160 L 30 260 L 130 210 Z" fill="url(#silkSheen)" opacity="0.6" />
+
             <path
               d="M 275 115 L 370 160 L 370 260 L 270 210 Z"
               fill={`url(#robeGrad-${type})`}
               stroke="#3a3a46"
               strokeWidth="1.5"
             />
+            <path d="M 275 115 L 370 160 L 370 260 L 270 210 Z" fill={`url(#brocade-${type})`} />
+            <path d="M 275 115 L 370 160 L 370 260 L 270 210 Z" fill="url(#silkSheen)" opacity="0.6" />
+
             {/* Ngũ Sắc Bands on Left Sleeve */}
             <g transform="translate(30, 220)">
               <rect x="0" y="0" width="10" height="40" fill="#E5C365" />
@@ -225,6 +305,8 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
               stroke="#3a3a46"
               strokeWidth="1.5"
             />
+            <path d="M 130 110 L 270 110 L 300 445 L 100 445 Z" fill={`url(#brocade-${type})`} />
+            <path d="M 130 110 L 270 110 L 300 445 L 100 445 Z" fill="url(#silkSheen)" opacity="0.6" />
 
             {/* Signature Nhật Bình Y-Shaped Rectangular Neckband (Vạt Cổ Chữ Y) */}
             <path
@@ -305,23 +387,28 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
         {type !== 'nhat_binh' && (
           <g id="buttons-group">
             {/* Button 1: Collar center right */}
-            <circle cx="218" cy="98" r={isChineseButton ? "6" : "5"} fill={buttonFill} stroke="#111" strokeWidth="1" />
+            <circle cx="218" cy="98" r={isChineseButton ? "6" : "5.5"} fill={buttonFill} stroke={buttonConfig.stroke} strokeWidth="1.2" filter="url(#shadowFilter)" />
+            {!isChineseButton && <circle cx="216.5" cy="96.5" r="1.5" fill="#FFF" fillOpacity="0.75" />}
             {isChineseButton && <line x1="212" y1="98" x2="224" y2="98" stroke="#FFF" strokeWidth="1" />}
 
             {/* Button 2: Upper chest opening */}
-            <circle cx="224" cy="116" r={isChineseButton ? "6" : "5"} fill={buttonFill} stroke="#111" strokeWidth="1" />
+            <circle cx="224" cy="116" r={isChineseButton ? "6" : "5.5"} fill={buttonFill} stroke={buttonConfig.stroke} strokeWidth="1.2" filter="url(#shadowFilter)" />
+            {!isChineseButton && <circle cx="222.5" cy="114.5" r="1.5" fill="#FFF" fillOpacity="0.75" />}
             {isChineseButton && <line x1="218" y1="116" x2="230" y2="116" stroke="#FFF" strokeWidth="1" />}
 
             {/* Button 3: Under right armpit (Nách phải) */}
-            <circle cx="236" cy="148" r={isChineseButton ? "6" : "5"} fill={buttonFill} stroke="#111" strokeWidth="1" />
+            <circle cx="236" cy="148" r={isChineseButton ? "6" : "5.5"} fill={buttonFill} stroke={buttonConfig.stroke} strokeWidth="1.2" filter="url(#shadowFilter)" />
+            {!isChineseButton && <circle cx="234.5" cy="146.5" r="1.5" fill="#FFF" fillOpacity="0.75" />}
             {isChineseButton && <line x1="230" y1="148" x2="242" y2="148" stroke="#FFF" strokeWidth="1" />}
 
             {/* Button 4: Upper waist (Sườn trên) */}
-            <circle cx="238" cy="186" r={isChineseButton ? "6" : "5"} fill={buttonFill} stroke="#111" strokeWidth="1" />
+            <circle cx="238" cy="186" r={isChineseButton ? "6" : "5.5"} fill={buttonFill} stroke={buttonConfig.stroke} strokeWidth="1.2" filter="url(#shadowFilter)" />
+            {!isChineseButton && <circle cx="236.5" cy="184.5" r="1.5" fill="#FFF" fillOpacity="0.75" />}
             {isChineseButton && <line x1="232" y1="186" x2="244" y2="186" stroke="#FFF" strokeWidth="1" />}
 
             {/* Button 5: Lower flank (Sườn dưới) */}
-            <circle cx="242" cy="226" r={isChineseButton ? "6" : "5"} fill={buttonFill} stroke="#111" strokeWidth="1" />
+            <circle cx="242" cy="226" r={isChineseButton ? "6" : "5.5"} fill={buttonFill} stroke={buttonConfig.stroke} strokeWidth="1.2" filter="url(#shadowFilter)" />
+            {!isChineseButton && <circle cx="240.5" cy="224.5" r="1.5" fill="#FFF" fillOpacity="0.75" />}
             {isChineseButton && <line x1="236" y1="226" x2="248" y2="226" stroke="#FFF" strokeWidth="1" />}
           </g>
         )}
