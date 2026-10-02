@@ -70,6 +70,9 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
   const accessoryCanvasImg = activeAccessoryItem.canvas2dUrl || activeAccessoryItem.thumbnailUrl || '';
   const isKhanDongSelected = activeAccessoryItem.id === 'acc-khan-dong';
 
+  // Dynamic transition key for micro-interactions (Fade-in + Scale up 1.02x on outfit changes)
+  const previewTransitionKey = `${activeGarment.id}_${selectedColorHex}_${activeAccessoryItem.id}_${activeButtonItem.id}_${activeBottomItem.id}_${activeShoesItem.id}_${hasDonY}_${uploadedImage ? 'upload' : 'robe'}`;
+
   // 4 Heritage Background Presets
   const BACKGROUND_THEMES = [
     {
@@ -916,7 +919,10 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
         {/* MODE 1: MANNEQUIN TOÀN THÂN (HEAD-TO-TOE OUTFIT CANVAS) */}
         {/* ======================================================== */}
         {viewMode === 'mannequin' && (
-          <div className="relative w-full max-w-[420px] py-6 flex flex-col items-center justify-center select-none">
+          <div 
+            key={previewTransitionKey} 
+            className="relative w-full max-w-[420px] py-6 flex flex-col items-center justify-center select-none animate-preview-robe"
+          >
             
             {/* GHOST MANNEQUIN / HAUTE COUTURE CROQUIS SILHOUETTE */}
             <svg 
@@ -1118,7 +1124,10 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
         {/* MODE 2: MOODBOARD NGHỆ THUẬT (EDITORIAL FLATLAY SPREAD) */}
         {/* ======================================================== */}
         {viewMode === 'editorial' && (
-          <div className="relative w-full max-w-[620px] py-4 select-none">
+          <div 
+            key={previewTransitionKey} 
+            className="relative w-full max-w-[620px] py-4 select-none animate-preview-robe"
+          >
             <div className="relative bg-[#111117] border border-[#2b2b3a] rounded-2xl p-4 sm:p-6 shadow-2xl space-y-5">
               
               {/* Top Editorial Header */}
@@ -1320,7 +1329,10 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
         {/* MODE 3: CHI TIẾT 2D MINH HỌA (5 SẢN PHẨM CHI TIẾT OUTFIT) */}
         {/* ======================================================== */}
         {viewMode === 'breakdown' && (
-          <div className="relative z-10 w-full max-w-[680px] py-4 select-none space-y-4">
+          <div 
+            key={previewTransitionKey} 
+            className="relative z-10 w-full max-w-[680px] py-4 select-none space-y-4 animate-preview-robe"
+          >
             <div className="text-center pb-2">
               <span className="text-xs uppercase tracking-wider text-[#c5a059] font-bold bg-[#c5a059]/15 px-3 py-1 rounded-full border border-[#c5a059]/30">
                 TRA CỨU CHI TIẾT 5 MÓN ĐỒ OUTFIT

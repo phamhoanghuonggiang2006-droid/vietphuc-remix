@@ -1,4 +1,6 @@
 import React from 'react';
+import { playDanTranhTabSound } from '../utils/soundEffects';
+import { SoundToggle } from './SoundToggle';
 
 interface NavbarProps {
   activeTab: 'remix' | 'story' | 'map';
@@ -13,14 +15,21 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenTaboosModal,
   onOpenQuizModal
 }) => {
+  const handleTabChange = (tab: 'remix' | 'story' | 'map') => {
+    if (tab !== activeTab) {
+      playDanTranhTabSound();
+    }
+    onSelectTab(tab);
+  };
+
   return (
     <header className="sticky top-0 z-40 w-full bg-[#0e0e12]/90 backdrop-blur-md border-b border-[#22222b]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         
         {/* Zone 1: Single text element brand wordmark */}
         <button
-          onClick={() => onSelectTab('remix')}
-          className="text-lg md:text-xl font-royal font-bold tracking-tight text-[#f5f2eb] hover:text-[#c5a059] transition-colors whitespace-nowrap"
+          onClick={() => handleTabChange('remix')}
+          className="text-lg md:text-xl font-royal font-bold tracking-tight text-[#f5f2eb] hover:text-[#c5a059] transition-colors whitespace-nowrap cursor-pointer"
         >
           Việt Phục Remix
         </button>
@@ -28,8 +37,8 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* Zone 2: Clean text navigation links */}
         <nav className="flex items-center gap-6 md:gap-8 text-xs md:text-sm font-medium">
           <button
-            onClick={() => onSelectTab('remix')}
-            className={`whitespace-nowrap transition-colors relative py-1 ${
+            onClick={() => handleTabChange('remix')}
+            className={`whitespace-nowrap transition-colors relative py-1 cursor-pointer ${
               activeTab === 'remix'
                 ? 'text-[#c5a059] font-semibold'
                 : 'text-stone-400 hover:text-stone-200'
@@ -42,8 +51,8 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
 
           <button
-            onClick={() => onSelectTab('story')}
-            className={`whitespace-nowrap transition-colors relative py-1 ${
+            onClick={() => handleTabChange('story')}
+            className={`whitespace-nowrap transition-colors relative py-1 cursor-pointer ${
               activeTab === 'story'
                 ? 'text-[#c5a059] font-semibold'
                 : 'text-stone-400 hover:text-stone-200'
@@ -56,8 +65,8 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
 
           <button
-            onClick={() => onSelectTab('map')}
-            className={`whitespace-nowrap transition-colors relative py-1 ${
+            onClick={() => handleTabChange('map')}
+            className={`whitespace-nowrap transition-colors relative py-1 cursor-pointer ${
               activeTab === 'map'
                 ? 'text-[#c5a059] font-semibold'
                 : 'text-stone-400 hover:text-stone-200'
@@ -72,6 +81,9 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Zone 3: Actions */}
         <div className="flex items-center gap-2.5">
+          {/* Sound Toggle (Web Audio API) */}
+          <SoundToggle variant="navbar" />
+
           {onOpenQuizModal && (
             <button
               onClick={onOpenQuizModal}
@@ -89,7 +101,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
 
           <button
-            onClick={() => onSelectTab('remix')}
+            onClick={() => handleTabChange('remix')}
             className="px-3.5 py-1.5 text-xs font-royal font-bold text-[#0e0e12] bg-[#c5a059] hover:bg-[#d8b566] rounded-lg transition-all shadow-sm whitespace-nowrap cursor-pointer"
           >
             Tạo Outfit

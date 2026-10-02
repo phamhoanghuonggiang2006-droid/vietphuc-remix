@@ -5,6 +5,7 @@ import { HeritageStory } from './components/HeritageStory';
 import { HeritageMap } from './components/HeritageMap';
 import { TaboosGuideModal } from './components/TaboosGuideModal';
 import { CourtQuizModal } from './components/CourtQuizModal';
+import { SoundToggle } from './components/SoundToggle';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<'remix' | 'story' | 'map'>('remix');
@@ -54,6 +55,9 @@ export default function App() {
         isOpen={isQuizModalOpen}
         onClose={() => setIsQuizModalOpen(false)}
       />
+
+      {/* Floating Sound Toggle Button (Web Audio API) */}
+      <SoundToggle variant="floating" />
     </div>
   );
 }

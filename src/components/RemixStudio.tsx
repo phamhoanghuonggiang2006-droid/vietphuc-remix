@@ -25,6 +25,15 @@ import {
 } from '../data/heritageData';
 import { RobeVisualizer } from './RobeVisualizer';
 import { OutfitMoodboardCanvas } from './OutfitMoodboardCanvas';
+import {
+  playDanTranhTabSound,
+  playButtonClinkSound,
+  playFanFlutterSound,
+  playGarmentSelectSound,
+  playFabricRustleSound,
+  playWoodClogSound,
+  playColorPickSound
+} from '../utils/soundEffects';
 import { 
   Sparkles, 
   AlertTriangle, 
@@ -244,6 +253,7 @@ export const RemixStudio: React.FC = () => {
       setSelectedAccessoryId(aiOutfitSuggestion.accessoryId);
       setSelectedButtonId(aiOutfitSuggestion.buttonId);
       setSelectedLayerId('layer-don-y-white');
+      playGarmentSelectSound();
     }
   };
 
@@ -261,6 +271,7 @@ export const RemixStudio: React.FC = () => {
     if (selectedAccessoryId === 'acc-smartwatch') {
       setSelectedAccessoryId('acc-paper-fan');
     }
+    playDanTranhTabSound();
     
     setTimeout(() => {
       generateRemixOutfit(
@@ -454,6 +465,7 @@ export const RemixStudio: React.FC = () => {
                     onClick={() => {
                       setSelectedGarmentId(item.id);
                       setSelectedColorHex(item.defaultColor);
+                      playGarmentSelectSound();
                     }}
                     className={`text-left p-3.5 rounded-xl border transition-all relative cursor-pointer ${
                       isSelected
@@ -554,7 +566,10 @@ export const RemixStudio: React.FC = () => {
                     {extractedPalette.map((chip, idx) => (
                       <button
                         key={idx}
-                        onClick={() => setSelectedColorHex(chip.hex)}
+                        onClick={() => {
+                          setSelectedColorHex(chip.hex);
+                          playColorPickSound();
+                        }}
                         className={`p-2 rounded-lg border text-left flex items-center gap-2 transition-all cursor-pointer ${
                           selectedColorHex === chip.hex
                             ? 'bg-[#1b1b26] border-[#c5a059] shadow-sm'
@@ -620,7 +635,10 @@ export const RemixStudio: React.FC = () => {
                 return (
                   <button
                     key={col.hex}
-                    onClick={() => setSelectedColorHex(col.hex)}
+                    onClick={() => {
+                      setSelectedColorHex(col.hex);
+                      playColorPickSound();
+                    }}
                     className={`p-2.5 rounded-xl border text-left flex items-start gap-2.5 transition-all relative cursor-pointer ${
                       isSelected
                         ? 'bg-[#1b1b22] border-[#c5a059] shadow-sm'
@@ -676,7 +694,10 @@ export const RemixStudio: React.FC = () => {
                 {layerOptions.map(item => (
                   <button
                     key={item.id}
-                    onClick={() => setSelectedLayerId(item.id)}
+                    onClick={() => {
+                      setSelectedLayerId(item.id);
+                      playFabricRustleSound();
+                    }}
                     className={`p-4 rounded-xl border text-left text-xs transition-all cursor-pointer flex flex-col justify-between ${
                       selectedLayerId === item.id
                         ? 'bg-[#1b1b24] border-[#c5a059] text-[#f5f2eb] ring-1 ring-[#c5a059]'
@@ -724,7 +745,10 @@ export const RemixStudio: React.FC = () => {
                   return (
                     <div
                       key={item.id}
-                      onClick={() => setSelectedButtonId(item.id)}
+                      onClick={() => {
+                        setSelectedButtonId(item.id);
+                        playButtonClinkSound();
+                      }}
                       className={`p-3 rounded-xl border text-left text-xs transition-all cursor-pointer flex gap-3 relative group ${
                         isSelected
                           ? isTaboo
@@ -781,7 +805,10 @@ export const RemixStudio: React.FC = () => {
                   </p>
                   <div className="pt-1 flex items-center gap-3">
                     <button
-                      onClick={() => setSelectedButtonId('btn-metal-copper')}
+                      onClick={() => {
+                        setSelectedButtonId('btn-metal-copper');
+                        playButtonClinkSound();
+                      }}
                       className="px-3.5 py-1.5 rounded-lg bg-[#c5a059] hover:bg-[#d8b566] text-stone-950 font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow transition-all"
                     >
                       <Wand2 className="w-3.5 h-3.5" />
@@ -807,7 +834,10 @@ export const RemixStudio: React.FC = () => {
                   return (
                     <div
                       key={item.id}
-                      onClick={() => setSelectedBottomId(item.id)}
+                      onClick={() => {
+                        setSelectedBottomId(item.id);
+                        playFabricRustleSound();
+                      }}
                       className={`rounded-xl border overflow-hidden text-left transition-all cursor-pointer flex flex-col relative group ${
                         isSelected
                           ? 'bg-[#1b1b24] border-[#c5a059] shadow-md ring-1 ring-[#c5a059]'
@@ -864,7 +894,10 @@ export const RemixStudio: React.FC = () => {
                   return (
                     <div
                       key={item.id}
-                      onClick={() => setSelectedShoesId(item.id)}
+                      onClick={() => {
+                        setSelectedShoesId(item.id);
+                        playWoodClogSound();
+                      }}
                       className={`rounded-xl border overflow-hidden text-left transition-all cursor-pointer flex flex-col relative group ${
                         isSelected
                           ? isSneakerClash
@@ -929,7 +962,10 @@ export const RemixStudio: React.FC = () => {
                   return (
                     <div
                       key={item.id}
-                      onClick={() => setSelectedAccessoryId(item.id)}
+                      onClick={() => {
+                        setSelectedAccessoryId(item.id);
+                        playFanFlutterSound();
+                      }}
                       className={`rounded-xl border overflow-hidden text-left transition-all cursor-pointer flex flex-col relative group ${
                         isSelected
                           ? isSmartwatch
@@ -1006,7 +1042,10 @@ export const RemixStudio: React.FC = () => {
           {/* MAIN CTA BUTTON: TẠO OUTFIT REMIX */}
           <div className="pt-2">
             <button
-              onClick={() => generateRemixOutfit()}
+              onClick={() => {
+                playDanTranhTabSound();
+                generateRemixOutfit();
+              }}
               disabled={isGenerating}
               className="w-full py-4 px-6 rounded-xl bg-[#c5a059] hover:bg-[#d4b065] text-[#0f0f14] font-bold text-base transition-all shadow-lg flex items-center justify-center gap-2.5 disabled:opacity-50 cursor-pointer active:scale-[0.99]"
             >
