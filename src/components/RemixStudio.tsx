@@ -12,15 +12,19 @@ import {
   LINK_ANH_CUC_NGOC,
   LINK_ANH_CUC_GO,
   LINK_ANH_CUC_VAI,
+  LINK_ANH_QUAN_LUA,
   LINK_ANH_QUAN_LINEN,
   LINK_ANH_VAY_XEP_LY,
   LINK_ANH_QUAN_JEANS,
   LINK_ANH_GUOC_MOC,
   LINK_ANH_HAI_THEU,
   LINK_ANH_SNEAKERS,
+  LINK_ANH_CHUNKY_LOAFERS,
   LINK_ANH_QUAT_GIAY,
   LINK_ANH_KHAN_DONG,
+  LINK_ANH_KHAN_VANH_DAY,
   LINK_ANH_BOI_NGOC,
+  LINK_ANH_KIENG_BAC,
   LINK_ANH_DONG_HO
 } from '../data/heritageData';
 import { RobeVisualizer } from './RobeVisualizer';
@@ -48,6 +52,9 @@ import {
   Check, 
   Layers, 
   Eye, 
+  Flame,
+  Zap,
+  ShieldAlert,
   Image as ImageIcon 
 } from 'lucide-react';
 
@@ -92,6 +99,148 @@ interface RemixResult {
   paletteItems: { name: string; hex: string; role: string }[];
 }
 
+export interface DualMetricEvaluation {
+  slayScore: number;
+  heritageScore: number;
+  scenario: 'taboo' | 'anachronism' | 'heritage' | 'modern_polite';
+  badgeTitle: string;
+  stylistQuote: string;
+  subAdvice: string;
+  isTaboo: boolean;
+  isAnachronism: boolean;
+  canAutoFix: boolean;
+}
+
+export const computeRealtimeDualMetrics = (
+  garment: HeritageItem,
+  color: ColorOption,
+  layerId: string,
+  buttonId: string,
+  bottomId: string,
+  shoesId: string,
+  accessoryId: string
+): DualMetricEvaluation => {
+  const hasDonY = layerId === 'layer-don-y-white';
+  const isChineseButton = buttonId === 'btn-chinese-cloth';
+  const isImperialYellow = !!color.isImperialRestricted;
+  
+  // Áo lễ gồm Áo Tấc, Nhật Bình, Viên Lĩnh
+  const isCeremonialRobe = garment.id === 'ao-tac' || garment.id === 'ao-nhat-binh' || garment.id === 'ao-vien-linh';
+  
+  // Cấm kỵ triều đình: Cúc vải Tàu hoặc Vàng Minh Hoàng
+  const isTabooAlert = isChineseButton || isImperialYellow;
+  
+  // Lỗi lạc quẻ (Anachronism): Phối áo lễ với Sneakers hoặc Đồng hồ thông minh
+  const isAnachronism = (isCeremonialRobe && (shoesId === 'shoes-white-sneakers' || accessoryId === 'acc-smartwatch')) ||
+                        (!isCeremonialRobe && accessoryId === 'acc-smartwatch');
+
+  // 1. TÍNH ĐỘ CHUẨN DI SẢN (HERITAGE SCORE %)
+  let heritage = 100;
+  if (!hasDonY) heritage -= 25;
+  if (isChineseButton) heritage -= 35;
+  if (isImperialYellow) heritage -= 40;
+  if (isCeremonialRobe && shoesId === 'shoes-white-sneakers') heritage -= 20;
+  if (accessoryId === 'acc-smartwatch') heritage -= 15;
+  if (isCeremonialRobe && shoesId === 'shoes-chunky-loafers') heritage -= 8;
+  if (isCeremonialRobe && bottomId === 'bottom-high-waist-jeans') heritage -= 10;
+  if (!isCeremonialRobe && bottomId === 'bottom-high-waist-jeans') heritage -= 3;
+  heritage = Math.max(15, Math.min(100, heritage));
+
+  // 2. TÍNH SLAY SCORE (%)
+  let slay = 78;
+  // Tone màu hài hòa
+  if (color.hex === '#2B5B84' || color.hex === '#7A222C' || color.hex === '#1D5C42' || color.hex === '#5E3A58') {
+    slay += 10;
+  }
+  // Thân dưới cá tính & duyên dáng
+  if (bottomId === 'bottom-pleated-midi-skirt' || bottomId === 'bottom-silk-wide-pants' || bottomId === 'bottom-linen-wide-pants') {
+    slay += 8;
+  } else if (bottomId === 'bottom-high-waist-jeans') {
+    slay += 7;
+  }
+  // Giày & phụ kiện
+  if (shoesId === 'shoes-wooden-clogs' || shoesId === 'shoes-embroidered-slippers') {
+    slay += 6;
+  } else if (shoesId === 'shoes-chunky-loafers') {
+    slay += 8;
+  }
+  if (accessoryId === 'acc-khan-dong' || accessoryId === 'acc-khan-vanh-day' || accessoryId === 'acc-kieng-bac') {
+    slay += 6;
+  } else if (accessoryId === 'acc-paper-fan' || accessoryId === 'acc-jade-pendant') {
+    slay += 5;
+  }
+
+  // Nếu vi phạm cấm kỵ thì bị trừ Slay nhẹ
+  if (isTabooAlert) slay -= 16;
+  if (isAnachronism) slay -= 8;
+  slay = Math.max(45, Math.min(99, slay));
+
+  // 3. PHÂN ĐỊNH 4 KỊCH BẢN VÀ LỜI BÌNH AI STYLIST GEN Z
+  // KỊCH BẢN 1: CẢNH BÁO CẤM KỴ (TABOO ALERT)
+  if (isTabooAlert) {
+    return {
+      slayScore: slay,
+      heritageScore: heritage,
+      scenario: 'taboo',
+      badgeTitle: 'Cảnh Báo Cấm Kỵ (Taboo Alert)',
+      stylistQuote: '“Cảnh báo nhẹ: Phối kiểu này Cụ Nguồn gật đầu khen cá tính nhưng Triều Đình hơi rén nhé! Đổi sang Guốc Mộc cho chuẩn gu nào.”',
+      subAdvice: isChineseButton 
+        ? 'Quy chuẩn Y quan nước Nam luôn là khuy rời đúc kim loại/gỗ/ngọc, tuyệt đối cấm cúc vải bện kiểu Tàu lai căng!' 
+        : 'Sắc Vàng Minh Hoàng là đặc quyền tối thượng của bậc Thiên Tử Triều Nguyễn. Thứ dân mặc sẽ vi phạm quy chế y quan!',
+      isTaboo: true,
+      isAnachronism: false,
+      canAutoFix: true
+    };
+  }
+
+  // KỊCH BẢN 2: LỖI LẠC QUẺ (ANACHRONISM)
+  if (isAnachronism) {
+    return {
+      slayScore: slay,
+      heritageScore: heritage,
+      scenario: 'anachronism',
+      badgeTitle: 'Lỗi Lạc Quẻ (Anachronism)',
+      stylistQuote: '“Ủa alo bạn hiền! Áo lễ tôn nghiêm mà \'cưỡi\' đôi Sneakers quẹt Smartwatch trông hơi cấn cấn đó nha! Đổi sang Guốc Mộc hoặc Hài Thêu Cung Đình để vừa chuẩn di sản vừa slay hết nấc nào!”',
+      subAdvice: `${garment.name} là lễ phục trang trọng, sự kết hợp với giày thể thao hoặc đồng hồ thông minh tạo ra sự cọc cạch thị giác đối với y quan truyền thống.`,
+      isTaboo: false,
+      isAnachronism: true,
+      canAutoFix: true
+    };
+  }
+
+  // KỊCH BẢN 3: CHUẨN CỔ PHONG (MATCH > 90%)
+  if (heritage >= 90) {
+    return {
+      slayScore: slay,
+      heritageScore: heritage,
+      scenario: 'heritage',
+      badgeTitle: 'Chuẩn Cổ Phong (Match > 90%)',
+      stylistQuote: '“Úi chà! Bộ này diện đi quẩy Hội An là hết nước chấm, vừa chuẩn Ngũ Thường vừa đậm chất Slay!”',
+      subAdvice: 'Khen ngợi am hiểu văn hóa sâu sắc! Tôn vinh nếp áo sa tà bay bổng, 5 cúc Ngũ Thường sáng ngời khí chất quân tử.',
+      isTaboo: false,
+      isAnachronism: false,
+      canAutoFix: false
+    };
+  }
+
+  // KỊCH BẢN 4: CÁCH TÂN LỊCH SỰ (MATCH 70-89%)
+  return {
+    slayScore: slay,
+    heritageScore: heritage,
+    scenario: 'modern_polite',
+    badgeTitle: 'Cách Tân Lịch Sự (Match 70-89%)',
+    stylistQuote: !hasDonY 
+      ? '“Gu phối đồ bén ngót và duyên dáng lắm nhen! Cách tân rất có duyên, nhưng nhớ mặc đủ Áo Đơn Y lót trong để 10/10 không có nhưng nhé!”'
+      : '“Bản phối giao thoa cổ kim rất duyên dáng! Vừa tôn vinh nét đẹp truyền thống vừa giữ trọn sự phóng khoáng đương đại.”',
+    subAdvice: !hasDonY 
+      ? 'Nhắc nhở: Lớp Áo Đơn Y trắng cổ đứng cao hơn áo ngoài 2mm là biểu tượng cốt cách sạch sẽ, đoan chính của cổ nhân.' 
+      : 'Phối đồ hài hòa, thanh lịch và phù hợp cho các buổi dạo phố, cà phê, sự kiện văn hóa nghệ thuật.',
+    isTaboo: false,
+    isAnachronism: false,
+    canAutoFix: !hasDonY
+  };
+};
+
 export const RemixStudio: React.FC = () => {
   // Selection States
   const [selectedGarmentId, setSelectedGarmentId] = useState<string>('ngu-than-tay-chen');
@@ -132,6 +281,17 @@ export const RemixStudio: React.FC = () => {
   const activeBottomItem = bottomOptions.find(b => b.id === selectedBottomId) || bottomOptions[0];
   const activeShoesItem = shoesOptions.find(s => s.id === selectedShoesId) || shoesOptions[0];
   const activeAccessoryItem = accessoryOptions.find(a => a.id === selectedAccessoryId) || accessoryOptions[0];
+
+  // Real-time Dual-Metric Evaluation: Slay Score & Độ Chuẩn Di Sản
+  const dualMetrics = computeRealtimeDualMetrics(
+    activeGarment,
+    activeColor,
+    selectedLayerId,
+    selectedButtonId,
+    selectedBottomId,
+    selectedShoesId,
+    selectedAccessoryId
+  );
 
   // Helper to get fixed image URL for any item (cố định 14 ảnh PNG)
   const getItemImageUrl = (_itemId: string, defaultThumbnail?: string): string => {
@@ -266,7 +426,7 @@ export const RemixStudio: React.FC = () => {
     if (activeColor.isImperialRestricted) {
       setSelectedColorHex('#2B5B84');
     }
-    if (selectedShoesId === 'shoes-white-sneakers' && (activeGarment.id === 'ao-tac' || activeGarment.id === 'ao-nhat-binh')) {
+    if (selectedShoesId === 'shoes-white-sneakers' && (activeGarment.id === 'ao-tac' || activeGarment.id === 'ao-nhat-binh' || activeGarment.id === 'ao-vien-linh')) {
       setSelectedShoesId('shoes-wooden-clogs');
     }
     if (selectedAccessoryId === 'acc-smartwatch') {
@@ -441,6 +601,157 @@ export const RemixStudio: React.FC = () => {
         </div>
       </div>
 
+      {/* ======================================================== */}
+      {/* BẢNG ĐÁNH GIÁ "SLAY & CHUẨN CỔ PHONG" - REALTIME EVALUATION */}
+      {/* ======================================================== */}
+      <div className={`p-5 sm:p-6 rounded-2xl border transition-all duration-500 relative overflow-hidden backdrop-blur-xl ${
+        dualMetrics.scenario === 'taboo'
+          ? 'bg-gradient-to-br from-[#2a0e14]/95 via-[#19080c]/95 to-[#120508]/95 border-rose-500 shadow-[0_0_35px_rgba(244,63,94,0.35)] animate-pulse'
+          : dualMetrics.scenario === 'anachronism'
+          ? 'bg-gradient-to-br from-[#2a1b0a]/95 via-[#1a1106]/95 to-[#120c04]/95 border-amber-500/80 shadow-[0_0_30px_rgba(245,158,11,0.25)]'
+          : dualMetrics.scenario === 'heritage'
+          ? 'bg-gradient-to-br from-[#12231b]/95 via-[#0e171f]/95 to-[#1c170e]/95 border-[#e5c365] shadow-[0_0_35px_rgba(229,195,101,0.25)]'
+          : 'bg-gradient-to-br from-[#1e1028]/95 via-[#130d1d]/95 to-[#0e0c16]/95 border-purple-500/70 shadow-[0_0_30px_rgba(168,85,247,0.2)]'
+      }`}>
+        {/* Glow ambient background highlight */}
+        <div className={`absolute top-0 right-0 w-80 h-80 rounded-full blur-[100px] pointer-events-none opacity-20 ${
+          dualMetrics.scenario === 'taboo' ? 'bg-rose-500' :
+          dualMetrics.scenario === 'anachronism' ? 'bg-amber-500' :
+          dualMetrics.scenario === 'heritage' ? 'bg-[#e5c365]' :
+          'bg-purple-500'
+        }`} />
+
+        <div className="relative z-10 space-y-5">
+          {/* TOP BAR: BADGE & LIVE STATUS */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-4">
+            <div className="flex items-center gap-3">
+              <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-sm ${
+                dualMetrics.scenario === 'taboo'
+                  ? 'bg-rose-600 text-white animate-bounce'
+                  : dualMetrics.scenario === 'anachronism'
+                  ? 'bg-amber-500 text-stone-950 font-black'
+                  : dualMetrics.scenario === 'heritage'
+                  ? 'bg-gradient-to-r from-[#c5a059] to-[#e5c365] text-stone-950 font-black'
+                  : 'bg-gradient-to-r from-purple-600 to-pink-600 text-white'
+              }`}>
+                {dualMetrics.scenario === 'taboo' && <AlertTriangle className="w-3.5 h-3.5" />}
+                {dualMetrics.scenario === 'anachronism' && <AlertTriangle className="w-3.5 h-3.5" />}
+                {dualMetrics.scenario === 'heritage' && <Sparkles className="w-3.5 h-3.5" />}
+                {dualMetrics.scenario === 'modern_polite' && <CheckCircle2 className="w-3.5 h-3.5" />}
+                <span>{dualMetrics.badgeTitle}</span>
+              </span>
+              <span className="text-[11px] text-stone-300 hidden md:inline">
+                ⚡ Tự động thẩm định kép theo thời gian thực
+              </span>
+            </div>
+
+            {dualMetrics.canAutoFix && (
+              <button
+                type="button"
+                onClick={handleAutoFixTaboos}
+                className="px-3.5 py-1.5 rounded-lg bg-[#c5a059] hover:bg-[#d8b566] text-[#0d0d10] font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-md transition-all self-start sm:self-auto active:scale-95"
+              >
+                <Wand2 className="w-3.5 h-3.5" />
+                <span>Khắc Phục Chuẩn Triều Nguyễn (1 Chạm)</span>
+              </button>
+            )}
+          </div>
+
+          {/* DUAL METRICS PROGRESS BARS */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+            
+            {/* 1. SLAY SCORE */}
+            <div className="bg-black/40 backdrop-blur-md border border-white/10 rounded-xl p-4 space-y-2.5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="text-xs uppercase tracking-wider text-pink-400 font-bold flex items-center gap-1.5">
+                    <span>💅 Slay Score</span>
+                    <span className="px-1.5 py-0.2 rounded bg-pink-500/20 text-pink-300 text-[10px] font-semibold border border-pink-500/30">
+                      Gen Z Vibe
+                    </span>
+                  </span>
+                  <div className="text-[11px] text-stone-300 mt-0.5">
+                    Tỷ lệ phối màu hài hòa & độ cá tính Gen Z
+                  </div>
+                </div>
+                <div className="text-right">
+                  <span className="text-2xl sm:text-3xl font-black text-pink-400 font-mono tracking-tight">
+                    {dualMetrics.slayScore}%
+                  </span>
+                </div>
+              </div>
+
+              {/* Progress Track */}
+              <div className="w-full h-3 bg-black/60 rounded-full overflow-hidden p-0.5 border border-white/10">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-pink-500 via-rose-500 to-purple-500 transition-all duration-700 shadow-[0_0_12px_rgba(236,72,153,0.5)]"
+                  style={{ width: `${dualMetrics.slayScore}%` }}
+                />
+              </div>
+            </div>
+
+            {/* 2. ĐỘ CHUẨN DI SẢN */}
+            <div className="bg-black/40 backdrop-blur-md border border-white/10 rounded-xl p-4 space-y-2.5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="text-xs uppercase tracking-wider text-[#e5c365] font-bold flex items-center gap-1.5">
+                    <span>👑 Độ Chuẩn Di Sản</span>
+                    <span className="px-1.5 py-0.2 rounded bg-[#c5a059]/20 text-[#e5c365] text-[10px] font-semibold border border-[#c5a059]/30">
+                      Y Quan Triều Nguyễn
+                    </span>
+                  </span>
+                  <div className="text-[11px] text-stone-300 mt-0.5">
+                    Tuân thủ quy chế (Áo Đơn Y, khuy cúc, phụ kiện)
+                  </div>
+                </div>
+                <div className="text-right">
+                  <span className={`text-2xl sm:text-3xl font-black font-mono tracking-tight ${
+                    dualMetrics.heritageScore >= 90 ? 'text-[#e5c365]' :
+                    dualMetrics.heritageScore >= 70 ? 'text-amber-400' : 'text-rose-400'
+                  }`}>
+                    {dualMetrics.heritageScore}%
+                  </span>
+                </div>
+              </div>
+
+              {/* Progress Track */}
+              <div className="w-full h-3 bg-black/60 rounded-full overflow-hidden p-0.5 border border-white/10">
+                <div
+                  className={`h-full rounded-full transition-all duration-700 ${
+                    dualMetrics.heritageScore >= 90
+                      ? 'bg-gradient-to-r from-amber-400 via-yellow-400 to-emerald-400 shadow-[0_0_12px_rgba(229,195,101,0.5)]'
+                      : dualMetrics.heritageScore >= 70
+                      ? 'bg-gradient-to-r from-amber-500 to-yellow-400 shadow-[0_0_12px_rgba(245,158,11,0.4)]'
+                      : 'bg-gradient-to-r from-rose-600 to-red-500 shadow-[0_0_12px_rgba(239,68,68,0.5)]'
+                  }`}
+                  style={{ width: `${dualMetrics.heritageScore}%` }}
+                />
+              </div>
+            </div>
+
+          </div>
+
+          {/* AI STYLIST GEN Z SPEECH BUBBLE */}
+          <div className="p-4 sm:p-4.5 rounded-xl bg-black/55 backdrop-blur-md border border-white/10 flex items-start gap-3.5">
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br from-[#c5a059] to-rose-500 text-stone-950 font-black text-xs sm:text-sm flex items-center justify-center shrink-0 shadow-lg border border-white/20">
+              AI 💅
+            </div>
+            <div className="min-w-0 flex-1 space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-[#e5c365]">AI Stylist Cổ Phục Viễn Đông</span>
+                <span className="text-[10px] text-stone-400 font-medium hidden sm:inline">• Thẩm định văn phong Gen Z</span>
+              </div>
+              <p className="text-sm sm:text-base font-semibold italic text-stone-100 leading-relaxed">
+                {dualMetrics.stylistQuote}
+              </p>
+              <p className="text-xs text-stone-300/90 leading-relaxed pt-0.5">
+                {dualMetrics.subAdvice}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Main Studio Grid: Left Configuration & Right Visualizer */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         
@@ -456,8 +767,8 @@ export const RemixStudio: React.FC = () => {
               <span className="text-xs text-stone-400">Quy chuẩn Y quan</span>
             </div>
 
-            {/* 3 Garment Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {/* 5 Garment Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
               {HERITAGE_GARMENTS.map((item) => {
                 const isSelected = selectedGarmentId === item.id;
                 return (
@@ -832,14 +1143,14 @@ export const RemixStudio: React.FC = () => {
               )}
             </div>
 
-            {/* C. THÂN DƯỚI PHỐI CÙNG (5.png, 6.png, 7.png) */}
+            {/* C. THÂN DƯỚI PHỐI CÙNG (Quần Ống Sớ Lụa, Quần Linen, Chân Váy Xếp Ly, Quần Jeans Cạp Cao) */}
             <div className="space-y-2.5 pt-1">
               <label className="text-xs font-semibold text-stone-200 flex items-center justify-between">
                 <span>Thân Dưới Phối Cùng (Quần / Chân Váy Hiện Đại):</span>
-                <span className="text-[11px] text-[#c5a059]">Chuẩn phom dáng đương đại</span>
+                <span className="text-[11px] text-[#c5a059]">4 lựa chọn phom dáng</span>
               </label>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {bottomOptions.map(item => {
                   const isSelected = selectedBottomId === item.id;
                   const imgSrc = getItemImageUrl(item.id, item.thumbnailUrl);
@@ -863,7 +1174,7 @@ export const RemixStudio: React.FC = () => {
                           src={imgSrc} 
                           alt={item.name} 
                           onError={(e) => {
-                            if (item.id === 'bottom-linen-wide-pants') e.currentTarget.src = '/5.png';
+                            if (item.id === 'bottom-linen-wide-pants' || item.id === 'bottom-silk-wide-pants') e.currentTarget.src = '/5.png';
                             if (item.id === 'bottom-pleated-midi-skirt') e.currentTarget.src = '/6.png';
                             if (item.id === 'bottom-high-waist-jeans') e.currentTarget.src = '/7.png';
                           }}
@@ -891,17 +1202,17 @@ export const RemixStudio: React.FC = () => {
               </div>
             </div>
 
-            {/* D. GIÀY / GUỐC (8.png, 9.png, 10.png) */}
+            {/* D. GIÀY / GUỐC (Guốc Mộc Truyền Thống, Hài Thêu Cung Đình, Sneakers Trắng, Chunky Loafers) */}
             <div className="space-y-2.5 pt-1">
               <label className="text-xs font-semibold text-stone-200 flex items-center justify-between">
                 <span>Giày / Guốc:</span>
-                <span className="text-[11px] text-[#c5a059]">Phối hợp hài hòa</span>
+                <span className="text-[11px] text-[#c5a059]">4 lựa chọn hài hòa</span>
               </label>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {shoesOptions.map(item => {
                   const isSelected = selectedShoesId === item.id;
-                  const isSneakerClash = item.id === 'shoes-white-sneakers' && (activeGarment.id === 'ao-tac' || activeGarment.id === 'ao-nhat-binh');
+                  const isSneakerClash = item.id === 'shoes-white-sneakers' && (activeGarment.id === 'ao-tac' || activeGarment.id === 'ao-nhat-binh' || activeGarment.id === 'ao-vien-linh');
                   const imgSrc = getItemImageUrl(item.id, item.thumbnailUrl);
 
                   return (
@@ -927,7 +1238,7 @@ export const RemixStudio: React.FC = () => {
                           onError={(e) => {
                             if (item.id === 'shoes-wooden-clogs') e.currentTarget.src = '/8.png';
                             if (item.id === 'shoes-embroidered-slippers') e.currentTarget.src = '/9.png';
-                            if (item.id === 'shoes-white-sneakers') e.currentTarget.src = '/10.png';
+                            if (item.id === 'shoes-white-sneakers' || item.id === 'shoes-chunky-loafers') e.currentTarget.src = '/10.png';
                           }}
                           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                         />
@@ -958,15 +1269,14 @@ export const RemixStudio: React.FC = () => {
               </div>
             </div>
 
-            {/* E. PHỤ KIỆN ĐI KÈM (11.png, 12.png, 13.png, 14.png) */}
+            {/* E. PHỤ KIỆN ĐI KÈM (Khăn Đóng Chữ Nhân, Khăn Vành Dây, Quạt Giấy Trầm Hương, Bội Ngọc Bích, Kiềng Bạc, Đồng Hồ Thông Minh (Hiện Đại)) */}
             <div className="space-y-2.5 pt-1">
               <label className="text-xs font-semibold text-stone-200 flex items-center justify-between">
-                <span>Phụ Kiện Đi Kèm (Chọn 1 trong 4 món cổ phong & hiện đại):</span>
+                <span>Phụ Kiện Đi Kèm (6 món cổ phong & hiện đại):</span>
                 <span className="text-[11px] text-[#c5a059]">Điểm xuyết cốt cách</span>
               </label>
 
-              {/* Toast thông báo tải ảnh thủ công Khăn Đóng */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
                 {accessoryOptions.map(item => {
                   const isSelected = selectedAccessoryId === item.id;
                   const isSmartwatch = item.id === 'acc-smartwatch';
@@ -994,8 +1304,8 @@ export const RemixStudio: React.FC = () => {
                           alt={item.name} 
                           onError={(e) => {
                             if (item.id === 'acc-paper-fan') e.currentTarget.src = '/11.png';
-                            if (item.id === 'acc-khan-dong') e.currentTarget.src = '/12.png';
-                            if (item.id === 'acc-jade-pendant') e.currentTarget.src = '/13.png';
+                            if (item.id === 'acc-khan-dong' || item.id === 'acc-khan-vanh-day') e.currentTarget.src = '/12.png';
+                            if (item.id === 'acc-jade-pendant' || item.id === 'acc-kieng-bac') e.currentTarget.src = '/13.png';
                             if (item.id === 'acc-smartwatch') e.currentTarget.src = '/14.png';
                           }}
                           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"

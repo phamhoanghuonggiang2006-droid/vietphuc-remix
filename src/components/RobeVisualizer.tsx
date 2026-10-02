@@ -2,7 +2,7 @@ import React from 'react';
 import { AlertTriangle, CheckCircle2 } from 'lucide-react';
 
 interface RobeVisualizerProps {
-  type: 'ngu_than' | 'ao_tac' | 'nhat_binh';
+  type: 'ngu_than' | 'ao_tac' | 'nhat_binh' | 'giao_linh' | 'vien_linh';
   primaryColor: string;
   hasDonY: boolean;
   buttonType: string;
@@ -901,9 +901,202 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
         )}
 
         {/* ======================================================== */}
+        {/* 4. ÁO GIAO LĨNH CỔ CHÉO CHỮ Y (THỜI LÝ - TRẦN - LÊ)       */}
+        {/* ======================================================== */}
+        {type === 'giao_linh' && (
+          <g id="ao-giao-linh-authentic">
+            {/* Lớp áo trong / tà trong */}
+            <path d="M 132 205 L 82 476 L 112 476 L 140 205 Z" fill="#141E18" opacity="0.4" />
+            <path d="M 268 205 L 318 476 L 288 476 L 260 205 Z" fill="#141E18" opacity="0.4" />
+
+            {/* Tay áo thụng rộng vươn dài tha thướt */}
+            <path
+              d="M 158 96 L 24 135 L 24 248 C 55 248, 95 240, 132 208 Z"
+              fill={`url(#robeGrad-${type})`}
+              stroke="rgba(255,255,255,0.25)"
+              strokeWidth="1.2"
+            />
+            <path d="M 158 96 L 24 135 L 24 248 C 55 248, 95 240, 132 208 Z" fill={`url(#brocade-${type})`} />
+            <path d="M 158 96 L 24 135 L 24 248 C 55 248, 95 240, 132 208 Z" fill="url(#silkSheen)" />
+
+            <path
+              d="M 242 96 L 376 135 L 376 248 C 345 248, 305 240, 268 208 Z"
+              fill={`url(#robeGrad-${type})`}
+              stroke="rgba(255,255,255,0.25)"
+              strokeWidth="1.2"
+            />
+            <path d="M 242 96 L 376 135 L 376 248 C 345 248, 305 240, 268 208 Z" fill={`url(#brocade-${type})`} />
+            <path d="M 242 96 L 376 135 L 376 248 C 345 248, 305 240, 268 208 Z" fill="url(#silkSheen)" />
+
+            {/* Thân áo chữ A suông rộng */}
+            <path
+              d="M 158 96 C 144 100, 136 150, 132 208 C 128 265, 115 370, 82 476 C 145 484, 255 484, 318 476 C 285 370, 272 265, 268 208 C 264 150, 256 100, 242 96 Z"
+              fill={`url(#robeGrad-${type})`}
+              stroke="rgba(255,255,255,0.25)"
+              strokeWidth="1.2"
+            />
+            <path d="M 158 96 C 144 100, 136 150, 132 208 C 128 265, 115 370, 82 476 C 145 484, 255 484, 318 476 C 285 370, 272 265, 268 208 C 264 150, 256 100, 242 96 Z" fill={`url(#brocade-${type})`} />
+            <path d="M 158 96 C 144 100, 136 150, 132 208 C 128 265, 115 370, 82 476 C 145 484, 255 484, 318 476 C 285 370, 272 265, 268 208 C 264 150, 256 100, 242 96 Z" fill="url(#silkSheen)" />
+
+            {/* Vạt trong (vạt phải đi vào nách trái) */}
+            <path d="M 235 96 L 155 240 L 155 285 L 235 96 Z" fill="#0F1A13" opacity="0.3" />
+
+            {/* Lớp Đơn Y chữ Y bên trong nếu có hasDonY */}
+            {hasDonY ? (
+              <g id="giao-linh-don-y">
+                <path d="M 175 92 L 200 135 L 225 92" stroke="#FFFFFF" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" fill="none" filter="url(#softShadowFilter)" />
+                <path d="M 175 92 L 200 135 L 225 92" stroke="#E5C365" strokeWidth="1.2" fill="none" />
+              </g>
+            ) : (
+              <path d="M 178 95 L 200 138 L 222 95" stroke="#C68A6D" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" fill="none" opacity="0.8" />
+            )}
+
+            {/* Vạt ngoài vạt trái chéo qua ngực phải tạo chữ Y kinh điển */}
+            <path
+              d="M 165 96 L 246 242 L 248 290 L 165 96 Z"
+              fill={primaryColor}
+              stroke="rgba(255,255,255,0.3)"
+              strokeWidth="1"
+            />
+            {/* Nẹp cổ to bản viền gấm thêu hoa */}
+            <path
+              d="M 165 96 L 248 245"
+              stroke="#E5C365"
+              strokeWidth="7"
+              strokeLinecap="round"
+              fill="none"
+              filter="url(#softShadowFilter)"
+            />
+            <path
+              d="M 165 96 L 248 245"
+              stroke="#8B6E28"
+              strokeWidth="2"
+              strokeDasharray="4 2"
+              fill="none"
+            />
+            {/* Nẹp cổ vạt phải */}
+            <path
+              d="M 235 96 L 195 168"
+              stroke="#E5C365"
+              strokeWidth="7"
+              strokeLinecap="round"
+              fill="none"
+              filter="url(#softShadowFilter)"
+            />
+            <path
+              d="M 235 96 L 195 168"
+              stroke="#8B6E28"
+              strokeWidth="2"
+              strokeDasharray="4 2"
+              fill="none"
+            />
+
+            {/* Dải Thắt Lưng Gấm Bản Rộng Quanh Eo */}
+            <rect x="145" y="278" width="110" height="24" rx="4" fill="#E5C365" stroke="#C5A059" strokeWidth="1.5" filter="url(#softShadowFilter)" />
+            <rect x="148" y="282" width="104" height="16" fill="url(#btnWoodAgarwood)" opacity="0.4" />
+            <line x1="145" y1="290" x2="255" y2="290" stroke="#FFF3B0" strokeWidth="1" strokeDasharray="3 3" />
+
+            {/* Nơ & Dải Thắt Lưng Buông Rủ Tha Thướt Ở Giữa Thân Áo */}
+            <g id="giao-linh-belt-ribbon" filter="url(#softShadowFilter)">
+              {/* Nút thắt nơ */}
+              <circle cx="200" cy="290" r="9" fill="#C5A059" stroke="#E5C365" strokeWidth="1.5" />
+              <circle cx="200" cy="290" r="5" fill="#E5C365" />
+              {/* 2 Dải lụa rủ dài xuống tà áo */}
+              <path d="M 196 295 C 194 340, 185 410, 188 460 L 199 460 C 196 410, 201 340, 201 295 Z" fill="#E5C365" stroke="#A8822A" strokeWidth="0.8" />
+              <path d="M 201 295 C 203 345, 212 415, 210 465 L 221 465 C 223 415, 206 345, 204 295 Z" fill="#E5C365" stroke="#A8822A" strokeWidth="0.8" />
+              {/* Quả ngọc / tua rua chân dải lụa */}
+              <circle cx="193" cy="465" r="4.5" fill="#10B981" stroke="#E5C365" strokeWidth="1" />
+              <circle cx="215" cy="470" r="4.5" fill="#10B981" stroke="#E5C365" strokeWidth="1" />
+            </g>
+          </g>
+        )}
+
+        {/* ======================================================== */}
+        {/* 5. ÁO VIÊN LĨNH CỔ TRÒN HOÀNG GIA ĐẠI VIỆT                */}
+        {/* ======================================================== */}
+        {type === 'vien_linh' && (
+          <g id="ao-vien-linh-authentic">
+            {/* Lớp áo trong / tà trong */}
+            <path d="M 132 205 L 82 476 L 112 476 L 140 205 Z" fill="#201015" opacity="0.4" />
+            <path d="M 268 205 L 318 476 L 288 476 L 260 205 Z" fill="#201015" opacity="0.4" />
+
+            {/* Tay áo thụng rộng uy nghi */}
+            <path
+              d="M 158 94 L 20 132 L 20 245 C 55 245, 95 238, 132 206 Z"
+              fill={`url(#robeGrad-${type})`}
+              stroke="rgba(255,255,255,0.25)"
+              strokeWidth="1.2"
+            />
+            <path d="M 158 94 L 20 132 L 20 245 C 55 245, 95 238, 132 206 Z" fill={`url(#brocade-${type})`} />
+            <path d="M 158 94 L 20 132 L 20 245 C 55 245, 95 238, 132 206 Z" fill="url(#silkSheen)" />
+
+            <path
+              d="M 242 94 L 380 132 L 380 245 C 345 245, 305 238, 268 206 Z"
+              fill={`url(#robeGrad-${type})`}
+              stroke="rgba(255,255,255,0.25)"
+              strokeWidth="1.2"
+            />
+            <path d="M 242 94 L 380 132 L 380 245 C 345 245, 305 238, 268 206 Z" fill={`url(#brocade-${type})`} />
+            <path d="M 242 94 L 380 132 L 380 245 C 345 245, 305 238, 268 206 Z" fill="url(#silkSheen)" />
+
+            {/* Thân áo chữ A suông rộng bệ vệ */}
+            <path
+              d="M 158 94 C 144 98, 136 150, 132 206 C 128 265, 115 370, 82 476 C 145 484, 255 484, 318 476 C 285 370, 272 265, 268 206 C 264 150, 256 98, 242 94 Z"
+              fill={`url(#robeGrad-${type})`}
+              stroke="rgba(255,255,255,0.25)"
+              strokeWidth="1.2"
+            />
+            <path d="M 158 94 C 144 98, 136 150, 132 206 C 128 265, 115 370, 82 476 C 145 484, 255 484, 318 476 C 285 370, 272 265, 268 206 C 264 150, 256 98, 242 94 Z" fill={`url(#brocade-${type})`} />
+            <path d="M 158 94 C 144 98, 136 150, 132 206 C 128 265, 115 370, 82 476 C 145 484, 255 484, 318 476 C 285 370, 272 265, 268 206 C 264 150, 256 98, 242 94 Z" fill="url(#silkSheen)" />
+
+            {/* Đồ Án Tròn Trước Ngực (Bổ Tử / Hoa Cúc Mẫu Đơn Cung Đình) */}
+            <g transform="translate(200, 220)" filter="url(#softShadowFilter)">
+              <circle cx="0" cy="0" r="38" fill="#141824" stroke="#E5C365" strokeWidth="2.5" />
+              <circle cx="0" cy="0" r="33" fill="none" stroke="#E5C365" strokeWidth="1" strokeDasharray="3 2" />
+              <circle cx="0" cy="0" r="28" fill="#801826" stroke="#C5A059" strokeWidth="1.2" />
+              <path d="M -16 0 Q 0 -18 16 0 Q 0 18 -16 0 Z" fill="#E5C365" />
+              <path d="M 0 -16 Q -18 0 0 16 Q 18 0 0 -16 Z" fill="#E5C365" />
+              <circle cx="0" cy="0" r="7" fill="#FFF3B0" stroke="#7A5210" strokeWidth="0.8" />
+            </g>
+
+            {/* Vạt xẻ chéo cài khuy bên vai phải */}
+            <path
+              d="M 218 102 C 235 110, 248 135, 252 175"
+              stroke="#E5C365"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              fill="none"
+              filter="url(#softShadowFilter)"
+            />
+
+            {/* Cúc cài lệch bên vai phải */}
+            {[
+              { id: 'vl-1', cx: 222, cy: 104 },
+              { id: 'vl-2', cx: 236, cy: 125 },
+              { id: 'vl-3', cx: 247, cy: 152 },
+              { id: 'vl-4', cx: 252, cy: 180 }
+            ].map(btn => renderAuthenticButton(btn.cx, btn.cy, 5.5, false))}
+
+            {/* CỔ ÁO VIÊN LĨNH: Cổ tròn ôm kín chân cổ viền gấm */}
+            <g id="vien-linh-collar-group" filter="url(#softShadowFilter)">
+              {/* Lớp Đơn Y tròn nhô lên 2-3mm nếu hasDonY */}
+              {hasDonY ? (
+                <ellipse cx="200" cy="94" rx="34" ry="17" fill="#FFFFFF" stroke="#E5C365" strokeWidth="1.2" />
+              ) : (
+                <ellipse cx="200" cy="94" rx="33" ry="16" fill="#C68A6D" opacity="0.8" />
+              )}
+              {/* Cổ tròn áo ngoài */}
+              <ellipse cx="200" cy="98" rx="32" ry="15" fill="none" stroke={primaryColor} strokeWidth="6" />
+              <ellipse cx="200" cy="98" rx="32" ry="15" fill="none" stroke="#E5C365" strokeWidth="2.2" />
+              <ellipse cx="200" cy="98" rx="29" ry="13" fill="none" stroke="#8B6E28" strokeWidth="0.8" strokeDasharray="3 2" />
+            </g>
+          </g>
+        )}
+
+        {/* ======================================================== */}
         {/* CỔ ÁO ĐỨNG (LẬP LĨNH) CHO ÁO NGŨ THÂN VÀ ÁO TẤC           */}
         {/* ======================================================== */}
-        {type !== 'nhat_binh' && (
+        {(type === 'ngu_than' || type === 'ao_tac') && (
           <g id="mandarin-collar-group">
             {/* Áo Đơn Y peeking 2-3mm */}
             {hasDonY ? (
@@ -942,7 +1135,7 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
         {/* ======================================================== */}
         {/* 5 CÚC NGŨ THƯỜNG DỌC VẠT HÒ CÀI CHÉO SANG NÁCH PHẢI       */}
         {/* ======================================================== */}
-        {type !== 'nhat_binh' && (
+        {(type === 'ngu_than' || type === 'ao_tac') && (
           <g id="buttons-group">
             {[
               { id: 1, cx: 222, cy: 104 },
@@ -1009,7 +1202,13 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
             {/* Garment type badge */}
             <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-black/70 backdrop-blur-md border border-white/10 text-stone-300 w-fit">
               <span className="w-2 h-2 rounded-full" style={{ backgroundColor: primaryColor }} />
-              <span>{type === 'ngu_than' ? 'Áo Ngũ Thân Tay Chẽn' : type === 'ao_tac' ? 'Áo Tấc (Tay Thụng)' : 'Áo Nhật Bình Cung Đình'}</span>
+              <span>
+                {type === 'ngu_than' ? 'Áo Ngũ Thân Tay Chẽn' : 
+                 type === 'ao_tac' ? 'Áo Tấc (Tay Thụng)' : 
+                 type === 'nhat_binh' ? 'Áo Nhật Bình Cung Đình' : 
+                 type === 'giao_linh' ? 'Áo Giao Lĩnh Cổ Chéo' : 
+                 'Áo Viên Lĩnh Cổ Tròn'}
+              </span>
             </div>
 
             {/* Live Button Status Badge on Preview */}

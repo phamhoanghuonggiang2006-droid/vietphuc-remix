@@ -75,7 +75,7 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
   const bottomCanvasImg = activeBottomItem.canvas2dUrl || activeBottomItem.thumbnailUrl || '';
   const shoesCanvasImg = activeShoesItem.canvas2dUrl || activeShoesItem.thumbnailUrl || '';
   const accessoryCanvasImg = activeAccessoryItem.canvas2dUrl || activeAccessoryItem.thumbnailUrl || '';
-  const isKhanDongSelected = activeAccessoryItem.id === 'acc-khan-dong';
+  const isKhanDongSelected = activeAccessoryItem.id === 'acc-khan-dong' || activeAccessoryItem.id === 'acc-khan-vanh-day';
 
   // Dynamic transition key for micro-interactions (Fade-in + Scale up 1.02x on outfit changes)
   const previewTransitionKey = `${activeGarment.id}_${selectedColorHex}_${activeAccessoryItem.id}_${activeButtonItem.id}_${activeBottomItem.id}_${activeShoesItem.id}_${hasDonY}_${uploadedImage ? 'upload' : 'robe'}`;
@@ -1066,7 +1066,9 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
                       className={`absolute z-30 transition-all duration-500 cursor-pointer group ${
                         activeAccessoryItem.id === 'acc-paper-fan'
                           ? 'bottom-12 -right-4 sm:-right-8 w-28 h-28 sm:w-32 sm:h-32 -rotate-12 hover:rotate-0'
-                          : activeAccessoryItem.id === 'acc-boi-ngoc'
+                          : activeAccessoryItem.id === 'acc-kieng-bac'
+                          ? 'top-20 left-1/2 -translate-x-1/2 w-28 h-28 hover:scale-105'
+                          : activeAccessoryItem.id === 'acc-jade-pendant' || activeAccessoryItem.id === 'acc-boi-ngoc'
                           ? 'bottom-8 -left-3 sm:-left-6 w-20 h-28 sm:w-24 sm:h-32 hover:scale-105'
                           : 'bottom-16 -left-3 sm:-left-5 w-20 h-20 sm:w-24 sm:h-24 hover:scale-105'
                       }`}

@@ -16,15 +16,19 @@ import {
   LINK_ANH_CUC_NGOC,
   LINK_ANH_CUC_GO,
   LINK_ANH_CUC_VAI,
+  LINK_ANH_QUAN_LUA,
   LINK_ANH_QUAN_LINEN,
   LINK_ANH_VAY_XEP_LY,
   LINK_ANH_QUAN_JEANS,
   LINK_ANH_GUOC_MOC,
   LINK_ANH_HAI_THEU,
   LINK_ANH_SNEAKERS,
+  LINK_ANH_CHUNKY_LOAFERS,
   LINK_ANH_QUAT_GIAY,
   LINK_ANH_KHAN_DONG,
+  LINK_ANH_KHAN_VANH_DAY,
   LINK_ANH_BOI_NGOC,
+  LINK_ANH_KIENG_BAC,
   LINK_ANH_DONG_HO
 } from '../data/heritageData';
 
@@ -87,8 +91,16 @@ const ITEMS_LIST: ItemConfigSpec[] = [
 
   // 2. Thân Dưới
   {
+    id: 'bottom-silk-wide-pants',
+    name: 'Quần Ống Sớ Lụa',
+    category: 'Thân Dưới Phối Cùng (Quần / Chân Váy Hiện Đại)',
+    defaultSrc: LINK_ANH_QUAN_LUA,
+    fileLabel: '5.png',
+    note: 'Lụa tơ tằm cổ điển buông rủ tha thướt, phom dáng ống sớ'
+  },
+  {
     id: 'bottom-linen-wide-pants',
-    name: 'Quần Ống Rộng Linen',
+    name: 'Quần Linen',
     category: 'Thân Dưới Phối Cùng (Quần / Chân Váy Hiện Đại)',
     defaultSrc: LINK_ANH_QUAN_LINEN,
     fileLabel: '5.png',
@@ -96,7 +108,7 @@ const ITEMS_LIST: ItemConfigSpec[] = [
   },
   {
     id: 'bottom-pleated-midi-skirt',
-    name: 'Chân Váy Xếp Ly Hiện Đại',
+    name: 'Chân Váy Xếp Ly',
     category: 'Thân Dưới Phối Cùng (Quần / Chân Váy Hiện Đại)',
     defaultSrc: LINK_ANH_VAY_XEP_LY,
     fileLabel: '6.png',
@@ -122,7 +134,7 @@ const ITEMS_LIST: ItemConfigSpec[] = [
   },
   {
     id: 'shoes-embroidered-slippers',
-    name: 'Hài Thêu Hoa Văn',
+    name: 'Hài Thêu Cung Đình',
     category: 'Giày / Guốc',
     defaultSrc: LINK_ANH_HAI_THEU,
     fileLabel: '9.png',
@@ -130,42 +142,66 @@ const ITEMS_LIST: ItemConfigSpec[] = [
   },
   {
     id: 'shoes-white-sneakers',
-    name: 'Giày Sneakers Trắng',
+    name: 'Sneakers Trắng',
     category: 'Giày / Guốc',
     defaultSrc: LINK_ANH_SNEAKERS,
     fileLabel: '10.png',
     note: 'Hiện đại năng động (cảnh báo khi phối với Áo Tấc/Nhật Bình)'
   },
+  {
+    id: 'shoes-chunky-loafers',
+    name: 'Chunky Loafers',
+    category: 'Giày / Guốc',
+    defaultSrc: LINK_ANH_CHUNKY_LOAFERS,
+    fileLabel: '10.png',
+    note: 'Modern Sartorial Chic, đế bánh mì thời thượng'
+  },
 
   // 4. Phụ Kiện
   {
-    id: 'acc-paper-fan',
-    name: 'Quạt Giấy Trầm Hương',
-    category: 'Phụ Kiện Đi Kèm (Chọn 1 trong 4 món)',
-    defaultSrc: LINK_ANH_QUAT_GIAY,
-    fileLabel: '11.png',
-    note: 'Phụ kiện cầm tay phong nhã của tao nhân mặc khách'
-  },
-  {
     id: 'acc-khan-dong',
-    name: 'Khăn Đóng Vải Gấm',
-    category: 'Phụ Kiện Đi Kèm (Chọn 1 trong 4 món)',
+    name: 'Khăn Đóng Chữ Nhân',
+    category: 'Phụ Kiện Đi Kèm (6 món cổ phong & hiện đại)',
     defaultSrc: LINK_ANH_KHAN_DONG,
     fileLabel: '12.png',
     note: 'Khăn xếp tạo vẻ chỉnh tề, đoan trang vương triều'
   },
   {
+    id: 'acc-khan-vanh-day',
+    name: 'Khăn Vành Dây',
+    category: 'Phụ Kiện Đi Kèm (6 món cổ phong & hiện đại)',
+    defaultSrc: LINK_ANH_KHAN_VANH_DAY,
+    fileLabel: '12.png',
+    note: 'Khăn vành quấn nhiều vòng bằng gấm hoàng cung lộng lẫy'
+  },
+  {
+    id: 'acc-paper-fan',
+    name: 'Quạt Giấy Trầm Hương',
+    category: 'Phụ Kiện Đi Kèm (6 món cổ phong & hiện đại)',
+    defaultSrc: LINK_ANH_QUAT_GIAY,
+    fileLabel: '11.png',
+    note: 'Phụ kiện cầm tay phong nhã của tao nhân mặc khách'
+  },
+  {
     id: 'acc-jade-pendant',
-    name: 'Bội Ngọc Cung Đình',
-    category: 'Phụ Kiện Đi Kèm (Chọn 1 trong 4 món)',
+    name: 'Bội Ngọc Bích',
+    category: 'Phụ Kiện Đi Kèm (6 món cổ phong & hiện đại)',
     defaultSrc: LINK_ANH_BOI_NGOC,
     fileLabel: '13.png',
     note: 'Ngọc bội buông tà áo, phát tiếng leng keng phong lưu'
   },
   {
+    id: 'acc-kieng-bac',
+    name: 'Kiềng Bạc',
+    category: 'Phụ Kiện Đi Kèm (6 món cổ phong & hiện đại)',
+    defaultSrc: LINK_ANH_KIENG_BAC,
+    fileLabel: '13.png',
+    note: 'Kiềng bạc chạm uốn lượn ôm cổ, nét đài các thiếu nữ Việt'
+  },
+  {
     id: 'acc-smartwatch',
-    name: 'Đồng Hồ Thông Minh / Smartwatch',
-    category: 'Phụ Kiện Đi Kèm (Chọn 1 trong 4 món)',
+    name: 'Đồng Hồ Thông Minh (Hiện Đại)',
+    category: 'Phụ Kiện Đi Kèm (6 món cổ phong & hiện đại)',
     defaultSrc: LINK_ANH_DONG_HO,
     fileLabel: '14.png',
     note: 'Công nghệ hiện đại (cảnh báo khi phối đại lễ phục)'
