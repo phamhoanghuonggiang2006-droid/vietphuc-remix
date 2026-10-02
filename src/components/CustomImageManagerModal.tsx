@@ -57,6 +57,24 @@ interface ItemConfigSpec {
 }
 
 const ITEMS_LIST: ItemConfigSpec[] = [
+  // 0. Dòng Cổ Phục Mới
+  {
+    id: 'ao-giao-linh',
+    name: 'Áo Giao Lĩnh (Mới)',
+    category: 'Dòng Cổ Phục (Đại Việt)',
+    defaultSrc: '/1.png',
+    fileLabel: 'giao-linh.png',
+    note: 'Cổ chéo vạt giao chữ Y thanh tao thời Lý - Trần - Lê'
+  },
+  {
+    id: 'ao-vien-linh',
+    name: 'Áo Viên Lĩnh (Mới)',
+    category: 'Dòng Cổ Phục (Đại Việt)',
+    defaultSrc: '/1.png',
+    fileLabel: 'vien-linh.png',
+    note: 'Cung phục cổ tròn vương giả hoàng triều Đại Việt'
+  },
+
   // 1. Khuy Cúc
   {
     id: 'btn-metal-copper',

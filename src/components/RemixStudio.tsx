@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import { 
   HERITAGE_GARMENTS, 
   TRADITIONAL_COLORS, 
@@ -11,6 +11,8 @@ import {
   LINK_ANH_CUC_KIM_LOAI,
   LINK_ANH_CUC_NGOC,
   LINK_ANH_CUC_GO,
+  LINK_ANH_CUC_BAC_HOA_SEN,
+  LINK_ANH_CUC_XA_CU,
   LINK_ANH_CUC_VAI,
   LINK_ANH_QUAN_LUA,
   LINK_ANH_QUAN_LINEN,
@@ -29,6 +31,7 @@ import {
 } from '../data/heritageData';
 import { RobeVisualizer } from './RobeVisualizer';
 import { OutfitMoodboardCanvas } from './OutfitMoodboardCanvas';
+import { CustomImageManagerModal } from './CustomImageManagerModal';
 import {
   playDanTranhTabSound,
   playButtonClinkSound,
@@ -463,11 +466,138 @@ export const RemixStudio: React.FC = () => {
   const shoesOptions = REMIX_ITEMS.filter(i => i.category === 'shoes');
   const accessoryOptions = REMIX_ITEMS.filter(i => i.category === 'accessory');
 
+  // Local storage key for custom uploaded item images
+  const STORAGE_KEY_CUSTOM_IMAGES = 'heritstyle_custom_item_images';
+
+  const [customItemImages, setCustomItemImages] = useState<Record<string, string>>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY_CUSTOM_IMAGES);
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
+
+  const [isCustomImageModalOpen, setIsCustomImageModalOpen] = useState<boolean>(false);
+  const itemFileInputRef = useRef<HTMLInputElement>(null);
+  const [targetUploadItemId, setTargetUploadItemId] = useState<string | null>(null);
+
+  const triggerUploadForItem = (itemId: string, e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation();
+    }
+    setTargetUploadItemId(itemId);
+    if (itemFileInputRef.current) {
+      itemFileInputRef.current.value = '';
+      itemFileInputRef.current.click();
+    }
+  };
+
+  const handleItemImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !targetUploadItemId) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const dataUrl = event.target?.result as string;
+      if (dataUrl) {
+        setCustomItemImages(prev => {
+          const next = { ...prev, [targetUploadItemId]: dataUrl };
+          try {
+            localStorage.setItem(STORAGE_KEY_CUSTOM_IMAGES, JSON.stringify(next));
+          } catch {}
+          return next;
+        });
+        playColorPickSound();
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleResetItemImage = (itemId: string, e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation();
+    }
+    setCustomItemImages(prev => {
+      const next = { ...prev };
+      delete next[itemId];
+      try {
+        localStorage.setItem(STORAGE_KEY_CUSTOM_IMAGES, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
+    playButtonClinkSound();
+  };
+
+  // Helper to get image URL for any item (hỗ trợ ảnh tải lên thủ công hoặc ảnh mặc định)
+  const getItemImageUrl = (itemId: string, defaultThumbnail?: string): string => {
+    if (customItemImages[itemId]) {
+      return customItemImages[itemId];
+    }
+    return defaultThumbnail || '';
+  };
+
   // Currently active selected items
   const activeButtonItem = buttonOptions.find(b => b.id === selectedButtonId) || buttonOptions[0];
   const activeBottomItem = bottomOptions.find(b => b.id === selectedBottomId) || bottomOptions[0];
   const activeShoesItem = shoesOptions.find(s => s.id === selectedShoesId) || shoesOptions[0];
   const activeAccessoryItem = accessoryOptions.find(a => a.id === selectedAccessoryId) || accessoryOptions[0];
+
+  // Effective items enriched with custom uploaded images
+  const effectiveActiveButtonItem = useMemo(() => {
+    const item = buttonOptions.find(b => b.id === selectedButtonId) || buttonOptions[0];
+    if (customItemImages[item.id]) {
+      return {
+        ...item,
+        thumbnailUrl: customItemImages[item.id]
+      };
+    }
+    return item;
+  }, [buttonOptions, selectedButtonId, customItemImages]);
+
+  const effectiveActiveBottomItem = useMemo(() => {
+    const item = bottomOptions.find(b => b.id === selectedBottomId) || bottomOptions[0];
+    if (customItemImages[item.id]) {
+      return {
+        ...item,
+        thumbnailUrl: customItemImages[item.id],
+        canvas2dUrl: customItemImages[item.id]
+      };
+    }
+    return item;
+  }, [bottomOptions, selectedBottomId, customItemImages]);
+
+  const effectiveActiveShoesItem = useMemo(() => {
+    const item = shoesOptions.find(s => s.id === selectedShoesId) || shoesOptions[0];
+    if (customItemImages[item.id]) {
+      return {
+        ...item,
+        thumbnailUrl: customItemImages[item.id],
+        canvas2dUrl: customItemImages[item.id]
+      };
+    }
+    return item;
+  }, [shoesOptions, selectedShoesId, customItemImages]);
+
+  const effectiveActiveAccessoryItem = useMemo(() => {
+    const item = accessoryOptions.find(a => a.id === selectedAccessoryId) || accessoryOptions[0];
+    if (customItemImages[item.id]) {
+      return {
+        ...item,
+        thumbnailUrl: customItemImages[item.id],
+        canvas2dUrl: customItemImages[item.id]
+      };
+    }
+    return item;
+  }, [accessoryOptions, selectedAccessoryId, customItemImages]);
+
+  const effectiveUploadedGarmentImage = useMemo(() => {
+    if (uploadedImage) return uploadedImage;
+    if (customItemImages[selectedGarmentId]) {
+      return customItemImages[selectedGarmentId];
+    }
+    return null;
+  }, [uploadedImage, customItemImages, selectedGarmentId]);
 
   // Real-time Dual-Metric Evaluation: Slay Score & Độ Chuẩn Di Sản
   const dualMetrics = computeRealtimeDualMetrics(
@@ -479,11 +609,6 @@ export const RemixStudio: React.FC = () => {
     selectedShoesId,
     selectedAccessoryId
   );
-
-  // Helper to get fixed image URL for any item (cố định 14 ảnh PNG)
-  const getItemImageUrl = (_itemId: string, defaultThumbnail?: string): string => {
-    return defaultThumbnail || '';
-  };
 
   // Sample curated palettes for image analysis simulation
   const SAMPLE_AI_PALETTES: { [key: number]: ExtractedColorChip[] } = {
@@ -984,29 +1109,63 @@ export const RemixStudio: React.FC = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
               {HERITAGE_GARMENTS.map((item) => {
                 const isSelected = selectedGarmentId === item.id;
+                const isNewGarment = item.id === 'ao-giao-linh' || item.id === 'ao-vien-linh';
+                const hasCustomGarmentImg = Boolean(customItemImages[item.id]);
+
                 return (
-                  <button
+                  <div
                     key={item.id}
                     onClick={() => {
                       setSelectedGarmentId(item.id);
                       setSelectedColorHex(item.defaultColor);
                       playGarmentSelectSound();
                     }}
-                    className={`text-left p-3.5 rounded-xl border transition-all relative cursor-pointer ${
+                    className={`text-left p-3.5 rounded-xl border transition-all relative cursor-pointer flex flex-col justify-between ${
                       isSelected
-                        ? 'bg-[#1b1b22] border-[#c5a059] shadow-sm'
+                        ? 'bg-[#1b1b22] border-[#c5a059] shadow-sm ring-1 ring-[#c5a059]'
                         : 'bg-[#101014] border-[#22222a] hover:border-[#383845]'
                     }`}
                   >
-                    {isSelected && (
-                      <span className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-[#c5a059]" />
+                    <div>
+                      <div className="flex items-center justify-between gap-1 mb-1">
+                        <div className="font-bold text-sm text-[#f5f2eb] truncate">{item.name}</div>
+                        {isNewGarment && (
+                          <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#c5a059]/20 text-[#e5c365] border border-[#c5a059]/40 shrink-0">
+                            ✨ Mới
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-xs text-[#c5a059]">{item.dynasty}</div>
+                      <p className="text-xs text-stone-300 line-clamp-2 mt-2 leading-relaxed">
+                        {item.subName}
+                      </p>
+                    </div>
+
+                    {/* NÚT TẢI ẢNH LÊN CHO SẢN PHẨM MỚI (ÁO GIAO LĨNH & ÁO VIÊN LĨNH) */}
+                    {isNewGarment && (
+                      <div className="mt-3 pt-2.5 border-t border-white/10 flex items-center justify-between gap-1.5">
+                        <button
+                          type="button"
+                          onClick={(e) => triggerUploadForItem(item.id, e)}
+                          className="flex-1 py-1.5 px-2 rounded-lg bg-[#c5a059]/20 hover:bg-[#c5a059]/35 border border-[#c5a059]/50 text-[#f5ecd5] hover:text-white text-[11px] font-semibold flex items-center justify-center gap-1.5 transition-all shadow-sm cursor-pointer group/btn"
+                          title={`Tải ảnh chụp thực tế cho ${item.name}`}
+                        >
+                          <Upload className="w-3.5 h-3.5 text-[#e5c365] group-hover/btn:scale-110 transition-transform" />
+                          <span>{hasCustomGarmentImg ? 'Đổi ảnh' : 'Tải ảnh lên'}</span>
+                        </button>
+                        {hasCustomGarmentImg && (
+                          <button
+                            type="button"
+                            onClick={(e) => handleResetItemImage(item.id, e)}
+                            className="p-1.5 rounded-lg bg-stone-800/80 hover:bg-rose-950/80 border border-white/10 text-stone-300 hover:text-rose-200 text-[10px] flex items-center gap-1 cursor-pointer transition-all shrink-0"
+                            title="Đặt lại ảnh mặc định"
+                          >
+                            <RotateCcw className="w-3 h-3" />
+                          </button>
+                        )}
+                      </div>
                     )}
-                    <div className="font-bold text-sm text-[#f5f2eb]">{item.name}</div>
-                    <div className="text-xs text-[#c5a059] mt-0.5">{item.dynasty}</div>
-                    <p className="text-xs text-stone-300 line-clamp-2 mt-2 leading-relaxed">
-                      {item.subName}
-                    </p>
-                  </button>
+                  </div>
                 );
               })}
             </div>
@@ -1268,9 +1427,20 @@ export const RemixStudio: React.FC = () => {
             {/* B. HẠT KHUY CÚC ÁO (1.png, 2.png, 3.png, 4.png) */}
             <div className="space-y-3 pt-1">
               <div className="flex items-center justify-between">
-                <label className="text-xs font-semibold text-stone-200">
-                  Hạt Khuy Cúc Áo (Ngũ Thường):
-                </label>
+                <div className="flex items-center gap-2">
+                  <label className="text-xs font-semibold text-stone-200">
+                    Hạt Khuy Cúc Áo (Ngũ Thường):
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setIsCustomImageModalOpen(true)}
+                    className="text-[11px] text-[#c5a059] hover:text-[#e5c365] bg-[#c5a059]/10 hover:bg-[#c5a059]/20 px-2 py-0.5 rounded border border-[#c5a059]/30 flex items-center gap-1 cursor-pointer transition-all"
+                    title="Xem & quản lý tất cả ảnh sản phẩm"
+                  >
+                    <ImageIcon className="w-3 h-3" />
+                    <span>Kho ảnh tùy chỉnh</span>
+                  </button>
+                </div>
                 <span className="text-xs text-rose-400 font-semibold">*Cấm cúc vải Tàu</span>
               </div>
 
@@ -1278,6 +1448,8 @@ export const RemixStudio: React.FC = () => {
                 {buttonOptions.map(item => {
                   const isSelected = selectedButtonId === item.id;
                   const isTaboo = item.id === 'btn-chinese-cloth';
+                  const isNewButton = item.id === 'btn-silver-lotus' || item.id === 'btn-mother-of-pearl' || item.name.includes('Mới');
+                  const hasCustomImg = Boolean(customItemImages[item.id]);
                   const imgSrc = getItemImageUrl(item.id, item.thumbnailUrl);
 
                   return (
@@ -1291,7 +1463,7 @@ export const RemixStudio: React.FC = () => {
                           playButtonClinkSound();
                         }
                       }}
-                      className={`p-3 rounded-xl border text-left text-xs transition-all cursor-pointer flex gap-3 relative group ${
+                      className={`p-3 rounded-xl border text-left text-xs transition-all cursor-pointer flex flex-col justify-between relative group ${
                         isSelected
                           ? isTaboo
                             ? 'bg-rose-950/60 border-rose-500 text-rose-200 shadow-md ring-1 ring-rose-500'
@@ -1299,39 +1471,103 @@ export const RemixStudio: React.FC = () => {
                           : 'bg-[#101014] border-[#22222a] text-stone-300 hover:border-[#383847]'
                       }`}
                     >
-                      {/* Fixed Image Thumbnail */}
-                      <div className="w-14 h-14 rounded-lg overflow-hidden shrink-0 relative border border-white/10 bg-black/40">
-                        <img 
-                          src={imgSrc} 
-                          alt={item.name} 
-                          onError={(e) => {
-                            if (item.id === 'btn-metal-copper') e.currentTarget.src = '/1.png';
-                            if (item.id === 'btn-jade-green') e.currentTarget.src = '/2.png';
-                            if (item.id === 'btn-wood-agarwood') e.currentTarget.src = '/3.png';
-                            if (item.id === 'btn-silver-lotus') e.currentTarget.src = '/1.png';
-                            if (item.id === 'btn-mother-of-pearl') e.currentTarget.src = '/2.png';
-                            if (item.id === 'btn-chinese-cloth') e.currentTarget.src = '/4.png';
-                          }}
-                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
-                        />
-                      </div>
-
-                      <div className="min-w-0 flex-1">
-                        <div className="font-semibold flex items-center justify-between">
-                          <span className="truncate pr-1 text-xs">{item.name}</span>
-                          {item.isCulturallyRespectful ? (
-                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                          ) : (
-                            <AlertTriangle className="w-3.5 h-3.5 text-rose-400 shrink-0 animate-pulse" />
+                      <div className="flex gap-3">
+                        {/* Fixed Image Thumbnail */}
+                        <div className="w-14 h-14 rounded-lg overflow-hidden shrink-0 relative border border-white/10 bg-black/40">
+                          <img 
+                            src={imgSrc} 
+                            alt={item.name} 
+                            onError={(e) => {
+                              if (item.id === 'btn-metal-copper') e.currentTarget.src = '/1.png';
+                              if (item.id === 'btn-jade-green') e.currentTarget.src = '/2.png';
+                              if (item.id === 'btn-wood-agarwood') e.currentTarget.src = '/3.png';
+                              if (item.id === 'btn-silver-lotus') e.currentTarget.src = '/1.png';
+                              if (item.id === 'btn-mother-of-pearl') e.currentTarget.src = '/2.png';
+                              if (item.id === 'btn-chinese-cloth') e.currentTarget.src = '/4.png';
+                            }}
+                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
+                          />
+                          {hasCustomImg && (
+                            <span className="absolute bottom-0 inset-x-0 bg-emerald-950/90 text-emerald-300 text-[8px] font-bold text-center py-0.5 leading-none">
+                              Ảnh riêng
+                            </span>
                           )}
                         </div>
-                        <div className={`text-[11px] mt-0.5 font-medium ${isTaboo ? 'text-rose-400' : 'text-[#c5a059]'}`}>
-                          {item.styleVibe}
+
+                        <div className="min-w-0 flex-1">
+                          <div className="font-semibold flex items-center justify-between gap-1">
+                            <span className="truncate text-xs">{item.name}</span>
+                            <div className="flex items-center gap-1 shrink-0">
+                              {isNewButton && (
+                                <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-[#c5a059]/20 text-[#e5c365] border border-[#c5a059]/40">
+                                  Mới
+                                </span>
+                              )}
+                              {item.isCulturallyRespectful ? (
+                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                              ) : (
+                                <AlertTriangle className="w-3.5 h-3.5 text-rose-400 shrink-0 animate-pulse" />
+                              )}
+                            </div>
+                          </div>
+                          <div className={`text-[11px] mt-0.5 font-medium ${isTaboo ? 'text-rose-400' : 'text-[#c5a059]'}`}>
+                            {item.styleVibe}
+                          </div>
+                          <p className="text-[10px] text-stone-400 mt-1 line-clamp-2 leading-relaxed">
+                            {item.description}
+                          </p>
                         </div>
-                        <p className="text-[10px] text-stone-400 mt-1 line-clamp-2 leading-relaxed">
-                          {item.description}
-                        </p>
                       </div>
+
+                      {/* NÚT TẢI ẢNH LÊN CHO SẢN PHẨM MỚI (CÚC BẠC HOA SEN, CÚC XÀ CỪ KHẢM ỐC, ...) */}
+                      {isNewButton ? (
+                        <div className="mt-2.5 pt-2 border-t border-white/10 flex items-center justify-between gap-1.5">
+                          <button
+                            type="button"
+                            onClick={(e) => triggerUploadForItem(item.id, e)}
+                            className="flex-1 py-1.5 px-2 rounded-lg bg-gradient-to-r from-[#c5a059]/25 to-amber-500/20 hover:from-[#c5a059]/40 hover:to-amber-500/30 border border-[#c5a059]/60 text-[#f5ecd5] hover:text-white text-[11px] font-semibold flex items-center justify-center gap-1.5 transition-all shadow-sm cursor-pointer group/btn"
+                            title={`Tải ảnh chụp thực tế cho ${item.name}`}
+                          >
+                            <Upload className="w-3.5 h-3.5 text-[#e5c365] group-hover/btn:scale-110 transition-transform" />
+                            <span>{hasCustomImg ? 'Đổi ảnh thủ công' : 'Tải ảnh lên'}</span>
+                          </button>
+
+                          {hasCustomImg && (
+                            <button
+                              type="button"
+                              onClick={(e) => handleResetItemImage(item.id, e)}
+                              className="p-1.5 px-2 rounded-lg bg-stone-800/80 hover:bg-rose-950/80 border border-white/10 hover:border-rose-500/50 text-stone-300 hover:text-rose-200 text-[10px] flex items-center gap-1 cursor-pointer transition-all shrink-0"
+                              title="Khôi phục ảnh mặc định"
+                            >
+                              <RotateCcw className="w-3 h-3" />
+                              <span className="hidden sm:inline">Đặt lại</span>
+                            </button>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="mt-2 pt-1.5 border-t border-white/5 flex items-center justify-between opacity-80 hover:opacity-100 transition-opacity">
+                          <button
+                            type="button"
+                            onClick={(e) => triggerUploadForItem(item.id, e)}
+                            className="text-[10px] text-stone-400 hover:text-[#e5c365] flex items-center gap-1 cursor-pointer transition-colors"
+                            title={`Tải ảnh tùy chỉnh cho ${item.name}`}
+                          >
+                            <Upload className="w-3 h-3" />
+                            <span>{hasCustomImg ? 'Đổi ảnh' : 'Tải ảnh riêng'}</span>
+                          </button>
+                          {hasCustomImg && (
+                            <button
+                              type="button"
+                              onClick={(e) => handleResetItemImage(item.id, e)}
+                              className="text-[10px] text-stone-400 hover:text-rose-400 flex items-center gap-0.5 cursor-pointer transition-colors"
+                              title="Đặt lại ảnh mặc định"
+                            >
+                              <RotateCcw className="w-2.5 h-2.5" />
+                              <span>Đặt lại</span>
+                            </button>
+                          )}
+                        </div>
+                      )}
                     </div>
                   );
                 })}
@@ -1614,12 +1850,12 @@ export const RemixStudio: React.FC = () => {
             activeGarment={activeGarment}
             activeColor={activeColor}
             selectedColorHex={selectedColorHex}
-            activeButtonItem={activeButtonItem}
-            activeBottomItem={activeBottomItem}
-            activeShoesItem={activeShoesItem}
-            activeAccessoryItem={activeAccessoryItem}
+            activeButtonItem={effectiveActiveButtonItem}
+            activeBottomItem={effectiveActiveBottomItem}
+            activeShoesItem={effectiveActiveShoesItem}
+            activeAccessoryItem={effectiveActiveAccessoryItem}
             hasDonY={selectedLayerId === 'layer-don-y-white'}
-            uploadedImage={uploadedImage}
+            uploadedImage={effectiveUploadedGarmentImage}
             isChineseButtonSelected={isChineseButtonSelected}
             isImperialYellowSelected={isImperialYellowSelected}
             isTabooClashSelected={isTabooClashSelected}
@@ -1989,6 +2225,42 @@ export const RemixStudio: React.FC = () => {
           </div>
 
         </div>
+      )}
+
+      {/* Hidden File Input for Direct Item Upload */}
+      <input
+        type="file"
+        ref={itemFileInputRef}
+        onChange={handleItemImageFileChange}
+        accept="image/png,image/jpeg,image/webp,image/gif"
+        className="hidden"
+      />
+
+      {/* Modal Quản lý toàn bộ ảnh tùy chỉnh */}
+      {isCustomImageModalOpen && (
+        <CustomImageManagerModal
+          isOpen={isCustomImageModalOpen}
+          onClose={() => setIsCustomImageModalOpen(false)}
+          customImages={customItemImages}
+          onUpdateImage={(itemId, dataUrl) => {
+            setCustomItemImages(prev => {
+              const updated = { ...prev, [itemId]: dataUrl };
+              try {
+                localStorage.setItem(STORAGE_KEY_CUSTOM_IMAGES, JSON.stringify(updated));
+              } catch {}
+              return updated;
+            });
+            playColorPickSound();
+          }}
+          onResetImage={(itemId) => handleResetItemImage(itemId)}
+          onResetAll={() => {
+            setCustomItemImages({});
+            try {
+              localStorage.removeItem(STORAGE_KEY_CUSTOM_IMAGES);
+            } catch {}
+            playButtonClinkSound();
+          }}
+        />
       )}
 
     </div>
