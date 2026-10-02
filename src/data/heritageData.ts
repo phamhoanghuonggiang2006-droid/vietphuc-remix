@@ -130,13 +130,13 @@ export const HERITAGE_GARMENTS: HeritageItem[] = [
     name: 'Áo Giao Lĩnh',
     subName: 'Cổ phục vạt chéo giao duyên thời Lý - Trần - Lê',
     dynasty: 'Thời Lý - Trần - Lê (TK 11 - 18)',
-    description: 'Chiếc áo cổ chéo vạt giao nhau thành chữ Y kinh điển của Đại Việt. Tà áo buông rủ dài chấm gối hoặc gót, tay áo thụng rộng hoặc chẽn thanh nhã, thắt đai lưng gấm duyên dáng, biểu trưng văn hiến ngàn năm.',
+    description: 'Chiếc áo cổ chéo vạt giao nhau thành chữ Y kinh điển của Đại Việt. Nẹp cổ to bản vắt chéo sang sườn phải thắt nơ dải lụa mềm buông rủ, tay áo thụng tha thướt hé lộ lớp lót đỏ rực rỡ bên trong cửa tay, tôn vinh nét đoan trang thuần khiết.',
     gender: 'all',
     formFeatures: [
-      'Cổ chéo vạt giao nhau chữ Y thanh thoát',
-      'Nẹp cổ áo to bản thêu hoa văn cổ',
-      'Dải thắt lưng buộc buông rủ tao nhã',
-      'Phom dáng rộng rãi phong lưu cổ phong'
+      'Cổ chéo vạt giao nhau chữ Y thanh thoát, nẹp to bản',
+      'Thắt nơ dải lụa bên sườn phải buông rủ tha thướt',
+      'Tay thụng bồng bềnh với lớp lót đỏ rực rỡ ở cửa tay',
+      'Chuỗi tràng hạt cổ phong trang nhã tôn vinh cổ áo'
     ],
     recommendedOccasions: ['Trình diễn di sản', 'Lễ hội văn hóa Thăng Long', 'Chụp ảnh nghệ thuật', 'Cưới hỏi cổ phong'],
     historicalContext: 'Loại trang phục cổ truyền phổ biến bậc nhất suốt từ thời Lý, Trần sang thời Lê sơ và Lê Trung Hưng trước cải cách y quan thời chúa Nguyễn Phúc Khoát.',
@@ -149,19 +149,19 @@ export const HERITAGE_GARMENTS: HeritageItem[] = [
     name: 'Áo Viên Lĩnh',
     subName: 'Cung phục cổ tròn vương giả hoàng triều Đại Việt',
     dynasty: 'Thời Lý - Trần - Lê - Nguyễn',
-    description: 'Áo cổ tròn khép kín ôm sát cổ mang vẻ tôn nghiêm, vương giả. Thường cài khuy bên vai phải, vạt suông rộng, tay thụng thướt tha, là lễ phục và thường triều phục của hoàng tộc, quan viên.',
+    description: 'Áo cổ tròn khép kín ôm sát chân cổ mang vẻ thanh quý, tôn nghiêm. Khuy cài kín đáo bên vai phải, dải lụa trắng thắt eo cao rủ dài hai dải tua rua thướt tha, tà áo suông rộng dệt gấm chìm buông rủ trên nền chân váy đen tao nhã.',
     gender: 'all',
     formFeatures: [
-      'Cổ áo tròn khép kín viền gấm',
-      'Khuy cài lệch bên vai phải thanh lịch',
-      'Phom áo suông rộng bệ vệ quý phái',
-      'Tay thụng uy nghi phong thái vương giả'
+      'Cổ tròn khép kín ôm chân cổ kèm lót Đơn Y trắng',
+      'Khuy cài lệch kín đáo thanh lịch bên vai phải',
+      'Dải lụa trắng thắt eo cao rủ 2 dải dài kèm tua rua',
+      'Tay thụng dài buông lơi quý phái kết hợp chân váy đen'
     ],
     recommendedOccasions: ['Đại lễ trang trọng', 'Sự kiện hoàng gia', 'Nghi lễ di sản', 'Lookbook nghệ thuật'],
     historicalContext: 'Được quy chế hóa chặt chẽ trong điển lễ trang phục các triều đại Đại Việt làm quan phục và phẩm phục cung đình.',
     taboosRules: ['MUST_HAVE_DON_Y', 'NO_IMPERIAL_YELLOW', 'NO_CLASH_MODERN_SHOES'],
     svgType: 'vien_linh',
-    defaultColor: '#7A222C'
+    defaultColor: '#2B5B84'
   }
 ];
 

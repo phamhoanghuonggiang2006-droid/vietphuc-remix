@@ -903,192 +903,355 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
         {/* ======================================================== */}
         {/* 4. ÁO GIAO LĨNH CỔ CHÉO CHỮ Y (THỜI LÝ - TRẦN - LÊ)       */}
         {/* ======================================================== */}
+        {/* ======================================================== */}
+        {/* 4. ÁO GIAO LĨNH CỔ VẠT CHÉO (CHUẨN ẢNH REF ao-giao-linh.jpg) */}
+        {/* ======================================================== */}
         {type === 'giao_linh' && (
           <g id="ao-giao-linh-authentic">
-            {/* Lớp áo trong / tà trong */}
-            <path d="M 132 205 L 82 476 L 112 476 L 140 205 Z" fill="#141E18" opacity="0.4" />
-            <path d="M 268 205 L 318 476 L 288 476 L 260 205 Z" fill="#141E18" opacity="0.4" />
+            {/* Lớp váy/quần lụa bên trong hé lộ dưới gấu áo và khe xẻ tà */}
+            <path d="M 130 380 L 105 480 L 295 480 L 270 380 Z" fill="#801018" opacity="0.3" />
+            <path d="M 140 450 L 115 485 L 285 485 L 260 450 Z" fill="#1C1917" opacity="0.4" />
 
-            {/* Tay áo thụng rộng vươn dài tha thướt */}
+            {/* TAY ÁO BÊN TRÁI (Buông rủ mềm mại) */}
+            <g id="giao-linh-sleeve-left">
+              {/* Lớp vải áo ngoài tay trái */}
+              <path
+                d="M 152 98 C 110 108, 60 125, 25 150 C 22 170, 20 205, 32 250 C 65 255, 105 245, 134 212 Z"
+                fill={`url(#robeGrad-${type})`}
+                stroke="rgba(255,255,255,0.2)"
+                strokeWidth="1"
+              />
+              <path d="M 152 98 C 110 108, 60 125, 25 150 C 22 170, 20 205, 32 250 C 65 255, 105 245, 134 212 Z" fill={`url(#brocade-${type})`} />
+              <path d="M 152 98 C 110 108, 60 125, 25 150 C 22 170, 20 205, 32 250 C 65 255, 105 245, 134 212 Z" fill="url(#silkSheen)" />
+
+              {/* LỚP LÓT ĐỎ RỰC RỠ BÊN TRONG CỬA TAY TRÁI (Chuẩn ảnh mẫu ref ao-giao-linh.jpg) */}
+              <path
+                d="M 25 150 C 28 175, 32 215, 32 250 C 22 230, 22 180, 25 150 Z"
+                fill="#C5283D"
+                stroke="#9E2031"
+                strokeWidth="0.8"
+                filter="url(#softShadowFilter)"
+              />
+              {/* Nếp gấp lụa tự nhiên trên tay trái */}
+              <path d="M 65 140 C 55 175, 60 215, 75 245" stroke="#FFFFFF" strokeWidth="0.8" strokeOpacity="0.25" fill="none" />
+              <path d="M 105 130 C 95 165, 100 200, 110 225" stroke="#000000" strokeWidth="0.8" strokeOpacity="0.15" fill="none" />
+            </g>
+
+            {/* TAY ÁO BÊN PHẢI (Có lót đỏ rực rỡ ở cửa tay) */}
+            <g id="giao-linh-sleeve-right">
+              {/* Lớp vải áo ngoài tay phải */}
+              <path
+                d="M 248 98 C 290 108, 340 125, 375 150 C 378 170, 380 205, 368 250 C 335 255, 295 245, 266 212 Z"
+                fill={`url(#robeGrad-${type})`}
+                stroke="rgba(255,255,255,0.2)"
+                strokeWidth="1"
+              />
+              <path d="M 248 98 C 290 108, 340 125, 375 150 C 378 170, 380 205, 368 250 C 335 255, 295 245, 266 212 Z" fill={`url(#brocade-${type})`} />
+              <path d="M 248 98 C 290 108, 340 125, 375 150 C 378 170, 380 205, 368 250 C 335 255, 295 245, 266 212 Z" fill="url(#silkSheen)" />
+
+              {/* LỚP LÓT ĐỎ RỰC RỠ BÊN TRONG CỬA TAY PHẢI (Chuẩn ảnh mẫu ref ao-giao-linh.jpg) */}
+              <path
+                d="M 375 150 C 372 175, 368 215, 368 250 C 378 230, 378 180, 375 150 Z"
+                fill="#C5283D"
+                stroke="#9E2031"
+                strokeWidth="0.8"
+                filter="url(#softShadowFilter)"
+              />
+              {/* Nếp gấp lụa tự nhiên trên tay phải */}
+              <path d="M 335 140 C 345 175, 340 215, 325 245" stroke="#FFFFFF" strokeWidth="0.8" strokeOpacity="0.25" fill="none" />
+              <path d="M 295 130 C 305 165, 300 200, 290 225" stroke="#000000" strokeWidth="0.8" strokeOpacity="0.15" fill="none" />
+            </g>
+
+            {/* THÂN ÁO SUÔNG MỀM DÁNG CHỮ A (Không bị đơ, có nếp rủ lụa) */}
             <path
-              d="M 158 96 L 24 135 L 24 248 C 55 248, 95 240, 132 208 Z"
+              d="M 152 98 C 140 105, 134 150, 130 210 C 126 270, 112 375, 78 476 C 145 484, 255 484, 322 476 C 288 375, 274 270, 270 210 C 266 150, 260 105, 248 98 Z"
               fill={`url(#robeGrad-${type})`}
               stroke="rgba(255,255,255,0.25)"
               strokeWidth="1.2"
             />
-            <path d="M 158 96 L 24 135 L 24 248 C 55 248, 95 240, 132 208 Z" fill={`url(#brocade-${type})`} />
-            <path d="M 158 96 L 24 135 L 24 248 C 55 248, 95 240, 132 208 Z" fill="url(#silkSheen)" />
+            <path d="M 152 98 C 140 105, 134 150, 130 210 C 126 270, 112 375, 78 476 C 145 484, 255 484, 322 476 C 288 375, 274 270, 270 210 C 266 150, 260 105, 248 98 Z" fill={`url(#brocade-${type})`} />
+            <path d="M 152 98 C 140 105, 134 150, 130 210 C 126 270, 112 375, 78 476 C 145 484, 255 484, 322 476 C 288 375, 274 270, 270 210 C 266 150, 260 105, 248 98 Z" fill="url(#silkSheen)" />
 
-            <path
-              d="M 242 96 L 376 135 L 376 248 C 345 248, 305 240, 268 208 Z"
-              fill={`url(#robeGrad-${type})`}
-              stroke="rgba(255,255,255,0.25)"
-              strokeWidth="1.2"
-            />
-            <path d="M 242 96 L 376 135 L 376 248 C 345 248, 305 240, 268 208 Z" fill={`url(#brocade-${type})`} />
-            <path d="M 242 96 L 376 135 L 376 248 C 345 248, 305 240, 268 208 Z" fill="url(#silkSheen)" />
+            {/* NẾP RỦ LỤA DỌC THÂN ÁO TỰ NHIÊN */}
+            <path d="M 175 140 C 170 230, 160 340, 145 470" stroke="#000000" strokeWidth="1" strokeOpacity="0.1" fill="none" />
+            <path d="M 178 140 C 173 230, 163 340, 148 470" stroke="#FFFFFF" strokeWidth="0.8" strokeOpacity="0.15" fill="none" />
+            <path d="M 225 150 C 235 240, 248 350, 255 472" stroke="#000000" strokeWidth="1" strokeOpacity="0.1" fill="none" />
+            <path d="M 227 150 C 237 240, 250 350, 257 472" stroke="#FFFFFF" strokeWidth="0.8" strokeOpacity="0.15" fill="none" />
 
-            {/* Thân áo chữ A suông rộng */}
-            <path
-              d="M 158 96 C 144 100, 136 150, 132 208 C 128 265, 115 370, 82 476 C 145 484, 255 484, 318 476 C 285 370, 272 265, 268 208 C 264 150, 256 100, 242 96 Z"
-              fill={`url(#robeGrad-${type})`}
-              stroke="rgba(255,255,255,0.25)"
-              strokeWidth="1.2"
-            />
-            <path d="M 158 96 C 144 100, 136 150, 132 208 C 128 265, 115 370, 82 476 C 145 484, 255 484, 318 476 C 285 370, 272 265, 268 208 C 264 150, 256 100, 242 96 Z" fill={`url(#brocade-${type})`} />
-            <path d="M 158 96 C 144 100, 136 150, 132 208 C 128 265, 115 370, 82 476 C 145 484, 255 484, 318 476 C 285 370, 272 265, 268 208 C 264 150, 256 100, 242 96 Z" fill="url(#silkSheen)" />
+            {/* VAT TRONG (Vạt bên phải đi chéo vào nách trái) */}
+            <path d="M 238 98 L 152 240 L 152 285 L 238 98 Z" fill="#000000" opacity="0.15" />
 
-            {/* Vạt trong (vạt phải đi vào nách trái) */}
-            <path d="M 235 96 L 155 240 L 155 285 L 235 96 Z" fill="#0F1A13" opacity="0.3" />
-
-            {/* Lớp Đơn Y chữ Y bên trong nếu có hasDonY */}
+            {/* LỚP ÁO LÓT ĐƠN Y CỔ CHỮ V / GIAO LĨNH TRẮNG BÊN TRONG */}
             {hasDonY ? (
-              <g id="giao-linh-don-y">
-                <path d="M 175 92 L 200 135 L 225 92" stroke="#FFFFFF" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" fill="none" filter="url(#softShadowFilter)" />
-                <path d="M 175 92 L 200 135 L 225 92" stroke="#E5C365" strokeWidth="1.2" fill="none" />
+              <g id="giao-linh-don-y-collar" filter="url(#softShadowFilter)">
+                {/* Vạt áo lót trắng bên phải */}
+                <path d="M 172 90 L 198 135 L 208 135 L 180 90 Z" fill="#FAF7F0" stroke="#E5C365" strokeWidth="0.8" />
+                {/* Vạt áo lót trắng bên trái vắt đè lên */}
+                <path d="M 228 90 L 195 135 L 185 135 L 220 90 Z" fill="#FFFFFF" stroke="#E5C365" strokeWidth="0.8" />
+                {/* Đường viền cổ lót trắng cao thanh khiết */}
+                <path d="M 176 90 L 198 132 L 224 90" stroke="#FAF7F0" strokeWidth="4.5" strokeLinecap="round" fill="none" />
+                <path d="M 176 90 L 198 132 L 224 90" stroke="#E5C365" strokeWidth="1" fill="none" />
               </g>
             ) : (
-              <path d="M 178 95 L 200 138 L 222 95" stroke="#C68A6D" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" fill="none" opacity="0.8" />
+              // Không có Đơn Y: Lộ da thịt tự nhiên ở cổ chữ V
+              <path d="M 178 92 L 200 138 L 222 92 Z" fill="#D6A38B" opacity="0.85" />
             )}
 
-            {/* Vạt ngoài vạt trái chéo qua ngực phải tạo chữ Y kinh điển */}
+            {/* VAT ÁO NGOÀI BÊN TRÁI VẮT CHÉO SANG SƯỜN PHẢI (Tạo thành chữ Y mềm mại) */}
             <path
-              d="M 165 96 L 246 242 L 248 290 L 165 96 Z"
+              d="M 160 98 L 246 250 L 250 475 C 235 476, 200 477, 165 477 L 160 98 Z"
               fill={primaryColor}
-              stroke="rgba(255,255,255,0.3)"
+              opacity="0.35"
+            />
+
+            {/* NẸP CỔ ÁO TO BẢN (Wide Diagonal Collar Band - Chuẩn ảnh mẫu ref ao-giao-linh.jpg) */}
+            {/* 1. Nẹp cổ vạt phải (chạy từ vai phải vào ngực) */}
+            <path
+              d="M 238 98 L 195 175"
+              stroke="#FFF1F2"
+              strokeWidth="11"
+              strokeLinecap="round"
+              fill="none"
+              opacity="0.9"
+              filter="url(#softShadowFilter)"
+            />
+            <path
+              d="M 238 98 L 195 175"
+              stroke={primaryColor}
+              strokeWidth="7"
+              strokeLinecap="round"
+              fill="none"
+              opacity="0.45"
+            />
+            <path
+              d="M 238 98 L 195 175"
+              stroke="#E5C365"
               strokeWidth="1"
-            />
-            {/* Nẹp cổ to bản viền gấm thêu hoa */}
-            <path
-              d="M 165 96 L 248 245"
-              stroke="#E5C365"
-              strokeWidth="7"
-              strokeLinecap="round"
-              fill="none"
-              filter="url(#softShadowFilter)"
-            />
-            <path
-              d="M 165 96 L 248 245"
-              stroke="#8B6E28"
-              strokeWidth="2"
-              strokeDasharray="4 2"
-              fill="none"
-            />
-            {/* Nẹp cổ vạt phải */}
-            <path
-              d="M 235 96 L 195 168"
-              stroke="#E5C365"
-              strokeWidth="7"
-              strokeLinecap="round"
-              fill="none"
-              filter="url(#softShadowFilter)"
-            />
-            <path
-              d="M 235 96 L 195 168"
-              stroke="#8B6E28"
-              strokeWidth="2"
-              strokeDasharray="4 2"
               fill="none"
             />
 
-            {/* Dải Thắt Lưng Gấm Bản Rộng Quanh Eo */}
-            <rect x="145" y="278" width="110" height="24" rx="4" fill="#E5C365" stroke="#C5A059" strokeWidth="1.5" filter="url(#softShadowFilter)" />
-            <rect x="148" y="282" width="104" height="16" fill="url(#btnWoodAgarwood)" opacity="0.4" />
-            <line x1="145" y1="290" x2="255" y2="290" stroke="#FFF3B0" strokeWidth="1" strokeDasharray="3 3" />
+            {/* 2. Nẹp cổ vạt trái TO BẢN vắt chéo sang sườn phải (Tả nhẫm đè lên hữu nhẫm) */}
+            <path
+              d="M 162 98 L 246 252"
+              stroke="#FFF1F2"
+              strokeWidth="12"
+              strokeLinecap="round"
+              fill="none"
+              opacity="0.95"
+              filter="url(#softShadowFilter)"
+            />
+            <path
+              d="M 162 98 L 246 252"
+              stroke={primaryColor}
+              strokeWidth="8"
+              strokeLinecap="round"
+              fill="none"
+              opacity="0.4"
+            />
+            <path
+              d="M 162 98 L 246 252"
+              stroke="#E5C365"
+              strokeWidth="1.2"
+              fill="none"
+            />
 
-            {/* Nơ & Dải Thắt Lưng Buông Rủ Tha Thướt Ở Giữa Thân Áo */}
-            <g id="giao-linh-belt-ribbon" filter="url(#softShadowFilter)">
-              {/* Nút thắt nơ */}
-              <circle cx="200" cy="290" r="9" fill="#C5A059" stroke="#E5C365" strokeWidth="1.5" />
-              <circle cx="200" cy="290" r="5" fill="#E5C365" />
-              {/* 2 Dải lụa rủ dài xuống tà áo */}
-              <path d="M 196 295 C 194 340, 185 410, 188 460 L 199 460 C 196 410, 201 340, 201 295 Z" fill="#E5C365" stroke="#A8822A" strokeWidth="0.8" />
-              <path d="M 201 295 C 203 345, 212 415, 210 465 L 221 465 C 223 415, 206 345, 204 295 Z" fill="#E5C365" stroke="#A8822A" strokeWidth="0.8" />
-              {/* Quả ngọc / tua rua chân dải lụa */}
-              <circle cx="193" cy="465" r="4.5" fill="#10B981" stroke="#E5C365" strokeWidth="1" />
-              <circle cx="215" cy="470" r="4.5" fill="#10B981" stroke="#E5C365" strokeWidth="1" />
+            {/* CHUỖI HẠT ĐỎ TRÀNG HẠT CỔ PHONG (Chuẩn ảnh mẫu ref ao-giao-linh.jpg) */}
+            <g id="giao-linh-red-beads" filter="url(#softShadowFilter)">
+              <path
+                d="M 184 94 C 182 120, 192 148, 200 148 C 208 148, 218 120, 216 94"
+                stroke="#991B1B"
+                strokeWidth="1"
+                fill="none"
+              />
+              {[
+                { cx: 184, cy: 96 }, { cx: 184, cy: 104 }, { cx: 185, cy: 112 },
+                { cx: 187, cy: 120 }, { cx: 190, cy: 128 }, { cx: 194, cy: 136 },
+                { cx: 198, cy: 143 }, { cx: 200, cy: 146 }, { cx: 202, cy: 143 },
+                { cx: 206, cy: 136 }, { cx: 210, cy: 128 }, { cx: 213, cy: 120 },
+                { cx: 215, cy: 112 }, { cx: 216, cy: 104 }, { cx: 216, cy: 96 }
+              ].map((bead, i) => (
+                <circle key={i} cx={bead.cx} cy={bead.cy} r="2.2" fill="#DC2626" stroke="#7F1D1D" strokeWidth="0.5" />
+              ))}
+            </g>
+
+            {/* DẢI LỤA BUỘC THẮT NƠ BÊN SƯỜN PHẢI (Chuẩn ảnh mẫu ref ao-giao-linh.jpg) */}
+            {/* Vị trí sườn phải: x = 246, y = 252 */}
+            <g id="giao-linh-side-ribbon" filter="url(#softShadowFilter)">
+              {/* Nút thắt nơ mềm mại */}
+              <ellipse cx="246" cy="252" rx="6" ry="4" fill="#FFF1F2" stroke="#E5C365" strokeWidth="1" />
+              <circle cx="246" cy="252" r="3" fill={primaryColor} opacity="0.7" />
+              {/* Nút cúc khuy nhỏ nếu có chọn cúc */}
+              {renderAuthenticButton(246, 252, 3.8, false)}
+
+              {/* Cánh nơ hướng lên & sang bên */}
+              <path d="M 246 250 C 242 242, 238 240, 236 244 C 235 248, 240 252, 246 252 Z" fill="#FFF1F2" stroke="#E5C365" strokeWidth="0.8" />
+              <path d="M 246 252 C 252 245, 258 244, 259 248 C 260 252, 252 254, 246 252 Z" fill="#FFF1F2" stroke="#E5C365" strokeWidth="0.8" />
+              
+              {/* 2 Dải lụa mềm buông rủ dài tha thướt xuống tà áo */}
+              <path
+                d="M 245 254 C 243 285, 240 330, 241 380 L 246 380 C 246 330, 248 285, 248 254 Z"
+                fill="#FFF1F2"
+                stroke="#E5C365"
+                strokeWidth="0.8"
+              />
+              <path
+                d="M 247 254 C 250 290, 254 340, 252 400 L 257 400 C 259 340, 254 290, 250 254 Z"
+                fill="#FFF1F2"
+                stroke="#E5C365"
+                strokeWidth="0.8"
+              />
             </g>
           </g>
         )}
 
         {/* ======================================================== */}
-        {/* 5. ÁO VIÊN LĨNH CỔ TRÒN HOÀNG GIA ĐẠI VIỆT                */}
+        {/* 5. ÁO VIÊN LĨNH CỔ TRÒN (CHUẨN ẢNH REF ao-vien-linh.webp)   */}
         {/* ======================================================== */}
         {type === 'vien_linh' && (
           <g id="ao-vien-linh-authentic">
-            {/* Lớp áo trong / tà trong */}
-            <path d="M 132 205 L 82 476 L 112 476 L 140 205 Z" fill="#201015" opacity="0.4" />
-            <path d="M 268 205 L 318 476 L 288 476 L 260 205 Z" fill="#201015" opacity="0.4" />
-
-            {/* Tay áo thụng rộng uy nghi */}
+            {/* Lớp chân váy dài màu đen hé lộ dưới gấu áo (Chuẩn ảnh mẫu ao-vien-linh.webp) */}
             <path
-              d="M 158 94 L 20 132 L 20 245 C 55 245, 95 238, 132 206 Z"
-              fill={`url(#robeGrad-${type})`}
-              stroke="rgba(255,255,255,0.25)"
-              strokeWidth="1.2"
+              d="M 125 440 L 78 488 C 145 494, 255 494, 322 488 L 275 440 Z"
+              fill="#111116"
+              stroke="#000000"
+              strokeWidth="1"
             />
-            <path d="M 158 94 L 20 132 L 20 245 C 55 245, 95 238, 132 206 Z" fill={`url(#brocade-${type})`} />
-            <path d="M 158 94 L 20 132 L 20 245 C 55 245, 95 238, 132 206 Z" fill="url(#silkSheen)" />
+            {/* Nếp xếp ly của chân váy đen bên dưới */}
+            <path d="M 140 450 L 130 490" stroke="#262626" strokeWidth="1.2" />
+            <path d="M 170 455 L 165 492" stroke="#262626" strokeWidth="1.2" />
+            <path d="M 200 456 L 200 493" stroke="#262626" strokeWidth="1.2" />
+            <path d="M 230 455 L 235 492" stroke="#262626" strokeWidth="1.2" />
+            <path d="M 260 450 L 270 490" stroke="#262626" strokeWidth="1.2" />
 
-            <path
-              d="M 242 94 L 380 132 L 380 245 C 345 245, 305 238, 268 206 Z"
-              fill={`url(#robeGrad-${type})`}
-              stroke="rgba(255,255,255,0.25)"
-              strokeWidth="1.2"
-            />
-            <path d="M 242 94 L 380 132 L 380 245 C 345 245, 305 238, 268 206 Z" fill={`url(#brocade-${type})`} />
-            <path d="M 242 94 L 380 132 L 380 245 C 345 245, 305 238, 268 206 Z" fill="url(#silkSheen)" />
+            {/* TAY ÁO BÊN TRÁI THỤNG RỘNG (Buông dài tha thướt) */}
+            <g id="vien-linh-sleeve-left">
+              <path
+                d="M 154 94 C 110 105, 55 125, 20 152 C 16 185, 18 235, 34 275 C 68 280, 108 268, 134 220 Z"
+                fill={`url(#robeGrad-${type})`}
+                stroke="rgba(255,255,255,0.2)"
+                strokeWidth="1"
+              />
+              <path d="M 154 94 C 110 105, 55 125, 20 152 C 16 185, 18 235, 34 275 C 68 280, 108 268, 134 220 Z" fill={`url(#brocade-${type})`} />
+              <path d="M 154 94 C 110 105, 55 125, 20 152 C 16 185, 18 235, 34 275 C 68 280, 108 268, 134 220 Z" fill="url(#silkSheen)" />
 
-            {/* Thân áo chữ A suông rộng bệ vệ */}
-            <path
-              d="M 158 94 C 144 98, 136 150, 132 206 C 128 265, 115 370, 82 476 C 145 484, 255 484, 318 476 C 285 370, 272 265, 268 206 C 264 150, 256 98, 242 94 Z"
-              fill={`url(#robeGrad-${type})`}
-              stroke="rgba(255,255,255,0.25)"
-              strokeWidth="1.2"
-            />
-            <path d="M 158 94 C 144 98, 136 150, 132 206 C 128 265, 115 370, 82 476 C 145 484, 255 484, 318 476 C 285 370, 272 265, 268 206 C 264 150, 256 98, 242 94 Z" fill={`url(#brocade-${type})`} />
-            <path d="M 158 94 C 144 98, 136 150, 132 206 C 128 265, 115 370, 82 476 C 145 484, 255 484, 318 476 C 285 370, 272 265, 268 206 C 264 150, 256 98, 242 94 Z" fill="url(#silkSheen)" />
-
-            {/* Đồ Án Tròn Trước Ngực (Bổ Tử / Hoa Cúc Mẫu Đơn Cung Đình) */}
-            <g transform="translate(200, 220)" filter="url(#softShadowFilter)">
-              <circle cx="0" cy="0" r="38" fill="#141824" stroke="#E5C365" strokeWidth="2.5" />
-              <circle cx="0" cy="0" r="33" fill="none" stroke="#E5C365" strokeWidth="1" strokeDasharray="3 2" />
-              <circle cx="0" cy="0" r="28" fill="#801826" stroke="#C5A059" strokeWidth="1.2" />
-              <path d="M -16 0 Q 0 -18 16 0 Q 0 18 -16 0 Z" fill="#E5C365" />
-              <path d="M 0 -16 Q -18 0 0 16 Q 18 0 0 -16 Z" fill="#E5C365" />
-              <circle cx="0" cy="0" r="7" fill="#FFF3B0" stroke="#7A5210" strokeWidth="0.8" />
+              {/* Lớp lót xanh đen bên trong cửa tay áo */}
+              <path
+                d="M 20 152 C 24 185, 28 235, 34 275 C 22 250, 18 190, 20 152 Z"
+                fill="#0B1320"
+                stroke="#050B14"
+                strokeWidth="0.8"
+              />
+              {/* Nếp gấp lụa tự nhiên ở tay áo trái */}
+              <path d="M 68 150 C 60 190, 68 235, 82 265" stroke="#FFFFFF" strokeWidth="0.8" strokeOpacity="0.2" fill="none" />
             </g>
 
-            {/* Vạt xẻ chéo cài khuy bên vai phải */}
+            {/* TAY ÁO BÊN PHẢI THỤNG RỘNG (Buông dài tha thướt) */}
+            <g id="vien-linh-sleeve-right">
+              <path
+                d="M 246 94 C 290 105, 345 125, 380 152 C 384 185, 382 235, 366 275 C 332 280, 292 268, 266 220 Z"
+                fill={`url(#robeGrad-${type})`}
+                stroke="rgba(255,255,255,0.2)"
+                strokeWidth="1"
+              />
+              <path d="M 246 94 C 290 105, 345 125, 380 152 C 384 185, 382 235, 366 275 C 332 280, 292 268, 266 220 Z" fill={`url(#brocade-${type})`} />
+              <path d="M 246 94 C 290 105, 345 125, 380 152 C 384 185, 382 235, 366 275 C 332 280, 292 268, 266 220 Z" fill="url(#silkSheen)" />
+
+              {/* Lớp lót xanh đen bên trong cửa tay áo phải */}
+              <path
+                d="M 380 152 C 376 185, 372 235, 366 275 C 378 250, 382 190, 380 152 Z"
+                fill="#0B1320"
+                stroke="#050B14"
+                strokeWidth="0.8"
+              />
+              {/* Nếp gấp lụa tự nhiên ở tay áo phải */}
+              <path d="M 332 150 C 340 190, 332 235, 318 265" stroke="#FFFFFF" strokeWidth="0.8" strokeOpacity="0.2" fill="none" />
+            </g>
+
+            {/* THÂN ÁO VIÊN LĨNH SUÔNG RỘNG DÁNG CHỮ A */}
             <path
-              d="M 218 102 C 235 110, 248 135, 252 175"
-              stroke="#E5C365"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              fill="none"
-              filter="url(#softShadowFilter)"
+              d="M 154 94 C 142 100, 134 145, 130 210 C 126 270, 115 370, 84 468 C 145 476, 255 476, 316 468 C 285 370, 274 270, 270 210 C 266 145, 258 100, 246 94 Z"
+              fill={`url(#robeGrad-${type})`}
+              stroke="rgba(255,255,255,0.25)"
+              strokeWidth="1.2"
             />
+            <path d="M 154 94 C 142 100, 134 145, 130 210 C 126 270, 115 370, 84 468 C 145 476, 255 476, 316 468 C 285 370, 274 270, 270 210 C 266 145, 258 100, 246 94 Z" fill={`url(#brocade-${type})`} />
+            <path d="M 154 94 C 142 100, 134 145, 130 210 C 126 270, 115 370, 84 468 C 145 476, 255 476, 316 468 C 285 370, 274 270, 270 210 C 266 145, 258 100, 246 94 Z" fill="url(#silkSheen)" />
 
-            {/* Cúc cài lệch bên vai phải */}
-            {[
-              { id: 'vl-1', cx: 222, cy: 104 },
-              { id: 'vl-2', cx: 236, cy: 125 },
-              { id: 'vl-3', cx: 247, cy: 152 },
-              { id: 'vl-4', cx: 252, cy: 180 }
-            ].map(btn => renderAuthenticButton(btn.cx, btn.cy, 5.5, false))}
+            {/* NẾP GẤP TRUNG TÂM (Central Box Pleat / Fold buông từ eo xuống) */}
+            <path d="M 195 215 L 192 468" stroke="#000000" strokeWidth="1.2" strokeOpacity="0.18" />
+            <path d="M 205 215 L 208 468" stroke="#000000" strokeWidth="1.2" strokeOpacity="0.18" />
+            <path d="M 196 215 L 194 468" stroke="#FFFFFF" strokeWidth="0.8" strokeOpacity="0.15" />
+            <path d="M 204 215 L 206 468" stroke="#FFFFFF" strokeWidth="0.8" strokeOpacity="0.15" />
 
-            {/* CỔ ÁO VIÊN LĨNH: Cổ tròn ôm kín chân cổ viền gấm */}
+            {/* DẢI LỤA TRẮNG THẮT NGANG EO CAO (Chuẩn ảnh mẫu ref ao-vien-linh.webp) */}
+            {/* Dải thắt lưng trắng ngang ngực/eo cao: y = 210-218 */}
+            <g id="vien-linh-white-ribbon" filter="url(#softShadowFilter)">
+              {/* Dải lụa trắng ôm ngang eo */}
+              <rect x="142" y="210" width="116" height="10" rx="3" fill="#FFFFFF" stroke="#E5E7EB" strokeWidth="0.8" />
+              <line x1="142" y1="215" x2="258" y2="215" stroke="#D1D5DB" strokeWidth="0.5" />
+
+              {/* Nút thắt nơ tinh xảo ở giữa */}
+              <circle cx="200" cy="215" r="4.5" fill="#FFFFFF" stroke="#9CA3AF" strokeWidth="0.8" />
+
+              {/* 2 DẢI LỤA TRẮNG DÀI RỦ THẲNG XUỐNG GẦN GẤU ÁO (Long White Tails) */}
+              {/* Dải trái: x = 188 */}
+              <rect x="187" y="215" width="7" height="185" fill="#FFFFFF" stroke="#E5E7EB" strokeWidth="0.6" />
+              <circle cx="190.5" cy="402" r="3.5" fill="#FFFFFF" stroke="#D1D5DB" strokeWidth="0.8" />
+              {/* Tua rua trắng chân dải trái (White Tassel) */}
+              <g transform="translate(190.5, 405)">
+                <path d="M -3 0 L 3 0 L 4 28 L -4 28 Z" fill="#F8F8FA" stroke="#D1D5DB" strokeWidth="0.5" />
+                <line x1="-2" y1="2" x2="-3" y2="28" stroke="#9CA3AF" strokeWidth="0.5" />
+                <line x1="0" y1="2" x2="0" y2="28" stroke="#9CA3AF" strokeWidth="0.5" />
+                <line x1="2" y1="2" x2="3" y2="28" stroke="#9CA3AF" strokeWidth="0.5" />
+              </g>
+
+              {/* Dải phải: x = 205 */}
+              <rect x="205" y="215" width="7" height="185" fill="#FFFFFF" stroke="#E5E7EB" strokeWidth="0.6" />
+              <circle cx="208.5" cy="402" r="3.5" fill="#FFFFFF" stroke="#D1D5DB" strokeWidth="0.8" />
+              {/* Tua rua trắng chân dải phải (White Tassel) */}
+              <g transform="translate(208.5, 405)">
+                <path d="M -3 0 L 3 0 L 4 28 L -4 28 Z" fill="#F8F8FA" stroke="#D1D5DB" strokeWidth="0.5" />
+                <line x1="-2" y1="2" x2="-3" y2="28" stroke="#9CA3AF" strokeWidth="0.5" />
+                <line x1="0" y1="2" x2="0" y2="28" stroke="#9CA3AF" strokeWidth="0.5" />
+                <line x1="2" y1="2" x2="3" y2="28" stroke="#9CA3AF" strokeWidth="0.5" />
+              </g>
+            </g>
+
+            {/* ĐƯỜNG XẺ VẠT VAI PHẢI & KHUY CÀI CỔ KÍN ĐÁO (Bên vai phải) */}
+            <path
+              d="M 226 95 C 235 102, 244 112, 248 126"
+              stroke="#FFFFFF"
+              strokeWidth="1.2"
+              strokeOpacity="0.4"
+              fill="none"
+            />
+            {/* 2 Khuy cài nhỏ kín đáo bên vai phải */}
+            {renderAuthenticButton(228, 98, 3.5, false)}
+            {renderAuthenticButton(242, 116, 3.5, false)}
+
+            {/* CỔ ÁO VIÊN LĨNH: Cổ tròn viền nhẹ ôm khít chân cổ */}
             <g id="vien-linh-collar-group" filter="url(#softShadowFilter)">
-              {/* Lớp Đơn Y tròn nhô lên 2-3mm nếu hasDonY */}
+              {/* Cổ áo lót trắng bên trong (Mandarin/Cross collar Đơn Y nhô lên) */}
               {hasDonY ? (
-                <ellipse cx="200" cy="94" rx="34" ry="17" fill="#FFFFFF" stroke="#E5C365" strokeWidth="1.2" />
+                <g id="vien-linh-white-inner-collar">
+                  {/* Cổ áo lót trắng thanh khiết nhô lên khỏi cổ tròn ngoài */}
+                  <path
+                    d="M 178 92 C 178 68, 222 68, 222 92 Z"
+                    fill="#FFFFFF"
+                    stroke="#E5C365"
+                    strokeWidth="1"
+                  />
+                  {/* Vạt chéo lót trắng của Áo Đơn Y bên trong */}
+                  <path d="M 184 88 L 200 96 L 216 88" stroke="#E5C365" strokeWidth="0.8" fill="none" />
+                </g>
               ) : (
-                <ellipse cx="200" cy="94" rx="33" ry="16" fill="#C68A6D" opacity="0.8" />
+                <ellipse cx="200" cy="92" rx="22" ry="12" fill="#D6A38B" opacity="0.8" />
               )}
-              {/* Cổ tròn áo ngoài */}
-              <ellipse cx="200" cy="98" rx="32" ry="15" fill="none" stroke={primaryColor} strokeWidth="6" />
-              <ellipse cx="200" cy="98" rx="32" ry="15" fill="none" stroke="#E5C365" strokeWidth="2.2" />
-              <ellipse cx="200" cy="98" rx="29" ry="13" fill="none" stroke="#8B6E28" strokeWidth="0.8" strokeDasharray="3 2" />
+
+              {/* Đường khoét cổ tròn của Áo Ngoài Viên Lĩnh (Chuẩn ảnh mẫu ao-vien-linh.webp) */}
+              <ellipse cx="200" cy="95" rx="28" ry="13" fill="none" stroke={primaryColor} strokeWidth="5" />
+              <ellipse cx="200" cy="95" rx="28" ry="13" fill="none" stroke="#FFFFFF" strokeWidth="1.2" strokeOpacity="0.5" />
+              <ellipse cx="200" cy="95" rx="26" ry="11.5" fill="none" stroke="#E5C365" strokeWidth="0.8" />
             </g>
           </g>
         )}
