@@ -114,6 +114,16 @@ export interface DualMetricEvaluation {
   canAutoFix: boolean;
 }
 
+// Danh sách các sản phẩm mới có tính năng tải ảnh thủ công theo yêu cầu
+export const UPLOADABLE_PRODUCT_IDS = new Set<string>([
+  'btn-silver-lotus',
+  'btn-mother-of-pearl',
+  'bottom-silk-wide-pants',
+  'shoes-chunky-loafers',
+  'acc-khan-dong',
+  'acc-kieng-bac'
+]);
+
 export interface ButtonHeritageInfo {
   title: string;
   nguThuong: string;
@@ -464,89 +474,11 @@ export const RemixStudio: React.FC = () => {
   const shoesOptions = REMIX_ITEMS.filter(i => i.category === 'shoes');
   const accessoryOptions = REMIX_ITEMS.filter(i => i.category === 'accessory');
 
-  // 6 Sản phẩm mới hỗ trợ tải ảnh thủ công theo yêu cầu của bạn Giang
-  const UPLOADABLE_NEW_ITEM_IDS = [
-    'btn-silver-lotus',        // Cúc Bạc Chạm Hoa Sen
-    'btn-mother-of-pearl',     // Cúc Xà Cừ Khảm Ốc Ánh Kim
-    'bottom-silk-wide-pants',  // Quần Ống Sớ Lụa
-    'shoes-chunky-loafers',    // Chunky Loafers
-    'acc-khan-dong',           // Khăn Đóng Chữ Nhân
-    'acc-khan-vanh-day'        // Khăn Vành Dây
-  ];
-
-  const isUploadableItem = (itemId: string) => UPLOADABLE_NEW_ITEM_IDS.includes(itemId);
-
-  // State lưu trữ ảnh tải lên thủ công của người dùng (persisted in localStorage)
-  const [customItemImages, setCustomItemImages] = useState<{ [itemId: string]: string }>(() => {
-    try {
-      const saved = localStorage.getItem('heritstyle_custom_item_images');
-      return saved ? JSON.parse(saved) : {};
-    } catch {
-      return {};
-    }
-  });
-
-  const [uploadToastMessage, setUploadToastMessage] = useState<string | null>(null);
-  const [isCustomImageModalOpen, setIsCustomImageModalOpen] = useState<boolean>(false);
-
-  const handleUploadItemImage = (itemId: string, file: File) => {
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const dataUrl = e.target?.result as string;
-      if (dataUrl) {
-        setCustomItemImages(prev => {
-          const next = { ...prev, [itemId]: dataUrl };
-          try {
-            localStorage.setItem('heritstyle_custom_item_images', JSON.stringify(next));
-          } catch (err) {
-            console.warn('LocalStorage quota', err);
-          }
-          return next;
-        });
-        setUploadToastMessage(`Đã cập nhật ảnh thủ công thành công!`);
-        setTimeout(() => setUploadToastMessage(null), 3500);
-      }
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const handleResetItemImage = (itemId: string) => {
-    setCustomItemImages(prev => {
-      const next = { ...prev };
-      delete next[itemId];
-      try {
-        localStorage.setItem('heritstyle_custom_item_images', JSON.stringify(next));
-      } catch (err) {
-        console.warn(err);
-      }
-      return next;
-    });
-    setUploadToastMessage(`Đã khôi phục ảnh mặc định.`);
-    setTimeout(() => setUploadToastMessage(null), 3000);
-  };
-
-  // Helper to get image URL for any item (ưu tiên ảnh tải thủ công)
-  const getItemImageUrl = (itemId: string, defaultThumbnail?: string): string => {
-    return customItemImages[itemId] || defaultThumbnail || '';
-  };
-
-  const resolveItemWithCustomImage = <T extends ModernRemixItem>(item: T): T => {
-    if (customItemImages[item.id]) {
-      return {
-        ...item,
-        thumbnailUrl: customItemImages[item.id],
-        canvas2dUrl: customItemImages[item.id]
-      };
-    }
-    return item;
-  };
-
-  // Currently active selected items (tự động đồng bộ ảnh tải lên thủ công vào Canvas & Moodboard)
-  const activeButtonItem = resolveItemWithCustomImage(buttonOptions.find(b => b.id === selectedButtonId) || buttonOptions[0]);
-  const activeBottomItem = resolveItemWithCustomImage(bottomOptions.find(b => b.id === selectedBottomId) || bottomOptions[0]);
-  const activeShoesItem = resolveItemWithCustomImage(shoesOptions.find(s => s.id === selectedShoesId) || shoesOptions[0]);
-  const activeAccessoryItem = resolveItemWithCustomImage(accessoryOptions.find(a => a.id === selectedAccessoryId) || accessoryOptions[0]);
+  // Currently active selected items
+  const activeButtonItem = buttonOptions.find(b => b.id === selectedButtonId) || buttonOptions[0];
+  const activeBottomItem = bottomOptions.find(b => b.id === selectedBottomId) || bottomOptions[0];
+  const activeShoesItem = shoesOptions.find(s => s.id === selectedShoesId) || shoesOptions[0];
+  const activeAccessoryItem = accessoryOptions.find(a => a.id === selectedAccessoryId) || accessoryOptions[0];
 
   // Real-time Dual-Metric Evaluation: Slay Score & Độ Chuẩn Di Sản
   const dualMetrics = computeRealtimeDualMetrics(
@@ -558,6 +490,67 @@ export const RemixStudio: React.FC = () => {
     selectedShoesId,
     selectedAccessoryId
   );
+
+  // User custom uploaded product images (lưu bộ nhớ trình duyệt localStorage)
+  const [customItemImages, setCustomItemImages] = useState<{ [itemId: string]: string }>(() => {
+    try {
+      const saved = localStorage.getItem('vietphuc_custom_item_images');
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
+
+  const [isCustomImageModalOpen, setIsCustomImageModalOpen] = useState<boolean>(false);
+  const itemFileInputRef = useRef<HTMLInputElement>(null);
+  const [activeUploadItemId, setActiveUploadItemId] = useState<string | null>(null);
+
+  const triggerItemImageUpload = (itemId: string) => {
+    setActiveUploadItemId(itemId);
+    if (itemFileInputRef.current) {
+      itemFileInputRef.current.value = '';
+      itemFileInputRef.current.click();
+    }
+  };
+
+  const handleItemImageUploadChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && activeUploadItemId) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const dataUrl = event.target?.result as string;
+        const updated = {
+          ...customItemImages,
+          [activeUploadItemId]: dataUrl
+        };
+        setCustomItemImages(updated);
+        try {
+          localStorage.setItem('vietphuc_custom_item_images', JSON.stringify(updated));
+        } catch (err) {
+          console.warn('Could not save custom image to localStorage', err);
+        }
+        playFabricRustleSound();
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleResetItemImage = (itemId: string) => {
+    const updated = { ...customItemImages };
+    delete updated[itemId];
+    setCustomItemImages(updated);
+    try {
+      localStorage.setItem('vietphuc_custom_item_images', JSON.stringify(updated));
+    } catch (err) {
+      console.warn('Could not save custom image to localStorage', err);
+    }
+    playButtonClinkSound();
+  };
+
+  // Helper to get image URL for any item (hỗ trợ ảnh tải lên thủ công hoặc ảnh mặc định)
+  const getItemImageUrl = (itemId: string, defaultThumbnail?: string): string => {
+    return customItemImages[itemId] || defaultThumbnail || '';
+  };
 
   // Sample curated palettes for image analysis simulation
   const SAMPLE_AI_PALETTES: { [key: number]: ExtractedColorChip[] } = {
@@ -839,20 +832,7 @@ export const RemixStudio: React.FC = () => {
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
-            <button
-              onClick={() => setIsCustomImageModalOpen(true)}
-              className="px-3.5 py-1.5 text-xs text-[#e5c365] hover:text-[#f5f2eb] border border-[#c5a059]/40 hover:border-[#c5a059] rounded-lg transition-colors flex items-center gap-1.5 bg-[#1b1b24] cursor-pointer shadow-sm"
-              title="Quản lý toàn bộ kho ảnh tùy chỉnh đã tải lên"
-            >
-              <ImageIcon className="w-3.5 h-3.5" />
-              <span>Kho ảnh thủ công</span>
-              {Object.keys(customItemImages).length > 0 && (
-                <span className="w-4 h-4 rounded-full bg-[#c5a059] text-stone-950 text-[10px] font-bold flex items-center justify-center">
-                  {Object.keys(customItemImages).length}
-                </span>
-              )}
-            </button>
+          <div className="flex items-center gap-2">
             <button
               onClick={() => {
                 setSelectedGarmentId('ngu-than-tay-chen');
@@ -870,6 +850,20 @@ export const RemixStudio: React.FC = () => {
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>Gợi ý mẫu chuẩn</span>
+            </button>
+
+            <button
+              onClick={() => setIsCustomImageModalOpen(true)}
+              className="px-3.5 py-1.5 text-xs text-[#f5f2eb] hover:text-[#e5c365] border border-[#c5a059]/40 hover:border-[#c5a059] rounded-lg transition-all flex items-center gap-1.5 bg-[#181822] hover:bg-[#20202c] cursor-pointer shadow-sm"
+              title="Quản lý toàn bộ ảnh tải lên thủ công"
+            >
+              <Upload className="w-3.5 h-3.5 text-[#e5c365]" />
+              <span>Kho ảnh thủ công</span>
+              {Object.keys(customItemImages).length > 0 && (
+                <span className="w-4 h-4 rounded-full bg-[#c5a059] text-stone-950 text-[10px] font-bold flex items-center justify-center">
+                  {Object.keys(customItemImages).length}
+                </span>
+              )}
             </button>
           </div>
         </div>
@@ -1365,8 +1359,6 @@ export const RemixStudio: React.FC = () => {
                 {buttonOptions.map(item => {
                   const isSelected = selectedButtonId === item.id;
                   const isTaboo = item.id === 'btn-chinese-cloth';
-                  const isUploadable = isUploadableItem(item.id);
-                  const hasCustomImg = Boolean(customItemImages[item.id]);
                   const imgSrc = getItemImageUrl(item.id, item.thumbnailUrl);
 
                   return (
@@ -1391,6 +1383,11 @@ export const RemixStudio: React.FC = () => {
                       <div className="flex gap-3">
                         {/* Fixed Image Thumbnail */}
                         <div className="w-14 h-14 rounded-lg overflow-hidden shrink-0 relative border border-white/10 bg-black/40">
+                          {customItemImages[item.id] && (
+                            <div className="absolute top-1 left-1 bg-[#c5a059] text-stone-950 text-[8px] font-bold px-1 py-0.2 rounded shadow z-10 flex items-center gap-0.5">
+                              ★ Ảnh riêng
+                            </div>
+                          )}
                           <img 
                             src={imgSrc} 
                             alt={item.name} 
@@ -1404,11 +1401,6 @@ export const RemixStudio: React.FC = () => {
                             }}
                             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
                           />
-                          {hasCustomImg && (
-                            <span className="absolute bottom-0 inset-x-0 bg-emerald-600/90 text-white text-[8px] font-bold text-center py-0.5 leading-none shadow">
-                              Ảnh bạn
-                            </span>
-                          )}
                         </div>
 
                         <div className="min-w-0 flex-1">
@@ -1429,37 +1421,29 @@ export const RemixStudio: React.FC = () => {
                         </div>
                       </div>
 
-                      {/* Nút Tải Ảnh Lên Thủ Công cho sản phẩm mới */}
-                      {isUploadable && (
-                        <div className="mt-2.5 pt-2 border-t border-white/10 flex items-center gap-1.5" onClick={e => e.stopPropagation()}>
-                          <label 
-                            className={`flex-1 py-1.5 px-2 rounded-lg text-[11px] font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-all shadow-sm ${
-                              hasCustomImg
-                                ? 'bg-emerald-950/60 hover:bg-emerald-900/70 text-emerald-300 border border-emerald-500/50'
-                                : 'bg-[#c5a059]/20 hover:bg-[#c5a059]/30 text-[#e5c365] border border-[#c5a059]/50 hover:border-[#e5c365]'
+                      {/* Nút Tải ảnh lên cho sản phẩm mới */}
+                      {UPLOADABLE_PRODUCT_IDS.has(item.id) && (
+                        <div className="mt-2.5 pt-2 border-t border-white/10 flex items-center justify-between gap-1.5" onClick={(e) => e.stopPropagation()}>
+                          <button
+                            type="button"
+                            onClick={() => triggerItemImageUpload(item.id)}
+                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all shadow-sm ${
+                              customItemImages[item.id]
+                                ? 'bg-emerald-950/50 hover:bg-emerald-900/70 text-emerald-300 border border-emerald-500/40'
+                                : 'bg-[#c5a059]/20 hover:bg-[#c5a059]/35 text-[#e5c365] border border-[#c5a059]/40 hover:border-[#c5a059]'
                             }`}
-                            title="Tải ảnh cúc áo thủ công từ máy tính của bạn"
                           >
-                            <Upload className="w-3 h-3 shrink-0" />
-                            <span>{hasCustomImg ? 'Đổi ảnh thủ công' : 'Tải ảnh lên'}</span>
-                            <input 
-                              type="file" 
-                              accept="image/*" 
-                              className="hidden" 
-                              onChange={(e) => {
-                                const file = e.target.files?.[0];
-                                if (file) handleUploadItemImage(item.id, file);
-                              }} 
-                            />
-                          </label>
-                          {hasCustomImg && (
+                            <Upload className="w-3 h-3" />
+                            <span>{customItemImages[item.id] ? 'Đổi ảnh đã tải' : 'Tải ảnh lên'}</span>
+                          </button>
+                          {customItemImages[item.id] && (
                             <button
                               type="button"
                               onClick={() => handleResetItemImage(item.id)}
-                              className="p-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-rose-300 border border-stone-600/40"
+                              className="px-2 py-1 rounded-lg bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 border border-rose-500/30 text-[10px] font-medium"
                               title="Khôi phục ảnh mặc định"
                             >
-                              <RotateCcw className="w-3 h-3" />
+                              Gỡ
                             </button>
                           )}
                         </div>
@@ -1505,8 +1489,6 @@ export const RemixStudio: React.FC = () => {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {bottomOptions.map(item => {
                   const isSelected = selectedBottomId === item.id;
-                  const isUploadable = isUploadableItem(item.id);
-                  const hasCustomImg = Boolean(customItemImages[item.id]);
                   const imgSrc = getItemImageUrl(item.id, item.thumbnailUrl);
 
                   return (
@@ -1516,7 +1498,7 @@ export const RemixStudio: React.FC = () => {
                         setSelectedBottomId(item.id);
                         playFabricRustleSound();
                       }}
-                      className={`rounded-xl border overflow-hidden text-left transition-all cursor-pointer flex flex-col justify-between relative group ${
+                      className={`rounded-xl border overflow-hidden text-left transition-all cursor-pointer flex flex-col relative group ${
                         isSelected
                           ? 'bg-[#1b1b24] border-[#c5a059] shadow-md ring-1 ring-[#c5a059]'
                           : 'bg-[#101014] border-[#22222a] hover:border-[#383848]'
@@ -1524,6 +1506,12 @@ export const RemixStudio: React.FC = () => {
                     >
                       {/* Fixed Thumbnail Image */}
                       <div className="h-28 w-full relative overflow-hidden bg-black/40">
+                        {customItemImages[item.id] && (
+                          <div className="absolute top-2 left-2 bg-[#c5a059] text-stone-950 text-[9px] font-bold px-1.5 py-0.5 rounded shadow z-10 flex items-center gap-1">
+                            <Sparkles className="w-2.5 h-2.5" />
+                            <span>Ảnh riêng</span>
+                          </div>
+                        )}
                         <img 
                           src={imgSrc} 
                           alt={item.name} 
@@ -1535,13 +1523,8 @@ export const RemixStudio: React.FC = () => {
                           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                         />
                         {isSelected && (
-                          <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-[#c5a059] text-stone-950 flex items-center justify-center font-bold text-xs shadow z-10">
+                          <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-[#c5a059] text-stone-950 flex items-center justify-center font-bold text-xs shadow">
                             ✓
-                          </div>
-                        )}
-                        {hasCustomImg && (
-                          <div className="absolute top-2 left-2 px-1.5 py-0.5 rounded bg-emerald-600/90 text-white font-bold text-[9px] shadow flex items-center gap-1 z-10">
-                            <span>📸 Ảnh bạn</span>
                           </div>
                         )}
                       </div>
@@ -1554,38 +1537,28 @@ export const RemixStudio: React.FC = () => {
                             {item.description}
                           </p>
                         </div>
-
-                        {/* Nút Tải Ảnh Lên Thủ Công cho sản phẩm mới */}
-                        {isUploadable && (
-                          <div className="mt-2.5 pt-2 border-t border-white/10 flex items-center gap-1.5" onClick={e => e.stopPropagation()}>
-                            <label 
-                              className={`flex-1 py-1.5 px-2 rounded-lg text-[11px] font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-all shadow-sm ${
-                                hasCustomImg
-                                  ? 'bg-emerald-950/60 hover:bg-emerald-900/70 text-emerald-300 border border-emerald-500/50'
-                                  : 'bg-[#c5a059]/20 hover:bg-[#c5a059]/30 text-[#e5c365] border border-[#c5a059]/50 hover:border-[#e5c365]'
+                        {UPLOADABLE_PRODUCT_IDS.has(item.id) && (
+                          <div className="pt-2 mt-1 border-t border-white/10 flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+                            <button
+                              type="button"
+                              onClick={() => triggerItemImageUpload(item.id)}
+                              className={`flex-1 inline-flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-[11px] font-semibold transition-all shadow-sm ${
+                                customItemImages[item.id]
+                                  ? 'bg-emerald-950/50 hover:bg-emerald-900/70 text-emerald-300 border border-emerald-500/40'
+                                  : 'bg-[#c5a059]/20 hover:bg-[#c5a059]/35 text-[#e5c365] border border-[#c5a059]/40 hover:border-[#c5a059]'
                               }`}
-                              title="Tải ảnh Quần Ống Sớ Lụa thủ công từ máy tính"
                             >
-                              <Upload className="w-3.5 h-3.5 shrink-0" />
-                              <span>{hasCustomImg ? 'Đổi ảnh' : 'Tải ảnh lên'}</span>
-                              <input 
-                                type="file" 
-                                accept="image/*" 
-                                className="hidden" 
-                                onChange={(e) => {
-                                  const file = e.target.files?.[0];
-                                  if (file) handleUploadItemImage(item.id, file);
-                                }} 
-                              />
-                            </label>
-                            {hasCustomImg && (
+                              <Upload className="w-3 h-3" />
+                              <span>{customItemImages[item.id] ? 'Đổi ảnh đã tải' : 'Tải ảnh lên'}</span>
+                            </button>
+                            {customItemImages[item.id] && (
                               <button
                                 type="button"
                                 onClick={() => handleResetItemImage(item.id)}
-                                className="p-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-rose-300 border border-stone-600/40"
+                                className="px-2 py-1.5 rounded-lg bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 border border-rose-500/30 text-[10px]"
                                 title="Khôi phục ảnh mặc định"
                               >
-                                <RotateCcw className="w-3.5 h-3.5" />
+                                Gỡ
                               </button>
                             )}
                           </div>
@@ -1608,8 +1581,6 @@ export const RemixStudio: React.FC = () => {
                 {shoesOptions.map(item => {
                   const isSelected = selectedShoesId === item.id;
                   const isSneakerClash = item.id === 'shoes-white-sneakers' && (activeGarment.id === 'ao-tac' || activeGarment.id === 'ao-nhat-binh' || activeGarment.id === 'ao-vien-linh');
-                  const isUploadable = isUploadableItem(item.id);
-                  const hasCustomImg = Boolean(customItemImages[item.id]);
                   const imgSrc = getItemImageUrl(item.id, item.thumbnailUrl);
 
                   return (
@@ -1619,7 +1590,7 @@ export const RemixStudio: React.FC = () => {
                         setSelectedShoesId(item.id);
                         playWoodClogSound();
                       }}
-                      className={`rounded-xl border overflow-hidden text-left transition-all cursor-pointer flex flex-col justify-between relative group ${
+                      className={`rounded-xl border overflow-hidden text-left transition-all cursor-pointer flex flex-col relative group ${
                         isSelected
                           ? isSneakerClash
                             ? 'bg-amber-950/40 border-amber-500 ring-1 ring-amber-500'
@@ -1629,6 +1600,12 @@ export const RemixStudio: React.FC = () => {
                     >
                       {/* Fixed Thumbnail Image */}
                       <div className="h-28 w-full relative overflow-hidden bg-black/40">
+                        {customItemImages[item.id] && (
+                          <div className="absolute top-2 left-2 bg-[#c5a059] text-stone-950 text-[9px] font-bold px-1.5 py-0.5 rounded shadow z-10 flex items-center gap-1">
+                            <Sparkles className="w-2.5 h-2.5" />
+                            <span>Ảnh riêng</span>
+                          </div>
+                        )}
                         <img 
                           src={imgSrc} 
                           alt={item.name} 
@@ -1640,17 +1617,12 @@ export const RemixStudio: React.FC = () => {
                           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                         />
                         {isSelected && (
-                          <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-[#c5a059] text-stone-950 flex items-center justify-center font-bold text-xs shadow z-10">
+                          <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-[#c5a059] text-stone-950 flex items-center justify-center font-bold text-xs shadow">
                             ✓
                           </div>
                         )}
-                        {hasCustomImg && (
-                          <div className="absolute top-2 left-2 px-1.5 py-0.5 rounded bg-emerald-600/90 text-white font-bold text-[9px] shadow flex items-center gap-1 z-10">
-                            <span>📸 Ảnh bạn</span>
-                          </div>
-                        )}
                         {isSneakerClash && (
-                          <div className="absolute bottom-2 left-2 right-2 bg-amber-950/90 text-amber-200 border border-amber-500/50 text-[10px] px-1.5 py-0.5 rounded font-semibold text-center z-10">
+                          <div className="absolute bottom-2 left-2 right-2 bg-amber-950/90 text-amber-200 border border-amber-500/50 text-[10px] px-1.5 py-0.5 rounded font-semibold text-center">
                             ⚠️ Cân nhắc lễ phục
                           </div>
                         )}
@@ -1664,38 +1636,28 @@ export const RemixStudio: React.FC = () => {
                             {item.description}
                           </p>
                         </div>
-
-                        {/* Nút Tải Ảnh Lên Thủ Công cho sản phẩm mới */}
-                        {isUploadable && (
-                          <div className="mt-2.5 pt-2 border-t border-white/10 flex items-center gap-1.5" onClick={e => e.stopPropagation()}>
-                            <label 
-                              className={`flex-1 py-1.5 px-2 rounded-lg text-[11px] font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-all shadow-sm ${
-                                hasCustomImg
-                                  ? 'bg-emerald-950/60 hover:bg-emerald-900/70 text-emerald-300 border border-emerald-500/50'
-                                  : 'bg-[#c5a059]/20 hover:bg-[#c5a059]/30 text-[#e5c365] border border-[#c5a059]/50 hover:border-[#e5c365]'
+                        {UPLOADABLE_PRODUCT_IDS.has(item.id) && (
+                          <div className="pt-2 mt-1 border-t border-white/10 flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+                            <button
+                              type="button"
+                              onClick={() => triggerItemImageUpload(item.id)}
+                              className={`flex-1 inline-flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-[11px] font-semibold transition-all shadow-sm ${
+                                customItemImages[item.id]
+                                  ? 'bg-emerald-950/50 hover:bg-emerald-900/70 text-emerald-300 border border-emerald-500/40'
+                                  : 'bg-[#c5a059]/20 hover:bg-[#c5a059]/35 text-[#e5c365] border border-[#c5a059]/40 hover:border-[#c5a059]'
                               }`}
-                              title="Tải ảnh Chunky Loafers thủ công từ máy tính"
                             >
-                              <Upload className="w-3.5 h-3.5 shrink-0" />
-                              <span>{hasCustomImg ? 'Đổi ảnh' : 'Tải ảnh lên'}</span>
-                              <input 
-                                type="file" 
-                                accept="image/*" 
-                                className="hidden" 
-                                onChange={(e) => {
-                                  const file = e.target.files?.[0];
-                                  if (file) handleUploadItemImage(item.id, file);
-                                }} 
-                              />
-                            </label>
-                            {hasCustomImg && (
+                              <Upload className="w-3 h-3" />
+                              <span>{customItemImages[item.id] ? 'Đổi ảnh đã tải' : 'Tải ảnh lên'}</span>
+                            </button>
+                            {customItemImages[item.id] && (
                               <button
                                 type="button"
                                 onClick={() => handleResetItemImage(item.id)}
-                                className="p-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-rose-300 border border-stone-600/40"
+                                className="px-2 py-1.5 rounded-lg bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 border border-rose-500/30 text-[10px]"
                                 title="Khôi phục ảnh mặc định"
                               >
-                                <RotateCcw className="w-3.5 h-3.5" />
+                                Gỡ
                               </button>
                             )}
                           </div>
@@ -1718,8 +1680,6 @@ export const RemixStudio: React.FC = () => {
                 {accessoryOptions.map(item => {
                   const isSelected = selectedAccessoryId === item.id;
                   const isSmartwatch = item.id === 'acc-smartwatch';
-                  const isUploadable = isUploadableItem(item.id);
-                  const hasCustomImg = Boolean(customItemImages[item.id]);
                   const imgSrc = getItemImageUrl(item.id, item.thumbnailUrl);
 
                   return (
@@ -1729,7 +1689,7 @@ export const RemixStudio: React.FC = () => {
                         setSelectedAccessoryId(item.id);
                         playFanFlutterSound();
                       }}
-                      className={`rounded-xl border overflow-hidden text-left transition-all cursor-pointer flex flex-col justify-between relative group ${
+                      className={`rounded-xl border overflow-hidden text-left transition-all cursor-pointer flex flex-col relative group ${
                         isSelected
                           ? isSmartwatch
                             ? 'bg-rose-950/40 border-rose-500 ring-1 ring-rose-500'
@@ -1739,6 +1699,12 @@ export const RemixStudio: React.FC = () => {
                     >
                       {/* Fixed Thumbnail Image */}
                       <div className="h-24 w-full relative overflow-hidden bg-black/40">
+                        {customItemImages[item.id] && (
+                          <div className="absolute top-1.5 left-1.5 bg-[#c5a059] text-stone-950 text-[9px] font-bold px-1.5 py-0.5 rounded shadow z-10 flex items-center gap-1">
+                            <Sparkles className="w-2.5 h-2.5" />
+                            <span>Ảnh riêng</span>
+                          </div>
+                        )}
                         <img 
                           src={imgSrc} 
                           alt={item.name} 
@@ -1748,16 +1714,11 @@ export const RemixStudio: React.FC = () => {
                             if (item.id === 'acc-jade-pendant' || item.id === 'acc-kieng-bac') e.currentTarget.src = '/13.png';
                             if (item.id === 'acc-smartwatch') e.currentTarget.src = '/14.png';
                           }}
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
                         />
                         {isSelected && (
                           <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-[#c5a059] text-stone-950 flex items-center justify-center font-bold text-xs shadow z-10">
                             ✓
-                          </div>
-                        )}
-                        {hasCustomImg && (
-                          <div className="absolute top-2 left-2 px-1 py-0.5 rounded bg-emerald-600/90 text-white font-bold text-[8px] shadow flex items-center gap-0.5 z-10">
-                            <span>📸 Tự tải</span>
                           </div>
                         )}
                       </div>
@@ -1772,38 +1733,28 @@ export const RemixStudio: React.FC = () => {
                             {item.description}
                           </p>
                         </div>
-
-                        {/* Nút Tải Ảnh Lên Thủ Công cho sản phẩm mới */}
-                        {isUploadable && (
-                          <div className="mt-2 pt-1.5 border-t border-white/10 flex items-center gap-1" onClick={e => e.stopPropagation()}>
-                            <label 
-                              className={`flex-1 py-1 px-1.5 rounded-lg text-[10px] font-bold flex items-center justify-center gap-1 cursor-pointer transition-all shadow-sm ${
-                                hasCustomImg
-                                  ? 'bg-emerald-950/60 hover:bg-emerald-900/70 text-emerald-300 border border-emerald-500/50'
-                                  : 'bg-[#c5a059]/20 hover:bg-[#c5a059]/30 text-[#e5c365] border border-[#c5a059]/50 hover:border-[#e5c365]'
+                        {UPLOADABLE_PRODUCT_IDS.has(item.id) && (
+                          <div className="pt-2 mt-1 border-t border-white/10 flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                            <button
+                              type="button"
+                              onClick={() => triggerItemImageUpload(item.id)}
+                              className={`flex-1 inline-flex items-center justify-center gap-1 px-1.5 py-1 rounded-lg text-[10px] font-semibold transition-all shadow-sm ${
+                                customItemImages[item.id]
+                                  ? 'bg-emerald-950/50 hover:bg-emerald-900/70 text-emerald-300 border border-emerald-500/40'
+                                  : 'bg-[#c5a059]/20 hover:bg-[#c5a059]/35 text-[#e5c365] border border-[#c5a059]/40 hover:border-[#c5a059]'
                               }`}
-                              title={`Tải ảnh ${item.name} thủ công từ máy tính`}
                             >
-                              <Upload className="w-3 h-3 shrink-0" />
-                              <span className="truncate">{hasCustomImg ? 'Đổi ảnh' : 'Tải ảnh lên'}</span>
-                              <input 
-                                type="file" 
-                                accept="image/*" 
-                                className="hidden" 
-                                onChange={(e) => {
-                                  const file = e.target.files?.[0];
-                                  if (file) handleUploadItemImage(item.id, file);
-                                }} 
-                              />
-                            </label>
-                            {hasCustomImg && (
+                              <Upload className="w-2.5 h-2.5 shrink-0" />
+                              <span className="truncate">{customItemImages[item.id] ? 'Đổi ảnh' : 'Tải ảnh lên'}</span>
+                            </button>
+                            {customItemImages[item.id] && (
                               <button
                                 type="button"
                                 onClick={() => handleResetItemImage(item.id)}
-                                className="p-1 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-rose-300 border border-stone-600/40 shrink-0"
+                                className="px-1.5 py-1 rounded-lg bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 border border-rose-500/30 text-[9px] shrink-0"
                                 title="Khôi phục ảnh mặc định"
                               >
-                                <RotateCcw className="w-3 h-3" />
+                                Gỡ
                               </button>
                             )}
                           </div>
@@ -1875,10 +1826,26 @@ export const RemixStudio: React.FC = () => {
             activeGarment={activeGarment}
             activeColor={activeColor}
             selectedColorHex={selectedColorHex}
-            activeButtonItem={activeButtonItem}
-            activeBottomItem={activeBottomItem}
-            activeShoesItem={activeShoesItem}
-            activeAccessoryItem={activeAccessoryItem}
+            activeButtonItem={{
+              ...activeButtonItem,
+              thumbnailUrl: getItemImageUrl(activeButtonItem.id, activeButtonItem.thumbnailUrl),
+              canvas2dUrl: getItemImageUrl(activeButtonItem.id, activeButtonItem.canvas2dUrl || activeButtonItem.thumbnailUrl)
+            }}
+            activeBottomItem={{
+              ...activeBottomItem,
+              thumbnailUrl: getItemImageUrl(activeBottomItem.id, activeBottomItem.thumbnailUrl),
+              canvas2dUrl: getItemImageUrl(activeBottomItem.id, activeBottomItem.canvas2dUrl || activeBottomItem.thumbnailUrl)
+            }}
+            activeShoesItem={{
+              ...activeShoesItem,
+              thumbnailUrl: getItemImageUrl(activeShoesItem.id, activeShoesItem.thumbnailUrl),
+              canvas2dUrl: getItemImageUrl(activeShoesItem.id, activeShoesItem.canvas2dUrl || activeShoesItem.thumbnailUrl)
+            }}
+            activeAccessoryItem={{
+              ...activeAccessoryItem,
+              thumbnailUrl: getItemImageUrl(activeAccessoryItem.id, activeAccessoryItem.thumbnailUrl),
+              canvas2dUrl: getItemImageUrl(activeAccessoryItem.id, activeAccessoryItem.canvas2dUrl || activeAccessoryItem.thumbnailUrl)
+            }}
             hasDonY={selectedLayerId === 'layer-don-y-white'}
             uploadedImage={uploadedImage}
             isChineseButtonSelected={isChineseButtonSelected}
@@ -2252,51 +2219,39 @@ export const RemixStudio: React.FC = () => {
         </div>
       )}
 
-      {/* Toast thông báo tải ảnh thủ công thành công */}
-      {uploadToastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 bg-[#161622]/95 border border-[#c5a059] text-[#f5f2eb] px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3 animate-fadeIn backdrop-blur-xl ring-1 ring-[#c5a059]/40">
-          <div className="w-8 h-8 rounded-full bg-[#c5a059]/20 text-[#e5c365] flex items-center justify-center shrink-0 border border-[#c5a059]/30">
-            <Check className="w-4 h-4" />
-          </div>
-          <div className="text-xs">
-            <div className="font-bold text-[#e5c365]">Thao tác thành công!</div>
-            <div className="text-stone-300 mt-0.5">{uploadToastMessage}</div>
-          </div>
-        </div>
-      )}
+      {/* Hidden file input for manual item image upload */}
+      <input
+        type="file"
+        ref={itemFileInputRef}
+        onChange={handleItemImageUploadChange}
+        accept="image/*"
+        className="hidden"
+      />
 
-      {/* Modal Quản lý toàn bộ ảnh tùy chỉnh */}
-      {isCustomImageModalOpen && (
-        <CustomImageManagerModal
-          isOpen={isCustomImageModalOpen}
-          onClose={() => setIsCustomImageModalOpen(false)}
-          customImages={customItemImages}
-          onUpdateImage={(itemId, dataUrl) => {
-            setCustomItemImages(prev => {
-              const updated = { ...prev, [itemId]: dataUrl };
-              try {
-                localStorage.setItem('heritstyle_custom_item_images', JSON.stringify(updated));
-              } catch (err) {
-                console.warn(err);
-              }
-              return updated;
-            });
-            setUploadToastMessage('Đã cập nhật ảnh thành công!');
-            setTimeout(() => setUploadToastMessage(null), 3000);
-          }}
-          onResetImage={(itemId) => handleResetItemImage(itemId)}
-          onResetAll={() => {
-            setCustomItemImages({});
-            try {
-              localStorage.removeItem('heritstyle_custom_item_images');
-            } catch (err) {
-              console.warn(err);
-            }
-            setUploadToastMessage('Đã khôi phục toàn bộ ảnh mặc định.');
-            setTimeout(() => setUploadToastMessage(null), 3000);
-          }}
-        />
-      )}
+      {/* Full Modal for Custom Image Management */}
+      <CustomImageManagerModal
+        isOpen={isCustomImageModalOpen}
+        onClose={() => setIsCustomImageModalOpen(false)}
+        customImages={customItemImages}
+        onUpdateImage={(itemId, dataUrl) => {
+          const updated = { ...customItemImages, [itemId]: dataUrl };
+          setCustomItemImages(updated);
+          try {
+            localStorage.setItem('vietphuc_custom_item_images', JSON.stringify(updated));
+          } catch (err) {
+            console.warn('Could not save to localStorage', err);
+          }
+        }}
+        onResetImage={handleResetItemImage}
+        onResetAll={() => {
+          setCustomItemImages({});
+          try {
+            localStorage.removeItem('vietphuc_custom_item_images');
+          } catch (err) {
+            console.warn('Could not clear localStorage', err);
+          }
+        }}
+      />
 
     </div>
   );
