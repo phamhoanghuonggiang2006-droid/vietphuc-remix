@@ -32,7 +32,8 @@ import {
   playGarmentSelectSound,
   playFabricRustleSound,
   playWoodClogSound,
-  playColorPickSound
+  playColorPickSound,
+  playTabooDenialSound
 } from '../utils/soundEffects';
 import { 
   Sparkles, 
@@ -637,7 +638,11 @@ export const RemixStudio: React.FC = () => {
                     key={col.hex}
                     onClick={() => {
                       setSelectedColorHex(col.hex);
-                      playColorPickSound();
+                      if (col.isImperialRestricted) {
+                        playTabooDenialSound();
+                      } else {
+                        playColorPickSound();
+                      }
                     }}
                     className={`p-2.5 rounded-xl border text-left flex items-start gap-2.5 transition-all relative cursor-pointer ${
                       isSelected
@@ -696,7 +701,11 @@ export const RemixStudio: React.FC = () => {
                     key={item.id}
                     onClick={() => {
                       setSelectedLayerId(item.id);
-                      playFabricRustleSound();
+                      if (!item.isCulturallyRespectful) {
+                        playTabooDenialSound();
+                      } else {
+                        playFabricRustleSound();
+                      }
                     }}
                     className={`p-4 rounded-xl border text-left text-xs transition-all cursor-pointer flex flex-col justify-between ${
                       selectedLayerId === item.id
@@ -747,7 +756,11 @@ export const RemixStudio: React.FC = () => {
                       key={item.id}
                       onClick={() => {
                         setSelectedButtonId(item.id);
-                        playButtonClinkSound();
+                        if (item.id === 'btn-chinese-cloth') {
+                          playTabooDenialSound();
+                        } else {
+                          playButtonClinkSound();
+                        }
                       }}
                       className={`p-3 rounded-xl border text-left text-xs transition-all cursor-pointer flex gap-3 relative group ${
                         isSelected

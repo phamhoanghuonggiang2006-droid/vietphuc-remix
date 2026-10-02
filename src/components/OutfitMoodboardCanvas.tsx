@@ -5,6 +5,13 @@ import {
   ModernRemixItem 
 } from '../data/heritageData';
 import { RobeVisualizer } from './RobeVisualizer';
+import {
+  playBellTingSound,
+  playCourtBrassSound,
+  playHueFluteSound,
+  playHoiAnPianoFaSound,
+  playThangLongUkuleleSound
+} from '../utils/soundEffects';
 import { 
   Eye, 
   Layers, 
@@ -95,7 +102,7 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
     },
     {
       id: 'thanglong' as HeritageBackground,
-      name: 'Thăng Long',
+      name: 'Thành Thăng Long',
       icon: '🏛️',
       badge: 'Đoan Môn'
     },
@@ -775,8 +782,11 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
         <div className="flex items-center bg-[#0d0d12] p-1 rounded-xl border border-[#262635]">
           <button
             type="button"
-            onClick={() => setViewMode('mannequin')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${
+            onClick={() => {
+              setViewMode('mannequin');
+              playBellTingSound();
+            }}
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer ${
               viewMode === 'mannequin'
                 ? 'bg-[#c5a059] text-[#0d0d12] font-bold shadow-md'
                 : 'text-stone-400 hover:text-stone-200'
@@ -786,8 +796,11 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
           </button>
           <button
             type="button"
-            onClick={() => setViewMode('editorial')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${
+            onClick={() => {
+              setViewMode('editorial');
+              playBellTingSound();
+            }}
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer ${
               viewMode === 'editorial'
                 ? 'bg-[#c5a059] text-[#0d0d12] font-bold shadow-md'
                 : 'text-stone-400 hover:text-stone-200'
@@ -797,8 +810,11 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
           </button>
           <button
             type="button"
-            onClick={() => setViewMode('breakdown')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${
+            onClick={() => {
+              setViewMode('breakdown');
+              playBellTingSound();
+            }}
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer ${
               viewMode === 'breakdown'
                 ? 'bg-[#c5a059] text-[#0d0d12] font-bold shadow-md'
                 : 'text-stone-400 hover:text-stone-200'
@@ -819,8 +835,19 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
             <button
               key={bg.id}
               type="button"
-              onClick={() => setSelectedBg(bg.id)}
-              className={`px-2.5 py-1 rounded-lg text-[11px] font-medium transition-all flex items-center gap-1.5 border ${
+              onClick={() => {
+                setSelectedBg(bg.id);
+                if (bg.id === 'studio') {
+                  playCourtBrassSound();
+                } else if (bg.id === 'hue') {
+                  playHueFluteSound();
+                } else if (bg.id === 'hoian') {
+                  playHoiAnPianoFaSound();
+                } else if (bg.id === 'thanglong') {
+                  playThangLongUkuleleSound();
+                }
+              }}
+              className={`px-2.5 py-1 rounded-lg text-[11px] font-medium transition-all flex items-center gap-1.5 border cursor-pointer ${
                 selectedBg === bg.id
                   ? 'bg-[#c5a059]/20 border-[#c5a059] text-[#e5c365] font-bold shadow-sm'
                   : 'bg-[#14141c] border-white/5 text-stone-400 hover:text-stone-200 hover:border-white/10'

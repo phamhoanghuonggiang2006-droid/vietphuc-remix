@@ -396,3 +396,336 @@ export function playColorPickSound(): void {
   osc.start(now);
   osc.stop(now + 0.29);
 }
+
+/**
+ * 8. ÂM THANH "NO!" CẢNH BÁO TABOOS (Vàng Minh Hoàng, Không Mặc Đơn Y, Cúc Vải/Cúc Tàu)
+ * Âm thanh cảnh báo dứt khoát, mô phỏng khẩu âm "NO!" điện tử / denial buzzer
+ */
+export function playTabooDenialSound(): void {
+  if (isMutedState) return;
+  const ctx = getAudioContext();
+  if (!ctx) return;
+
+  const now = ctx.currentTime;
+
+  // 1. Dual descending square/sawtooth oscillators for denial urgency
+  const osc1 = ctx.createOscillator();
+  const osc2 = ctx.createOscillator();
+
+  osc1.type = 'sawtooth';
+  osc2.type = 'square';
+
+  // Pitch sweep down imitating the "NO!" syllable (inflection)
+  osc1.frequency.setValueAtTime(260, now);
+  osc1.frequency.exponentialRampToValueAtTime(140, now + 0.22);
+
+  osc2.frequency.setValueAtTime(180, now);
+  osc2.frequency.exponentialRampToValueAtTime(95, now + 0.22);
+
+  // Formant Filter to shape the "Oh" vocal resonance
+  const formant = ctx.createBiquadFilter();
+  formant.type = 'bandpass';
+  formant.frequency.setValueAtTime(620, now);
+  formant.Q.setValueAtTime(3.2, now);
+
+  const gain = ctx.createGain();
+  gain.gain.setValueAtTime(0.0001, now);
+  // Initial "N-" consonant attack
+  gain.gain.linearRampToValueAtTime(0.08, now + 0.02);
+  // Full "-O!" vowel burst
+  gain.gain.linearRampToValueAtTime(0.24, now + 0.05);
+  // Rapid decay
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.24);
+
+  osc1.connect(formant);
+  osc2.connect(formant);
+  formant.connect(gain);
+  gain.connect(ctx.destination);
+
+  osc1.start(now);
+  osc2.start(now);
+  osc1.stop(now + 0.25);
+  osc2.stop(now + 0.25);
+}
+
+/**
+ * 9. ÂM THANH "TING!" CỦA CHUÔNG (Mục "Toàn Thân", "Moodboard", "Chi Tiết 2D")
+ * Tiếng chuông gió / khánh đồng trong vắt khi chuyển view mode
+ */
+export function playBellTingSound(): void {
+  if (isMutedState) return;
+  const ctx = getAudioContext();
+  if (!ctx) return;
+
+  const now = ctx.currentTime;
+  const f0 = 1174.66; // D6
+
+  const osc1 = ctx.createOscillator();
+  osc1.type = 'sine';
+  osc1.frequency.setValueAtTime(f0, now);
+
+  const osc2 = ctx.createOscillator();
+  osc2.type = 'sine';
+  osc2.frequency.setValueAtTime(f0 * 2.76, now); // Metallic chime partial
+
+  const gain1 = ctx.createGain();
+  gain1.gain.setValueAtTime(0.0001, now);
+  gain1.gain.linearRampToValueAtTime(0.18, now + 0.002);
+  gain1.gain.exponentialRampToValueAtTime(0.0001, now + 0.55);
+
+  const gain2 = ctx.createGain();
+  gain2.gain.setValueAtTime(0.0001, now);
+  gain2.gain.linearRampToValueAtTime(0.08, now + 0.002);
+  gain2.gain.exponentialRampToValueAtTime(0.0001, now + 0.32);
+
+  osc1.connect(gain1);
+  osc2.connect(gain2);
+  gain1.connect(ctx.destination);
+  gain2.connect(ctx.destination);
+
+  osc1.start(now);
+  osc2.start(now);
+  osc1.stop(now + 0.56);
+  osc2.stop(now + 0.56);
+}
+
+/**
+ * 10. ÂM THANH "TOE TOE" CỦA KÈN ĐỒNG ("Studio Cung Đình")
+ * 2 nốt kèn staccato oai nghiêm, rộn rã cung đình hoàng gia
+ */
+export function playCourtBrassSound(): void {
+  if (isMutedState) return;
+  const ctx = getAudioContext();
+  if (!ctx) return;
+
+  const now = ctx.currentTime;
+
+  // Note 1: "Toe" (Bb4 = 466.16Hz)
+  const osc1 = ctx.createOscillator();
+  osc1.type = 'sawtooth';
+  osc1.frequency.setValueAtTime(466.16, now);
+
+  const filter1 = ctx.createBiquadFilter();
+  filter1.type = 'lowpass';
+  filter1.frequency.setValueAtTime(700, now);
+  filter1.frequency.exponentialRampToValueAtTime(2600, now + 0.03);
+  filter1.frequency.exponentialRampToValueAtTime(900, now + 0.11);
+
+  const gain1 = ctx.createGain();
+  gain1.gain.setValueAtTime(0.0001, now);
+  gain1.gain.linearRampToValueAtTime(0.16, now + 0.015);
+  gain1.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
+
+  osc1.connect(filter1);
+  filter1.connect(gain1);
+  gain1.connect(ctx.destination);
+
+  osc1.start(now);
+  osc1.stop(now + 0.13);
+
+  // Note 2: "Toe!" (F5 = 698.46Hz) - sounding immediately after
+  const t2 = now + 0.12;
+  const osc2 = ctx.createOscillator();
+  osc2.type = 'sawtooth';
+  osc2.frequency.setValueAtTime(698.46, t2);
+
+  const filter2 = ctx.createBiquadFilter();
+  filter2.type = 'lowpass';
+  filter2.frequency.setValueAtTime(800, t2);
+  filter2.frequency.exponentialRampToValueAtTime(3200, t2 + 0.04);
+  filter2.frequency.exponentialRampToValueAtTime(1000, t2 + 0.24);
+
+  const gain2 = ctx.createGain();
+  gain2.gain.setValueAtTime(0.0001, t2);
+  gain2.gain.linearRampToValueAtTime(0.2, t2 + 0.02);
+  gain2.gain.exponentialRampToValueAtTime(0.0001, t2 + 0.25);
+
+  osc2.connect(filter2);
+  filter2.connect(gain2);
+  gain2.connect(ctx.destination);
+
+  osc2.start(t2);
+  osc2.stop(t2 + 0.26);
+}
+
+/**
+ * 11. ÂM THANH "VÉO VON" CỦA NHẠC CỤ TIÊU - SÁO ("Cố Đô Huế")
+ * Sáo trúc luyến láy mượt mà, ngân vang tha thiết sông Hương núi Ngự
+ */
+export function playHueFluteSound(): void {
+  if (isMutedState) return;
+  const ctx = getAudioContext();
+  if (!ctx) return;
+
+  const now = ctx.currentTime;
+  const duration = 0.65;
+
+  // Sine oscillator with portamento/pitch inflection (E5 -> G5 -> A5)
+  const osc = ctx.createOscillator();
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(659.25, now); // E5
+  osc.frequency.exponentialRampToValueAtTime(783.99, now + 0.15); // Lượn lên G5
+  osc.frequency.exponentialRampToValueAtTime(880.0, now + 0.32); // Ngân ở A5
+
+  // Vibrato LFO (5.5Hz) adding soulful vibrato at tail
+  const lfo = ctx.createOscillator();
+  const lfoGain = ctx.createGain();
+  lfo.frequency.setValueAtTime(5.5, now);
+  lfoGain.gain.setValueAtTime(0.0001, now);
+  lfoGain.gain.linearRampToValueAtTime(12, now + 0.25); // 12Hz pitch vibrato
+  lfo.connect(lfoGain);
+  lfoGain.connect(osc.frequency);
+
+  // Breathy noise component (tiếng hơi qua lỗ sáo)
+  const noiseBuf = createNoiseBuffer(ctx, duration);
+  const noise = ctx.createBufferSource();
+  noise.buffer = noiseBuf;
+
+  const noiseFilter = ctx.createBiquadFilter();
+  noiseFilter.type = 'bandpass';
+  noiseFilter.frequency.setValueAtTime(1600, now);
+  noiseFilter.Q.setValueAtTime(3.0, now);
+
+  const noiseGain = ctx.createGain();
+  noiseGain.gain.setValueAtTime(0.0001, now);
+  noiseGain.gain.linearRampToValueAtTime(0.025, now + 0.05);
+  noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+  noise.connect(noiseFilter);
+  noiseFilter.connect(noiseGain);
+  noiseGain.connect(ctx.destination);
+
+  // Main Tone Envelope
+  const mainGain = ctx.createGain();
+  mainGain.gain.setValueAtTime(0.0001, now);
+  mainGain.gain.linearRampToValueAtTime(0.18, now + 0.06);
+  mainGain.gain.exponentialRampToValueAtTime(0.09, now + 0.35);
+  mainGain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+  osc.connect(mainGain);
+  mainGain.connect(ctx.destination);
+
+  lfo.start(now);
+  osc.start(now);
+  noise.start(now);
+  lfo.stop(now + duration);
+  osc.stop(now + duration);
+  noise.stop(now + duration);
+}
+
+/**
+ * 12. ÂM THANH NỐT "FA" CỦA NHẠC CỤ PIANO ("Phố Cổ Hội An")
+ * Nốt Fa (F4 = 349.23Hz) trong trẻo, hoài niệm phố Hội
+ */
+export function playHoiAnPianoFaSound(): void {
+  if (isMutedState) return;
+  const ctx = getAudioContext();
+  if (!ctx) return;
+
+  const now = ctx.currentTime;
+  const f0 = 349.23; // Fa (F4)
+
+  // Piano harmonic partials
+  const partials = [
+    { freq: f0, gain: 0.18, decay: 1.1 },
+    { freq: f0 * 2, gain: 0.09, decay: 0.8 },
+    { freq: f0 * 3, gain: 0.04, decay: 0.5 },
+  ];
+
+  partials.forEach((p) => {
+    const osc = ctx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(p.freq, now);
+
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.0001, now);
+    // Instant hammer attack
+    gain.gain.linearRampToValueAtTime(p.gain, now + 0.002);
+    // Initial decay then slow release
+    gain.gain.exponentialRampToValueAtTime(p.gain * 0.45, now + 0.18);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + p.decay);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start(now);
+    osc.stop(now + p.decay + 0.02);
+  });
+
+  // Felt hammer transient click
+  const clickOsc = ctx.createOscillator();
+  clickOsc.type = 'triangle';
+  clickOsc.frequency.setValueAtTime(520, now);
+  clickOsc.frequency.exponentialRampToValueAtTime(180, now + 0.015);
+
+  const clickGain = ctx.createGain();
+  clickGain.gain.setValueAtTime(0.0001, now);
+  clickGain.gain.linearRampToValueAtTime(0.06, now + 0.001);
+  clickGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.018);
+
+  clickOsc.connect(clickGain);
+  clickGain.connect(ctx.destination);
+
+  clickOsc.start(now);
+  clickOsc.stop(now + 0.02);
+}
+
+/**
+ * 13. ÂM THANH "TƯNG TƯNG" CỦA NHẠC CỤ UKULELE ("Thành Thăng Long")
+ * 2 nốt gảy dây nylon tươi tắn, nảy giòn giã thanh lịch Thăng Long
+ */
+export function playThangLongUkuleleSound(): void {
+  if (isMutedState) return;
+  const ctx = getAudioContext();
+  if (!ctx) return;
+
+  const now = ctx.currentTime;
+
+  // Pluck 1: "Tưng" (C5 = 523.25Hz)
+  const osc1 = ctx.createOscillator();
+  osc1.type = 'triangle';
+  osc1.frequency.setValueAtTime(528, now); // Slight tension bend
+  osc1.frequency.exponentialRampToValueAtTime(523.25, now + 0.015);
+
+  const filter1 = ctx.createBiquadFilter();
+  filter1.type = 'bandpass';
+  filter1.frequency.setValueAtTime(1300, now);
+  filter1.Q.setValueAtTime(1.8, now);
+
+  const gain1 = ctx.createGain();
+  gain1.gain.setValueAtTime(0.0001, now);
+  gain1.gain.linearRampToValueAtTime(0.18, now + 0.003);
+  gain1.gain.exponentialRampToValueAtTime(0.0001, now + 0.15);
+
+  osc1.connect(filter1);
+  filter1.connect(gain1);
+  gain1.connect(ctx.destination);
+
+  osc1.start(now);
+  osc1.stop(now + 0.16);
+
+  // Pluck 2: "Tưng!" (E5 = 659.25Hz) after 110ms
+  const t2 = now + 0.11;
+  const osc2 = ctx.createOscillator();
+  osc2.type = 'triangle';
+  osc2.frequency.setValueAtTime(665, t2);
+  osc2.frequency.exponentialRampToValueAtTime(659.25, t2 + 0.015);
+
+  const filter2 = ctx.createBiquadFilter();
+  filter2.type = 'bandpass';
+  filter2.frequency.setValueAtTime(1400, t2);
+  filter2.Q.setValueAtTime(1.8, t2);
+
+  const gain2 = ctx.createGain();
+  gain2.gain.setValueAtTime(0.0001, t2);
+  gain2.gain.linearRampToValueAtTime(0.2, t2 + 0.003);
+  gain2.gain.exponentialRampToValueAtTime(0.0001, t2 + 0.28);
+
+  osc2.connect(filter2);
+  filter2.connect(gain2);
+  gain2.connect(ctx.destination);
+
+  osc2.start(t2);
+  osc2.stop(t2 + 0.29);
+}
+
