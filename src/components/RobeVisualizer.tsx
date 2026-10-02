@@ -24,46 +24,146 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
 }) => {
   // Determine button color, label and style
   const getButtonConfig = () => {
-    switch (buttonType) {
-      case 'btn-jade-green':
-        return {
-          fill: 'url(#btnJadeGreen)',
-          stroke: '#E5C365',
-          cordColor: '#10B981',
-          label: 'Cúc Ngọc (Ngọc Bích / Cẩm Thạch)',
-          isTaboo: false
-        };
-      case 'btn-wood-agarwood':
-        return {
-          fill: 'url(#btnWoodAgarwood)',
-          stroke: '#C5A059',
-          cordColor: '#D4AF37',
-          label: 'Cúc Gỗ (Trầm Hương Khắc Chữ Thọ)',
-          isTaboo: false
-        };
-      case 'btn-chinese-cloth':
-        return {
-          fill: 'url(#btnChineseCloth)',
-          stroke: '#991B1B',
-          cordColor: '#DC2626',
-          label: 'Cúc Vải / Cúc Tàu (Phạm Húy Triều Đình)',
-          isTaboo: true
-        };
-      case 'btn-metal-copper':
-      default:
-        return {
-          fill: 'url(#btnMetalCopper)',
-          stroke: '#E5C365',
-          cordColor: '#E5C365',
-          label: 'Cúc Kim Loại (Đồng Chạm Bát Bửu)',
-          isTaboo: false
-        };
+    const bType = (buttonType || '').toLowerCase();
+    if (bType.includes('jade') || bType.includes('ngoc')) {
+      return {
+        id: 'btn-jade-green',
+        fill: 'url(#btnJadeGreen)',
+        stroke: '#E5C365',
+        cordColor: '#10B981',
+        label: 'Cúc Ngọc (Ngọc Bích / Cẩm Thạch)',
+        isTaboo: false
+      };
     }
+    if (bType.includes('wood') || bType.includes('go') || bType.includes('tram')) {
+      return {
+        id: 'btn-wood-agarwood',
+        fill: 'url(#btnWoodAgarwood)',
+        stroke: '#C5A059',
+        cordColor: '#D4AF37',
+        label: 'Cúc Gỗ (Trầm Hương Khắc Chữ Thọ)',
+        isTaboo: false
+      };
+    }
+    if (bType.includes('chinese') || bType.includes('cloth') || bType.includes('vai') || bType.includes('tau')) {
+      return {
+        id: 'btn-chinese-cloth',
+        fill: 'url(#btnChineseCloth)',
+        stroke: '#991B1B',
+        cordColor: '#DC2626',
+        label: 'Cúc Vải / Cúc Tàu (Phạm Húy Triều Đình)',
+        isTaboo: true
+      };
+    }
+    return {
+      id: 'btn-metal-copper',
+      fill: 'url(#btnMetalCopper)',
+      stroke: '#E5C365',
+      cordColor: '#E5C365',
+      label: 'Cúc Kim Loại (Đồng Chạm Bát Bửu)',
+      isTaboo: false
+    };
   };
 
   const buttonConfig = getButtonConfig();
   const buttonFill = buttonConfig.fill;
   const isChineseButton = buttonConfig.isTaboo;
+
+  // Render authentic button based on selected buttonType
+  const renderAuthenticButton = (cx: number, cy: number, radius: number = 6, withCord: boolean = true) => {
+    const isChinese = buttonConfig.isTaboo;
+    const isJade = buttonConfig.id === 'btn-jade-green';
+    const isWood = buttonConfig.id === 'btn-wood-agarwood';
+
+    return (
+      <g key={`${cx}-${cy}`} filter="url(#softShadowFilter)">
+        {/* Quai Cài / Khuyết Đơm Cúc Sang 2 Bên Vạt Áo */}
+        {withCord && (
+          <g>
+            <line
+              x1={cx - radius - 5}
+              y1={cy}
+              x2={cx + radius + 5}
+              y2={cy}
+              stroke={buttonConfig.cordColor}
+              strokeWidth={radius > 7 ? 2.5 : 1.8}
+              strokeLinecap="round"
+            />
+            {/* Khuyên Kim Loại / Khuy Cài 2 Đầu */}
+            <circle cx={cx - radius - 4} cy={cy} r={radius > 7 ? 1.8 : 1.2} fill={buttonConfig.stroke} />
+            <circle cx={cx + radius + 4} cy={cy} r={radius > 7 ? 1.8 : 1.2} fill={buttonConfig.stroke} />
+          </g>
+        )}
+
+        {isChinese ? (
+          // Cúc Vải / Cúc Tàu (Phạm Húy Triều Đình) - Cúc bện đỏ kiểu sườn xám
+          <g>
+            <circle cx={cx} cy={cy} r={radius} fill="url(#btnChineseCloth)" stroke="#7F1D1D" strokeWidth="1.5" />
+            <line x1={cx - radius * 0.6} y1={cy - radius * 0.6} x2={cx + radius * 0.6} y2={cy + radius * 0.6} stroke="#FFFFFF" strokeWidth="1.3" strokeLinecap="round" />
+            <line x1={cx + radius * 0.6} y1={cy - radius * 0.6} x2={cx - radius * 0.6} y2={cy + radius * 0.6} stroke="#FFFFFF" strokeWidth="1.3" strokeLinecap="round" />
+            <circle cx={cx} cy={cy} r={radius * 0.3} fill="#991B1B" />
+          </g>
+        ) : isJade ? (
+          // Cúc Ngọc (Ngọc Bích / Cẩm Thạch Xanh Quý Phái Bọc Vàng Hoàng Cung)
+          <g>
+            {/* Vành Khảm Vàng Hoàng Cung */}
+            <circle cx={cx} cy={cy} r={radius} fill="#E5C365" stroke="#C5A059" strokeWidth="1" />
+            {/* Lõi Ngọc Cẩm Thạch Xanh */}
+            <circle cx={cx} cy={cy} r={radius * 0.85} fill="url(#btnJadeGreen)" stroke="#064E3B" strokeWidth="0.8" />
+            {/* Vệt Phản Quang Ngọc Bích Sáng Bóng */}
+            <ellipse
+              cx={cx - radius * 0.28}
+              cy={cy - radius * 0.28}
+              rx={radius * 0.38}
+              ry={radius * 0.22}
+              transform={`rotate(-35 ${cx - radius * 0.28} ${cy - radius * 0.28})`}
+              fill="#FFFFFF"
+              opacity="0.85"
+            />
+            <circle cx={cx + radius * 0.25} cy={cy + radius * 0.25} r={radius * 0.18} fill="#A7F3D0" opacity="0.65" />
+          </g>
+        ) : isWood ? (
+          // Cúc Gỗ (Trầm Hương Khắc Chữ Thọ)
+          <g>
+            {/* Thân Hạt Cúc Gỗ Trầm Hương Nâu Ấm */}
+            <circle cx={cx} cy={cy} r={radius} fill="url(#btnWoodAgarwood)" stroke="#4A2800" strokeWidth="1.4" />
+            {/* Thớ Vân Gỗ Tự Nhiên */}
+            <path
+              d={`M ${cx - radius * 0.7} ${cy - radius * 0.25} Q ${cx} ${cy - radius * 0.45} ${cx + radius * 0.7} ${cy - radius * 0.2}`}
+              stroke="#3B1D04"
+              strokeWidth="0.7"
+              fill="none"
+              opacity="0.6"
+            />
+            <path
+              d={`M ${cx - radius * 0.7} ${cy + radius * 0.25} Q ${cx} ${cy + radius * 0.45} ${cx + radius * 0.7} ${cy + radius * 0.2}`}
+              stroke="#3B1D04"
+              strokeWidth="0.7"
+              fill="none"
+              opacity="0.6"
+            />
+            {/* Chạm Khắc Chữ Thọ Vàng Kim */}
+            <circle cx={cx} cy={cy} r={radius * 0.45} fill="none" stroke="#E5C365" strokeWidth="0.9" />
+            <line x1={cx - radius * 0.25} y1={cy} x2={cx + radius * 0.25} y2={cy} stroke="#E5C365" strokeWidth="0.8" />
+            <line x1={cx} y1={cy - radius * 0.25} x2={cx} y2={cy + radius * 0.25} stroke="#E5C365" strokeWidth="0.8" />
+            <circle cx={cx - radius * 0.3} cy={cy - radius * 0.3} r={radius * 0.2} fill="#FDE68A" opacity="0.65" />
+          </g>
+        ) : (
+          // Cúc Kim Loại (Đồng Chạm Bát Bửu Vàng Óng)
+          <g>
+            {/* Khuy Đồng Tròn Đầy Đặn */}
+            <circle cx={cx} cy={cy} r={radius} fill="url(#btnMetalCopper)" stroke="#E5C365" strokeWidth="1.6" />
+            {/* Vành Chạm Hạt Châu Li Ti */}
+            <circle cx={cx} cy={cy} r={radius * 0.72} fill="none" stroke="#FFF3B0" strokeWidth="0.8" strokeDasharray="1.5 1.5" />
+            {/* Tâm Cúc Hoa Cúc / Bát Bửu Chạm Nổi */}
+            <circle cx={cx} cy={cy} r={radius * 0.35} fill="#E5C365" stroke="#7A5210" strokeWidth="0.6" />
+            {/* Điểm Phản Quang Kim Loại Sáng Lóa */}
+            <circle cx={cx - radius * 0.3} cy={cy - radius * 0.3} r={radius * 0.25} fill="#FFFFFF" opacity="0.9" />
+          </g>
+        )}
+      </g>
+    );
+  };
 
   return (
     <div className={
@@ -484,11 +584,7 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
             <path d="M 155 106 C 140 110, 132 150, 128 198 C 124 260, 114 360, 90 475 C 145 484, 255 484, 310 475 C 286 360, 276 260, 272 198 C 268 150, 260 110, 245 106 Z" fill={`url(#brocade-${type})`} />
             <path d="M 155 106 C 140 110, 132 150, 128 198 C 124 260, 114 360, 90 475 C 145 484, 255 484, 310 475 C 286 360, 276 260, 272 198 C 268 150, 260 110, 245 106 Z" fill="url(#silkSheen)" />
 
-            {/* ĐƯỜNG XẺ ĐỐI KHÂM CHÍNH GIỮA THÂN TRƯỚC */}
-            <line x1="200" y1="215" x2="200" y2="480" stroke="#1D1D26" strokeWidth="1.5" />
 
-            {/* DẢI LỤA TRẮNG DỌC CHÍNH GIỮA (Từ Chân Cúc Xuống Tam Sơn) */}
-            <rect x="197" y="218" width="6" height="128" fill="#FAF7F0" stroke="#E5C365" strokeWidth="0.8" />
 
             {/* 6 ĐỒ ÁN PHƯỢNG Ổ HOÀNG GIA CHUẨN XÁC THEO REFERENCE */}
             {/* 2 Phượng Ổ Trên Vai */}
@@ -631,70 +727,180 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
             </g>
 
             {/* ======================================================== */}
-            {/* BẢN CỔ NHẬT BÌNH CHỮ U ĐỐI KHÂM (Xanh Chàm Cung Đình Viền Vàng) */}
+            {/* BẢN CỔ NHẬT BÌNH ĐỐI KHÂM CHUẨN XÁC 100% THEO REFERENCE  */}
+            {/* 2 Dải nẹp song song: Nẹp trong Trắng Kem thêu Phượng     */}
+            {/* Nẹp ngoài Xanh Chàm thêu hoa cúc hoàng gia viền Cam Đất  */}
             {/* ======================================================== */}
-            {/* Bản Cổ Chữ U */}
-            <path
-              d="M 152 112 L 248 112 L 248 230 L 226 230 L 226 148 L 174 148 L 174 230 L 152 230 Z"
-              fill="#12233C"
-              stroke="#E5C365"
-              strokeWidth="2.5"
-            />
-            {/* Viền Kim Tuyến Kép Bên Trong Bản Cổ */}
-            <path
-              d="M 155 115 L 245 115 L 245 227 L 229 227 L 229 145 L 171 145 L 171 227 L 155 227 Z"
-              fill="none"
-              stroke="#FFF3B0"
-              strokeWidth="0.8"
-            />
+            <g id="nhat-binh-authentic-collar">
+              {/* 1. LỚP ÁO ĐƠN Y TRẮNG LÓT TRONG (Peeking Trong Cổ Chữ V) */}
+              <g id="don-y-inner-v">
+                {/* Thân áo lót trắng bên trong khe chữ V */}
+                <path
+                  d="M 166 84 L 200 215 L 234 84 Z"
+                  fill="#FAF7F0"
+                />
+                {/* Cổ Đứng Áo Lót Trắng (Mandarin Collar nhô cao ôm vòng cổ sau) */}
+                <path
+                  d="M 172 86 C 172 68, 228 68, 228 86 L 234 98 L 166 98 Z"
+                  fill="#FFFFFF"
+                  stroke="#E5C365"
+                  strokeWidth="1.2"
+                />
+                {/* Viền Nẹp Cổ Đứng Lót */}
+                <path
+                  d="M 172 86 C 172 68, 228 68, 228 86"
+                  stroke="#C5A059"
+                  strokeWidth="1.5"
+                  fill="none"
+                />
+                {/* Khuy cúc nhỏ cài cổ đứng áo lót trắng (Chuẩn ảnh mẫu người mặc) */}
+                <circle cx="200" cy="88" r="2.2" fill={buttonFill} stroke={buttonConfig.stroke} strokeWidth="0.8" />
+              </g>
 
-            {/* Hoa Văn Hồi Văn & Cúc Dây Thêu Vàng Trên Bản Cổ Xanh Chàm */}
-            <g id="collar-embroidery" stroke="#E5C365" strokeWidth="0.8" fill="none" opacity="0.6">
-              <path d="M 163 125 L 163 220" strokeDasharray="4 3" />
-              <path d="M 237 125 L 237 220" strokeDasharray="4 3" />
-              <circle cx="163" cy="140" r="2.5" fill="#E5C365" />
-              <circle cx="163" cy="170" r="2.5" fill="#E5C365" />
-              <circle cx="163" cy="200" r="2.5" fill="#E5C365" />
-              <circle cx="237" cy="140" r="2.5" fill="#E5C365" />
-              <circle cx="237" cy="170" r="2.5" fill="#E5C365" />
-              <circle cx="237" cy="200" r="2.5" fill="#E5C365" />
-            </g>
+              {/* 2. DẢI NẸP NGOÀI XANH CHÀM (Outer Band - Navy Blue Brocade with Gold & Terracotta Border) */}
+              <g id="outer-collar-navy-band">
+                {/* Dải Nẹp Ngoài Bên Trái */}
+                <path
+                  d="M 144 86 C 158 82, 172 80, 186 78 L 186 88 C 174 90, 162 92, 154 96 L 178 215 L 178 472 L 189 472 L 189 215 L 164 88 L 154 86 Z"
+                  fill="#12233C"
+                />
+                {/* Dải Nẹp Ngoài Bên Phải */}
+                <path
+                  d="M 256 86 C 242 82, 228 80, 214 78 L 214 88 C 226 90, 238 92, 246 96 L 222 215 L 222 472 L 211 472 L 211 215 L 236 88 L 246 86 Z"
+                  fill="#12233C"
+                />
+                {/* Dải Vòng Nẹp Sau Gáy */}
+                <path
+                  d="M 144 86 C 168 68, 232 68, 256 86 L 246 96 C 226 80, 174 80, 154 96 Z"
+                  fill="#12233C"
+                  stroke="#E5C365"
+                  strokeWidth="0.8"
+                />
+                {/* Viền Cam Đất / Vàng Kim Mép Ngoài Cùng Của Bản Cổ */}
+                <path
+                  d="M 144 86 C 168 68, 232 68, 256 86 L 248 102 L 222 215 L 222 472"
+                  stroke="#C27803"
+                  strokeWidth="2.2"
+                  fill="none"
+                />
+                <path
+                  d="M 144 86 L 152 102 L 178 215 L 178 472"
+                  stroke="#C27803"
+                  strokeWidth="2.2"
+                  fill="none"
+                />
+                <path
+                  d="M 144 86 C 168 68, 232 68, 256 86"
+                  stroke="#E5C365"
+                  strokeWidth="1.2"
+                  fill="none"
+                />
 
-            {/* Lớp Cổ Áo Đơn Y Bên Trong Bản Cổ (Thêu Phượng & Sóng Nước) */}
-            <g id="collar-inner-panel">
-              {/* Lớp Đơn Y Trắng Ngà Thêu Hoa Phượng */}
-              <path
-                d="M 174 112 C 174 88, 226 88, 226 112 L 226 160 L 174 160 Z"
-                fill="#FAF7F0"
-                stroke="#E5C365"
-                strokeWidth="1.2"
-              />
-              <path d="M 188 128 C 195 120, 205 120, 212 128" stroke="#1E3A8A" strokeWidth="1" fill="none" />
-              <circle cx="200" cy="122" r="1.8" fill="#E5C365" />
+                {/* Hoa Văn Cung Đình Thêu Vàng & Hồng Đào Trên Nền Xanh Chàm */}
+                <g id="navy-band-embroidery" opacity="0.85">
+                  {/* Hoa cúc / mẫu đơn hoàng gia bên trái */}
+                  <circle cx="166" cy="142" r="3" fill="#F472B6" />
+                  <circle cx="166" cy="142" r="1.5" fill="#FBBF24" />
+                  <circle cx="172" cy="178" r="3" fill="#F472B6" />
+                  <circle cx="172" cy="178" r="1.5" fill="#FBBF24" />
+                  {/* Dọc thân trái */}
+                  <circle cx="183.5" cy="245" r="2.8" fill="#F472B6" />
+                  <circle cx="183.5" cy="245" r="1.3" fill="#FBBF24" />
+                  <circle cx="183.5" cy="295" r="2.8" fill="#F472B6" />
+                  <circle cx="183.5" cy="295" r="1.3" fill="#FBBF24" />
+                  <circle cx="183.5" cy="365" r="2.8" fill="#F472B6" />
+                  <circle cx="183.5" cy="365" r="1.3" fill="#FBBF24" />
 
-              {/* Mảng Thêu Sóng Nước Dưới Cổ Đơn Y (Trong Lòng Bản Cổ) */}
-              <rect x="174" y="160" width="52" height="52" fill="#0D4859" />
-              <path d="M 174 212 C 185 195, 215 195, 226 212" fill="#165A73" />
-              <path d="M 185 212 C 193 198, 207 198, 215 212" fill="#FAF7F0" />
-            </g>
-
-            {/* CÚC CÀI NGỌC TRẮNG HOÀNG GIA CHÍNH GIỮA CHÂN BẢN CỔ */}
-            <g id="nhat-binh-brooch" transform="translate(200, 215)" filter="url(#softShadowFilter)">
-              {isChineseButton ? (
-                // Cúc Vải Tàu (Phạm Húy Triều Đình)
-                <g>
-                  <circle cx="0" cy="0" r="9" fill="#DC2626" stroke="#991B1B" strokeWidth="1.6" />
-                  <line x1="-9" y1="0" x2="9" y2="0" stroke="#FFF" strokeWidth="1.5" />
-                  <line x1="0" y1="-9" x2="0" y2="9" stroke="#FFF" strokeWidth="1.5" />
+                  {/* Hoa cúc / mẫu đơn hoàng gia bên phải */}
+                  <circle cx="234" cy="142" r="3" fill="#F472B6" />
+                  <circle cx="234" cy="142" r="1.5" fill="#FBBF24" />
+                  <circle cx="228" cy="178" r="3" fill="#F472B6" />
+                  <circle cx="228" cy="178" r="1.5" fill="#FBBF24" />
+                  {/* Dọc thân phải */}
+                  <circle cx="216.5" cy="245" r="2.8" fill="#F472B6" />
+                  <circle cx="216.5" cy="245" r="1.3" fill="#FBBF24" />
+                  <circle cx="216.5" cy="295" r="2.8" fill="#F472B6" />
+                  <circle cx="216.5" cy="295" r="1.3" fill="#FBBF24" />
+                  <circle cx="216.5" cy="365" r="2.8" fill="#F472B6" />
+                  <circle cx="216.5" cy="365" r="1.3" fill="#FBBF24" />
                 </g>
-              ) : (
-                // Cúc Ngọc Trắng Khảm Vàng Hoàng Gia
-                <g>
-                  <circle cx="0" cy="0" r="9" fill="#FAF7F0" stroke="#E5C365" strokeWidth="2.2" />
-                  <circle cx="0" cy="0" r="6" fill="#F1EFEA" stroke="#FFF3B0" strokeWidth="0.8" />
-                  <circle cx="-2" cy="-2" r="2.2" fill="#FFFFFF" fillOpacity="0.8" />
+              </g>
+
+              {/* 3. DẢI NẸP TRONG TRẮNG KEM NGÀ (Inner Band - Ivory Silk Embroidered with Phoenix & Florals) */}
+              <g id="inner-collar-ivory-band">
+                {/* Dải Nẹp Trong Bên Trái (Từ vai xiên xuống ngực tới 200, 215 và buông thẳng) */}
+                <path
+                  d="M 164 88 L 198 215 L 189 215 L 154 96 Z"
+                  fill="#FAF6EB"
+                  stroke="#E5C365"
+                  strokeWidth="0.8"
+                />
+                {/* Dải Nẹp Trong Bên Phải */}
+                <path
+                  d="M 236 88 L 202 215 L 211 215 L 246 96 Z"
+                  fill="#FAF6EB"
+                  stroke="#E5C365"
+                  strokeWidth="0.8"
+                />
+                {/* Dải Nẹp Trong Thân Dưới (Khép kín 2 vạt Đối Khâm chạy từ chân cúc 215 xuống gấu áo 472) */}
+                <rect x="189" y="215" width="22" height="257" fill="#FAF6EB" stroke="#E5C365" strokeWidth="0.8" />
+                {/* Đường xẻ khép Đối Khâm ở chính giữa */}
+                <line x1="200" y1="215" x2="200" y2="472" stroke="#8C6514" strokeWidth="1" />
+
+                {/* HOA VĂN DÂY LÁ NGŨ SẮC UỐN LƯỢN NỬA TRÊN DẢI NẸP KEM */}
+                <g id="ivory-floral-scrolls" strokeWidth="1" fill="none">
+                  {/* Bên Trái */}
+                  <path d="M 162 108 Q 168 120 166 135 Q 174 148 172 165" stroke="#1E3A8A" />
+                  <circle cx="166" cy="120" r="1.5" fill="#059669" />
+                  <circle cx="168" cy="138" r="1.5" fill="#D97706" />
+                  <circle cx="171" cy="155" r="1.5" fill="#3B82F6" />
+
+                  {/* Bên Phải */}
+                  <path d="M 238 108 Q 232 120 234 135 Q 226 148 228 165" stroke="#1E3A8A" />
+                  <circle cx="234" cy="120" r="1.5" fill="#059669" />
+                  <circle cx="232" cy="138" r="1.5" fill="#D97706" />
+                  <circle cx="229" cy="155" r="1.5" fill="#3B82F6" />
                 </g>
-              )}
+
+                {/* 2 CHIM PHƯỢNG HOÀNG NGŨ SẮC ĐỐI XỨNG Ở CHÂN DẢI NẸP CỔ (Chuẩn xác 100% theo bản vẽ ảnh 2) */}
+                {/* Phượng Hoàng Bên Trái (Hướng mỏ sang phải vào tâm ngực) */}
+                <g id="phoenix-left-collar" transform="translate(185, 192)">
+                  {/* Thân & Đầu chim phượng xanh ngọc / lam */}
+                  <path d="M -3 10 C -2 3, 2 0, 5 -2 C 6 -3, 8 -3, 9 -1 C 10 1, 9 3, 6 5 C 3 7, 0 12, -2 16 Z" fill="#0284C7" />
+                  {/* Mỏ phượng vàng kim */}
+                  <path d="M 9 -1 L 12 -1 L 8 1 Z" fill="#EAB308" />
+                  {/* Mào phượng đỏ thắm */}
+                  <path d="M 7 -3 C 8 -7, 6 -9, 5 -10" stroke="#DC2626" strokeWidth="1.2" fill="none" />
+                  {/* Cánh phượng xòe ngũ sắc */}
+                  <path d="M 2 2 C -3 -2, -7 0, -8 4 C -5 6, -1 5, 2 4" fill="#059669" />
+                  {/* Đuôi phượng tơ tằm uốn lượn tuyệt mỹ */}
+                  <path d="M -2 16 C -6 18, -10 14, -8 8 C -9 4, -4 6, -3 12" stroke="#EA580C" strokeWidth="1.2" fill="none" />
+                  <path d="M -2 16 C -4 20, -8 20, -9 16" stroke="#EAB308" strokeWidth="1" fill="none" />
+                </g>
+
+                {/* Phượng Hoàng Bên Phải (Hướng mỏ sang trái vào tâm ngực) */}
+                <g id="phoenix-right-collar" transform="translate(215, 192)">
+                  {/* Thân & Đầu chim phượng */}
+                  <path d="M 3 10 C 2 3, -2 0, -5 -2 C -6 -3, -8 -3, -9 -1 C -10 1, -9 3, -6 5 C -3 7, 0 12, 2 16 Z" fill="#0284C7" />
+                  {/* Mỏ phượng */}
+                  <path d="M -9 -1 L -12 -1 L -8 1 Z" fill="#EAB308" />
+                  {/* Mào phượng */}
+                  <path d="M -7 -3 C -8 -7, -6 -9, -5 -10" stroke="#DC2626" strokeWidth="1.2" fill="none" />
+                  {/* Cánh phượng */}
+                  <path d="M -2 2 C 3 -2, 7 0, 8 4 C 5 6, 1 5, -2 4" fill="#059669" />
+                  {/* Đuôi phượng */}
+                  <path d="M 2 16 C 6 18, 10 14, 8 8 C 9 4, 4 6, 3 12" stroke="#EA580C" strokeWidth="1.2" fill="none" />
+                  <path d="M 2 16 C 4 20, 8 20, 9 16" stroke="#EAB308" strokeWidth="1" fill="none" />
+                </g>
+              </g>
+
+              {/* 4. HỆ THỐNG CÚC ÁO NHẬT BÌNH: CÚC NGỰC CHÍNH VÀ 2 CÚC DỌC VẠT THÂN ÁO */}
+              {/* Cúc Ngực Chính tại (200, 215) - Nơi giao nhau của 2 dải nẹp */}
+              {renderAuthenticButton(200, 215, 8.5, true)}
+
+              {/* 2 Cúc Cài Khép Vạt Dọc Đường Xẻ Đối Khâm (y = 270 và y = 335) */}
+              {renderAuthenticButton(200, 270, 6, false)}
+              {renderAuthenticButton(200, 335, 6, false)}
             </g>
           </g>
         )}
@@ -744,38 +950,12 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
         {type !== 'nhat_binh' && (
           <g id="buttons-group">
             {[
-              { id: 1, cx: 222, cy: 104, cordLen: 10 },
-              { id: 2, cx: 228, cy: 144, cordLen: 12 },
-              { id: 3, cx: 235, cy: 188, cordLen: 12 },
-              { id: 4, cx: 238, cy: 234, cordLen: 12 },
-              { id: 5, cx: 240, cy: 284, cordLen: 12 }
-            ].map(btn => (
-              <g key={btn.id} filter="url(#softShadowFilter)">
-                <line
-                  x1={btn.cx - btn.cordLen}
-                  y1={btn.cy}
-                  x2={btn.cx + btn.cordLen}
-                  y2={btn.cy}
-                  stroke={buttonConfig.cordColor}
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
-
-                {isChineseButton ? (
-                  <g>
-                    <circle cx={btn.cx} cy={btn.cy} r="6.2" fill="#DC2626" stroke="#991B1B" strokeWidth="1.4" />
-                    <line x1={btn.cx - 5} y1={btn.cy} x2={btn.cx + 5} y2={btn.cy} stroke="#FFF" strokeWidth="1.2" />
-                    <line x1={btn.cx} y1={btn.cy - 5} x2={btn.cx + 5} y2={btn.cy} stroke="#FFF" strokeWidth="1.2" />
-                  </g>
-                ) : (
-                  <g>
-                    <circle cx={btn.cx} cy={btn.cy} r="5.6" fill={buttonFill} stroke={buttonConfig.stroke} strokeWidth="1.2" />
-                    <circle cx={btn.cx - 1.4} cy={btn.cy - 1.4} r="1.5" fill="#FFFFFF" fillOpacity="0.75" />
-                    <circle cx={btn.cx} cy={btn.cy} r="1" fill="#FFF3B0" />
-                  </g>
-                )}
-              </g>
-            ))}
+              { id: 1, cx: 222, cy: 104 },
+              { id: 2, cx: 228, cy: 144 },
+              { id: 3, cx: 235, cy: 188 },
+              { id: 4, cx: 238, cy: 234 },
+              { id: 5, cx: 240, cy: 284 }
+            ].map(btn => renderAuthenticButton(btn.cx, btn.cy, 5.8, true))}
           </g>
         )}
 
