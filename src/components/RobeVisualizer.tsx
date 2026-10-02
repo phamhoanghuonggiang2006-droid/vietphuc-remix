@@ -144,10 +144,76 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
             <stop offset="100%" stopColor="#C5A059" />
           </linearGradient>
 
+          {/* Mannequin Luxury Titanium/Porcelain Skin */}
+          <linearGradient id="mannequinSkin" x1="15%" y1="0%" x2="85%" y2="100%">
+            <stop offset="0%" stopColor="#F6F0E8" />
+            <stop offset="35%" stopColor="#E2D7C7" />
+            <stop offset="70%" stopColor="#BFB09E" />
+            <stop offset="100%" stopColor="#8E7B68" />
+          </linearGradient>
+
+          <linearGradient id="mannequinGold" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#E5C365" />
+            <stop offset="50%" stopColor="#FFF3B0" />
+            <stop offset="100%" stopColor="#C5A059" />
+          </linearGradient>
+
           <filter id="shadowFilter" x="-10%" y="-10%" width="120%" height="120%">
             <feDropShadow dx="0" dy="5" stdDeviation="6" floodColor="#000" floodOpacity="0.5"/>
           </filter>
         </defs>
+
+        {/* HAUTE COUTURE MANNEQUIN: HEAD & NECK (RÕ SHAPE ĐẦU VÀ CỔ) */}
+        <g id="mannequin-head-neck" filter="url(#shadowFilter)">
+          {/* Neck (Cổ ma nơ canh thuôn dài vào cổ áo) */}
+          <path
+            d="M 184 56 L 184 96 Q 200 99 216 96 L 216 56 Z"
+            fill="url(#mannequinSkin)"
+            stroke="url(#mannequinGold)"
+            strokeWidth="1.6"
+          />
+          {/* Subtle neck contours (Đường gân cơ cổ thon dài) */}
+          <path d="M 193 64 Q 195 82 194 92" stroke="#8E7B68" strokeWidth="0.9" strokeOpacity="0.5" strokeLinecap="round" fill="none" />
+          <path d="M 207 64 Q 205 82 206 92" stroke="#8E7B68" strokeWidth="0.9" strokeOpacity="0.5" strokeLinecap="round" fill="none" />
+
+          {/* Top Cranial Knot / Búi Tóc Cổ Phục */}
+          <ellipse cx="200" cy="18" rx="14" ry="9" fill="url(#mannequinSkin)" stroke="url(#mannequinGold)" strokeWidth="1.6" />
+          <circle cx="200" cy="18" r="3" fill="#FFF3B0" />
+
+          {/* Head & Sculpted Jaw (Đầu & khung cằm ma nơ canh thời trang) */}
+          <path
+            d="M 172 42 C 166 16, 234 16, 228 42 C 228 60, 215 74, 200 78 C 185 74, 172 60, 172 42 Z"
+            fill="url(#mannequinSkin)"
+            stroke="url(#mannequinGold)"
+            strokeWidth="1.8"
+          />
+
+          {/* Haute Couture Stylized Eyebrows (Cặp chân mày lá liễu thanh thoát) */}
+          <path d="M 183 38 Q 190 35 195 38" stroke="#8E7B68" strokeWidth="1.2" strokeLinecap="round" fill="none" />
+          <path d="M 205 38 Q 210 35 217 38" stroke="#8E7B68" strokeWidth="1.2" strokeLinecap="round" fill="none" />
+
+          {/* Stylized Nose Bridge (Sống mũi cao thanh tú) */}
+          <path
+            d="M 200 34 L 202 48 L 198 52 L 201 54"
+            stroke="#8E7B68"
+            strokeWidth="1.2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            fill="none"
+          />
+
+          {/* Lips line (Đường viền môi thanh lịch) */}
+          <path d="M 193 63 Q 200 66 207 63" stroke="#8E7B68" strokeWidth="1.4" strokeLinecap="round" fill="none" />
+
+          {/* Sculpted cheek facet (Nét vát gò má Haute Couture) */}
+          <path
+            d="M 178 48 Q 188 64 200 73 Q 212 64 222 48"
+            stroke="#C5A059"
+            strokeWidth="0.8"
+            strokeOpacity="0.45"
+            fill="none"
+          />
+        </g>
 
         {/* 1. NGŨ THÂN TAY CHẼN */}
         {type === 'ngu_than' && (
@@ -176,6 +242,51 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
             {/* Fitted cuff detail */}
             <path d="M 40 240 L 70 255" stroke="rgba(255,255,255,0.25)" strokeWidth="3" />
             <path d="M 360 240 L 330 255" stroke="rgba(255,255,255,0.25)" strokeWidth="3" />
+
+            {/* 2 BÀN TAY MA NƠ CANH CAO CẤP (RÕ SHAPE 2 BÀN TAY VỚI CÁC NGÓN TAY THON THẢ) */}
+            <g id="mannequin-hands-ngu-than">
+              {/* Bàn tay trái */}
+              <g transform="translate(52, 246) rotate(32)" filter="url(#shadowFilter)">
+                <path
+                  d="M -8 0 C -10 12, -14 26, -10 36 C -8 42, -2 46, 2 44 C 6 42, 8 36, 6 26 C 5 16, 7 0, 7 0 Z"
+                  fill="url(#mannequinSkin)"
+                  stroke="url(#mannequinGold)"
+                  strokeWidth="1.5"
+                />
+                {/* Ngón cái tách nhẹ */}
+                <path
+                  d="M 6 12 C 11 16, 12 24, 9 28 C 7 30, 5 28, 4 23"
+                  fill="url(#mannequinSkin)"
+                  stroke="url(#mannequinGold)"
+                  strokeWidth="1.3"
+                />
+                {/* Đường kẽ 4 ngón tay thon dài */}
+                <path d="M 1 28 L 0 42" stroke="#8E7B68" strokeWidth="1.1" strokeLinecap="round" />
+                <path d="M -3 27 L -4 40" stroke="#8E7B68" strokeWidth="1.1" strokeLinecap="round" />
+                <path d="M -6 25 L -8 36" stroke="#8E7B68" strokeWidth="1.1" strokeLinecap="round" />
+              </g>
+
+              {/* Bàn tay phải */}
+              <g transform="translate(348, 246) rotate(-32)" filter="url(#shadowFilter)">
+                <path
+                  d="M 8 0 C 10 12, 14 26, 10 36 C 8 42, 2 46, -2 44 C -6 42, -8 36, -6 26 C -5 16, -7 0, -7 0 Z"
+                  fill="url(#mannequinSkin)"
+                  stroke="url(#mannequinGold)"
+                  strokeWidth="1.5"
+                />
+                {/* Ngón cái tách nhẹ */}
+                <path
+                  d="M -6 12 C -11 16, -12 24, -9 28 C -7 30, -5 28, -4 23"
+                  fill="url(#mannequinSkin)"
+                  stroke="url(#mannequinGold)"
+                  strokeWidth="1.3"
+                />
+                {/* Đường kẽ 4 ngón tay thon dài */}
+                <path d="M -1 28 L 0 42" stroke="#8E7B68" strokeWidth="1.1" strokeLinecap="round" />
+                <path d="M 3 27 L 4 40" stroke="#8E7B68" strokeWidth="1.1" strokeLinecap="round" />
+                <path d="M 6 25 L 8 36" stroke="#8E7B68" strokeWidth="1.1" strokeLinecap="round" />
+              </g>
+            </g>
 
             {/* Back panels shadow */}
             <path
@@ -241,6 +352,34 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
             <path d="M 25 210 Q 65 240 120 230" stroke="rgba(255,255,255,0.2)" strokeWidth="1.5" fill="none"/>
             <path d="M 375 210 Q 335 240 280 230" stroke="rgba(255,255,255,0.2)" strokeWidth="1.5" fill="none"/>
 
+            {/* 2 BÀN TAY MA NƠ CANH (ÁO TẤC TAY THỤNG BUÔNG THẢ THANH TAO) */}
+            <g id="mannequin-hands-ao-tac">
+              <g transform="translate(68, 325) rotate(15)" filter="url(#shadowFilter)">
+                <path
+                  d="M -7 0 C -9 12, -13 24, -9 34 C -7 40, -1 43, 3 41 C 7 39, 8 33, 6 24 C 5 15, 6 0, 6 0 Z"
+                  fill="url(#mannequinSkin)"
+                  stroke="url(#mannequinGold)"
+                  strokeWidth="1.5"
+                />
+                <path d="M 5 10 C 10 14, 11 22, 8 26 C 6 28, 4 26, 3 21" fill="url(#mannequinSkin)" stroke="url(#mannequinGold)" strokeWidth="1.2" />
+                <path d="M 1 25 L 0 39" stroke="#8E7B68" strokeWidth="1.1" strokeLinecap="round" />
+                <path d="M -3 24 L -4 37" stroke="#8E7B68" strokeWidth="1.1" strokeLinecap="round" />
+                <path d="M -6 22 L -7 33" stroke="#8E7B68" strokeWidth="1.1" strokeLinecap="round" />
+              </g>
+              <g transform="translate(332, 325) rotate(-15)" filter="url(#shadowFilter)">
+                <path
+                  d="M 7 0 C 9 12, 13 24, 9 34 C 7 40, 1 43, -3 41 C -7 39, -8 33, -6 24 C -5 15, -6 0, -6 0 Z"
+                  fill="url(#mannequinSkin)"
+                  stroke="url(#mannequinGold)"
+                  strokeWidth="1.5"
+                />
+                <path d="M -5 10 C -10 14, -11 22, -8 26 C -6 28, -4 26, -3 21" fill="url(#mannequinSkin)" stroke="url(#mannequinGold)" strokeWidth="1.2" />
+                <path d="M -1 25 L 0 39" stroke="#8E7B68" strokeWidth="1.1" strokeLinecap="round" />
+                <path d="M 3 24 L 4 37" stroke="#8E7B68" strokeWidth="1.1" strokeLinecap="round" />
+                <path d="M 6 22 L 7 33" stroke="#8E7B68" strokeWidth="1.1" strokeLinecap="round" />
+              </g>
+            </g>
+
             {/* Body */}
             <path
               d="M 130 110 L 270 110 L 305 450 L 95 450 Z"
@@ -296,6 +435,34 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
               <rect x="10" y="0" width="10" height="40" fill="#F4EFE6" />
               <rect x="20" y="0" width="10" height="40" fill="#2B5B84" />
               <rect x="30" y="0" width="10" height="40" fill="#E5C365" />
+            </g>
+
+            {/* 2 BÀN TAY MA NƠ CANH (ÁO NHẬT BÌNH DƯỚI DẢI NGŨ SẮC) */}
+            <g id="mannequin-hands-nhat-binh">
+              <g transform="translate(52, 252) rotate(32)" filter="url(#shadowFilter)">
+                <path
+                  d="M -8 0 C -10 12, -14 26, -10 36 C -8 42, -2 46, 2 44 C 6 42, 8 36, 6 26 C 5 16, 7 0, 7 0 Z"
+                  fill="url(#mannequinSkin)"
+                  stroke="url(#mannequinGold)"
+                  strokeWidth="1.5"
+                />
+                <path d="M 6 12 C 11 16, 12 24, 9 28 C 7 30, 5 28, 4 23" fill="url(#mannequinSkin)" stroke="url(#mannequinGold)" strokeWidth="1.3" />
+                <path d="M 1 28 L 0 42" stroke="#8E7B68" strokeWidth="1.1" strokeLinecap="round" />
+                <path d="M -3 27 L -4 40" stroke="#8E7B68" strokeWidth="1.1" strokeLinecap="round" />
+                <path d="M -6 25 L -8 36" stroke="#8E7B68" strokeWidth="1.1" strokeLinecap="round" />
+              </g>
+              <g transform="translate(348, 252) rotate(-32)" filter="url(#shadowFilter)">
+                <path
+                  d="M 8 0 C 10 12, 14 26, 10 36 C 8 42, 2 46, -2 44 C -6 42, -8 36, -6 26 C -5 16, -7 0, -7 0 Z"
+                  fill="url(#mannequinSkin)"
+                  stroke="url(#mannequinGold)"
+                  strokeWidth="1.5"
+                />
+                <path d="M -6 12 C -11 16, -12 24, -9 28 C -7 30, -5 28, -4 23" fill="url(#mannequinSkin)" stroke="url(#mannequinGold)" strokeWidth="1.3" />
+                <path d="M -1 28 L 0 42" stroke="#8E7B68" strokeWidth="1.1" strokeLinecap="round" />
+                <path d="M 3 27 L 4 40" stroke="#8E7B68" strokeWidth="1.1" strokeLinecap="round" />
+                <path d="M 6 25 L 8 36" stroke="#8E7B68" strokeWidth="1.1" strokeLinecap="round" />
+              </g>
             </g>
 
             {/* Main Body */}

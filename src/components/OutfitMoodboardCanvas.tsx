@@ -740,12 +740,6 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
                 </radialGradient>
               </defs>
 
-              {/* Head & Face Contour */}
-              <ellipse cx="200" cy="52" rx="20" ry="26" fill="url(#mannequinBodyFill)" stroke="url(#mannequinStroke)" strokeWidth="1" strokeDasharray="3 2" />
-              
-              {/* Slender Couture Neck */}
-              <path d="M 192 76 L 192 98 M 208 76 L 208 98" stroke="url(#mannequinStroke)" strokeWidth="1" />
-
               {/* Shoulders Contours aligning with Robe */}
               <path d="M 125 118 Q 160 98 200 98 Q 240 98 275 118" stroke="url(#mannequinStroke)" strokeWidth="1.2" fill="none" />
 
@@ -763,9 +757,9 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
               <ellipse cx="200" cy="546" rx="80" ry="10" fill="none" stroke="#E5C365" strokeWidth="0.6" strokeOpacity="0.4" />
             </svg>
 
-            {/* 1. HEAD ZONE: KHĂN ĐÓNG HOẶC SILHOUETTE ĐẦU */}
-            <div className="relative z-30 flex flex-col items-center -mb-8 transition-all duration-300">
-              {isKhanDongSelected ? (
+            {/* 1. HEAD ZONE: KHĂN ĐÓNG (ĐỘI LÊN ĐẦU MA NƠ CANH) */}
+            {isKhanDongSelected && (
+              <div className="relative z-30 flex flex-col items-center -mb-14 sm:-mb-16 transition-all duration-300">
                 <div 
                   className="relative group cursor-pointer"
                   onClick={() => setActiveHotspot(activeHotspot === 'head' ? null : 'head')}
@@ -781,12 +775,8 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
                     </div>
                   )}
                 </div>
-              ) : (
-                <div className="w-12 h-6 -mb-2 flex items-center justify-center opacity-40">
-                  <div className="w-8 h-3 rounded-t-full border-t border-x border-[#c5a059]/30" />
-                </div>
-              )}
-            </div>
+              </div>
+            )}
 
             {/* 2. UPPER BODY ZONE: ÁO CỔ PHỤC (ROBE VISUALIZER HOẶC ẢNH UPLOAD) */}
             <div className="relative z-20 w-full max-w-[320px] sm:max-w-[350px] transition-all duration-500">
@@ -1124,106 +1114,195 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
         )}
 
         {/* ======================================================== */}
-        {/* MODE 3: CHI TIẾT 2D MINH HỌA (10 ITEMS DETAIL SHOWCASE) */}
+        {/* MODE 3: CHI TIẾT 2D MINH HỌA (5 SẢN PHẨM CHI TIẾT OUTFIT) */}
         {/* ======================================================== */}
         {viewMode === 'breakdown' && (
-          <div className="w-full max-w-[620px] py-4 select-none space-y-3">
+          <div className="relative z-10 w-full max-w-[680px] py-4 select-none space-y-4">
             <div className="text-center pb-2">
-              <span className="text-xs uppercase tracking-wider text-[#c5a059] font-bold">
-                BỘ 4 SẢN PHẨM 2D ĐANG ĐƯỢC PHỐI
+              <span className="text-xs uppercase tracking-wider text-[#c5a059] font-bold bg-[#c5a059]/15 px-3 py-1 rounded-full border border-[#c5a059]/30">
+                TRA CỨU CHI TIẾT 5 MÓN ĐỒ OUTFIT
               </span>
-              <p className="text-xs text-stone-400 mt-0.5">
-                Chi tiết hình ảnh minh họa 2D sắc nét từng món đồ trong outfit
+              <p className="text-xs text-stone-300 mt-2">
+                Hình ảnh 2D sắc nét & thông tin xuất xứ di sản của từng thành phần phục trang
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="space-y-3.5">
               
-              {/* Item 1: Phụ Kiện Đi Kèm */}
-              <div className="bg-[#111117] border border-[#262635] rounded-xl p-3.5 flex items-center gap-3">
-                <div className="w-20 h-20 rounded-xl bg-black/70 border border-[#c5a059]/30 p-1.5 flex items-center justify-center shrink-0">
+              {/* Item 1: Áo Cổ Phục Chính */}
+              <div className="bg-[#161622]/95 backdrop-blur-xl border border-[#c5a059]/40 rounded-2xl p-4 sm:p-5 shadow-2xl flex flex-col sm:flex-row items-center sm:items-start gap-4 hover:border-[#c5a059] transition-all">
+                <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-xl bg-black/80 border border-[#c5a059]/50 p-2 shrink-0 flex flex-col items-center justify-center relative overflow-hidden">
+                  <span 
+                    className="w-12 h-12 rounded-full border-2 border-white/30 shadow-lg mb-1" 
+                    style={{ backgroundColor: selectedColorHex }}
+                  />
+                  <span className="text-[10px] text-[#c5a059] font-semibold text-center truncate max-w-full px-1">
+                    {activeColor.vietnameseName.split('(')[0]}
+                  </span>
+                </div>
+                <div className="min-w-0 flex-1 text-center sm:text-left">
+                  <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-1">
+                    <span className="text-[10px] text-[#e5c365] font-bold uppercase tracking-wider bg-[#c5a059]/20 px-2 py-0.5 rounded-full border border-[#c5a059]/30">
+                      Y Phục Chính
+                    </span>
+                    <span className="text-[11px] text-[#c5a059] font-medium">
+                      {activeGarment.dynasty}
+                    </span>
+                  </div>
+                  <h4 className="text-base font-bold text-white">
+                    {activeGarment.name}
+                  </h4>
+                  <p className="text-xs text-stone-200 leading-relaxed mt-1">
+                    {activeGarment.description}
+                  </p>
+                  <div className="mt-2.5 pt-2 border-t border-white/10 flex flex-wrap items-center justify-center sm:justify-start gap-3 text-xs">
+                    <span className={hasDonY ? 'text-emerald-400 font-medium' : 'text-rose-400 font-bold'}>
+                      {hasDonY ? '✓ Cổ Đơn Y trắng lịch thiệp' : '⚠️ Cảnh báo: Thiếu lớp Đơn Y trắng'}
+                    </span>
+                    <span className="text-stone-400 hidden sm:inline">•</span>
+                    <span className="text-stone-300">
+                      Phom dáng: {activeGarment.formFeatures.slice(0, 2).join(', ')}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Item 2: Phụ Kiện Đi Kèm */}
+              <div className="bg-[#161622]/95 backdrop-blur-xl border border-[#c5a059]/40 rounded-2xl p-4 sm:p-5 shadow-2xl flex flex-col sm:flex-row items-center sm:items-start gap-4 hover:border-[#c5a059] transition-all">
+                <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-xl bg-black/80 border border-[#c5a059]/50 p-2 shrink-0 flex items-center justify-center overflow-hidden">
                   <img
                     src={accessoryCanvasImg}
                     alt={activeAccessoryItem.name}
                     className="w-full h-full object-contain drop-shadow"
                   />
                 </div>
-                <div className="min-w-0 flex-1">
-                  <span className="text-[10px] text-[#c5a059] font-bold uppercase tracking-wider block">
-                    Phụ Kiện
-                  </span>
-                  <h4 className="text-sm font-bold text-stone-200 truncate">
+                <div className="min-w-0 flex-1 text-center sm:text-left">
+                  <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-1">
+                    <span className="text-[10px] text-[#e5c365] font-bold uppercase tracking-wider bg-[#c5a059]/20 px-2 py-0.5 rounded-full border border-[#c5a059]/30">
+                      Phụ Kiện
+                    </span>
+                    <span className="text-[11px] text-[#c5a059] font-medium">
+                      {activeAccessoryItem.styleVibe}
+                    </span>
+                  </div>
+                  <h4 className="text-base font-bold text-white">
                     {activeAccessoryItem.name}
                   </h4>
-                  <p className="text-xs text-stone-400 mt-1 line-clamp-2">
+                  <p className="text-xs text-stone-200 leading-relaxed mt-1">
                     {activeAccessoryItem.description}
                   </p>
+                  <div className="mt-2.5 pt-2 border-t border-white/10 flex items-center justify-center sm:justify-start gap-2 text-xs">
+                    <span className={activeAccessoryItem.isCulturallyRespectful ? 'text-emerald-400 font-medium' : 'text-amber-400 font-medium'}>
+                      {activeAccessoryItem.isCulturallyRespectful ? '✓ Phụ kiện tôn vinh bản sắc truyền thống' : '⚠️ Chi tiết hiện đại (Phối tiết chế)'}
+                    </span>
+                  </div>
                 </div>
               </div>
 
-              {/* Item 2: Thân Dưới */}
-              <div className="bg-[#111117] border border-[#262635] rounded-xl p-3.5 flex items-center gap-3">
-                <div className="w-20 h-20 rounded-xl bg-black/70 border border-[#c5a059]/30 p-1.5 flex items-center justify-center shrink-0">
+              {/* Item 3: Thân Dưới */}
+              <div className="bg-[#161622]/95 backdrop-blur-xl border border-[#c5a059]/40 rounded-2xl p-4 sm:p-5 shadow-2xl flex flex-col sm:flex-row items-center sm:items-start gap-4 hover:border-[#c5a059] transition-all">
+                <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-xl bg-black/80 border border-[#c5a059]/50 p-2 shrink-0 flex items-center justify-center overflow-hidden">
                   <img
                     src={bottomCanvasImg}
                     alt={activeBottomItem.name}
                     className="w-full h-full object-contain drop-shadow"
                   />
                 </div>
-                <div className="min-w-0 flex-1">
-                  <span className="text-[10px] text-[#c5a059] font-bold uppercase tracking-wider block">
-                    Thân Dưới
-                  </span>
-                  <h4 className="text-sm font-bold text-stone-200 truncate">
+                <div className="min-w-0 flex-1 text-center sm:text-left">
+                  <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-1">
+                    <span className="text-[10px] text-[#e5c365] font-bold uppercase tracking-wider bg-[#c5a059]/20 px-2 py-0.5 rounded-full border border-[#c5a059]/30">
+                      Thân Dưới Remix
+                    </span>
+                    <span className="text-[11px] text-[#c5a059] font-medium">
+                      {activeBottomItem.styleVibe}
+                    </span>
+                  </div>
+                  <h4 className="text-base font-bold text-white">
                     {activeBottomItem.name}
                   </h4>
-                  <p className="text-xs text-stone-400 mt-1 line-clamp-2">
+                  <p className="text-xs text-stone-200 leading-relaxed mt-1">
                     {activeBottomItem.description}
                   </p>
+                  <div className="mt-2.5 pt-2 border-t border-white/10 flex items-center justify-center sm:justify-start gap-2 text-xs">
+                    <span className="text-emerald-400 font-medium">
+                      ✓ Phom dáng bay bổng, tôn vinh dáng áo dài ngũ thân
+                    </span>
+                  </div>
                 </div>
               </div>
 
-              {/* Item 3: Giày / Guốc */}
-              <div className="bg-[#111117] border border-[#262635] rounded-xl p-3.5 flex items-center gap-3">
-                <div className="w-20 h-20 rounded-xl bg-black/70 border border-[#c5a059]/30 p-1.5 flex items-center justify-center shrink-0">
+              {/* Item 4: Giày / Guốc */}
+              <div className="bg-[#161622]/95 backdrop-blur-xl border border-[#c5a059]/40 rounded-2xl p-4 sm:p-5 shadow-2xl flex flex-col sm:flex-row items-center sm:items-start gap-4 hover:border-[#c5a059] transition-all">
+                <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-xl bg-black/80 border border-[#c5a059]/50 p-2 shrink-0 flex items-center justify-center overflow-hidden">
                   <img
                     src={shoesCanvasImg}
                     alt={activeShoesItem.name}
                     className="w-full h-full object-contain drop-shadow"
                   />
                 </div>
-                <div className="min-w-0 flex-1">
-                  <span className="text-[10px] text-[#c5a059] font-bold uppercase tracking-wider block">
-                    Giày / Guốc
-                  </span>
-                  <h4 className="text-sm font-bold text-stone-200 truncate">
+                <div className="min-w-0 flex-1 text-center sm:text-left">
+                  <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-1">
+                    <span className="text-[10px] text-[#e5c365] font-bold uppercase tracking-wider bg-[#c5a059]/20 px-2 py-0.5 rounded-full border border-[#c5a059]/30">
+                      Giày / Guốc Phối
+                    </span>
+                    <span className="text-[11px] text-[#c5a059] font-medium">
+                      {activeShoesItem.styleVibe}
+                    </span>
+                  </div>
+                  <h4 className="text-base font-bold text-white">
                     {activeShoesItem.name}
                   </h4>
-                  <p className="text-xs text-stone-400 mt-1 line-clamp-2">
+                  <p className="text-xs text-stone-200 leading-relaxed mt-1">
                     {activeShoesItem.description}
                   </p>
+                  <div className="mt-2.5 pt-2 border-t border-white/10 flex items-center justify-center sm:justify-start gap-2 text-xs">
+                    <span className={activeShoesItem.id === 'shoes-sneakers' ? 'text-amber-400 font-medium' : 'text-emerald-400 font-medium'}>
+                      {activeShoesItem.id === 'shoes-sneakers' ? '⚠️ Phá cách đường phố hiện đại' : '✓ Chuẩn phong vị cổ kính thanh tao'}
+                    </span>
+                  </div>
                 </div>
               </div>
 
-              {/* Item 4: Khuy Cúc */}
-              <div className="bg-[#111117] border border-[#262635] rounded-xl p-3.5 flex items-center gap-3">
-                <div className="w-20 h-20 rounded-xl bg-black/70 border border-[#c5a059]/30 p-1.5 flex items-center justify-center shrink-0">
+              {/* Item 5: Khuy Cúc */}
+              <div className={`backdrop-blur-xl border rounded-2xl p-4 sm:p-5 shadow-2xl flex flex-col sm:flex-row items-center sm:items-start gap-4 transition-all ${
+                isChineseButtonSelected 
+                  ? 'bg-rose-950/40 border-rose-500/80' 
+                  : 'bg-[#161622]/95 border-[#c5a059]/40 hover:border-[#c5a059]'
+              }`}>
+                <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-xl bg-black/80 border border-[#c5a059]/50 p-2 shrink-0 flex items-center justify-center overflow-hidden">
                   <img
                     src={activeButtonItem.thumbnailUrl}
                     alt={activeButtonItem.name}
                     className="w-full h-full object-cover rounded-lg drop-shadow"
                   />
                 </div>
-                <div className="min-w-0 flex-1">
-                  <span className="text-[10px] text-[#c5a059] font-bold uppercase tracking-wider block">
-                    Hạt Khuy Cúc
-                  </span>
-                  <h4 className="text-sm font-bold text-stone-200 truncate">
+                <div className="min-w-0 flex-1 text-center sm:text-left">
+                  <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-1">
+                    <span className="text-[10px] text-[#e5c365] font-bold uppercase tracking-wider bg-[#c5a059]/20 px-2 py-0.5 rounded-full border border-[#c5a059]/30">
+                      Hạt Khuy Cúc
+                    </span>
+                    <span className="text-[11px] text-[#c5a059] font-medium">
+                      Ngũ Thường: Nhân - Lễ - Nghĩa - Trí - Tín
+                    </span>
+                  </div>
+                  <h4 className="text-base font-bold text-white">
                     {activeButtonItem.name}
                   </h4>
-                  <p className="text-xs text-stone-400 mt-1 line-clamp-2">
+                  <p className="text-xs text-stone-200 leading-relaxed mt-1">
                     {activeButtonItem.description}
                   </p>
+                  <div className="mt-2.5 pt-2 border-t border-white/10 flex items-center justify-center sm:justify-start gap-2 text-xs">
+                    {isChineseButtonSelected ? (
+                      <span className="text-rose-400 font-bold flex items-center gap-1">
+                        <AlertTriangle className="w-3.5 h-3.5" />
+                        <span>CẢNH BÁO VI PHẠM: Cúc vải Tàu phạm húy triều đình!</span>
+                      </span>
+                    ) : (
+                      <span className="text-emerald-400 font-medium">
+                        ✓ Đúng chuẩn quy chế Y quan thời Nguyễn
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
 
