@@ -328,6 +328,15 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
       // Draw the Robe Image!
       if (robeImg) {
         drawContainedImage(ctx, robeImg, robeZoneX, robeZoneY, robeZoneW, robeZoneH);
+
+        // If Khăn Đóng is selected, crown the mannequin head in the poster
+        if (isKhanDongSelected && accImg) {
+          const turbanW = 165;
+          const turbanH = 105;
+          const turbanX = leftCardX + leftCardW / 2 - turbanW / 2;
+          const turbanY = robeZoneY - 4;
+          drawContainedImage(ctx, accImg, turbanX, turbanY, turbanW, turbanH);
+        }
       } else {
         // Fallback: draw stylish color preview pill if image unavailable
         ctx.fillStyle = selectedColorHex;
@@ -940,7 +949,7 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
 
             {/* 1. HEAD ZONE: KHĂN ĐÓNG (ĐỘI LÊN ĐẦU MA NƠ CANH) */}
             {isKhanDongSelected && (
-              <div className="relative z-30 flex flex-col items-center -mb-14 sm:-mb-16 transition-all duration-300">
+              <div className="relative z-30 flex flex-col items-center -mb-4 sm:-mb-5 transition-all duration-300">
                 <div 
                   className="relative group cursor-pointer"
                   onClick={() => setActiveHotspot(activeHotspot === 'head' ? null : 'head')}
@@ -948,7 +957,7 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
                   <img
                     src={accessoryCanvasImg}
                     alt={activeAccessoryItem.name}
-                    className="w-28 h-18 sm:w-32 sm:h-20 object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.85)] hover:scale-105 transition-transform"
+                    className="w-36 h-24 sm:w-42 sm:h-28 object-contain drop-shadow-[0_12px_24px_rgba(0,0,0,0.85)] hover:scale-105 transition-transform"
                   />
                   {showLabels && (
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap bg-black/85 backdrop-blur-md border border-[#c5a059]/60 px-2 py-0.5 rounded-full text-[10px] text-[#c5a059] font-bold shadow-lg pointer-events-none">
@@ -1559,7 +1568,7 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
                 <img
                   src={accessoryCanvasImg}
                   alt={activeAccessoryItem.name}
-                  className="w-36 h-24 object-contain -mb-6 relative z-30"
+                  className="w-44 h-30 object-contain -mb-4 relative z-30"
                 />
               )}
               {/* Robe */}
