@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Navbar } from './components/Navbar';
 import { RemixStudio } from './components/RemixStudio';
+import { MainWorkspace } from './components/MainWorkspace';
 import { HeritageStory } from './components/HeritageStory';
 import { HeritageMap } from './components/HeritageMap';
 import { TaboosGuideModal } from './components/TaboosGuideModal';
@@ -11,6 +12,7 @@ import { OnboardingScreen } from './components/OnboardingScreen';
 export default function App() {
   const [isOnboarding, setIsOnboarding] = useState<boolean>(true);
   const [selectedContext, setSelectedContext] = useState<string>('heritage');
+  const [workspaceMode, setWorkspaceMode] = useState<'acubi' | 'classic'>('acubi');
   const [activeTab, setActiveTab] = useState<'remix' | 'story' | 'map'>('remix');
   const [isTaboosModalOpen, setIsTaboosModalOpen] = useState<boolean>(false);
   const [isQuizModalOpen, setIsQuizModalOpen] = useState<boolean>(false);
@@ -24,10 +26,39 @@ export default function App() {
           onNext={(contextId) => {
             setSelectedContext(contextId);
             setIsOnboarding(false);
+            setWorkspaceMode('acubi');
           }}
         />
         {/* Floating Sound Toggle Button (Web Audio API) */}
         <SoundToggle variant="floating" />
+      </div>
+    );
+  }
+
+  // Màn hình chính MainWorkspace 4:6 Acubi / Quiet Luxury (Mặc định sau Onboarding)
+  if (activeTab === 'remix' && workspaceMode === 'acubi') {
+    return (
+      <div className="relative min-h-screen bg-[#F9F8F6] text-[#2C302E]">
+        <MainWorkspace
+          initialContext={selectedContext}
+          onBackToOnboarding={() => setIsOnboarding(true)}
+          onToggleStudio={() => setWorkspaceMode('classic')}
+        />
+
+        {/* Floating Sound Toggle Button (Web Audio API) */}
+        <SoundToggle variant="floating" />
+
+        {/* Taboos Engine Modal */}
+        <TaboosGuideModal
+          isOpen={isTaboosModalOpen}
+          onClose={() => setIsTaboosModalOpen(false)}
+        />
+
+        {/* Court Taboo Quiz Modal */}
+        <CourtQuizModal
+          isOpen={isQuizModalOpen}
+          onClose={() => setIsQuizModalOpen(false)}
+        />
       </div>
     );
   }
@@ -37,7 +68,10 @@ export default function App() {
       {/* Top Bar (Single-row 3-zone contract) */}
       <Navbar
         activeTab={activeTab}
-        onSelectTab={(tab) => setActiveTab(tab)}
+        onSelectTab={(tab) => {
+          setActiveTab(tab);
+          if (tab === 'remix') setWorkspaceMode('classic');
+        }}
         onOpenTaboosModal={() => setIsTaboosModalOpen(true)}
         onOpenQuizModal={() => setIsQuizModalOpen(true)}
         currentContext={selectedContext}
@@ -50,6 +84,7 @@ export default function App() {
           <RemixStudio 
             initialContext={selectedContext}
             onChangeContext={() => setIsOnboarding(true)}
+            onToggleWorkspace={() => setWorkspaceMode('acubi')}
           />
         )}
         {activeTab === 'story' && <HeritageStory />}

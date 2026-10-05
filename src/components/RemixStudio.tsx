@@ -470,11 +470,13 @@ export const computeRealtimeDualMetrics = (
 export interface RemixStudioProps {
   initialContext?: string;
   onChangeContext?: () => void;
+  onToggleWorkspace?: () => void;
 }
 
 export const RemixStudio: React.FC<RemixStudioProps> = ({
   initialContext = 'heritage',
-  onChangeContext
+  onChangeContext,
+  onToggleWorkspace
 }) => {
   // Selection States
   const [selectedGarmentId, setSelectedGarmentId] = useState<string>('ngu-than-tay-chen');
@@ -907,16 +909,28 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
             </p>
           </div>
         </div>
-        {onChangeContext && (
-          <button
-            type="button"
-            onClick={onChangeContext}
-            className="px-5 py-2.5 rounded-full text-xs font-semibold bg-[#D4AF37]/15 hover:bg-[#D4AF37] text-[#e5c365] hover:text-[#0e0e12] border border-[#D4AF37]/40 hover:border-[#D4AF37] transition-all self-start sm:self-auto shrink-0 flex items-center gap-2 cursor-pointer shadow-sm relative z-10"
-          >
-            <span>✦</span>
-            <span>Đổi Bối Cảnh</span>
-          </button>
-        )}
+        <div className="flex items-center gap-2 self-start sm:self-auto shrink-0 relative z-10 flex-wrap">
+          {onToggleWorkspace && (
+            <button
+              type="button"
+              onClick={onToggleWorkspace}
+              className="px-4 py-2.5 rounded-full text-xs font-semibold bg-white/10 hover:bg-white/20 text-[#f5f2eb] border border-white/20 transition-all flex items-center gap-1.5 cursor-pointer shadow-sm"
+              title="Chuyển sang Giao diện chính Acubi 4:6"
+            >
+              <span>🎨 Giao diện Acubi 4:6</span>
+            </button>
+          )}
+          {onChangeContext && (
+            <button
+              type="button"
+              onClick={onChangeContext}
+              className="px-5 py-2.5 rounded-full text-xs font-semibold bg-[#D4AF37]/15 hover:bg-[#D4AF37] text-[#e5c365] hover:text-[#0e0e12] border border-[#D4AF37]/40 hover:border-[#D4AF37] transition-all flex items-center gap-2 cursor-pointer shadow-sm"
+            >
+              <span>✦</span>
+              <span>Đổi Bối Cảnh</span>
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Editorial Header */}
