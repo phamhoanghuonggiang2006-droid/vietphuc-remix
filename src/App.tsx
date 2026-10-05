@@ -6,11 +6,31 @@ import { HeritageMap } from './components/HeritageMap';
 import { TaboosGuideModal } from './components/TaboosGuideModal';
 import { CourtQuizModal } from './components/CourtQuizModal';
 import { SoundToggle } from './components/SoundToggle';
+import { OnboardingScreen } from './components/OnboardingScreen';
 
 export default function App() {
+  const [isOnboarding, setIsOnboarding] = useState<boolean>(true);
+  const [selectedContext, setSelectedContext] = useState<string>('heritage');
   const [activeTab, setActiveTab] = useState<'remix' | 'story' | 'map'>('remix');
   const [isTaboosModalOpen, setIsTaboosModalOpen] = useState<boolean>(false);
   const [isQuizModalOpen, setIsQuizModalOpen] = useState<boolean>(false);
+
+  // Màn hình mở đầu Onboarding Acubi / Quiet Luxury
+  if (isOnboarding) {
+    return (
+      <div className="relative">
+        <OnboardingScreen
+          initialContext={selectedContext}
+          onNext={(contextId) => {
+            setSelectedContext(contextId);
+            setIsOnboarding(false);
+          }}
+        />
+        {/* Floating Sound Toggle Button (Web Audio API) */}
+        <SoundToggle variant="floating" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#0e0e12] text-[#f5f2eb] flex flex-col font-sans selection:bg-[#c5a059]/30 selection:text-[#faedd0]">
@@ -20,11 +40,18 @@ export default function App() {
         onSelectTab={(tab) => setActiveTab(tab)}
         onOpenTaboosModal={() => setIsTaboosModalOpen(true)}
         onOpenQuizModal={() => setIsQuizModalOpen(true)}
+        currentContext={selectedContext}
+        onChangeContext={() => setIsOnboarding(true)}
       />
 
       {/* Main Content Viewport */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
-        {activeTab === 'remix' && <RemixStudio />}
+        {activeTab === 'remix' && (
+          <RemixStudio 
+            initialContext={selectedContext}
+            onChangeContext={() => setIsOnboarding(true)}
+          />
+        )}
         {activeTab === 'story' && <HeritageStory />}
         {activeTab === 'map' && <HeritageMap />}
       </main>

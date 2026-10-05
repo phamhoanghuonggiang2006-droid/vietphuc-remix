@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   HERITAGE_GARMENTS, 
   TRADITIONAL_COLORS, 
@@ -287,7 +287,8 @@ export const computeRealtimeDualMetrics = (
   buttonId: string,
   bottomId: string,
   shoesId: string,
-  accessoryId: string
+  accessoryId: string,
+  contextId: string = 'heritage'
 ): DualMetricEvaluation => {
   const hasDonY = layerId === 'layer-don-y-white';
   const isChineseButton = buttonId === 'btn-chinese-cloth';
@@ -320,6 +321,15 @@ export const computeRealtimeDualMetrics = (
   if (isCeremonialRobe && shoesId === 'shoes-chunky-loafers') heritage -= 8;
   if (isCeremonialRobe && bottomId === 'bottom-high-waist-jeans') heritage -= 10;
   if (!isCeremonialRobe && bottomId === 'bottom-high-waist-jeans') heritage -= 3;
+
+  // Hiệu chỉnh theo bối cảnh tỏa sáng đã chọn
+  if (contextId === 'heritage') {
+    // Chốn Tôn Nghiêm (Đền chùa, Di tích, Lễ nghi): khắt khe hơn với trang phục phá cách
+    if (shoesId === 'shoes-white-sneakers' || bottomId === 'bottom-high-waist-jeans' || accessoryId === 'acc-smartwatch') {
+      heritage = Math.max(15, heritage - 10);
+    }
+  }
+
   heritage = Math.max(15, Math.min(100, heritage));
 
   // 2. TÍNH SLAY SCORE (%)
@@ -340,13 +350,13 @@ export const computeRealtimeDualMetrics = (
   if (bottomId === 'bottom-pleated-midi-skirt' || bottomId === 'bottom-silk-wide-pants' || bottomId === 'bottom-linen-wide-pants') {
     slay += 8;
   } else if (bottomId === 'bottom-high-waist-jeans') {
-    slay += 7;
+    slay += (contextId === 'fusion' ? 10 : 7);
   }
   // Giày & phụ kiện
   if (shoesId === 'shoes-wooden-clogs' || shoesId === 'shoes-embroidered-slippers') {
-    slay += 6;
+    slay += (contextId === 'heritage' ? 9 : 6);
   } else if (shoesId === 'shoes-chunky-loafers') {
-    slay += 8;
+    slay += (contextId === 'fusion' ? 10 : 8);
   }
   if (accessoryId === 'acc-khan-dong' || accessoryId === 'acc-khan-vanh-day' || accessoryId === 'acc-kieng-bac') {
     slay += 6;
@@ -359,11 +369,13 @@ export const computeRealtimeDualMetrics = (
   if (isAnachronism) slay -= 8;
   slay = Math.max(45, Math.min(99, slay));
 
-  // 3. PHÂN ĐỊNH 4 KỊCH BẢN VÀ LỜI BÌNH AI STYLIST GEN Z (KẾT HỢP NGŨ THƯỜNG & NGŨ HÀNH)
+  // 3. PHÂN ĐỊNH 4 KỊCH BẢN VÀ LỜI BÌNH AI STYLIST GEN Z (THEO BỐI CẢNH TỎA SÁNG)
   // KỊCH BẢN 1: CẢNH BÁO CẤM KỴ (TABOO ALERT)
   if (isTabooAlert) {
     const quote = isChineseButton 
-      ? `“Cảnh báo hú hồn: ${buttonInfo.genzQuote} Cụ Nguồn gật đầu khen cá tính nhưng Triều Đình hơi rén nhé! Đổi sang Cúc Bạc Hoa Sen hoặc Cúc Đồng Đúc Bát Bửu cho chuẩn gu nào!”`
+      ? (contextId === 'heritage'
+          ? `“Cảnh báo Chốn Tôn Nghiêm: Đi đền chùa, lễ nghi mà dùng cúc vải Tàu là phạm húy nghiêm trọng! Đổi sang Cúc Bạc Hoa Sen hoặc Cúc Đồng Đúc Bát Bửu cho chuẩn mực nhé!”`
+          : `“Cảnh báo hú hồn: ${buttonInfo.genzQuote} Cụ Nguồn gật đầu khen cá tính nhưng Triều Đình hơi rén nhé! Đổi sang Cúc Bạc Hoa Sen hoặc Cúc Đồng Đúc Bát Bửu cho chuẩn gu nào!”`)
       : `“Ủa alo bạn hiền! Sắc ${colorInfo.title} (${colorInfo.nguHanh}) là đại cấm kỵ hoàng triều: ${colorInfo.genzQuote} Đổi ngay sang Xanh Thanh Thiên hay Tím Chính Sắc cho vừa slay vừa an toàn nào!”`;
 
     const advice = isChineseButton 
@@ -387,12 +399,16 @@ export const computeRealtimeDualMetrics = (
 
   // KỊCH BẢN 2: LỖI LẠC QUẺ (ANACHRONISM)
   if (isAnachronism) {
+    const anachQuote = contextId === 'heritage'
+      ? `“Ủa alo bạn hiền! Chốn Tôn Nghiêm đền chùa lễ hội cần sự tề chỉnh tuyệt đối, áo lễ ${garment.name} mà đi cùng Sneakers hay Smartwatch trông hơi cấn cấn đó! Đổi sang Guốc Mộc hoặc Hài Thêu để vừa thanh tịnh vừa trọn vẹn điểm chuẩn mực nhé!”`
+      : `“Ủa alo bạn hiền! Áo lễ ${garment.name} phối cùng ${buttonInfo.title} và sắc ${colorInfo.title} (${colorInfo.nguHanh}) đang rất đỉnh chóp, mà 'cưỡi' đôi Sneakers quẹt Smartwatch trông hơi cấn cấn đó nha! Đổi sang Guốc Mộc hoặc Hài Thêu Cung Đình để vừa chuẩn di sản vừa slay hết nấc nào!”`;
+
     return {
       slayScore: slay,
       heritageScore: heritage,
       scenario: 'anachronism',
       badgeTitle: 'Lỗi Lạc Quẻ (Anachronism)',
-      stylistQuote: `“Ủa alo bạn hiền! Áo lễ ${garment.name} phối cùng ${buttonInfo.title} và sắc ${colorInfo.title} (${colorInfo.nguHanh}) đang rất đỉnh chóp, mà 'cưỡi' đôi Sneakers quẹt Smartwatch trông hơi cấn cấn đó nha! Đổi sang Guốc Mộc hoặc Hài Thêu Cung Đình để vừa chuẩn di sản vừa slay hết nấc nào!”`,
+      stylistQuote: anachQuote,
       subAdvice: `${garment.name} là lễ phục trang trọng, sự kết hợp với giày thể thao hoặc đồng hồ thông minh tạo ra sự cọc cạch thị giác đối với y quan truyền thống.`,
       nguThuongAnalysis,
       nguHanhAnalysis,
@@ -404,12 +420,18 @@ export const computeRealtimeDualMetrics = (
 
   // KỊCH BẢN 3: CHUẨN CỔ PHONG (MATCH > 90%)
   if (heritage >= 90) {
+    const heritageQuote = contextId === 'heritage'
+      ? `“Tuyệt phẩm Chốn Tôn Nghiêm! Bộ này diện đến đền chùa hay lễ hội truyền thống là chuẩn mực 10/10, đoan trang thanh tịnh, tôn vinh đạo Ngũ Thường (${buttonInfo.nguThuong}) và sắc ${colorInfo.title} vương giả!”`
+      : contextId === 'fusion'
+      ? `“Outfit Phố Thị Phá Cách đỉnh nóc kịch trần! Vừa chuẩn di sản Ngũ Thường vừa đậm chất Slay đương đại, diện đi Concert hay Cafe check-in là visual chiếm trọn spotlight!”`
+      : `“Úi chà! Bộ này diện đi dạo phố hay du xuân là hết nước chấm, vừa chuẩn Ngũ Thường vừa đậm chất Slay! Sắc ${colorInfo.title} (${colorInfo.nguHanh}) quyện cùng ${buttonInfo.title} (${buttonInfo.nguThuong}) - ${buttonInfo.genzQuote}”`;
+
     return {
       slayScore: slay,
       heritageScore: heritage,
       scenario: 'heritage',
       badgeTitle: 'Chuẩn Cổ Phong (Match > 90%)',
-      stylistQuote: `“Úi chà! Bộ này diện đi quẩy Hội An là hết nước chấm, vừa chuẩn Ngũ Thường vừa đậm chất Slay! Sắc ${colorInfo.title} (${colorInfo.nguHanh}) quyện cùng ${buttonInfo.title} (${buttonInfo.nguThuong}) - ${buttonInfo.genzQuote}”`,
+      stylistQuote: heritageQuote,
       subAdvice: `Bản phối đạt tỷ lệ vàng cổ phong: Phù hợp ${colorInfo.giaiTang}, tôn vinh đạo Ngũ Thường và cốt cách đoan chính của cổ nhân.`,
       nguThuongAnalysis,
       nguHanhAnalysis,
@@ -420,17 +442,23 @@ export const computeRealtimeDualMetrics = (
   }
 
   // KỊCH BẢN 4: CÁCH TÂN LỊCH SỰ (MATCH 70-89%)
+  const modernQuote = contextId === 'fusion'
+    ? `“Bản phối Phố Thị Phá Cách cực chiến! Sắc ${colorInfo.title} hòa nhịp cùng ${buttonInfo.title} tạo nên tuyên ngôn thời trang Á Đông hiện đại không thể trộn lẫn!”`
+    : contextId === 'modern'
+    ? `“Vibe Thanh Lịch Đời Thường chuẩn Quiet Luxury! Sắc ${colorInfo.title} nhẹ nhàng cùng ${buttonInfo.title}, diện đi làm hay dạo phố Tết đều toát lên cốt cách tri thức, nho nhã!”`
+    : !hasDonY 
+      ? `“Gu phối đồ bén ngót với sắc ${colorInfo.title} và ${buttonInfo.title}! Cách tân rất có duyên, nhưng nhớ mặc đủ Áo Đơn Y lót trong để 10/10 không có nhưng nhé!”`
+      : `“Bản phối giao thoa cổ kim cực slay! Sắc ${colorInfo.title} (${colorInfo.nguHanh}) đi cùng ${buttonInfo.title} (${buttonInfo.nguThuong}) tạo nên phong thái ${colorInfo.giaiTang} phóng khoáng và cuốn hút!”`;
+
   return {
     slayScore: slay,
     heritageScore: heritage,
     scenario: 'modern_polite',
     badgeTitle: 'Cách Tân Lịch Sự (Match 70-89%)',
-    stylistQuote: !hasDonY 
-      ? `“Gu phối đồ bén ngót với sắc ${colorInfo.title} và ${buttonInfo.title}! Cách tân rất có duyên, nhưng nhớ mặc đủ Áo Đơn Y lót trong để 10/10 không có nhưng nhé!”`
-      : `“Bản phối giao thoa cổ kim cực slay! Sắc ${colorInfo.title} (${colorInfo.nguHanh}) đi cùng ${buttonInfo.title} (${buttonInfo.nguThuong}) tạo nên phong thái ${colorInfo.giaiTang} phóng khoáng và cuốn hút!”`,
+    stylistQuote: modernQuote,
     subAdvice: !hasDonY 
       ? 'Nhắc nhở: Lớp Áo Đơn Y trắng cổ đứng cao hơn áo ngoài 2mm là biểu tượng cốt cách sạch sẽ, đoan chính của cổ nhân.' 
-      : `Sự kết hợp tinh tế giữa quy chuẩn Ngũ Thường (${buttonInfo.nguThuong}) và bảng màu Ngũ Hành tương sinh, phù hợp dạo phố, cà phê và sự kiện văn hóa nghệ thuật.`,
+      : `Sự kết hợp tinh tế giữa quy chuẩn Ngũ Thường (${buttonInfo.nguThuong}) và bảng màu Ngũ Hành tương sinh, phù hợp bối cảnh tỏa sáng mà bạn lựa chọn.`,
     nguThuongAnalysis,
     nguHanhAnalysis,
     isTaboo: false,
@@ -439,7 +467,15 @@ export const computeRealtimeDualMetrics = (
   };
 };
 
-export const RemixStudio: React.FC = () => {
+export interface RemixStudioProps {
+  initialContext?: string;
+  onChangeContext?: () => void;
+}
+
+export const RemixStudio: React.FC<RemixStudioProps> = ({
+  initialContext = 'heritage',
+  onChangeContext
+}) => {
   // Selection States
   const [selectedGarmentId, setSelectedGarmentId] = useState<string>('ngu-than-tay-chen');
   const [selectedColorHex, setSelectedColorHex] = useState<string>('#2B5B84');
@@ -480,6 +516,35 @@ export const RemixStudio: React.FC = () => {
   const activeShoesItem = shoesOptions.find(s => s.id === selectedShoesId) || shoesOptions[0];
   const activeAccessoryItem = accessoryOptions.find(a => a.id === selectedAccessoryId) || accessoryOptions[0];
 
+  // Tự động tinh chỉnh trang phục ban đầu theo Bối Cảnh Onboarding
+  useEffect(() => {
+    if (initialContext === 'heritage') {
+      setSelectedGarmentId('ao-tac');
+      setSelectedColorHex('#2B5B84'); // Xanh Thanh Thiên
+      setSelectedStyleVibe('Dạ Hội Cung Đình Luxury');
+      setSelectedBottomId('bottom-silk-wide-pants'); // Quần Ống Sớ Lụa
+      setSelectedShoesId('shoes-wooden-clogs'); // Guốc Mộc
+      setSelectedButtonId('btn-metal-copper'); // Cúc Đồng Đúc Bát Bửu
+      setSelectedAccessoryId('acc-khan-dong'); // Khăn Đóng Chữ Nhân
+    } else if (initialContext === 'modern') {
+      setSelectedGarmentId('ngu-than-tay-chen');
+      setSelectedColorHex('#334D3C'); // Xanh Rêu Trầm
+      setSelectedStyleVibe('Chic Heritage Minimalist');
+      setSelectedBottomId('bottom-linen-wide-pants'); // Quần Linen
+      setSelectedShoesId('shoes-wooden-clogs'); // Guốc Mộc
+      setSelectedButtonId('btn-wood-agarwood'); // Cúc Gỗ Trầm Hương
+      setSelectedAccessoryId('acc-paper-fan'); // Quạt Giấy Trầm Hương
+    } else if (initialContext === 'fusion') {
+      setSelectedGarmentId('ao-giao-linh');
+      setSelectedColorHex('#5E3A58'); // Tím Chính Sắc
+      setSelectedStyleVibe('Streetwear Á Đông Phá Cách');
+      setSelectedBottomId('bottom-high-waist-jeans'); // Quần Jeans Cạp Cao
+      setSelectedShoesId('shoes-chunky-loafers'); // Chunky Loafers
+      setSelectedButtonId('btn-mother-of-pearl'); // Cúc Xà Cừ Khảm Ốc
+      setSelectedAccessoryId('acc-kieng-bac'); // Kiềng Bạc
+    }
+  }, [initialContext]);
+
   // Real-time Dual-Metric Evaluation: Slay Score & Độ Chuẩn Di Sản
   const dualMetrics = computeRealtimeDualMetrics(
     activeGarment,
@@ -488,7 +553,8 @@ export const RemixStudio: React.FC = () => {
     selectedButtonId,
     selectedBottomId,
     selectedShoesId,
-    selectedAccessoryId
+    selectedAccessoryId,
+    initialContext
   );
 
   // User custom uploaded product images (lưu bộ nhớ trình duyệt localStorage)
@@ -813,6 +879,46 @@ export const RemixStudio: React.FC = () => {
 
   return (
     <div className="space-y-12">
+      {/* Acubi / Quiet Luxury Context Banner */}
+      <div className="bg-[#14141c] border border-[#D4AF37]/35 rounded-3xl p-5 md:p-6 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative overflow-hidden">
+        <div className="absolute -right-10 -top-10 w-40 h-40 bg-[#D4AF37]/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="flex items-center gap-4 relative z-10">
+          <div className="w-14 h-14 rounded-2xl bg-white/5 border border-[#D4AF37]/40 flex items-center justify-center text-3xl shadow-inner shrink-0">
+            {initialContext === 'heritage' ? '⛩️' : initialContext === 'modern' ? '🍃' : '⚡'}
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#D4AF37]">
+                Bối Cảnh Đã Chọn
+              </span>
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-[#D4AF37]/15 text-[#e5c365] border border-[#D4AF37]/30 uppercase">
+                {initialContext === 'heritage' ? 'Trang trọng & Chuẩn mực' : initialContext === 'modern' ? 'Tinh tế & Hiện đại' : 'Cá tính & Nổi loạn'}
+              </span>
+            </div>
+            <h3 className="text-lg md:text-xl font-serif font-bold text-[#f5f2eb] mt-1">
+              {initialContext === 'heritage' ? 'Chốn Tôn Nghiêm' : initialContext === 'modern' ? 'Thanh Lịch Đời Thường' : 'Phố Thị Phá Cách'}
+            </h3>
+            <p className="text-xs text-stone-400 mt-1 max-w-xl leading-relaxed">
+              {initialContext === 'heritage' 
+                ? 'Đền chùa, di tích lịch sử, Lễ nghi truyền thống — AI Stylist ưu tiên quy chuẩn trang nghiêm và y quan chuẩn mực triều đình.'
+                : initialContext === 'modern'
+                ? 'Công sở, Dạo phố nhẹ nhàng, Tết gia đình — AI Stylist tối ưu phom dáng gọn gàng, thanh lịch và thoải mái.'
+                : 'Concert, Cafe check-in, Dạo phố đêm — AI Stylist khuyến khích bản phối streetwear phá cách, nổi bật và độc bản!'}
+            </p>
+          </div>
+        </div>
+        {onChangeContext && (
+          <button
+            type="button"
+            onClick={onChangeContext}
+            className="px-5 py-2.5 rounded-full text-xs font-semibold bg-[#D4AF37]/15 hover:bg-[#D4AF37] text-[#e5c365] hover:text-[#0e0e12] border border-[#D4AF37]/40 hover:border-[#D4AF37] transition-all self-start sm:self-auto shrink-0 flex items-center gap-2 cursor-pointer shadow-sm relative z-10"
+          >
+            <span>✦</span>
+            <span>Đổi Bối Cảnh</span>
+          </button>
+        )}
+      </div>
+
       {/* Editorial Header */}
       <div className="relative border-b border-[#24242d] pb-6 pt-2">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">

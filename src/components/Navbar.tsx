@@ -7,13 +7,17 @@ interface NavbarProps {
   onSelectTab: (tab: 'remix' | 'story' | 'map') => void;
   onOpenTaboosModal: () => void;
   onOpenQuizModal?: () => void;
+  currentContext?: string;
+  onChangeContext?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
   activeTab,
   onSelectTab,
   onOpenTaboosModal,
-  onOpenQuizModal
+  onOpenQuizModal,
+  currentContext,
+  onChangeContext
 }) => {
   const handleTabChange = (tab: 'remix' | 'story' | 'map') => {
     if (tab !== activeTab) {
@@ -21,6 +25,14 @@ export const Navbar: React.FC<NavbarProps> = ({
     }
     onSelectTab(tab);
   };
+
+  const contextLabels: Record<string, { label: string; icon: string }> = {
+    heritage: { label: 'Chốn Tôn Nghiêm', icon: '⛩️' },
+    modern: { label: 'Thanh Lịch Đời Thường', icon: '🍃' },
+    fusion: { label: 'Phố Thị Phá Cách', icon: '⚡' }
+  };
+
+  const currentCtxData = currentContext ? contextLabels[currentContext] : null;
 
   return (
     <header className="sticky top-0 z-40 w-full bg-[#0e0e12]/90 backdrop-blur-md border-b border-[#22222b]">
@@ -83,6 +95,18 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="flex items-center gap-2.5">
           {/* Sound Toggle (Web Audio API) */}
           <SoundToggle variant="navbar" />
+
+          {/* Quick Context Switcher */}
+          {onChangeContext && currentCtxData && (
+            <button
+              onClick={onChangeContext}
+              className="px-2.5 py-1.5 text-xs font-medium rounded-lg bg-[#181822] hover:bg-[#232332] text-stone-300 border border-[#D4AF37]/35 hover:border-[#D4AF37] transition-all hidden lg:inline-flex items-center gap-1.5 cursor-pointer shadow-sm"
+              title="Nhấn để đổi bối cảnh tỏa sáng (Chốn Tôn Nghiêm / Thanh Lịch Đời Thường / Phố Thị Phá Cách)"
+            >
+              <span>{currentCtxData.icon}</span>
+              <span className="text-[#D4AF37] font-serif font-semibold">{currentCtxData.label}</span>
+            </button>
+          )}
 
           {onOpenQuizModal && (
             <button
