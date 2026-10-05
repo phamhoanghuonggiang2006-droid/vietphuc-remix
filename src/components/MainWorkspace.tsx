@@ -16,6 +16,14 @@ import {
   REMIX_ITEMS,
   HeritageItem 
 } from '../data/heritageData';
+import {
+  GARMENTS,
+  INNER_LAYERS,
+  BUTTONS,
+  BOTTOMS,
+  SHOES,
+  ACCESSORIES
+} from '../data/data.js';
 import { Sparkles, Check, Share2, RefreshCw, ArrowLeft, AlertTriangle } from 'lucide-react';
 
 export interface MainWorkspaceProps {
@@ -33,6 +41,7 @@ interface ItemOption {
   realImg?: string;
   colorHex?: string;
   isTaboo?: boolean;
+  styleLine?: string;
 }
 
 export const MainWorkspace: React.FC<MainWorkspaceProps> = ({
@@ -43,9 +52,10 @@ export const MainWorkspace: React.FC<MainWorkspaceProps> = ({
   const [activeTab, setActiveTab] = useState<'ao' | 'lot' | 'cuc' | 'quan' | 'giay' | 'phukien'>('ao');
 
   // Selected State
-  const [selectedRobeId, setSelectedRobeId] = useState<string>('ngu-than-tay-chen');
+  const [selectedRobeId, setSelectedRobeId] = useState<string>('ngu_than_tay_chen_nu_heritage');
   const [selectedColorHex, setSelectedColorHex] = useState<string>('#2B5B84');
   const [hasDonY, setHasDonY] = useState<boolean>(true);
+  const [selectedLotId, setSelectedLotId] = useState<string>('layer-don-y-white');
   const [selectedButtonId, setSelectedButtonId] = useState<string>('btn-metal-copper');
   const [selectedBottomId, setSelectedBottomId] = useState<string>('bottom-silk-wide-pants');
   const [selectedShoesId, setSelectedShoesId] = useState<string>('shoes-wooden-clogs');
@@ -76,73 +86,97 @@ export const MainWorkspace: React.FC<MainWorkspaceProps> = ({
   // Sync initial presets based on initialContext
   useEffect(() => {
     if (initialContext === 'heritage') {
-      setSelectedRobeId('ao-tac');
-      setSelectedColorHex('#2B5B84'); // Xanh Thanh Thiên
+      setSelectedRobeId('ao_tac_nu_heritage');
+      setSelectedColorHex('#7A222C'); // Đỏ Tấc Son
       setHasDonY(true);
+      setSelectedLotId('layer-don-y-white');
       setSelectedButtonId('btn-metal-copper');
       setSelectedBottomId('bottom-silk-wide-pants');
       setSelectedShoesId('shoes-wooden-clogs');
       setSelectedAccessoryId('acc-khan-dong');
     } else if (initialContext === 'modern') {
-      setSelectedRobeId('ngu-than-tay-chen');
+      setSelectedRobeId('ngu_than_modern_nu');
       setSelectedColorHex('#334D3C'); // Xanh Rêu Trầm
       setHasDonY(true);
+      setSelectedLotId('layer-don-y-white');
       setSelectedButtonId('btn-wood-agarwood');
       setSelectedBottomId('bottom-linen-wide-pants');
-      setSelectedShoesId('shoes-wooden-clogs');
+      setSelectedShoesId('shoes-white-sneakers');
       setSelectedAccessoryId('acc-paper-fan');
     } else if (initialContext === 'fusion') {
-      setSelectedRobeId('ao-giao-linh');
-      setSelectedColorHex('#5E3A58'); // Tím Chính Sắc
+      setSelectedRobeId('heritage_top_fusion_unisex');
+      setSelectedColorHex('#181820'); // Đen Khói Charcoal
       setHasDonY(true);
+      setSelectedLotId('layer-tee-graphic-fusion');
       setSelectedButtonId('btn-mother-of-pearl');
-      setSelectedBottomId('bottom-high-waist-jeans');
-      setSelectedShoesId('shoes-chunky-loafers');
-      setSelectedAccessoryId('acc-kieng-bac');
+      setSelectedBottomId('bottom-cargo-pants');
+      setSelectedShoesId('shoes-boots-dr-martens');
+      setSelectedAccessoryId('acc-silver-chain-cuban');
     }
   }, [initialContext]);
 
-  // Items database mapped to categories
+  // Items database mapped to categories dynamically from data.js
   const categoryItems: Record<'ao' | 'lot' | 'cuc' | 'quan' | 'giay' | 'phukien', ItemOption[]> = {
-    ao: [
-      { id: 'ngu-than-tay-chen', name: 'Ngũ Thân Tay Chẽn', sub: 'Kinh Kỳ Sĩ Tử · Gọn Gàng', category: 'ao', img: '👘', colorHex: '#2B5B84' },
-      { id: 'ao-tac', name: 'Áo Tấc (Lễ Phục)', sub: 'Tay Thụng Vương Triều · Trang Nghiêm', category: 'ao', img: '🏮', colorHex: '#7A222C' },
-      { id: 'ao-nhat-binh', name: 'Áo Nhật Bình', sub: 'Mệnh Phụ Hoàng Tộc · Lộng Lẫy', category: 'ao', img: '👑', colorHex: '#5E3A58' },
-      { id: 'ao-giao-linh', name: 'Áo Giao Lĩnh', sub: 'Cổ Chéo Tiền Lê · Phóng Khoáng', category: 'ao', img: '🎋', colorHex: '#334D3C' },
-      { id: 'ao-vien-linh', name: 'Áo Viên Lĩnh', sub: 'Cổ Tròn Vương Quan · Đĩnh Đạc', category: 'ao', img: '📜', colorHex: '#4A3525' }
-    ],
-    lot: [
-      { id: 'lot-don-y', name: 'Áo Đơn Y Trắng Cổ Đứng', sub: 'Chuẩn mực y quan · Cao hơn 2mm', category: 'lot', img: '🥼', isTaboo: false },
-      { id: 'lot-none', name: 'Không Mặc Áo Lót', sub: 'Cảnh báo phạm quy · Lộ cổ áo', category: 'lot', img: '⚠️', isTaboo: true }
-    ],
-    cuc: [
-      { id: 'btn-metal-copper', name: 'Cúc Đồng Đúc Bát Bửu', sub: 'Đồng cổ đĩnh đạc · Đạo Ngũ Thường', category: 'cuc', img: '🪙', realImg: '/1.png' },
-      { id: 'btn-jade-green', name: 'Cúc Ngọc Bích Cẩm Thạch', sub: 'Vương giả · Chữ Nhân (Ôn nhuận)', category: 'cuc', img: '🟢', realImg: '/2.png' },
-      { id: 'btn-wood-agarwood', name: 'Cúc Gỗ Trầm Hương', sub: 'Nho nhã · Chữ Tín & Lễ (Trường thọ)', category: 'cuc', img: '🪵', realImg: '/3.png' },
-      { id: 'btn-silver-lotus', name: 'Cúc Bạc Chạm Hoa Sen', sub: 'Mới · Thanh tao (Chữ Liêm & Trí)', category: 'cuc', img: '🪷', realImg: customItemImages['btn-silver-lotus'] || '/1.png' },
-      { id: 'btn-mother-of-pearl', name: 'Cúc Xà Cừ Khảm Ốc', sub: 'Mới · Cung đình ngũ sắc óng ánh', category: 'cuc', img: '✨', realImg: customItemImages['btn-mother-of-pearl'] || '/2.png' },
-      { id: 'btn-chinese-cloth', name: 'Cúc Vải Tết Dây / Cúc Tàu', sub: 'Taboo Alert · Lai căng sai quy chế', category: 'cuc', img: '❌', realImg: '/4.png', isTaboo: true }
-    ],
-    quan: [
-      { id: 'bottom-silk-wide-pants', name: 'Quần Ống Sớ Lụa', sub: 'Mới · Lụa tơ tằm thướt tha cổ điển', category: 'quan', img: '👖', realImg: customItemImages['bottom-silk-wide-pants'] || '/5.png' },
-      { id: 'bottom-linen-wide-pants', name: 'Quần Linen Ống Rộng', sub: 'Linen tự nhiên thoáng mát cổ phong', category: 'quan', img: '🌾', realImg: '/5.png' },
-      { id: 'bottom-pleated-midi-skirt', name: 'Chân Váy Xếp Ly', sub: 'Chic Neo-Tradition thanh lịch', category: 'quan', img: '👗', realImg: '/6.png' },
-      { id: 'bottom-high-waist-jeans', name: 'Quần Jeans Cạp Cao', sub: 'Gen Z Heritage Streetwear đứng phom', category: 'quan', img: '👖', realImg: '/7.png' }
-    ],
-    giay: [
-      { id: 'shoes-wooden-clogs', name: 'Guốc Mộc Truyền Thống', sub: 'Quai nhung êm ái Cố Đô Huế', category: 'giay', img: '🪵', realImg: '/8.png' },
-      { id: 'shoes-embroidered-slippers', name: 'Hài Thêu Cung Đình', sub: 'Chỉ kim tuyến hoa văn tinh xảo', category: 'giay', img: '🥿', realImg: '/9.png' },
-      { id: 'shoes-chunky-loafers', name: 'Chunky Loafers', sub: 'Mới · Đế bánh mì Modern Sartorial', category: 'giay', img: '👞', realImg: customItemImages['shoes-chunky-loafers'] || '/10.png' },
-      { id: 'shoes-white-sneakers', name: 'Sneakers Trắng', sub: 'Năng động (Cân nhắc khi phối áo lễ)', category: 'giay', img: '👟', realImg: '/10.png' }
-    ],
-    phukien: [
-      { id: 'acc-khan-dong', name: 'Khăn Đóng Chữ Nhân', sub: 'Mới · Chỉnh tề đoan trang vương triều', category: 'phukien', img: '🎩', realImg: customItemImages['acc-khan-dong'] || '/12.png' },
-      { id: 'acc-khan-vanh-day', name: 'Khăn Vành Dây', sub: 'Gấm hoàng cung quấn nhiều vòng', category: 'phukien', img: '👑', realImg: '/12.png' },
-      { id: 'acc-paper-fan', name: 'Quạt Giấy Trầm Hương', sub: 'Phụ kiện phong nhã tao nhân', category: 'phukien', img: '🪭', realImg: '/11.png' },
-      { id: 'acc-jade-pendant', name: 'Bội Ngọc Bích', sub: 'Ngọc bội buông tà phát tiếng leng keng', category: 'phukien', img: '💎', realImg: '/13.png' },
-      { id: 'acc-kieng-bac', name: 'Kiềng Bạc Chạm', sub: 'Mới · Đài các thiếu nữ Việt', category: 'phukien', img: '💍', realImg: customItemImages['acc-kieng-bac'] || '/13.png' },
-      { id: 'acc-smartwatch', name: 'Đồng Hồ Thông Minh', sub: 'Công nghệ (Cảnh báo cọc cạch thị giác)', category: 'phukien', img: '⌚', realImg: '/14.png', isTaboo: true }
-    ]
+    ao: GARMENTS.map(item => ({
+      id: item.id,
+      name: item.name,
+      sub: `${item.dynasty} · ${item.materials ? item.materials[0] : ''}`,
+      category: 'ao',
+      img: item.img || '👘',
+      realImg: item.realImg,
+      colorHex: item.defaultColorHex,
+      styleLine: item.styleLine
+    })),
+    lot: INNER_LAYERS.map(item => ({
+      id: item.id,
+      name: item.name,
+      sub: item.sub,
+      category: 'lot',
+      img: item.img || '🥼',
+      realImg: item.realImg,
+      isTaboo: item.isTaboo,
+      styleLine: item.styleLine
+    })),
+    cuc: BUTTONS.map(item => ({
+      id: item.id,
+      name: item.name,
+      sub: item.sub,
+      category: 'cuc',
+      img: item.img || '🪙',
+      realImg: customItemImages[item.id] || item.realImg,
+      isTaboo: item.isTaboo,
+      styleLine: item.styleLine
+    })),
+    quan: BOTTOMS.map(item => ({
+      id: item.id,
+      name: item.name,
+      sub: item.sub,
+      category: 'quan',
+      img: item.img || '👖',
+      realImg: customItemImages[item.id] || item.realImg,
+      isTaboo: item.isTaboo,
+      styleLine: item.styleLine
+    })),
+    giay: SHOES.map(item => ({
+      id: item.id,
+      name: item.name,
+      sub: item.sub,
+      category: 'giay',
+      img: item.img || '🪵',
+      realImg: customItemImages[item.id] || item.realImg,
+      isTaboo: item.isTaboo,
+      styleLine: item.styleLine
+    })),
+    phukien: ACCESSORIES.map(item => ({
+      id: item.id,
+      name: item.name,
+      sub: item.sub,
+      category: 'phukien',
+      img: item.img || '🪭',
+      realImg: customItemImages[item.id] || item.realImg,
+      isTaboo: item.isTaboo,
+      styleLine: item.styleLine
+    }))
   };
 
   // Real-time calculation of Slay & Heritage Scores
@@ -208,10 +242,10 @@ export const MainWorkspace: React.FC<MainWorkspaceProps> = ({
     if (selectedButtonId === 'btn-chinese-cloth') {
       return { tag: '[TABOO ALERT]', badge: '⚠️ Vi Phạm Quy Chuẩn Y Quan', color: 'bg-rose-600 text-white', badgeStyle: 'bg-rose-100 text-rose-800 border-rose-300' };
     }
-    if (selectedBottomId === 'bottom-high-waist-jeans' || selectedShoesId === 'shoes-chunky-loafers') {
+    if (selectedBottomId.includes('cargo') || selectedBottomId.includes('jeans') || selectedBottomId.includes('jorts') || selectedShoesId.includes('dr-martens') || selectedShoesId.includes('skater') || selectedRobeId.includes('fusion')) {
       return { tag: '[FUSION STREETWEAR]', badge: 'Heritage Inspired (Lấy cảm hứng)', color: 'bg-[#1A1A1A] text-white', badgeStyle: 'bg-yellow-100/90 text-yellow-800 border-yellow-200' };
     }
-    if (selectedRobeId === 'ao-tac' || selectedRobeId === 'ao-nhat-binh') {
+    if (selectedRobeId.includes('tac') || selectedRobeId.includes('nhat_binh_nu_heritage') || selectedRobeId.includes('ao_chau')) {
       return { tag: '[ROYAL CEREMONIAL]', badge: 'Triều Nghi Chuẩn Mực 100%', color: 'bg-[#D4AF37] text-stone-950 font-bold', badgeStyle: 'bg-amber-100 text-amber-900 border-amber-300' };
     }
     return { tag: '[QUIET LUXURY TRADITION]', badge: 'Tinh Tế · Chuẩn Cổ Phong', color: 'bg-[#1A1A1A] text-white', badgeStyle: 'bg-emerald-100/90 text-emerald-800 border-emerald-200' };
@@ -224,14 +258,14 @@ export const MainWorkspace: React.FC<MainWorkspaceProps> = ({
     if (selectedButtonId === 'btn-chinese-cloth') {
       return '“Báo động đỏ hú hồn! Áo ngũ thân nước Nam mình xịn sò khuy đồng khuy ngọc Ngũ Thường, sao bạn hiền lại gắn cúc vải Tàu lai căng zậy nè? Đổi sang Cúc Bạc Hoa Sen hoặc Cúc Đồng cho chuẩn gu nào!”';
     }
-    if (!hasDonY) {
+    if (!hasDonY || selectedLotId === 'layer-none' || selectedLotId === 'lot-none') {
       return '“Outfit rất bén nhưng thiếu mất lớp Áo Đơn Y trắng viền cổ rồi nè! Thêm lớp lót trắng cao hơn 2mm để hoàn thiện cốt cách đoan chính của cổ nhân nhé!”';
     }
-    if (selectedShoesId === 'shoes-white-sneakers' && (selectedRobeId === 'ao-tac' || selectedRobeId === 'ao-nhat-binh')) {
+    if ((selectedShoesId === 'shoes-white-sneakers' || selectedShoesId.includes('skater')) && (selectedRobeId.includes('tac') || selectedRobeId.includes('nhat'))) {
       return '“Mix Sneaker với Áo Lễ là ra đúng vibe Tet-Core dạo phố cực keo! Nhưng nhớ nha, set đồ này dạo phố thì slay chứ mang vào chốn tôn nghiêm đền chùa là hơi cấn đó!”';
     }
-    if (selectedShoesId === 'shoes-chunky-loafers' || selectedBottomId === 'bottom-high-waist-jeans') {
-      return '“Keo lỳ hết nước chấm! Sự kết hợp giữa phom áo cổ phong với Chunky Loafers và Jeans cạp cao chuẩn chất Modern Sartorial Chic, thần thái ngút ngàn ai cũng phải ngoái nhìn!”';
+    if (selectedShoesId === 'shoes-chunky-loafers' || selectedBottomId.includes('cargo') || selectedBottomId.includes('jeans')) {
+      return '“Keo lỳ hết nước chấm! Sự kết hợp giữa phom áo cổ phong với Chunky Loafers và Thân Dưới cách tân chuẩn chất Modern Sartorial Chic, thần thái ngút ngàn ai cũng phải ngoái nhìn!”';
     }
     if (scores.heritage >= 90) {
       return '“Xuất sắc mười điểm không có nhưng! Bản phối đạt tỷ lệ vàng cổ phong: sắc phục hài hòa, cúc áo chuẩn đạo Ngũ Thường, vừa tôn vinh di sản vừa đậm chất Quiet Luxury!”';
@@ -245,8 +279,10 @@ export const MainWorkspace: React.FC<MainWorkspaceProps> = ({
       if (item.colorHex) setSelectedColorHex(item.colorHex);
       playGarmentSelectSound();
     } else if (item.category === 'lot') {
-      setHasDonY(item.id === 'lot-don-y');
-      if (item.id === 'lot-none') playTabooDenialSound();
+      const isDonY = item.id.includes('don-y') || item.id === 'lot-don-y';
+      setHasDonY(isDonY);
+      setSelectedLotId(item.id);
+      if (item.isTaboo || item.id.includes('none')) playTabooDenialSound();
       else playFabricRustleSound();
     } else if (item.category === 'cuc') {
       setSelectedButtonId(item.id);
@@ -267,7 +303,7 @@ export const MainWorkspace: React.FC<MainWorkspaceProps> = ({
 
   const isItemSelected = (item: ItemOption) => {
     if (item.category === 'ao') return selectedRobeId === item.id;
-    if (item.category === 'lot') return (hasDonY && item.id === 'lot-don-y') || (!hasDonY && item.id === 'lot-none');
+    if (item.category === 'lot') return selectedLotId === item.id;
     if (item.category === 'cuc') return selectedButtonId === item.id;
     if (item.category === 'quan') return selectedBottomId === item.id;
     if (item.category === 'giay') return selectedShoesId === item.id;
@@ -277,10 +313,11 @@ export const MainWorkspace: React.FC<MainWorkspaceProps> = ({
 
   // Robe SVG Type for Visualizer
   const getRobeSvgType = (): 'ngu_than' | 'ao_tac' | 'nhat_binh' | 'giao_linh' | 'vien_linh' => {
-    if (selectedRobeId === 'ao-tac') return 'ao_tac';
-    if (selectedRobeId === 'ao-nhat-binh') return 'nhat_binh';
-    if (selectedRobeId === 'ao-giao-linh') return 'giao_linh';
-    if (selectedRobeId === 'ao-vien-linh') return 'vien_linh';
+    const id = selectedRobeId.toLowerCase();
+    if (id.includes('tac')) return 'ao_tac';
+    if (id.includes('nhat') || id.includes('chau') || id.includes('vuong')) return 'nhat_binh';
+    if (id.includes('giao')) return 'giao_linh';
+    if (id.includes('vien')) return 'vien_linh';
     return 'ngu_than';
   };
 
@@ -409,6 +446,18 @@ export const MainWorkspace: React.FC<MainWorkspaceProps> = ({
                   </div>
 
                   <div>
+                    {item.styleLine && (
+                      <span className={`inline-block text-[10px] font-medium px-2 py-0.5 rounded-full mb-1 w-fit
+                        ${item.styleLine === 'heritage_core' 
+                          ? 'bg-amber-100 text-amber-900 border border-amber-200' 
+                          : item.styleLine === 'modern_heritage'
+                          ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                          : 'bg-yellow-100 text-yellow-800 border border-yellow-200'
+                        }`}
+                      >
+                        {item.styleLine === 'heritage_core' ? '🏛️ Heritage Core' : item.styleLine === 'modern_heritage' ? '🌿 Modern' : '⚡ Fusion'}
+                      </span>
+                    )}
                     <h3 className="font-serif text-[#1A1A1A] text-sm font-bold leading-snug line-clamp-1">{item.name}</h3>
                     <p className="text-xs text-gray-500 mt-1 line-clamp-2 leading-relaxed">{item.sub}</p>
                   </div>
