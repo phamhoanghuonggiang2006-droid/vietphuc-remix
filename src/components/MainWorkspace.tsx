@@ -184,7 +184,7 @@ export const MainWorkspace: React.FC<MainWorkspaceProps> = ({
     let slay = 82;
     let heritage = 100;
 
-    const isCeremonial = selectedRobeId === 'ao-tac' || selectedRobeId === 'ao-nhat-binh' || selectedRobeId === 'ao-vien-linh';
+    const isCeremonial = selectedRobeId.includes('tac') || selectedRobeId.includes('nhat') || selectedRobeId.includes('chau');
 
     // Đơn Y check
     if (!hasDonY) {
@@ -311,13 +311,11 @@ export const MainWorkspace: React.FC<MainWorkspaceProps> = ({
     return false;
   };
 
-  // Robe SVG Type for Visualizer
+  // Robe SVG Type for Visualizer (Nguyễn Dynasty)
   const getRobeSvgType = (): 'ngu_than' | 'ao_tac' | 'nhat_binh' | 'giao_linh' | 'vien_linh' => {
     const id = selectedRobeId.toLowerCase();
     if (id.includes('tac')) return 'ao_tac';
     if (id.includes('nhat') || id.includes('chau') || id.includes('vuong')) return 'nhat_binh';
-    if (id.includes('giao')) return 'giao_linh';
-    if (id.includes('vien')) return 'vien_linh';
     return 'ngu_than';
   };
 

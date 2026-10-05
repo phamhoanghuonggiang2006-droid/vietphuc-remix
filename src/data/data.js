@@ -56,7 +56,7 @@ export const PRODUCT_LINES = {
 // 2. DANH MỤC PHÂN LOẠI (PRODUCT CATEGORIES)
 // ==============================================================================
 export const PRODUCT_CATEGORIES = [
-  { id: 'ao', label: 'Áo Cổ Phục', icon: '👘', desc: 'Ngũ Thân, Áo Tấc, Nhật Bình, Giao Lĩnh, Viên Lĩnh' },
+  { id: 'ao', label: 'Áo Cổ Phục', icon: '👘', desc: 'Ngũ Thân tay chẽn, Áo Tấc, Nhật Bình (Triều Nguyễn)' },
   { id: 'lot', label: 'Áo Lót (Đơn y)', icon: '🥼', desc: 'Áo Đơn Y trắng cổ đứng, Camisole, Tee layer' },
   { id: 'cuc', label: 'Khuy Cúc', icon: '🪙', desc: 'Cúc Đồng Bát Bửu, Cúc Ngọc, Cúc Bạc, Cúc Xà Cừ' },
   { id: 'quan', label: 'Thân Dưới', icon: '👖', desc: 'Quần Ống Sớ Lụa, Linen, Váy Xếp Ly, Baggy Jeans' },
@@ -330,42 +330,6 @@ export const GARMENTS = [
     realImg: '/1.png',
     svgType: 'ngu_than',
     priceVnd: '800.000 - 1.800.000 VNĐ'
-  },
-
-  // --- D. ÁO GIAO LĨNH & VIÊN LĨNH ---
-  {
-    id: 'ao_giao_linh',
-    name: 'Áo Giao Lĩnh (Cổ Chéo Tiền Lê - Nguyễn)',
-    category: 'ao',
-    styleLine: 'heritage_core',
-    gender: 'unisex',
-    dynasty: 'Lê - Nguyễn',
-    structure: 'Cổ áo giao nhau chéo vạt trước ngực, tay thụng hoặc chẽn, phom dáng cổ xưa mộc mạc.',
-    symbolism: 'Cốt cách mộc mạc, phóng khoáng của văn nhân ẩn sĩ nước Đại Việt.',
-    materials: ['Đũi dệt thô', 'Lụa sa', 'Vải bông dệt tay'],
-    defaultColorHex: '#334D3C',
-    colorName: 'Xanh Rêu Rừng',
-    img: '🎋',
-    realImg: '/ref/ao-giao-linh.jpg',
-    svgType: 'giao_linh',
-    priceVnd: '2.500.000 - 4.500.000 VNĐ'
-  },
-  {
-    id: 'ao_vien_linh',
-    name: 'Áo Viên Lĩnh (Cổ Tròn Vương Quan)',
-    category: 'ao',
-    styleLine: 'heritage_core',
-    gender: 'male',
-    dynasty: 'Lý - Trần - Lê',
-    structure: 'Cổ tròn ôm sát cổ, gài khuy bên vai phải, vạt áo buông dài đĩnh đạc.',
-    symbolism: 'Phong thái quyền uy, uy nghiêm của hàng quan văn quan võ thời Lý - Trần.',
-    materials: ['Gấm dệt vân mây', 'Lụa tơ tằm', 'The'],
-    defaultColorHex: '#4A3525',
-    colorName: 'Nâu Sồng Đĩnh Đạc',
-    img: '📜',
-    realImg: '/ref/ao-vien-linh.webp',
-    svgType: 'vien_linh',
-    priceVnd: '2.800.000 - 5.000.000 VNĐ'
   }
 ];
 
