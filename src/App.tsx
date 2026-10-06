@@ -49,34 +49,45 @@ export default function App() {
       {/* ======================================================== */}
       {isModern ? (
         <>
-          {/* MÀN HÌNH 2: NỀN TRẮNG NGÀ / BE SÁNG / GIẤY DÓ MỸ THUẬT & ÁNH SÁNG STUDIO */}
-          {/* Lớp 1: Gradient Tạp Chí Thời Trang (Off-white / Warm Beige) */}
+          {/* MÀN HÌNH 2: NỀN TẠP CHÍ THỜI TRANG VỚI ẢNH CHỢ NÓN LÁ TRẮNG SÁNG 80% */}
+          {/* Lớp 1: Nền trắng ngà / Studio sáng */}
+          <div className="fixed inset-0 pointer-events-none z-0 bg-[#FAF8F5]" />
+
+          {/* Lớp 2: Ảnh nền Chợ Nón Lá (nen-man-hinh-2.jpg) với độ phủ trắng 80% (opacity 20%) */}
           <div 
-            className="fixed inset-0 pointer-events-none z-0 bg-gradient-to-b from-[#FAF8F5] via-[#F4F1EB] to-[#E9E4DB]"
+            className="fixed inset-0 pointer-events-none z-0"
+            style={{
+              backgroundImage: 'url(/backgrounds/nen-man-hinh-2.jpg)',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center 40%',
+              backgroundRepeat: 'no-repeat',
+              opacity: 0.20,
+              filter: 'blur(2.5px) brightness(105%) contrast(92%)'
+            }}
           />
 
-          {/* Lớp 2: Gợn sớ lụa & giấy dó sáng màu mộc mạc */}
+          {/* Lớp 3: Lớp phủ trắng 80% sáng dịu kiểu tạp chí thời trang cao cấp */}
           <div 
-            className="fixed inset-0 pointer-events-none z-0 opacity-[0.035] mix-blend-multiply"
+            className="fixed inset-0 pointer-events-none z-0 bg-[radial-gradient(circle_at_50%_20%,rgba(255,255,255,0.85)_0%,rgba(250,248,245,0.80)_60%,rgba(240,236,228,0.75)_100%)]"
+          />
+
+          {/* Lớp 4: Gợn sớ lụa & giấy dó sáng màu mỹ thuật nhẹ */}
+          <div 
+            className="fixed inset-0 pointer-events-none z-0 opacity-[0.025] mix-blend-multiply"
             style={{
               backgroundImage: 'url(/patterns/so-lua-giay-do.svg)',
               backgroundSize: '48px 48px',
               backgroundRepeat: 'repeat'
             }}
           />
-
-          {/* Lớp 3: Ánh sáng Studio Tự Nhiên (Natural Soft Key Lighting) */}
-          <div 
-            className="fixed inset-0 pointer-events-none z-0 bg-[radial-gradient(circle_at_50%_15%,rgba(255,255,255,0.95)_0%,rgba(244,241,235,0.5)_50%,rgba(224,218,208,0.45)_100%)]"
-          />
         </>
       ) : isFusion ? (
         <>
-          {/* MÀN HÌNH 3: PHỐ THỊ PHÁ CÁCH (FUSION STREETWEAR) */}
-          {/* Lớp 1: Nền sẫm tone đêm đô thị */}
-          <div className="fixed inset-0 pointer-events-none z-0 bg-[#0c0c12]" />
+          {/* MÀN HÌNH 3: PHỐ THỊ PHÁ CÁCH (FUSION STREETWEAR) - TỐI ĐI 30% THEO YÊU CẦU */}
+          {/* Lớp 1: Nền sẫm tone đêm đô thị đậm đà */}
+          <div className="fixed inset-0 pointer-events-none z-0 bg-[#06060a]" />
 
-          {/* Lớp 2: Ảnh nền Chung cư Cà phê 42 Nguyễn Huệ về đêm (Neon Cafe Apartment) */}
+          {/* Lớp 2: Ảnh nền Chung cư Cà phê 42 Nguyễn Huệ về đêm (Neon Cafe Apartment) - Giảm sáng 30% */}
           <div 
             className="fixed inset-0 pointer-events-none z-0"
             style={{
@@ -84,14 +95,14 @@ export default function App() {
               backgroundSize: 'cover',
               backgroundPosition: 'center 28%',
               backgroundRepeat: 'no-repeat',
-              opacity: 0.38,
-              filter: 'blur(3.5px) contrast(110%) brightness(95%)'
+              opacity: 0.25,
+              filter: 'blur(3.5px) contrast(115%) brightness(68%)'
             }}
           />
 
-          {/* Lớp 3: Texture lưới điện tử mờ cực nhẹ (Digital Grid 3.5%) */}
+          {/* Lớp 3: Texture lưới điện tử mờ cực nhẹ (Digital Grid) */}
           <div 
-            className="fixed inset-0 pointer-events-none z-0 opacity-[0.035]"
+            className="fixed inset-0 pointer-events-none z-0 opacity-[0.025]"
             style={{
               backgroundImage: `
                 linear-gradient(to right, rgba(0, 243, 255, 0.35) 1px, transparent 1px),
@@ -101,9 +112,9 @@ export default function App() {
             }}
           />
 
-          {/* Lớp 4: Chiều sâu ánh sáng tương tự Màn 1 nhưng ít đen hơn để nổi bật ánh đèn neon */}
+          {/* Lớp 4: Chiều sâu ánh sáng tương phản đô thị - Tối hơn 30% để nổi bật neon */}
           <div 
-            className="fixed inset-0 pointer-events-none z-0 bg-[radial-gradient(circle_at_50%_25%,transparent_25%,rgba(10,10,16,0.35)_60%,rgba(8,8,12,0.65)_100%)]"
+            className="fixed inset-0 pointer-events-none z-0 bg-[radial-gradient(circle_at_50%_25%,rgba(6,6,10,0.35)_15%,rgba(4,4,8,0.72)_55%,rgba(2,2,5,0.92)_100%)]"
           />
         </>
       ) : (
