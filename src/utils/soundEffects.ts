@@ -787,3 +787,154 @@ export function playPageFlipSound(): void {
   thumpOsc.stop(now + 0.2);
 }
 
+/**
+ * 16. TIẾNG "TÁCH" MÀN TRẬP MÁY ẢNH (Studio Tạp Chí)
+ * Âm thanh click màn trập máy ảnh cơ Leica / Hasselblad studio chuyên nghiệp
+ */
+export function playCameraShutterSound(): void {
+  if (isMutedState) return;
+  const ctx = getAudioContext();
+  if (!ctx) return;
+
+  const now = ctx.currentTime;
+  const buffer = createNoiseBuffer(ctx, 0.12);
+
+  // Shutter click 1 (Front curtain)
+  const noiseSource1 = ctx.createBufferSource();
+  noiseSource1.buffer = buffer;
+  const filter1 = ctx.createBiquadFilter();
+  filter1.type = 'highpass';
+  filter1.frequency.setValueAtTime(2200, now);
+  const gain1 = ctx.createGain();
+  gain1.gain.setValueAtTime(0.0001, now);
+  gain1.gain.linearRampToValueAtTime(0.18, now + 0.005);
+  gain1.gain.exponentialRampToValueAtTime(0.0001, now + 0.04);
+  noiseSource1.connect(filter1);
+  filter1.connect(gain1);
+  gain1.connect(ctx.destination);
+  noiseSource1.start(now);
+  noiseSource1.stop(now + 0.045);
+
+  // Shutter click 2 (Mirror slap & rear curtain)
+  const t2 = now + 0.055;
+  const noiseSource2 = ctx.createBufferSource();
+  noiseSource2.buffer = buffer;
+  const filter2 = ctx.createBiquadFilter();
+  filter2.type = 'bandpass';
+  filter2.frequency.setValueAtTime(1400, t2);
+  const gain2 = ctx.createGain();
+  gain2.gain.setValueAtTime(0.0001, t2);
+  gain2.gain.linearRampToValueAtTime(0.22, t2 + 0.005);
+  gain2.gain.exponentialRampToValueAtTime(0.0001, t2 + 0.06);
+  noiseSource2.connect(filter2);
+  filter2.connect(gain2);
+  gain2.connect(ctx.destination);
+  noiseSource2.start(t2);
+  noiseSource2.stop(t2 + 0.07);
+}
+
+/**
+ * 17. TIẾNG "CẠCH" GỐM SỨ & CÀ PHÊ MỘC (Cà Phê Mộc)
+ * Âm thanh đặt tách sứ nhẹ nhàng trên đĩa gỗ sồi ấm áp
+ */
+export function playCoffeeChimeSound(): void {
+  if (isMutedState) return;
+  const ctx = getAudioContext();
+  if (!ctx) return;
+
+  const now = ctx.currentTime;
+  const osc = ctx.createOscillator();
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(1760, now); // A6
+  osc.frequency.exponentialRampToValueAtTime(1580, now + 0.08);
+
+  const gain = ctx.createGain();
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.linearRampToValueAtTime(0.12, now + 0.003);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.22);
+
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start(now);
+  osc.stop(now + 0.23);
+}
+
+/**
+ * 18. TIẾNG CHUÔNG NGÂN SÂU LẮNG (Bảo Tàng Nghệ Thuật)
+ * Âm thanh chuông khánh đồng ngân dài trong không gian viện bảo tàng tĩnh mịch
+ */
+export function playMuseumEchoSound(): void {
+  if (isMutedState) return;
+  const ctx = getAudioContext();
+  if (!ctx) return;
+
+  const now = ctx.currentTime;
+  const f0 = 880; // A5
+
+  const osc1 = ctx.createOscillator();
+  osc1.type = 'sine';
+  osc1.frequency.setValueAtTime(f0, now);
+
+  const osc2 = ctx.createOscillator();
+  osc2.type = 'sine';
+  osc2.frequency.setValueAtTime(f0 * 2.01, now);
+
+  const gain1 = ctx.createGain();
+  gain1.gain.setValueAtTime(0.0001, now);
+  gain1.gain.linearRampToValueAtTime(0.14, now + 0.005);
+  gain1.gain.exponentialRampToValueAtTime(0.0001, now + 0.65);
+
+  const gain2 = ctx.createGain();
+  gain2.gain.setValueAtTime(0.0001, now);
+  gain2.gain.linearRampToValueAtTime(0.06, now + 0.005);
+  gain2.gain.exponentialRampToValueAtTime(0.0001, now + 0.45);
+
+  osc1.connect(gain1);
+  osc2.connect(gain2);
+  gain1.connect(ctx.destination);
+  gain2.connect(ctx.destination);
+
+  osc1.start(now);
+  osc2.start(now);
+  osc1.stop(now + 0.66);
+  osc2.stop(now + 0.66);
+}
+
+/**
+ * 19. TIẾNG GIÓ THU XÀO XẠC & LÁ BÀNG RƠI (Góc Phố Tràng Tiền)
+ * Giai điệu mộc acoustic 2 nốt lãng mạn mang phong vị Hà Nội mùa thu
+ */
+export function playAutumnBreezeSound(): void {
+  if (isMutedState) return;
+  const ctx = getAudioContext();
+  if (!ctx) return;
+
+  const now = ctx.currentTime;
+  // Note 1: E5 (659.25Hz)
+  const osc1 = ctx.createOscillator();
+  osc1.type = 'sine';
+  osc1.frequency.setValueAtTime(659.25, now);
+  const gain1 = ctx.createGain();
+  gain1.gain.setValueAtTime(0.0001, now);
+  gain1.gain.linearRampToValueAtTime(0.12, now + 0.015);
+  gain1.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
+  osc1.connect(gain1);
+  gain1.connect(ctx.destination);
+  osc1.start(now);
+  osc1.stop(now + 0.36);
+
+  // Note 2: B5 (987.77Hz)
+  const t2 = now + 0.12;
+  const osc2 = ctx.createOscillator();
+  osc2.type = 'sine';
+  osc2.frequency.setValueAtTime(987.77, t2);
+  const gain2 = ctx.createGain();
+  gain2.gain.setValueAtTime(0.0001, t2);
+  gain2.gain.linearRampToValueAtTime(0.14, t2 + 0.015);
+  gain2.gain.exponentialRampToValueAtTime(0.0001, t2 + 0.42);
+  osc2.connect(gain2);
+  gain2.connect(ctx.destination);
+  osc2.start(t2);
+  osc2.stop(t2 + 0.43);
+}
+

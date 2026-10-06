@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   HeritageItem, 
   ColorOption, 
@@ -10,7 +10,11 @@ import {
   playCourtBrassSound,
   playHueFluteSound,
   playHoiAnPianoFaSound,
-  playThangLongUkuleleSound
+  playThangLongUkuleleSound,
+  playCameraShutterSound,
+  playCoffeeChimeSound,
+  playMuseumEchoSound,
+  playAutumnBreezeSound
 } from '../utils/soundEffects';
 import { 
   Eye, 
@@ -33,6 +37,8 @@ import { useSoundMute } from '../utils/soundEffects';
 
 export type CanvasViewMode = 'mannequin' | 'editorial' | 'breakdown';
 export type HeritageBackground = 'studio' | 'hue' | 'hoian' | 'thanglong';
+export type ModernBackground = 'studio' | 'cafe' | 'museum' | 'street';
+export type CanvasBackgroundId = HeritageBackground | ModernBackground;
 
 interface OutfitMoodboardCanvasProps {
   activeGarment: HeritageItem;
@@ -70,13 +76,18 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
   currentTier = 'heritage',
 }) => {
   const [viewMode, setViewMode] = useState<CanvasViewMode>('mannequin');
-  const [selectedBg, setSelectedBg] = useState<HeritageBackground>('studio');
+  const [selectedBg, setSelectedBg] = useState<CanvasBackgroundId>('studio');
   const [showLabels, setShowLabels] = useState<boolean>(true);
   const [activeHotspot, setActiveHotspot] = useState<string | null>(null);
   const [isZoomModalOpen, setIsZoomModalOpen] = useState<boolean>(false);
   const [isExportingPoster, setIsExportingPoster] = useState<boolean>(false);
   const [exportSuccessMessage, setExportSuccessMessage] = useState<string | null>(null);
   const { isMuted, toggleMute } = useSoundMute();
+
+  // Reset to default studio background whenever the user switches between heritage and modern tiers
+  useEffect(() => {
+    setSelectedBg('studio');
+  }, [currentTier]);
 
   // Check if any taboo is currently active
   const hasActiveTaboo = isChineseButtonSelected || isImperialYellowSelected || isTabooClashSelected || !hasDonY;
@@ -90,36 +101,66 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
   // Dynamic transition key for micro-interactions (Fade-in + Scale up 1.02x on outfit changes)
   const previewTransitionKey = `${activeGarment.id}_${selectedColorHex}_${activeAccessoryItem.id}_${activeButtonItem.id}_${activeBottomItem.id}_${activeShoesItem.id}_${hasDonY}_${uploadedImage ? 'upload' : 'robe'}`;
 
-  // 4 Heritage Background Presets
-  const BACKGROUND_THEMES = [
+  // 4 Heritage Background Presets (Màn 1: Chốn Tôn Nghiêm)
+  const HERITAGE_BACKGROUND_THEMES = [
     {
-      id: 'studio' as HeritageBackground,
+      id: 'studio' as CanvasBackgroundId,
       name: 'Studio Cung Đình',
       icon: '👑',
       badge: 'Haute Couture'
     },
     {
-      id: 'hue' as HeritageBackground,
+      id: 'hue' as CanvasBackgroundId,
       name: 'Cố Đô Huế',
       icon: '🏯',
       badge: 'Đại Nội'
     },
     {
-      id: 'hoian' as HeritageBackground,
+      id: 'hoian' as CanvasBackgroundId,
       name: 'Phố Cổ Hội An',
       icon: '🏮',
       badge: 'Đèn Lồng'
     },
     {
-      id: 'thanglong' as HeritageBackground,
+      id: 'thanglong' as CanvasBackgroundId,
       name: 'Thành Thăng Long',
       icon: '🏛️',
       badge: 'Đoan Môn'
     },
   ];
 
+  // 4 Modern Editorial Background Presets (Màn 2: Thanh Lịch Đời Thường)
+  const MODERN_BACKGROUND_THEMES = [
+    {
+      id: 'studio' as CanvasBackgroundId,
+      name: 'Studio Tạp Chí',
+      icon: '📸',
+      badge: 'Editorial Pattern'
+    },
+    {
+      id: 'cafe' as CanvasBackgroundId,
+      name: 'Cà Phê Mộc',
+      icon: '☕',
+      badge: 'Phê La Cozy'
+    },
+    {
+      id: 'museum' as CanvasBackgroundId,
+      name: 'Bảo Tàng Nghệ Thuật',
+      icon: '🏛️',
+      badge: 'Cửa Chạm Gỗ'
+    },
+    {
+      id: 'street' as CanvasBackgroundId,
+      name: 'Góc Phố Tràng Tiền',
+      icon: '🍂',
+      badge: 'Mùa Thu Hà Nội'
+    },
+  ];
+
+  const activeBackgroundThemes = currentTier === 'modern' ? MODERN_BACKGROUND_THEMES : HERITAGE_BACKGROUND_THEMES;
+
   // Map of 4 Heritage Background Images from /backgrounds/
-  const BACKGROUND_IMAGES: Record<HeritageBackground, { src: string; alt: string; tint: string; glow: string }> = {
+  const HERITAGE_BACKGROUND_IMAGES: Record<HeritageBackground, { src: string; alt: string; tint: string; glow: string }> = {
     studio: {
       src: '/backgrounds/studio-cung-dinh.png',
       alt: 'Studio Cung Đình',
@@ -146,6 +187,53 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
     },
   };
 
+  // Map of 4 Modern Background Images from /backgrounds/ (Blur nhẹ, ánh sáng dịu để giữ spotlight cho ma nơ canh)
+  const MODERN_BACKGROUND_IMAGES: Record<ModernBackground, {
+    src: string;
+    alt: string;
+    tint: string;
+    blurAmount: string;
+    opacity: number;
+    badge: string;
+  }> = {
+    studio: {
+      src: '/backgrounds/studio-tap-chi.png',
+      alt: 'Studio Tạp Chí - Họa Tiết Vân Mây Tơ Lụa',
+      tint: 'from-[#FAF8F5]/85 via-[#F5EFEB]/65 to-[#EAE0D8]/85',
+      blurAmount: '2.5px',
+      opacity: 0.38,
+      badge: 'Editorial Pattern'
+    },
+    cafe: {
+      src: '/backgrounds/ca-phe-moc.jpg',
+      alt: 'Cà Phê Mộc - Không Gian Cà Phê Mộc Mạc & Cây Xanh',
+      tint: 'from-[#FAF7F2]/82 via-[#F4EFE6]/58 to-[#E5DCD0]/85',
+      blurAmount: '2.5px',
+      opacity: 0.52,
+      badge: 'Coffee Vibes'
+    },
+    museum: {
+      src: '/backgrounds/bao-tang-nghe-thuat.jpg',
+      alt: 'Bảo Tàng Nghệ Thuật - Cánh Cửa Chạm Khắc Gỗ Cung Đình',
+      tint: 'from-[#FDFBF7]/84 via-[#F6F0E8]/62 to-[#E8DDD0]/86',
+      blurAmount: '2.5px',
+      opacity: 0.50,
+      badge: 'Art Exhibition'
+    },
+    street: {
+      src: '/backgrounds/goc-pho-trang-tien.jpg',
+      alt: 'Góc Phố Tràng Tiền - Biệt Thự Cổ & Hàng Cây Lá Đỏ',
+      tint: 'from-[#FAF9F5]/80 via-[#F3EFE7]/54 to-[#E0DED4]/84',
+      blurAmount: '2.5px',
+      opacity: 0.54,
+      badge: 'Street Style'
+    },
+  };
+
+  // Keep BACKGROUND_THEMES alias for backward compatibility
+  const BACKGROUND_THEMES = HERITAGE_BACKGROUND_THEMES;
+  const BACKGROUND_IMAGES = HERITAGE_BACKGROUND_IMAGES;
+
   // ==========================================
   // EXPORT POSTER LOOKBOOK (HTML5 CANVAS PNG)
   // ==========================================
@@ -170,7 +258,11 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
       };
 
       // 1. Draw real background photo if available, with dreamy soft overlay
-      const bgImg = await loadImage(BACKGROUND_IMAGES[selectedBg]?.src || '/backgrounds/studio-cung-dinh.png');
+      const activeBgSrc = currentTier === 'modern'
+        ? (MODERN_BACKGROUND_IMAGES[(selectedBg in MODERN_BACKGROUND_IMAGES ? selectedBg : 'studio') as ModernBackground]?.src || '/backgrounds/studio-tap-chi.png')
+        : (HERITAGE_BACKGROUND_IMAGES[(selectedBg in HERITAGE_BACKGROUND_IMAGES ? selectedBg : 'studio') as HeritageBackground]?.src || '/backgrounds/studio-cung-dinh.png');
+
+      const bgImg = await loadImage(activeBgSrc);
       if (bgImg) {
         ctx.save();
         const hRatio = canvas.width / bgImg.width;
@@ -190,8 +282,12 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
           bgImg.height * ratio
         );
 
-        // Atmospheric dark overlay to keep outfit in clear spotlight
-        ctx.fillStyle = 'rgba(10, 10, 15, 0.72)';
+        // Atmospheric overlay to keep outfit in clear spotlight
+        if (currentTier === 'modern') {
+          ctx.fillStyle = 'rgba(250, 248, 245, 0.78)';
+        } else {
+          ctx.fillStyle = 'rgba(10, 10, 15, 0.72)';
+        }
         ctx.fillRect(0, 0, 1200, 1600);
         ctx.restore();
       } else {
@@ -259,16 +355,23 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
       // 3. Header Text
       ctx.textAlign = 'center';
       ctx.font = '600 16px sans-serif';
-      ctx.fillStyle = '#C5A059';
-      ctx.fillText('H E R I T S T Y L E   A I   •   V I Ệ T   P H Ụ C   R E M I X   2 0 2 6', 600, 110);
+      ctx.fillStyle = currentTier === 'modern' ? '#6E8F6B' : '#C5A059';
+      ctx.fillText(
+        currentTier === 'modern'
+          ? 'H E R I T S T Y L E   A I   •   T H A N H   L Ị C H   Đ Ờ I   T H Ư Ờ N G   2 0 2 6'
+          : 'H E R I T S T Y L E   A I   •   V I Ệ T   P H Ụ C   R E M I X   2 0 2 6',
+        600,
+        110
+      );
 
       ctx.font = 'bold 44px serif';
-      ctx.fillStyle = '#F5F2EB';
+      ctx.fillStyle = currentTier === 'modern' ? '#292524' : '#F5F2EB';
       ctx.fillText(activeGarment.name.toUpperCase(), 600, 165);
 
       ctx.font = '500 20px sans-serif';
-      ctx.fillStyle = '#D4AF37';
-      const bgName = BACKGROUND_THEMES.find(b => b.id === selectedBg)?.name.toUpperCase() || 'STUDIO CUNG ĐÌNH';
+      ctx.fillStyle = currentTier === 'modern' ? '#8BA888' : '#D4AF37';
+      const bgName = activeBackgroundThemes.find(b => b.id === selectedBg)?.name.toUpperCase() 
+        || (currentTier === 'modern' ? 'STUDIO TẠP CHÍ' : 'STUDIO CUNG ĐÌNH');
       ctx.fillText(`SẮC ${activeColor.vietnameseName.toUpperCase()} • BỐI CẢNH: ${bgName}`, 600, 205);
 
       // Decorative line under title
@@ -704,37 +807,71 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
   // ==========================================
   const renderHeritageBackgroundArt = () => {
     if (currentTier === 'modern') {
+      const modernBgKey = (selectedBg in MODERN_BACKGROUND_IMAGES ? selectedBg : 'studio') as ModernBackground;
+      const currentModernBg = MODERN_BACKGROUND_IMAGES[modernBgKey] || MODERN_BACKGROUND_IMAGES.studio;
+
       return (
         <div className="absolute inset-0 pointer-events-none overflow-hidden transition-all duration-700 select-none">
-          {/* Natural Studio Gradient */}
-          <div className="absolute inset-0 bg-gradient-to-b from-[#FAF8F5] via-[#F2EFE9] to-[#E5E1D8]" />
-          {/* Natural Studio Radial Soft Key Light */}
+          {/* Base Neutral Studio Foundation */}
+          <div className="absolute inset-0 bg-[#FAF8F5]" />
+
+          {/* Real Photo Background - Blur nhẹ nhàng (2.5px) để tạo không gian nghệ thuật mà không chiếm spotlight của ma nơ canh */}
+          <img
+            key={`modern_${modernBgKey}`}
+            src={currentModernBg.src}
+            alt={currentModernBg.alt}
+            className="absolute inset-0 w-full h-full object-cover object-center scale-105 pointer-events-none transition-all duration-700"
+            style={{
+              filter: `blur(${currentModernBg.blurAmount})`,
+              opacity: currentModernBg.opacity,
+            }}
+          />
+
+          {/* Ambient Tone Overlay tailored for modern editorial aesthetic */}
+          <div className={`absolute inset-0 bg-gradient-to-b ${currentModernBg.tint} transition-all duration-700 pointer-events-none`} />
+
+          {/* Center Editorial Keylight: Giữ cho ma nơ canh và cổ phục luôn sáng rõ, tinh tế ở trung tâm */}
           <div 
             className="absolute inset-0 pointer-events-none"
             style={{
-              background: 'radial-gradient(circle at 50% 36%, rgba(255,255,255,0.9) 0%, rgba(246,243,237,0.55) 45%, rgba(224,219,209,0.75) 100%)'
+              background: 'radial-gradient(circle at 50% 46%, rgba(255,255,255,0.88) 0%, rgba(250,248,245,0.6) 48%, rgba(230,224,214,0.85) 100%)'
             }}
           />
+
+          {/* Soft Edge Vignette for depth */}
+          <div 
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              boxShadow: 'inset 0 0 70px rgba(0,0,0,0.05)'
+            }}
+          />
+
           {/* Editorial Rice Paper / Linen Grain Texture */}
           <div 
-            className="absolute inset-0 opacity-[0.04] mix-blend-multiply pointer-events-none"
+            className="absolute inset-0 opacity-[0.035] mix-blend-multiply pointer-events-none"
             style={{
               backgroundImage: 'radial-gradient(#2b2b2f 1px, transparent 1px)',
               backgroundSize: '16px 16px'
             }}
           />
+
+          {/* Subtle floating ambient light particles for lively editorial depth */}
+          <div className="absolute top-16 left-1/4 w-1.5 h-1.5 rounded-full bg-white/70 blur-[0.5px] animate-pulse" />
+          <div className="absolute top-40 right-1/4 w-2 h-2 rounded-full bg-amber-100/60 blur-[0.5px] animate-pulse" style={{ animationDelay: '0.8s' }} />
+
           {/* Soft Contact Shadow under mannequin's feet */}
           <div className="absolute bottom-5 left-1/2 -translate-x-1/2 w-48 sm:w-56 h-5 rounded-[50%] bg-stone-900/15 blur-sm pointer-events-none" />
         </div>
       );
     }
 
-    const currentBg = BACKGROUND_IMAGES[selectedBg] || BACKGROUND_IMAGES.studio;
+    const heritageBgKey = (selectedBg in HERITAGE_BACKGROUND_IMAGES ? selectedBg : 'studio') as HeritageBackground;
+    const currentBg = HERITAGE_BACKGROUND_IMAGES[heritageBgKey] || HERITAGE_BACKGROUND_IMAGES.studio;
     return (
       <div className="absolute inset-0 pointer-events-none overflow-hidden transition-all duration-700 select-none">
         {/* Real Heritage Photo - Softly blurred & dreamy atmospheric perspective */}
         <img
-          key={selectedBg}
+          key={heritageBgKey}
           src={currentBg.src}
           alt={currentBg.alt}
           className="absolute inset-0 w-full h-full object-cover object-center scale-105 filter blur-[1.5px] transition-all duration-700 opacity-45 brightness-90 contrast-110"
@@ -752,27 +889,27 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
         />
 
         {/* Atmospheric Floating Light Particles for Dreamy "Mờ mờ ảo ảo" Effect */}
-        {selectedBg === 'hue' && (
+        {heritageBgKey === 'hue' && (
           <>
             <div className="absolute top-20 left-12 w-2 h-2 rounded-full bg-[#f4a261] blur-sm animate-pulse" />
             <div className="absolute top-36 right-16 w-3 h-3 rounded-full bg-[#e76f51] blur-sm animate-pulse" style={{ animationDelay: '1s' }} />
             <div className="absolute bottom-28 left-20 w-2.5 h-2.5 rounded-full bg-[#e5c365] blur-sm animate-pulse" style={{ animationDelay: '1.5s' }} />
           </>
         )}
-        {selectedBg === 'hoian' && (
+        {heritageBgKey === 'hoian' && (
           <>
             <div className="absolute top-10 left-10 w-3 h-3 rounded-full bg-[#ffd166] blur-sm animate-pulse" />
             <div className="absolute top-24 right-14 w-2.5 h-2.5 rounded-full bg-[#e63946] blur-sm animate-pulse" style={{ animationDelay: '0.8s' }} />
             <div className="absolute bottom-24 right-20 w-2 h-2 rounded-full bg-[#f4a261] blur-sm animate-pulse" style={{ animationDelay: '1.6s' }} />
           </>
         )}
-        {selectedBg === 'thanglong' && (
+        {heritageBgKey === 'thanglong' && (
           <>
             <div className="absolute top-16 left-16 w-2.5 h-2.5 rounded-full bg-[#e5c365] blur-sm animate-pulse" />
             <div className="absolute top-28 right-24 w-2 h-2 rounded-full bg-[#a3b18a] blur-sm animate-pulse" style={{ animationDelay: '1.2s' }} />
           </>
         )}
-        {selectedBg === 'studio' && (
+        {heritageBgKey === 'studio' && (
           <>
             <div className="absolute top-20 left-1/4 w-1.5 h-1.5 rounded-full bg-[#e5c365] opacity-60 blur-[0.5px] animate-pulse" />
             <div className="absolute top-44 right-1/4 w-2 h-2 rounded-full bg-[#e5c365] opacity-70 blur-[0.5px] animate-pulse" style={{ animationDelay: '0.7s' }} />
@@ -891,20 +1028,32 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
           <span className="text-[10px] uppercase font-bold text-stone-400 tracking-wider mr-1">
             Bối Cảnh:
           </span>
-          {BACKGROUND_THEMES.map((bg) => (
+          {activeBackgroundThemes.map((bg) => (
             <button
               key={bg.id}
               type="button"
               onClick={() => {
                 setSelectedBg(bg.id);
-                if (bg.id === 'studio') {
-                  playCourtBrassSound();
-                } else if (bg.id === 'hue') {
-                  playHueFluteSound();
-                } else if (bg.id === 'hoian') {
-                  playHoiAnPianoFaSound();
-                } else if (bg.id === 'thanglong') {
-                  playThangLongUkuleleSound();
+                if (currentTier === 'modern') {
+                  if (bg.id === 'studio') {
+                    playCameraShutterSound();
+                  } else if (bg.id === 'cafe') {
+                    playCoffeeChimeSound();
+                  } else if (bg.id === 'museum') {
+                    playMuseumEchoSound();
+                  } else if (bg.id === 'street') {
+                    playAutumnBreezeSound();
+                  }
+                } else {
+                  if (bg.id === 'studio') {
+                    playCourtBrassSound();
+                  } else if (bg.id === 'hue') {
+                    playHueFluteSound();
+                  } else if (bg.id === 'hoian') {
+                    playHoiAnPianoFaSound();
+                  } else if (bg.id === 'thanglong') {
+                    playThangLongUkuleleSound();
+                  }
                 }
               }}
               className={`px-2.5 py-1 rounded-lg text-[11px] font-medium transition-all flex items-center gap-1.5 border cursor-pointer ${
