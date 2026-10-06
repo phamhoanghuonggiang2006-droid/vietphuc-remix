@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Disc3, Zap, Radio, Sliders, Volume2, Sparkles, Flame, Activity } from 'lucide-react';
+import { Disc3, Radio, Sliders, Volume2, Sparkles, Flame, Activity } from 'lucide-react';
 import { playDjScratchSound, play808BassDropSound } from '../utils/soundEffects';
 
 export interface DjDeckPreset {
@@ -399,38 +399,23 @@ export const TheDjDeckPresets: React.FC<TheDjDeckPresetsProps> = ({
       {/* 3. ACTIVE TRACK PLAYOUT BANNER & HIGHLIGHT TAGS */}
       {/* ======================================================== */}
       <div className="bg-[#0d0d12] border border-white/10 p-3.5 sm:p-4 space-y-3 shadow-inner">
-        {/* Top Header: Hình chữ nhật với text TRẠM... nằm ở giữa & Địa điểm nổi bật phát sáng */}
-        <div className="grid grid-cols-1 md:grid-cols-3 items-center gap-3 pb-3 border-b border-white/10">
-          {/* Thông tin địa điểm NỔI BẬT PHÁT SÁNG, BỎ EMOJI PIN (Bên trái) */}
-          <div className="flex items-center justify-center md:justify-start gap-2 order-2 md:order-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#39ff14] animate-ping shrink-0" />
-            <span className="text-xs sm:text-sm font-mono font-bold text-[#00f3ff] drop-shadow-[0_0_10px_rgba(0,243,255,0.85)] tracking-wide">
-              {activeTrack.location}
+        {/* Top Header: Trái: Box TRẠM... bo tròn, Phải: Địa chỉ thu nhỏ dịu mắt, BỎ nút DROP BASS */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-3 border-b border-white/10">
+          {/* CÁI HÌNH CHỮ NHẬT VỚI TEXT "TRẠM..." NẰM Ở RÌA BÊN TRÁI, BO TRÒN, TEXT MÀU TRẮNG */}
+          <div className="self-start px-3.5 py-1.5 bg-white/[0.06] border border-white/20 rounded-lg flex items-center gap-2 shadow-sm">
+            <span className="text-sm sm:text-base font-black text-white uppercase tracking-wider font-mono">
+              {activeTrack.tag.split('·')[0].trim()}
+            </span>
+            <span className="text-white/40 text-xs">·</span>
+            <span className="text-xs sm:text-[12px] font-semibold text-white/90 uppercase tracking-wide font-sans">
+              {activeTrack.tag.split('·')[1]?.trim()}
             </span>
           </div>
 
-          {/* CÁI HÌNH CHỮ NHẬT VỚI TEXT "TRẠM..." NẰM Ở GIỮA */}
-          <div className="flex items-center justify-center order-1 md:order-2">
-            <div className="px-4 py-1.5 bg-[#00f3ff]/15 text-[#00f3ff] border border-[#00f3ff]/50 text-xs font-mono font-black uppercase tracking-wider flex items-center justify-center text-center shadow-[0_0_12px_rgba(0,243,255,0.25)]">
-              {activeTrack.tag}
-            </div>
-          </div>
-
-          {/* Quick Sound Scratch / Drop Bass Button (Bên phải) */}
-          <div className="flex items-center justify-center md:justify-end order-3">
-            <button
-              type="button"
-              onClick={() => {
-                play808BassDropSound();
-                setIsBassShaking(true);
-                setTimeout(() => setIsBassShaking(false), 320);
-              }}
-              className="shrink-0 px-3 py-1.5 bg-[#00f3ff]/10 hover:bg-[#00f3ff]/20 text-[#00f3ff] border border-[#00f3ff]/40 text-[10.5px] font-mono font-black flex items-center justify-center gap-1.5 cursor-pointer transition-all active:scale-95 shadow-[0_0_10px_rgba(0,243,255,0.15)]"
-              title="Nhấn để kích hoạt hiệu ứng 808 bass drop"
-            >
-              <Zap className="w-3.5 h-3.5 text-[#39FF14]" />
-              <span>DROP BASS</span>
-            </button>
+          {/* THÔNG TIN ĐỊA CHỈ: RÌA BÊN PHẢI, GIẢM KÍCH CỠ & ĐỘ SÁNG XUỐNG 30%, KHÔNG ÁT VÍA */}
+          <div className="self-end sm:self-auto flex items-center gap-1.5 text-[10.5px] sm:text-xs font-mono text-stone-400 tracking-wide text-right">
+            <span className="w-1.5 h-1.5 rounded-full bg-stone-500 shrink-0" />
+            <span>{activeTrack.location}</span>
           </div>
         </div>
 
