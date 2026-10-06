@@ -67,6 +67,7 @@
 .font-streetwear * {
   font-family: 'Orbitron', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   letter-spacing: 0.02em;
+  font-style: normal !important;
 }
 
 .font-streetwear {

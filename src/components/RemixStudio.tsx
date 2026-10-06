@@ -1190,7 +1190,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                 <h3 className={`text-sm font-bold flex items-center gap-1.5 ${
                   currentTier === 'modern' ? 'text-stone-900' : 'text-[#f5f2eb]'
                 }`}>
-                  <span className={currentTier === 'fusion' ? 'font-black italic uppercase tracking-wider' : ''}>
+                  <span className={currentTier === 'fusion' ? 'font-black not-italic font-bold uppercase tracking-wider' : ''}>
                     {currentTier === 'modern' ? 'Tủ Đồ Thanh Lịch' : currentTier === 'fusion' ? 'TỦ ĐỒ PHÁ CÁCH' : 'Tủ Đồ Ngự Lãm'}
                   </span>
                   <span className={`text-[10px] px-2 py-0.5 border ${
@@ -1256,7 +1256,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                         setActiveWardrobeTab(tab.id);
                         playDjScratchSound();
                       }}
-                      className={`px-3 py-1.5 text-xs font-black italic uppercase tracking-wider whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 shrink-0 ${
+                      className={`px-3 py-1.5 text-xs font-black not-italic font-bold uppercase tracking-wider whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 shrink-0 ${
                         isActive
                           ? 'bg-[#00f3ff]/15 text-[#00f3ff] border border-[#00f3ff] shadow-[0_0_12px_rgba(0,243,255,0.2)]'
                           : 'bg-transparent text-stone-400 border border-transparent hover:border-white/15 hover:text-white hover:bg-white/[0.02]'
@@ -1381,7 +1381,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
 
                         <div className={`mt-2 text-xs line-clamp-1 ${
                           currentTier === 'fusion'
-                            ? 'font-black italic uppercase tracking-wider text-white'
+                            ? 'font-black not-italic font-bold uppercase tracking-wider text-white'
                             : currentTier === 'modern'
                             ? 'font-bold text-stone-900'
                             : 'font-bold text-[#f5f2eb]'
@@ -1568,7 +1568,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                         <div className="min-w-0 flex-1">
                           <div className={`text-xs truncate flex items-center justify-between ${
                             currentTier === 'fusion'
-                              ? 'font-black italic uppercase tracking-wider text-white'
+                              ? 'font-black not-italic font-bold uppercase tracking-wider text-white'
                               : currentTier === 'modern'
                               ? 'font-semibold text-stone-900'
                               : 'font-semibold text-stone-200'
@@ -1741,7 +1741,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                           <div className="flex items-center justify-between">
                             <div className={`text-xs truncate flex-1 pr-1 ${
                               currentTier === 'fusion'
-                                ? 'font-black italic uppercase tracking-wider text-white'
+                                ? 'font-black not-italic font-bold uppercase tracking-wider text-white'
                                 : currentTier === 'modern'
                                 ? 'font-semibold text-stone-900'
                                 : 'font-semibold text-[#f5f2eb]'
@@ -1951,7 +1951,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                           <div className="flex items-center justify-between">
                             <div className={`text-xs truncate flex-1 pr-1 ${
                               currentTier === 'fusion'
-                                ? 'font-black italic uppercase tracking-wider text-white'
+                                ? 'font-black not-italic font-bold uppercase tracking-wider text-white'
                                 : currentTier === 'modern'
                                 ? 'font-semibold text-stone-900'
                                 : 'font-semibold text-[#f5f2eb]'
@@ -2126,7 +2126,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                           <div className="flex items-center justify-between">
                             <div className={`text-xs truncate flex-1 pr-1 ${
                               currentTier === 'fusion'
-                                ? 'font-black italic uppercase tracking-wider text-white'
+                                ? 'font-black not-italic font-bold uppercase tracking-wider text-white'
                                 : currentTier === 'modern'
                                 ? 'font-semibold text-stone-900'
                                 : 'font-semibold text-[#f5f2eb]'
@@ -2302,7 +2302,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                           <div className="flex items-center justify-between">
                             <div className={`text-xs truncate flex-1 pr-1 ${
                               currentTier === 'fusion'
-                                ? 'font-black italic uppercase tracking-wider text-white'
+                                ? 'font-black not-italic font-bold uppercase tracking-wider text-white'
                                 : currentTier === 'modern'
                                 ? 'font-semibold text-stone-900'
                                 : 'font-semibold text-[#f5f2eb]'
@@ -2444,7 +2444,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                         )}
                         <div>
                           <div className={`flex items-center justify-between text-xs sm:text-sm ${
-                            currentTier === 'fusion' ? 'font-black italic uppercase tracking-wider text-white' : currentTier === 'modern' ? 'font-bold text-stone-900' : 'font-bold text-[#f5f2eb]'
+                            currentTier === 'fusion' ? 'font-black not-italic font-bold uppercase tracking-wider text-white' : currentTier === 'modern' ? 'font-bold text-stone-900' : 'font-bold text-[#f5f2eb]'
                           }`}>
                             <span>{item.name}</span>
                             {isCompliant ? (
@@ -2840,7 +2840,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                     </span>
                   </div>
                   <p className={`leading-relaxed ${
-                    currentTier === 'fusion' ? 'font-black italic text-sm text-white uppercase' : currentTier === 'modern' ? 'font-semibold italic font-serif text-stone-800' : 'font-semibold italic font-serif text-stone-100'
+                    currentTier === 'fusion' ? 'font-black not-italic font-bold text-sm text-white uppercase' : currentTier === 'modern' ? 'font-semibold italic font-serif text-stone-800' : 'font-semibold italic font-serif text-stone-100'
                   }`}>
                     {dualMetrics.stylistQuote}
                   </p>
@@ -2912,7 +2912,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                 disabled={isGenerating}
                 className={`w-full py-4 px-4 font-black tracking-wide transition-all flex items-center justify-center gap-2.5 disabled:opacity-50 cursor-pointer active:scale-[0.99] border ${
                   currentTier === 'fusion'
-                    ? 'rounded-none bg-[#00f3ff] hover:bg-[#39ff14] text-black italic uppercase text-sm sm:text-base tracking-wider shadow-[0_0_25px_rgba(0,243,255,0.35)] hover:shadow-[0_0_30px_rgba(57,255,20,0.45)] border border-transparent'
+                    ? 'rounded-none bg-[#00f3ff] hover:bg-[#39ff14] text-black not-italic font-bold uppercase text-sm sm:text-base tracking-wider shadow-[0_0_25px_rgba(0,243,255,0.35)] hover:shadow-[0_0_30px_rgba(57,255,20,0.45)] border border-transparent'
                     : currentTier === 'modern'
                     ? 'rounded-xl font-serif text-sm sm:text-base bg-gradient-to-r from-[#8BA888] via-[#759472] to-[#8BA888] hover:brightness-105 text-white shadow-[0_8px_25px_rgba(139,168,136,0.35)] border-white/40'
                     : 'rounded-xl font-serif text-sm sm:text-base bg-gradient-to-r from-[#c5a059] via-[#e5c365] to-[#c5a059] hover:brightness-110 text-stone-950 shadow-[0_8px_25px_rgba(212,175,55,0.35)] border-[#fff5db]/50'
@@ -3461,7 +3461,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                 onClick={() => setIsLookbookModalOpen(false)}
                 className={`w-full sm:w-auto px-6 py-2.5 font-bold text-xs hover:brightness-110 shadow-md transition-all cursor-pointer ${
                   currentTier === 'fusion'
-                    ? 'rounded-none bg-[#00f3ff] hover:bg-[#39ff14] text-black font-black uppercase italic shadow-[0_0_20px_rgba(0,243,255,0.35)]'
+                    ? 'rounded-none bg-[#00f3ff] hover:bg-[#39ff14] text-black font-black uppercase not-italic font-bold shadow-[0_0_20px_rgba(0,243,255,0.35)]'
                     : currentTier === 'modern'
                     ? 'rounded-xl bg-gradient-to-r from-[#8BA888] to-[#6E8F6C] text-white'
                     : 'rounded-xl bg-gradient-to-r from-[#c5a059] to-[#e5c365] text-stone-950'

@@ -258,9 +258,9 @@ export const TheDjDeckPresets: React.FC<TheDjDeckPresetsProps> = ({
           </div>
           <div>
             <div className="flex items-center gap-1.5">
-              <h2 className="font-black italic uppercase tracking-wider text-base text-white flex items-center gap-1.5">
-                <span>TRẠM TRỘN MIXSET</span>
-                <span className="text-[#00f3ff] text-xs font-mono not-italic">[THE DJ DECK]</span>
+              <h2 className="font-black not-italic font-bold uppercase tracking-wider text-[21px] sm:text-[23px] text-white flex items-center gap-2">
+                <span>TRẠM LÊN ĐỒ MIXSET</span>
+                <span className="text-[#00f3ff] text-xs sm:text-sm font-mono not-italic">[THE DJ DECK]</span>
               </h2>
             </div>
             <p className="text-[10px] text-stone-400 font-mono tracking-tight">
@@ -535,19 +535,6 @@ export const TheDjDeckPresets: React.FC<TheDjDeckPresetsProps> = ({
                           <span>{track.watermark}</span>
                           <span>PAD 0{index + 1}</span>
                         </span>
-
-                        <div className="flex items-center gap-1.5 bg-black/60 px-2 py-0.5 border border-white/10 rounded shrink-0">
-                          <span
-                            className={`w-1.5 h-1.5 rounded-full inline-block ${isSelected ? 'animate-ping' : ''}`}
-                            style={{
-                              backgroundColor: isSelected ? track.accentNeon : '#78716c',
-                              boxShadow: isSelected ? `0 0 8px ${track.accentNeon}` : 'none'
-                            }}
-                          />
-                          <span className={`font-mono text-[10px] font-bold whitespace-nowrap ${isSelected ? 'text-white' : 'text-stone-400'}`}>
-                            {track.bpm} BPM
-                          </span>
-                        </div>
                       </div>
                     </div>
 

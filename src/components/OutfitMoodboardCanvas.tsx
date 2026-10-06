@@ -1054,7 +1054,7 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
                 currentTier === 'modern'
                   ? 'text-[#3E5C3B]'
                   : currentTier === 'fusion'
-                  ? 'font-black italic text-white tracking-widest font-streetwear'
+                  ? 'font-black not-italic font-bold text-white tracking-widest font-streetwear'
                   : 'text-[#c5a059]'
               }`}>
                 {currentTier === 'modern'
@@ -1368,26 +1368,6 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
             key={previewTransitionKey} 
             className="relative w-full max-w-[420px] py-6 flex flex-col items-center justify-center select-none animate-preview-robe"
           >
-            {/* GATEKEEPER RUBBER STAMP: "FUSION - LẤY CẢM HỨNG" (MÀN 3) */}
-            {currentTier === 'fusion' && (
-              <div 
-                className="absolute top-3 right-3 sm:top-5 sm:right-5 z-40 pointer-events-none select-none animate-stamp-slam"
-                style={{ transform: 'rotate(-10deg)' }}
-              >
-                <div className="relative px-3 py-1.5 sm:px-3.5 sm:py-1.5 bg-black/90 backdrop-blur-md border border-[#FF007F]/80 text-[#FF007F] font-black tracking-widest uppercase shadow-[0_0_15px_rgba(255,0,127,0.35)] flex flex-col items-center justify-center font-streetwear">
-                  <span className="text-[7.5px] font-mono tracking-widest border-b border-[#FF007F]/40 pb-0.5 mb-0.5 w-full text-center">
-                    // GATEKEEPER STAMP //
-                  </span>
-                  <span className="text-xs sm:text-[13px] font-black italic tracking-widest drop-shadow-[0_0_8px_#FF007F]">
-                    FUSION · LẤY CẢM HỨNG
-                  </span>
-                  <span className="text-[7.5px] font-mono text-stone-300 tracking-wider mt-0.5">
-                    🚫 CẤM CỬA Ở ĐỀN CHÙA
-                  </span>
-                </div>
-              </div>
-            )}
-            
             {/* GHOST MANNEQUIN / HAUTE COUTURE CROQUIS SILHOUETTE */}
             <svg 
               viewBox="0 0 400 580" 
