@@ -158,7 +158,39 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
     },
   ];
 
-  const activeBackgroundThemes = currentTier === 'modern' ? MODERN_BACKGROUND_THEMES : HERITAGE_BACKGROUND_THEMES;
+  // 4 Fusion Streetwear Background Presets (Màn 3: Phố Thị Phá Cách)
+  const FUSION_BACKGROUND_THEMES = [
+    {
+      id: 'studio' as CanvasBackgroundId,
+      name: 'Tường Bê Tông Xước',
+      icon: '🧱',
+      badge: 'Brutalist Concrete'
+    },
+    {
+      id: 'cafe' as CanvasBackgroundId,
+      name: 'Màn Hình LED Glitch',
+      icon: '⚡',
+      badge: 'Cyberpunk Billboard'
+    },
+    {
+      id: 'museum' as CanvasBackgroundId,
+      name: 'Skatepark 30/4',
+      icon: '🛹',
+      badge: 'Tet-Core Underground'
+    },
+    {
+      id: 'street' as CanvasBackgroundId,
+      name: 'Phố Đêm Bùi Viện',
+      icon: '🌆',
+      badge: 'Neon Nightlife'
+    },
+  ];
+
+  const activeBackgroundThemes = currentTier === 'modern'
+    ? MODERN_BACKGROUND_THEMES
+    : currentTier === 'fusion'
+    ? FUSION_BACKGROUND_THEMES
+    : HERITAGE_BACKGROUND_THEMES;
 
   // Map of 4 Heritage Background Images from /backgrounds/ (Giảm tối 20% để bối cảnh hiện diện rõ nét, nguy nga)
   const HERITAGE_BACKGROUND_IMAGES: Record<HeritageBackground, { src: string; alt: string; tint: string; glow: string }> = {
@@ -231,6 +263,44 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
     },
   };
 
+  // Map of 4 Fusion Streetwear Background Images (Màn 3: Phố Thị Phá Cách)
+  const FUSION_BACKGROUND_IMAGES: Record<string, {
+    src: string;
+    alt: string;
+    tint: string;
+    glow: string;
+    badge: string;
+  }> = {
+    studio: {
+      src: '/backgrounds/tuong-be-tong-xuoc.jpg',
+      alt: 'Tường Bê Tông Xước - Brutalist Urban Wall',
+      tint: 'from-black/60 via-transparent to-black/80',
+      glow: 'rgba(0, 240, 255, 0.25)',
+      badge: 'Brutalist Concrete'
+    },
+    cafe: {
+      src: '/backgrounds/led-glitch-billboard.jpg',
+      alt: 'Màn Hình LED Glitch - Cyberpunk Billboard',
+      tint: 'from-[#080812]/50 via-transparent to-black/75',
+      glow: 'rgba(255, 0, 127, 0.35)',
+      badge: 'LED Glitch Screen'
+    },
+    museum: {
+      src: '/backgrounds/tuong-be-tong-xuoc.jpg',
+      alt: 'Skatepark 30/4 Underground',
+      tint: 'from-[#0a1215]/60 via-transparent to-[#04080a]/80',
+      glow: 'rgba(57, 255, 20, 0.25)',
+      badge: 'Skate Underground'
+    },
+    street: {
+      src: '/backgrounds/led-glitch-billboard.jpg',
+      alt: 'Phố Đêm Bùi Viện Cyberpunk',
+      tint: 'from-[#120514]/55 via-transparent to-[#060208]/80',
+      glow: 'rgba(255, 0, 127, 0.35)',
+      badge: 'Cyber Nightlife'
+    },
+  };
+
   // Keep BACKGROUND_THEMES alias for backward compatibility
   const BACKGROUND_THEMES = HERITAGE_BACKGROUND_THEMES;
   const BACKGROUND_IMAGES = HERITAGE_BACKGROUND_IMAGES;
@@ -261,6 +331,8 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
       // 1. Draw real background photo if available, with dreamy soft overlay
       const activeBgSrc = currentTier === 'modern'
         ? (MODERN_BACKGROUND_IMAGES[(selectedBg in MODERN_BACKGROUND_IMAGES ? selectedBg : 'studio') as ModernBackground]?.src || '/backgrounds/studio-tap-chi.png')
+        : currentTier === 'fusion'
+        ? (FUSION_BACKGROUND_IMAGES[(selectedBg in FUSION_BACKGROUND_IMAGES ? selectedBg : 'studio')]?.src || '/backgrounds/tuong-be-tong-xuoc.jpg')
         : (HERITAGE_BACKGROUND_IMAGES[(selectedBg in HERITAGE_BACKGROUND_IMAGES ? selectedBg : 'studio') as HeritageBackground]?.src || '/backgrounds/studio-cung-dinh.png');
 
       const bgImg = await loadImage(activeBgSrc);
@@ -286,6 +358,8 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
         // Atmospheric overlay to keep outfit in clear spotlight
         if (currentTier === 'modern') {
           ctx.fillStyle = 'rgba(12, 12, 18, 0.28)';
+        } else if (currentTier === 'fusion') {
+          ctx.fillStyle = 'rgba(8, 8, 12, 0.42)';
         } else {
           ctx.fillStyle = 'rgba(10, 10, 15, 0.52)';
         }
@@ -807,6 +881,50 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
   // HERITAGE BACKGROUND ARTWORK
   // ==========================================
   const renderHeritageBackgroundArt = () => {
+    if (currentTier === 'fusion') {
+      const fusionBgKey = (selectedBg in FUSION_BACKGROUND_IMAGES ? selectedBg : 'studio');
+      const currentFusionBg = FUSION_BACKGROUND_IMAGES[fusionBgKey] || FUSION_BACKGROUND_IMAGES.studio;
+      const fusionBlurPx = (bgBlurPercent / 100) * 8;
+
+      return (
+        <div className="absolute inset-0 pointer-events-none overflow-hidden transition-all duration-700 select-none">
+          {/* Base Pitch Black Foundation */}
+          <div className="absolute inset-0 bg-[#060609]" />
+
+          {/* Real Photo Background (Tường Bê Tông Xước hoặc Màn Hình LED Glitch) */}
+          <img
+            key={`fusion_${fusionBgKey}`}
+            src={currentFusionBg.src}
+            alt={currentFusionBg.alt}
+            className="absolute inset-0 w-full h-full object-cover object-center scale-110 pointer-events-none transition-all duration-500 brightness-105 contrast-125"
+            style={{
+              filter: `blur(${fusionBlurPx}px)`,
+              opacity: 0.90,
+            }}
+          />
+
+          {/* Cyberpunk Scanlines Texture */}
+          <div 
+            className="absolute inset-0 pointer-events-none opacity-30"
+            style={{
+              backgroundImage: 'repeating-linear-gradient(0deg, rgba(0,0,0,0.4), rgba(0,0,0,0.4) 2px, transparent 2px, transparent 4px)',
+            }}
+          />
+
+          {/* Streetwear Hard Flash Spotlight + Neon Vignette */}
+          <div 
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background: 'radial-gradient(circle at 50% 45%, rgba(255,255,255,0.18) 0%, rgba(255,0,127,0.06) 40%, rgba(0,240,255,0.08) 70%, rgba(0,0,0,0.85) 100%)'
+            }}
+          />
+
+          {/* Shadow under feet */}
+          <div className="absolute bottom-5 left-1/2 -translate-x-1/2 w-48 sm:w-56 h-4 bg-black/90 blur-xs pointer-events-none" />
+        </div>
+      );
+    }
+
     if (currentTier === 'modern') {
       const modernBgKey = (selectedBg in MODERN_BACKGROUND_IMAGES ? selectedBg : 'studio') as ModernBackground;
       const currentModernBg = MODERN_BACKGROUND_IMAGES[modernBgKey] || MODERN_BACKGROUND_IMAGES.studio;
@@ -905,33 +1023,51 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
   };
 
   return (
-    <div className={`rounded-2xl overflow-hidden flex flex-col transition-all ${
+    <div className={`overflow-hidden flex flex-col transition-all ${
       currentTier === 'modern'
-        ? 'bg-white/85 border border-stone-200/90 shadow-xl backdrop-blur-xl text-stone-800'
-        : 'bg-[#141419] border border-[#23232c] shadow-2xl text-[#f5f2eb]'
+        ? 'rounded-2xl bg-white/85 border border-stone-200/90 shadow-xl backdrop-blur-xl text-stone-800'
+        : currentTier === 'fusion'
+        ? 'font-streetwear rounded-none bg-[#08080C] border-2 border-[#00F0FF] shadow-[6px_6px_0px_#FF007F] text-white'
+        : 'rounded-2xl bg-[#141419] border border-[#23232c] shadow-2xl text-[#f5f2eb]'
     }`}>
       {/* HEADER: TITLE & CONTROLS */}
       <div className={`p-4 sm:p-5 border-b flex flex-wrap items-center justify-between gap-3 ${
         currentTier === 'modern'
           ? 'border-stone-200/80 bg-white/70'
+          : currentTier === 'fusion'
+          ? 'border-b-2 border-white/20 bg-[#0d0d14]'
           : 'border-[#22222c] bg-gradient-to-r from-[#171720] to-[#121217]'
       }`}>
         <div className="flex items-center gap-2">
-          <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+          <div className={`w-8 h-8 flex items-center justify-center ${
             currentTier === 'modern'
-              ? 'bg-[#8BA888]/15 border border-[#8BA888]/30 text-[#436240]'
-              : 'bg-[#c5a059]/15 border border-[#c5a059]/30 text-[#c5a059]'
+              ? 'rounded-lg bg-[#8BA888]/15 border border-[#8BA888]/30 text-[#436240]'
+              : currentTier === 'fusion'
+              ? 'rounded-none bg-[#FF007F]/20 border-2 border-[#FF007F] text-[#FF007F]'
+              : 'rounded-lg bg-[#c5a059]/15 border border-[#c5a059]/30 text-[#c5a059]'
           }`}>
             <Sparkles className="w-4 h-4" />
           </div>
           <div>
             <div className="flex items-center gap-2">
               <span className={`text-xs uppercase tracking-wider font-bold ${
-                currentTier === 'modern' ? 'text-[#3E5C3B]' : 'text-[#c5a059]'
+                currentTier === 'modern'
+                  ? 'text-[#3E5C3B]'
+                  : currentTier === 'fusion'
+                  ? 'font-black italic text-white tracking-widest'
+                  : 'text-[#c5a059]'
               }`}>
-                {currentTier === 'modern' ? 'STUDIO CANVAS · NATURAL LIGHTING' : 'CANVAS PREVIEW OUTFIT TỔNG THỂ'}
+                {currentTier === 'modern'
+                  ? 'STUDIO CANVAS · NATURAL LIGHTING'
+                  : currentTier === 'fusion'
+                  ? 'CANVAS PREVIEW · HARD FLASH STREETWEAR'
+                  : 'CANVAS PREVIEW OUTFIT TỔNG THỂ'}
               </span>
-              {hasActiveTaboo ? (
+              {currentTier === 'fusion' ? (
+                <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-none bg-[#FF007F]/20 text-[#FF007F] border border-[#FF007F] font-black uppercase">
+                  FUSION SUB-CULTURE
+                </span>
+              ) : hasActiveTaboo ? (
                 <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-800 border border-amber-500/30 font-medium">
                   <ShieldAlert className="w-3 h-3 text-amber-600" />
                   Gợi Ý Tinh Chỉnh
@@ -943,9 +1079,17 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
                 </span>
               )}
             </div>
-            <p className={`text-[11px] ${currentTier === 'modern' ? 'text-stone-500' : 'text-stone-400'}`}>
+            <p className={`text-[11px] ${
+              currentTier === 'modern'
+                ? 'text-stone-500'
+                : currentTier === 'fusion'
+                ? 'text-stone-300 font-sans'
+                : 'text-stone-400'
+            }`}>
               {currentTier === 'modern' 
                 ? 'Ánh sáng tự nhiên mềm mại, hiển thị trực quan bản phối Acubi & Quiet Luxury'
+                : currentTier === 'fusion'
+                ? 'Đánh sáng gắt Local Brand trên nền Tường Bê Tông Xước & Màn hình LED Glitch'
                 : 'Đồng bộ trực quan 10 món phối 2D cùng Y quan Triều Nguyễn'}
             </p>
           </div>
@@ -1224,6 +1368,22 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
             key={previewTransitionKey} 
             className="relative w-full max-w-[420px] py-6 flex flex-col items-center justify-center select-none animate-preview-robe"
           >
+            {/* GATEKEEPER RUBBER STAMP: "FUSION - LẤY CẢM HỨNG" (MÀN 3) */}
+            {currentTier === 'fusion' && (
+              <div className="absolute top-2 right-2 sm:top-4 sm:right-4 z-40 pointer-events-none animate-stamp-slam select-none">
+                <div className="border-[3px] border-double border-[#FF007F] px-3.5 py-1.5 sm:px-4 sm:py-2 bg-black/90 backdrop-blur-xs text-[#FF007F] font-black tracking-widest uppercase -rotate-6 shadow-[0_0_20px_rgba(255,0,127,0.7)] flex flex-col items-center justify-center">
+                  <span className="text-[7.5px] sm:text-[8.5px] tracking-widest border-b border-[#FF007F]/60 pb-0.5 mb-0.5 w-full text-center">
+                    HERITSTYLE · GATEKEEPER
+                  </span>
+                  <span className="text-xs sm:text-sm font-black italic tracking-wider drop-shadow-[0_0_8px_#FF007F]">
+                    FUSION - LẤY CẢM HỨNG
+                  </span>
+                  <span className="text-[7px] sm:text-[8px] font-mono text-[#00F0FF] tracking-tighter mt-0.5">
+                    ★ SUB-CULTURE VERIFIED ★
+                  </span>
+                </div>
+              </div>
+            )}
             
             {/* GHOST MANNEQUIN / HAUTE COUTURE CROQUIS SILHOUETTE */}
             <svg 

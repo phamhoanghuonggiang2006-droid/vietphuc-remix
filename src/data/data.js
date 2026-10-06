@@ -460,11 +460,11 @@ export const INNER_LAYERS = [
     name: 'Không Mặc Áo Lót Đơn Y (Taboo Alert)',
     category: 'lot',
     styleLine: 'heritage_core',
-    allowedTiers: [], // Không hợp lệ ở bất kỳ đâu
+    allowedTiers: ['fusion'], // Cho phép ở Fusion Streetwear phá cách (càng phá cách điểm slay càng tăng)
     unfitNotice: {
       heritage: 'CẢNH BÁO PHẠM QUY: Chốn tôn nghiêm bắt buộc phải có Áo Đơn Y trắng lót trong! Lộ da thịt là điểm trừ cực nặng.',
       modern: 'Thiếu áo lót bên trong làm mất nếp áo và giảm độ trang nhã.',
-      fusion: 'Nên có lớp áo lót layer để tổng thể outfit có chiều sâu thị giác.'
+      fusion: 'Phá cách không mặc đơn y theo vibe streetwear hiện đại.'
     },
     sub: 'Cảnh báo phạm quy: Thiếu Đơn Y làm lộ da thịt, vi phạm cốt cách trang phục truyền thống.',
     isTaboo: true,
@@ -1051,6 +1051,36 @@ export const ACCESSORIES = [
     isTaboo: false,
     img: '🎒',
     realImg: '/14.png'
+  },
+  {
+    id: 'acc-chunky-sunglasses',
+    name: 'Kính Râm Gọng Dày Bản To (Chunky Black Shades)',
+    category: 'phukien',
+    styleLine: 'fusion_streetwear',
+    allowedTiers: ['fusion'],
+    unfitNotice: {
+      heritage: 'CẢNH BÁO LỆCH CHUẨN: Kính râm gọng dày bản to ngổ ngáo hoàn toàn cấm kỵ ở nơi tôn nghiêm miếu vũ!',
+      modern: 'Kính gọng dày quá hầm hố cho phong cách thanh lịch công sở.'
+    },
+    sub: 'Kính râm gọng dày vuông vức góc cạnh, chuẩn vibe hiphop underground và street style.',
+    isTaboo: false,
+    img: '🕶️',
+    realImg: '/14.png'
+  },
+  {
+    id: 'acc-metal-earrings',
+    name: 'Khuyên Tai Kim Loại Gai Góc (Punk Metal Piercings)',
+    category: 'phukien',
+    styleLine: 'fusion_streetwear',
+    allowedTiers: ['fusion'],
+    unfitNotice: {
+      heritage: 'CẢNH BÁO LỆCH CHUẨN: Khuyên tai gai góc kim loại phá hỏng hoàn toàn nét đoan chính của cổ phục!',
+      modern: 'Khuyên tai punk quá nổi loạn so với chuẩn mực thanh nhã.'
+    },
+    sub: 'Khuyên tai xích kim loại và khuyên gai bạc nổi loạn, điểm nhấn cực slay cho outfit Fusion.',
+    isTaboo: false,
+    img: '⚡',
+    realImg: '/13.png'
   },
   {
     id: 'acc-smartwatch',

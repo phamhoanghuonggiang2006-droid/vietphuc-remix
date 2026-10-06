@@ -1,6 +1,6 @@
 import React from 'react';
 import { Crown, Sparkles, Zap, Shield, ChevronRight } from 'lucide-react';
-import { playDanTranhTabSound, playCourtBrassSound, playBellTingSound } from '../utils/soundEffects';
+import { playDanTranhTabSound, playCourtBrassSound, playBellTingSound, play808BassDropSound } from '../utils/soundEffects';
 
 export interface TierContextSwitcherProps {
   currentTier: 'heritage' | 'modern' | 'fusion';
@@ -39,13 +39,13 @@ export const TierContextSwitcher: React.FC<TierContextSwitcherProps> = ({
     {
       id: 'fusion' as const,
       icon: '⚡',
-      name: 'Đô Thị Phá Cách',
-      subName: 'Fusion Streetwear · Tet-Core',
-      badge: 'Inspired by Việt Phục',
-      desc: 'Giao thoa cá tính: Heritage top, quần cargo, baggy jeans, chunky boots, xích bạc cuban.',
-      activeBorder: 'border-amber-500',
-      activeBg: 'bg-gradient-to-r from-[#261505] via-[#180d03] to-[#0e0701]',
-      glowColor: 'rgba(245, 158, 11, 0.35)'
+      name: 'Phố Thị Phá Cách',
+      subName: 'Fusion Streetwear · The DJ Deck',
+      badge: 'FUSION LẤY CẢM HỨNG',
+      desc: 'Giao thoa cá tính: Tet-Core Skater, Royal Y2K, Dark Heritage, Cargo, Sneaker Dunk, xích Cuban.',
+      activeBorder: 'border-[#FF007F]',
+      activeBg: 'bg-gradient-to-r from-[#1a0012] via-[#090014] to-[#001018]',
+      glowColor: 'rgba(255, 0, 127, 0.5)'
     }
   ];
 
@@ -83,6 +83,7 @@ export const TierContextSwitcher: React.FC<TierContextSwitcherProps> = ({
               type="button"
               onClick={() => {
                 if (tier.id === 'heritage') playCourtBrassSound();
+                else if (tier.id === 'fusion') play808BassDropSound();
                 else playDanTranhTabSound();
                 onTierChange(tier.id);
               }}

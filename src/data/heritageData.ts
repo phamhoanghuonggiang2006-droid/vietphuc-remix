@@ -200,6 +200,42 @@ export const TRADITIONAL_COLORS: ColorOption[] = [
     isImperialRestricted: true,
     meaning: 'Màu tối thượng của bậc Thiên Tử Triều Nguyễn. Thứ dân mặc sẽ vi phạm quy chế y quan!',
     recommendedFor: 'Chỉ dành cho Thiên Tử thời xưa'
+  },
+  {
+    name: 'Hồng Hot Pink Neon',
+    vietnameseName: 'Hồng Hot Pink Neon (Royal Y2K)',
+    hex: '#FF007F',
+    element: 'Hành Hỏa Neon',
+    isImperialRestricted: false,
+    meaning: 'Sắc hồng rực cháy phá cách, biểu tượng của thời trang Y2K nổi loạn và tự do cá tính.',
+    recommendedFor: 'Royal Y2K Core & Streetwear'
+  },
+  {
+    name: 'Đen Nhung Gothic',
+    vietnameseName: 'Đen Nhung Gothic (Pitch Black)',
+    hex: '#1A1A1E',
+    element: 'Hành Thủy Trầm Mặc',
+    isImperialRestricted: false,
+    meaning: 'Sắc đen tuyền sâu thẳm, quyền uy, bí ẩn và sắc lạnh đúng chất Gothic cổ phong.',
+    recommendedFor: 'Dark Heritage & Techwear'
+  },
+  {
+    name: 'Xanh Cyber Blue',
+    vietnameseName: 'Xanh Cyber Blue (Neon Tương Lai)',
+    hex: '#00F0FF',
+    element: 'Hành Thủy / Kim Tương Lai',
+    isImperialRestricted: false,
+    meaning: 'Vệt sáng xanh tương lai mô phỏng ánh đèn led viễn tưởng và bảng mạch điện tử.',
+    recommendedFor: 'Tet-Core Skater & Cyberpunk'
+  },
+  {
+    name: 'Xanh Acid Green',
+    vietnameseName: 'Xanh Acid Green (Bùng Nổ)',
+    hex: '#39FF14',
+    element: 'Hành Mộc Acid',
+    isImperialRestricted: false,
+    meaning: 'Sắc xanh huỳnh quang nổi loạn, phá vỡ mọi quy chuẩn an toàn thị giác.',
+    recommendedFor: 'Fusion Streetwear & Subculture'
   }
 ];
 
@@ -637,6 +673,26 @@ export const REMIX_ITEMS: ModernRemixItem[] = [
     description: 'Tiện lợi, năng động, mang hơi thở thành thị hiện đại.',
     thumbnailUrl: '/14.png',
     canvas2dUrl: '/canvas/canvas-dong-ho.png'
+  },
+  {
+    id: 'acc-chunky-sunglasses',
+    category: 'accessory',
+    name: 'Kính Râm Gọng Dày Bản To (Chunky Black Shades)',
+    styleVibe: 'Cyberpunk Y2K',
+    isCulturallyRespectful: false,
+    description: 'Kính râm gọng dày vuông vức góc cạnh, chuẩn vibe hiphop underground và street style.',
+    thumbnailUrl: '/14.png',
+    canvas2dUrl: '/canvas/canvas-dong-ho.png'
+  },
+  {
+    id: 'acc-metal-earrings',
+    category: 'accessory',
+    name: 'Khuyên Tai Kim Loại Gai Góc (Punk Metal Piercings)',
+    styleVibe: 'Gothic Metal Punk',
+    isCulturallyRespectful: false,
+    description: 'Khuyên tai xích kim loại và khuyên gai bạc nổi loạn, điểm nhấn cực slay cho outfit Fusion.',
+    thumbnailUrl: '/13.png',
+    canvas2dUrl: '/canvas/canvas-boi-ngoc.png'
   },
   {
     id: 'acc-smartwatch',

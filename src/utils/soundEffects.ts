@@ -938,3 +938,116 @@ export function playAutumnBreezeSound(): void {
   osc2.stop(t2 + 0.43);
 }
 
+/**
+ * 20. TIẾNG "WIKA-WIKA" SCRATCH ĐĨA VINYL (Trạm Trộn Mixset - The DJ Deck)
+ * Âm thanh chà đĩa DJ Hip-hop / Streetwear nẩy lửa
+ */
+export function playDjScratchSound(): void {
+  if (isMutedState) return;
+  const ctx = getAudioContext();
+  if (!ctx) return;
+
+  const now = ctx.currentTime;
+  const buffer = createNoiseBuffer(ctx, 0.28);
+
+  const noise = ctx.createBufferSource();
+  noise.buffer = buffer;
+
+  const filter = ctx.createBiquadFilter();
+  filter.type = 'bandpass';
+  filter.Q.setValueAtTime(4.5, now);
+  // Frequency sweeps like a vinyl being pushed back and forth
+  filter.frequency.setValueAtTime(600, now);
+  filter.frequency.linearRampToValueAtTime(2400, now + 0.07);
+  filter.frequency.linearRampToValueAtTime(800, now + 0.14);
+  filter.frequency.linearRampToValueAtTime(3200, now + 0.21);
+  filter.frequency.linearRampToValueAtTime(1000, now + 0.28);
+
+  const gain = ctx.createGain();
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.linearRampToValueAtTime(0.25, now + 0.02);
+  gain.gain.linearRampToValueAtTime(0.12, now + 0.14);
+  gain.gain.linearRampToValueAtTime(0.22, now + 0.22);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.28);
+
+  noise.connect(filter);
+  filter.connect(gain);
+  gain.connect(ctx.destination);
+
+  noise.start(now);
+  noise.stop(now + 0.29);
+}
+
+/**
+ * 21. TIẾNG BASS DROP 808 RUNG LẮC (Sub-Bass Drop)
+ * Âm trầm 808 sâu lắng mô phỏng tiếng loa bass club / concert rung chuyển
+ */
+export function play808BassDropSound(): void {
+  if (isMutedState) return;
+  const ctx = getAudioContext();
+  if (!ctx) return;
+
+  const now = ctx.currentTime;
+  const osc = ctx.createOscillator();
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(140, now);
+  osc.frequency.exponentialRampToValueAtTime(42, now + 0.35);
+
+  const gain = ctx.createGain();
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.linearRampToValueAtTime(0.35, now + 0.015);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.45);
+
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+
+  osc.start(now);
+  osc.stop(now + 0.46);
+}
+
+/**
+ * 22. TIẾNG DẬP MỘC NÊ-ÔNG "FUSION - LẤY CẢM HỨNG" (Gatekeeper Stamp)
+ * Âm thanh con dấu dập cộp dứt khoát kèm tiếng xì điện neon
+ */
+export function playNeonStampSound(): void {
+  if (isMutedState) return;
+  const ctx = getAudioContext();
+  if (!ctx) return;
+
+  const now = ctx.currentTime;
+
+  // Thump cộp của con dấu gỗ nặng
+  const osc = ctx.createOscillator();
+  osc.type = 'triangle';
+  osc.frequency.setValueAtTime(220, now);
+  osc.frequency.exponentialRampToValueAtTime(45, now + 0.12);
+
+  const gain1 = ctx.createGain();
+  gain1.gain.setValueAtTime(0.0001, now);
+  gain1.gain.linearRampToValueAtTime(0.28, now + 0.005);
+  gain1.gain.exponentialRampToValueAtTime(0.0001, now + 0.14);
+
+  osc.connect(gain1);
+  gain1.connect(ctx.destination);
+  osc.start(now);
+  osc.stop(now + 0.15);
+
+  // Spark tia điện neon
+  const buffer = createNoiseBuffer(ctx, 0.12);
+  const spark = ctx.createBufferSource();
+  spark.buffer = buffer;
+  const filter = ctx.createBiquadFilter();
+  filter.type = 'highpass';
+  filter.frequency.setValueAtTime(3500, now + 0.02);
+  const gain2 = ctx.createGain();
+  gain2.gain.setValueAtTime(0.0001, now + 0.02);
+  gain2.gain.linearRampToValueAtTime(0.15, now + 0.035);
+  gain2.gain.exponentialRampToValueAtTime(0.0001, now + 0.14);
+
+  spark.connect(filter);
+  filter.connect(gain2);
+  gain2.connect(ctx.destination);
+  spark.start(now + 0.02);
+  spark.stop(now + 0.15);
+}
+
