@@ -160,31 +160,31 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
 
   const activeBackgroundThemes = currentTier === 'modern' ? MODERN_BACKGROUND_THEMES : HERITAGE_BACKGROUND_THEMES;
 
-  // Map of 4 Heritage Background Images from /backgrounds/
+  // Map of 4 Heritage Background Images from /backgrounds/ (Giảm tối 20% để bối cảnh hiện diện rõ nét, nguy nga)
   const HERITAGE_BACKGROUND_IMAGES: Record<HeritageBackground, { src: string; alt: string; tint: string; glow: string }> = {
     studio: {
       src: '/backgrounds/studio-cung-dinh.png',
       alt: 'Studio Cung Đình',
-      tint: 'from-[#0e0e14]/70 via-black/30 to-[#08080c]/80',
-      glow: 'rgba(212, 175, 55, 0.12)'
+      tint: 'from-[#0e0e14]/50 via-black/20 to-[#08080c]/60',
+      glow: 'rgba(212, 175, 55, 0.16)'
     },
     hue: {
       src: '/backgrounds/co-do-hue.png',
       alt: 'Cố Đô Huế - Đại Nội',
-      tint: 'from-[#220d18]/75 via-black/40 to-[#0d070b]/85',
-      glow: 'rgba(224, 122, 95, 0.15)'
+      tint: 'from-[#220d18]/55 via-black/20 to-[#0d070b]/65',
+      glow: 'rgba(224, 122, 95, 0.18)'
     },
     hoian: {
       src: '/backgrounds/pho-co-hoi-an.png',
       alt: 'Phố Cổ Hội An',
-      tint: 'from-[#22160a]/70 via-black/35 to-[#080d14]/85',
-      glow: 'rgba(255, 209, 102, 0.16)'
+      tint: 'from-[#22160a]/50 via-black/18 to-[#080d14]/62',
+      glow: 'rgba(255, 209, 102, 0.20)'
     },
     thanglong: {
       src: '/backgrounds/hoang-thanh-thang-long.png',
       alt: 'Hoàng Thành Thăng Long - Đoan Môn',
-      tint: 'from-[#141610]/75 via-black/40 to-[#090b0e]/85',
-      glow: 'rgba(197, 160, 89, 0.14)'
+      tint: 'from-[#141610]/55 via-black/20 to-[#090b0e]/65',
+      glow: 'rgba(197, 160, 89, 0.18)'
     },
   };
 
@@ -287,7 +287,7 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
         if (currentTier === 'modern') {
           ctx.fillStyle = 'rgba(12, 12, 18, 0.28)';
         } else {
-          ctx.fillStyle = 'rgba(10, 10, 15, 0.72)';
+          ctx.fillStyle = 'rgba(10, 10, 15, 0.52)';
         }
         ctx.fillRect(0, 0, 1200, 1600);
         ctx.restore();
@@ -850,12 +850,12 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
 
     return (
       <div className="absolute inset-0 pointer-events-none overflow-hidden transition-all duration-700 select-none">
-        {/* Real Heritage Photo - Blur động theo tùy chọn độ mờ (30%, 50%, 70%) */}
+        {/* Real Heritage Photo - Bớt tối 20%, hiện diện rõ nét và tráng lệ hơn */}
         <img
           key={heritageBgKey}
           src={currentBg.src}
           alt={currentBg.alt}
-          className="absolute inset-0 w-full h-full object-cover object-center scale-110 transition-all duration-500 opacity-60 brightness-95 contrast-110 pointer-events-none"
+          className="absolute inset-0 w-full h-full object-cover object-center scale-110 transition-all duration-500 opacity-80 brightness-105 contrast-105 pointer-events-none"
           style={{
             filter: `blur(${heritageBlurPx}px)`,
           }}
@@ -864,11 +864,11 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
         {/* Ambient Color Tone Overlay based on heritage location */}
         <div className={`absolute inset-0 bg-gradient-to-b ${currentBg.tint} transition-all duration-700`} />
 
-        {/* Center Spotlight: Radial gradient keeping the garment pop out with zero darkness in center */}
+        {/* Center Spotlight: Bớt tối 20% (từ 0.88 xuống 0.68) để bối cảnh hiện diện rõ ràng */}
         <div 
           className="absolute inset-0 pointer-events-none"
           style={{
-            background: 'radial-gradient(circle at 50% 48%, rgba(255,255,255,0.08) 0%, rgba(14,14,20,0.2) 42%, rgba(10,10,15,0.88) 92%)'
+            background: 'radial-gradient(circle at 50% 48%, rgba(255,255,255,0.12) 0%, rgba(14,14,20,0.12) 42%, rgba(10,10,15,0.68) 92%)'
           }}
         />
 
