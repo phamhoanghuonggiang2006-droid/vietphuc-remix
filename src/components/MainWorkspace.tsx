@@ -24,6 +24,8 @@ import {
   SHOES,
   ACCESSORIES
 } from '../data/data.js';
+import { DEFAULT_PRODUCT_IMAGES } from '../data/defaultCustomImages';
+import { loadCustomImages } from '../utils/customImageStorage';
 import { Sparkles, Check, Share2, RefreshCw, ArrowLeft, AlertTriangle } from 'lucide-react';
 
 export interface MainWorkspaceProps {
@@ -64,15 +66,22 @@ export const MainWorkspace: React.FC<MainWorkspaceProps> = ({
   const [isAiAnalyzing, setIsAiAnalyzing] = useState<boolean>(false);
   const [shareToast, setShareToast] = useState<string | null>(null);
 
-  // Custom uploaded images from localStorage (if any)
-  const [customItemImages] = useState<Record<string, string>>(() => {
+  // Custom uploaded images from IndexedDB & default fixed images
+  const [customItemImages, setCustomItemImages] = useState<Record<string, string>>(() => {
     try {
       const saved = localStorage.getItem('vietphuc_custom_item_images');
-      return saved ? JSON.parse(saved) : {};
+      return {
+        ...DEFAULT_PRODUCT_IMAGES,
+        ...(saved ? JSON.parse(saved) : {})
+      };
     } catch {
-      return {};
+      return { ...DEFAULT_PRODUCT_IMAGES };
     }
   });
+
+  useEffect(() => {
+    loadCustomImages().then((imgs) => setCustomItemImages(imgs));
+  }, []);
 
   const tabs = [
     { id: 'ao', label: 'Áo Cổ Phục' },
@@ -123,7 +132,7 @@ export const MainWorkspace: React.FC<MainWorkspaceProps> = ({
       sub: `${item.dynasty} · ${item.materials ? item.materials[0] : ''}`,
       category: 'ao',
       img: item.img || '👘',
-      realImg: item.realImg,
+      realImg: customItemImages[item.id] || DEFAULT_PRODUCT_IMAGES[item.id] || item.realImg,
       colorHex: item.defaultColorHex,
       styleLine: item.styleLine
     })),
@@ -133,7 +142,7 @@ export const MainWorkspace: React.FC<MainWorkspaceProps> = ({
       sub: item.sub,
       category: 'lot',
       img: item.img || '🥼',
-      realImg: item.realImg,
+      realImg: customItemImages[item.id] || DEFAULT_PRODUCT_IMAGES[item.id] || item.realImg,
       isTaboo: item.isTaboo,
       styleLine: item.styleLine
     })),
@@ -143,7 +152,7 @@ export const MainWorkspace: React.FC<MainWorkspaceProps> = ({
       sub: item.sub,
       category: 'cuc',
       img: item.img || '🪙',
-      realImg: customItemImages[item.id] || item.realImg,
+      realImg: customItemImages[item.id] || DEFAULT_PRODUCT_IMAGES[item.id] || item.realImg,
       isTaboo: item.isTaboo,
       styleLine: item.styleLine
     })),
@@ -153,7 +162,7 @@ export const MainWorkspace: React.FC<MainWorkspaceProps> = ({
       sub: item.sub,
       category: 'quan',
       img: item.img || '👖',
-      realImg: customItemImages[item.id] || item.realImg,
+      realImg: customItemImages[item.id] || DEFAULT_PRODUCT_IMAGES[item.id] || item.realImg,
       isTaboo: item.isTaboo,
       styleLine: item.styleLine
     })),
@@ -163,7 +172,7 @@ export const MainWorkspace: React.FC<MainWorkspaceProps> = ({
       sub: item.sub,
       category: 'giay',
       img: item.img || '🪵',
-      realImg: customItemImages[item.id] || item.realImg,
+      realImg: customItemImages[item.id] || DEFAULT_PRODUCT_IMAGES[item.id] || item.realImg,
       isTaboo: item.isTaboo,
       styleLine: item.styleLine
     })),
@@ -173,7 +182,7 @@ export const MainWorkspace: React.FC<MainWorkspaceProps> = ({
       sub: item.sub,
       category: 'phukien',
       img: item.img || '🪭',
-      realImg: customItemImages[item.id] || item.realImg,
+      realImg: customItemImages[item.id] || DEFAULT_PRODUCT_IMAGES[item.id] || item.realImg,
       isTaboo: item.isTaboo,
       styleLine: item.styleLine
     }))

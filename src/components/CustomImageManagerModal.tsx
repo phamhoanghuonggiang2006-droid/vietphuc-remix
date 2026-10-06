@@ -13,31 +13,19 @@ import {
   Unlock,
   Search,
   CheckCircle2,
-  FolderOpen
+  FolderOpen,
+  Download,
+  FileUp
 } from 'lucide-react';
+import { DEFAULT_PRODUCT_IMAGES } from '../data/defaultCustomImages';
+import { 
+  compressImageFile, 
+  exportImagesBackup, 
+  importImagesBackup 
+} from '../utils/customImageStorage';
 import { 
   HERITAGE_GARMENTS,
-  REMIX_ITEMS,
-  LINK_ANH_CUC_KIM_LOAI,
-  LINK_ANH_CUC_NGOC,
-  LINK_ANH_CUC_GO,
-  LINK_ANH_CUC_BAC_HOA_SEN,
-  LINK_ANH_CUC_XA_CU,
-  LINK_ANH_CUC_VAI,
-  LINK_ANH_QUAN_LUA,
-  LINK_ANH_QUAN_LINEN,
-  LINK_ANH_VAY_XEP_LY,
-  LINK_ANH_QUAN_JEANS,
-  LINK_ANH_GUOC_MOC,
-  LINK_ANH_HAI_THEU,
-  LINK_ANH_SNEAKERS,
-  LINK_ANH_CHUNKY_LOAFERS,
-  LINK_ANH_QUAT_GIAY,
-  LINK_ANH_KHAN_DONG,
-  LINK_ANH_KHAN_VANH_DAY,
-  LINK_ANH_BOI_NGOC,
-  LINK_ANH_KIENG_BAC,
-  LINK_ANH_DONG_HO
+  REMIX_ITEMS
 } from '../data/heritageData';
 
 export interface CustomImageConfig {
@@ -62,7 +50,7 @@ const GARMENT_ITEMS_CONFIG: ItemConfigSpec[] = HERITAGE_GARMENTS.map((g) => ({
   categoryKey: 'garment',
   categoryLabel: 'Áo Ngoài',
   categoryIcon: '👘',
-  defaultSrc: (g as any).thumbnailUrl || '/canvas/mannequin-base.png',
+  defaultSrc: DEFAULT_PRODUCT_IMAGES[g.id] || (g as any).thumbnailUrl || '/canvas/mannequin-base.png',
   fileLabel: `${g.id}.png`,
   note: `${g.dynasty} · ${g.subName}`
 }));
@@ -85,7 +73,7 @@ const REMIX_ITEMS_CONFIG: ItemConfigSpec[] = REMIX_ITEMS.map((item) => {
     categoryKey: item.category as any,
     categoryLabel: meta.label,
     categoryIcon: meta.icon,
-    defaultSrc: item.thumbnailUrl || '',
+    defaultSrc: DEFAULT_PRODUCT_IMAGES[item.id] || item.thumbnailUrl || '',
     fileLabel: `${item.id}.png`,
     note: item.styleVibe || item.description
   };
@@ -125,6 +113,7 @@ export const CustomImageManagerModal: React.FC<CustomImageManagerModalProps> = (
   const [inputUrl, setInputUrl] = useState<string>('');
 
   const batchFileInputRef = useRef<HTMLInputElement>(null);
+  const backupFileInputRef = useRef<HTMLInputElement>(null);
 
   const categories = useMemo(() => [
     { key: 'all', label: 'Tất Cả', icon: '✨', count: ALL_PRODUCTS_LIST.length },
@@ -156,25 +145,29 @@ export const CustomImageManagerModal: React.FC<CustomImageManagerModalProps> = (
     setTimeout(() => setSuccessToast(null), 3500);
   };
 
-  const handleFileUpload = (itemId: string, file: File) => {
+  const handleFileUpload = async (itemId: string, file: File) => {
     if (isLocked) {
       showToast('⚠️ Kho ảnh đang bị KHÓA. Hãy bấm "Mở Khóa" ở góc trên trước khi tải ảnh!');
       return;
     }
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const result = e.target?.result as string;
-      if (result) {
-        onUpdateImage(itemId, result);
-        showToast(`Đã cập nhật ảnh mới cho ${ALL_PRODUCTS_LIST.find(i => i.id === itemId)?.name}! Tự động đồng bộ sang Màn hình 1, 2 và 3.`);
-      }
-    };
-    reader.readAsDataURL(file);
+    try {
+      const compressedUrl = await compressImageFile(file, 800, 800, 0.82);
+      onUpdateImage(itemId, compressedUrl);
+      showToast(`Đã cố định ảnh an toàn cho ${ALL_PRODUCTS_LIST.find(i => i.id === itemId)?.name}! Đồng bộ 3 màn hình.`);
+    } catch (err) {
+      console.error('File compression failed', err);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result as string;
+        if (result) onUpdateImage(itemId, result);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
-  const handleBatchUpload = (files: FileList | null) => {
+  const handleBatchUpload = async (files: FileList | null) => {
     if (isLocked) {
       showToast('⚠️ Kho ảnh đang bị KHÓA. Hãy bấm "Mở Khóa" ở góc trên trước khi tải ảnh!');
       return;
@@ -182,7 +175,7 @@ export const CustomImageManagerModal: React.FC<CustomImageManagerModalProps> = (
     if (!files || files.length === 0) return;
 
     let updatedCount = 0;
-    Array.from(files).forEach(file => {
+    for (const file of Array.from(files)) {
       const fileName = file.name.toLowerCase();
       const matchedItem = ALL_PRODUCTS_LIST.find(item => 
         fileName === item.fileLabel.toLowerCase() ||
@@ -190,22 +183,50 @@ export const CustomImageManagerModal: React.FC<CustomImageManagerModalProps> = (
       );
 
       if (matchedItem) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const result = e.target?.result as string;
-          if (result) {
-            onUpdateImage(matchedItem.id, result);
-          }
-        };
-        reader.readAsDataURL(file);
-        updatedCount++;
+        try {
+          const compressedUrl = await compressImageFile(file, 800, 800, 0.82);
+          onUpdateImage(matchedItem.id, compressedUrl);
+          updatedCount++;
+        } catch {
+          // fallback
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const res = e.target?.result as string;
+            if (res) onUpdateImage(matchedItem.id, res);
+          };
+          reader.readAsDataURL(file);
+          updatedCount++;
+        }
       }
-    });
+    }
 
     if (updatedCount > 0) {
-      showToast(`Đã tự động nhận diện và cập nhật ${updatedCount} ảnh! Đồng bộ sang Màn hình 1, 2 và 3.`);
+      showToast(`Đã tối ưu & cố định ${updatedCount} ảnh an toàn! Tự động đồng bộ sang Màn hình 1, 2 và 3.`);
     } else {
       showToast(`Không tìm thấy file khớp với tên mã sản phẩm. Giang có thể bấm tải trực tiếp trên từng món bên dưới!`);
+    }
+  };
+
+  const handleExportBackup = () => {
+    exportImagesBackup(customImages);
+    showToast('Đã tải xuống file sao lưu vietphuc_product_images_backup.json an toàn!');
+  };
+
+  const handleImportBackup = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const imported = await importImagesBackup(file);
+      let count = 0;
+      Object.entries(imported).forEach(([k, v]) => {
+        if (typeof v === 'string') {
+          onUpdateImage(k, v);
+          count++;
+        }
+      });
+      showToast(`Đã khôi phục thành công ${count} ảnh từ file sao lưu!`);
+    } catch {
+      showToast('File sao lưu không đúng định dạng JSON.');
     }
   };
 
@@ -394,6 +415,38 @@ export const CustomImageManagerModal: React.FC<CustomImageManagerModalProps> = (
             >
               <Upload className="w-3 h-3 text-[#c5a059]" />
               <span className="hidden sm:inline">Tải Nhiều Ảnh</span>
+            </button>
+
+            {/* Nút Xuất file sao lưu JSON */}
+            <button
+              onClick={handleExportBackup}
+              className="px-2.5 py-1 rounded-lg bg-[#20202d] hover:bg-[#2a2a3c] text-emerald-300 text-xs font-semibold border border-emerald-500/40 transition-all flex items-center gap-1 cursor-pointer shadow-xs"
+              title="Xuất file JSON sao lưu toàn bộ ảnh để bảo vệ an toàn vĩnh viễn"
+            >
+              <Download className="w-3 h-3" />
+              <span className="hidden sm:inline">Sao Lưu JSON</span>
+            </button>
+
+            {/* Nút Nhập file sao lưu JSON */}
+            <input
+              type="file"
+              ref={backupFileInputRef}
+              accept="application/json"
+              className="hidden"
+              onChange={handleImportBackup}
+            />
+            <button
+              disabled={isLocked}
+              onClick={() => backupFileInputRef.current?.click()}
+              className={`px-2.5 py-1 rounded-lg text-xs font-semibold border transition-all flex items-center gap-1 shadow-xs ${
+                isLocked
+                  ? 'bg-stone-800/50 text-stone-500 border-white/5 cursor-not-allowed'
+                  : 'bg-[#20202d] hover:bg-[#2a2a3c] text-sky-300 border-sky-500/40 cursor-pointer'
+              }`}
+              title="Khôi phục ảnh từ file JSON sao lưu"
+            >
+              <FileUp className="w-3 h-3" />
+              <span className="hidden sm:inline">Nạp JSON</span>
             </button>
           </div>
         </div>

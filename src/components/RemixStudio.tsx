@@ -29,6 +29,14 @@ import {
   play808BassDropSound,
   playNeonStampSound
 } from '../utils/soundEffects';
+import { DEFAULT_PRODUCT_IMAGES } from '../data/defaultCustomImages';
+import { 
+  loadCustomImages, 
+  saveCustomImages, 
+  compressImageFile, 
+  getStoredLockStatus, 
+  setStoredLockStatus
+} from '../utils/customImageStorage';
 import { 
   Sparkles, 
   AlertTriangle, 
@@ -730,28 +738,31 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
   const [customItemImages, setCustomItemImages] = useState<{ [itemId: string]: string }>(() => {
     try {
       const saved = localStorage.getItem('vietphuc_custom_item_images');
-      return saved ? JSON.parse(saved) : {};
+      return {
+        ...DEFAULT_PRODUCT_IMAGES,
+        ...(saved ? JSON.parse(saved) : {})
+      };
     } catch {
-      return {};
+      return { ...DEFAULT_PRODUCT_IMAGES };
     }
   });
 
+  // Tải đồng bộ ảnh từ IndexedDB đảm bảo không bao giờ bị mất hoặc reset
+  useEffect(() => {
+    loadCustomImages().then((imgs) => {
+      setCustomItemImages(imgs);
+    });
+  }, []);
+
   const [isCustomImageModalOpen, setIsCustomImageModalOpen] = useState<boolean>(false);
   const [isUploadLocked, setIsUploadLocked] = useState<boolean>(() => {
-    try {
-      const saved = localStorage.getItem('vietphuc_upload_locked');
-      return saved === 'true';
-    } catch {
-      return false;
-    }
+    return getStoredLockStatus();
   });
 
   const toggleUploadLock = () => {
     const next = !isUploadLocked;
     setIsUploadLocked(next);
-    try {
-      localStorage.setItem('vietphuc_upload_locked', next ? 'true' : 'false');
-    } catch {}
+    setStoredLockStatus(next);
     if (next) {
       playCourtBrassSound();
     } else {
@@ -771,42 +782,50 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
     }
   };
 
-  const handleItemImageUploadChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleItemImageUploadChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && activeUploadItemId) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const dataUrl = event.target?.result as string;
+      try {
+        const compressedUrl = await compressImageFile(file, 800, 800, 0.82);
         const updated = {
           ...customItemImages,
-          [activeUploadItemId]: dataUrl
+          [activeUploadItemId]: compressedUrl
         };
         setCustomItemImages(updated);
-        try {
-          localStorage.setItem('vietphuc_custom_item_images', JSON.stringify(updated));
-        } catch (err) {
-          console.warn('Could not save custom image to localStorage', err);
-        }
+        await saveCustomImages(updated);
         playFabricRustleSound();
-      };
-      reader.readAsDataURL(file);
+      } catch (err) {
+        console.warn('Fallback saving without canvas compression:', err);
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+          const dataUrl = event.target?.result as string;
+          const updated = {
+            ...customItemImages,
+            [activeUploadItemId]: dataUrl
+          };
+          setCustomItemImages(updated);
+          await saveCustomImages(updated);
+          playFabricRustleSound();
+        };
+        reader.readAsDataURL(file);
+      }
     }
   };
 
-  const handleResetItemImage = (itemId: string) => {
+  const handleResetItemImage = async (itemId: string) => {
     const updated = { ...customItemImages };
-    delete updated[itemId];
-    setCustomItemImages(updated);
-    try {
-      localStorage.setItem('vietphuc_custom_item_images', JSON.stringify(updated));
-    } catch (err) {
-      console.warn('Could not save custom image to localStorage', err);
+    if (DEFAULT_PRODUCT_IMAGES[itemId]) {
+      updated[itemId] = DEFAULT_PRODUCT_IMAGES[itemId];
+    } else {
+      delete updated[itemId];
     }
+    setCustomItemImages(updated);
+    await saveCustomImages(updated);
     playButtonClinkSound();
   };
 
   const getItemImageUrl = (itemId: string, defaultThumbnail?: string): string => {
-    return customItemImages[itemId] || defaultThumbnail || '';
+    return customItemImages[itemId] || DEFAULT_PRODUCT_IMAGES[itemId] || defaultThumbnail || '';
   };
 
   const SAMPLE_AI_PALETTES: { [key: number]: ExtractedColorChip[] } = {
@@ -3119,23 +3138,15 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
         isOpen={isCustomImageModalOpen}
         onClose={() => setIsCustomImageModalOpen(false)}
         customImages={customItemImages}
-        onUpdateImage={(itemId, dataUrl) => {
+        onUpdateImage={async (itemId, dataUrl) => {
           const updated = { ...customItemImages, [itemId]: dataUrl };
           setCustomItemImages(updated);
-          try {
-            localStorage.setItem('vietphuc_custom_item_images', JSON.stringify(updated));
-          } catch (err) {
-            console.warn('Could not save to localStorage', err);
-          }
+          await saveCustomImages(updated);
         }}
         onResetImage={handleResetItemImage}
-        onResetAll={() => {
-          setCustomItemImages({});
-          try {
-            localStorage.removeItem('vietphuc_custom_item_images');
-          } catch (err) {
-            console.warn('Could not clear localStorage', err);
-          }
+        onResetAll={async () => {
+          setCustomItemImages(DEFAULT_PRODUCT_IMAGES);
+          await saveCustomImages(DEFAULT_PRODUCT_IMAGES);
         }}
         isLocked={isUploadLocked}
         onToggleLock={toggleUploadLock}

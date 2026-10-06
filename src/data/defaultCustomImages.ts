@@ -1,0 +1,53 @@
+/**
+ * BỘ ẢNH PRODUCT CATEGORIES MẶC ĐỊNH ĐÃ CỐ ĐỊNH AN TOÀN TRÊN WEBAPP
+ * Được đồng bộ hóa 100% cho cả 3 Màn hình (Cung Đình, Hiện Đại, Phá Cách)
+ */
+
+export const DEFAULT_PRODUCT_IMAGES: Record<string, string> = {
+  'acc-bucket-hat': '/custom-products/acc-bucket-hat.png',
+  'acc-chest-bag': '/custom-products/acc-chest-bag.png',
+  'acc-chunky-sunglasses': '/custom-products/acc-chunky-sunglasses.png',
+  'acc-khan-dong': '/custom-products/acc-khan-dong.jpg',
+  'acc-khan-vanh-day': '/custom-products/acc-khan-vanh-day.jpeg',
+  'acc-kieng-bac': '/custom-products/acc-kieng-bac.jpg',
+  'acc-kim-uoc': '/custom-products/acc-kim-uoc.jpg',
+  'acc-leather-tote': '/custom-products/acc-leather-tote.png',
+  'acc-metal-earrings': '/custom-products/acc-metal-earrings.png',
+  'acc-silver-chain-cuban': '/custom-products/acc-silver-chain-cuban.png',
+  'acc-smartwatch': '/custom-products/acc-smartwatch.png',
+  'acc-sunglasses-gold': '/custom-products/acc-sunglasses-gold.png',
+  'acc-tram-phuong': '/custom-products/acc-tram-phuong.jpg',
+  'acc-turban': '/custom-products/acc-turban.jpg',
+  'ao-nhat-binh': '/custom-products/ao-nhat-binh.jpg',
+  'ao-tac': '/custom-products/ao-tac.png',
+  'bottom-cargo-pants': '/custom-products/bottom-cargo-pants.png',
+  'bottom-high-waist-jeans': '/custom-products/bottom-high-waist-jeans.jpg',
+  'bottom-jorts-denim': '/custom-products/bottom-jorts-denim.png',
+  'bottom-linen-wide-pants': '/custom-products/bottom-linen-wide-pants.png',
+  'bottom-pleated-midi-skirt': '/custom-products/bottom-pleated-midi-skirt.png',
+  'bottom-silk-wide-pants': '/custom-products/bottom-silk-wide-pants.png',
+  'bottom-tailored-wide-leg': '/custom-products/bottom-tailored-wide-leg.png',
+  'bottom-y2k-pleated-skirt': '/custom-products/bottom-y2k-pleated-skirt.png',
+  'btn-chinese-cloth': '/custom-products/btn-chinese-cloth.png',
+  'btn-jade-green': '/custom-products/btn-jade-green.png',
+  'btn-metal-copper': '/custom-products/btn-metal-copper.png',
+  'btn-wood-agarwood': '/custom-products/btn-wood-agarwood.png',
+  'ngu-than-tay-chen': '/custom-products/ngu-than-tay-chen.jpg',
+  'shoes-boots-dr-martens': '/custom-products/shoes-boots-dr-martens.png',
+  'shoes-chunky-loafers': '/custom-products/shoes-chunky-loafers.png',
+  'shoes-embroidered-slippers': '/custom-products/shoes-embroidered-slippers.png',
+  'shoes-flat-straw-slippers': '/custom-products/shoes-flat-straw-slippers.png',
+  'shoes-mules-leather': '/custom-products/shoes-mules-leather.png',
+  'shoes-platform-mary-jane': '/custom-products/shoes-platform-mary-jane.jpg',
+  'shoes-skater-vans': '/custom-products/shoes-skater-vans.jpg',
+  'shoes-white-sneakers': '/custom-products/shoes-white-sneakers.png',
+  'shoes-wooden-clogs': '/custom-products/shoes-wooden-clogs.png',
+  'btn-silver-lotus': '/1.png',
+  'btn-mother-of-pearl': '/2.png',
+  'acc-paper-fan': '/canvas/canvas-quat-giay.png',
+  'acc-jade-pendant': '/canvas/canvas-boi-ngoc.png',
+  'layer-don-y-white': '/canvas/canvas-quan-linen.png',
+  'layer-none': '/canvas/mannequin-base.png',
+};
+
+export default DEFAULT_PRODUCT_IMAGES;
