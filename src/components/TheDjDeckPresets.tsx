@@ -16,6 +16,7 @@ export interface DjDeckPreset {
   genre: string;
   watermark: string;
   emblemUrl: string;
+  emblemScale?: string;
   bpm: number;
   outfit: {
     garmentId: string;
@@ -52,6 +53,7 @@ export const DJ_DECK_TRACKS: DjDeckPreset[] = [
     genre: 'BOOM-BAP 90s',
     watermark: '🛹',
     emblemUrl: '/presets/tet-core-skater.png',
+    emblemScale: 'scale-100',
     bpm: 130,
     highlights: ['Áo ngũ thân tay chẽn Graphic', 'Quần Cargo túi hộp', 'Sneaker Dunk Skate', 'Túi Chest Bag', 'Mũ Bucket'],
     outfit: {
@@ -86,6 +88,7 @@ export const DJ_DECK_TRACKS: DjDeckPreset[] = [
     genre: 'HYPERPOP & FUTURE BASS',
     watermark: '👑',
     emblemUrl: '/presets/royal-y2k.png',
+    emblemScale: 'scale-100',
     bpm: 138,
     highlights: ['Áo Nhật Bình form Crop-top', 'Hồng Hot Pink Neon', 'Chân váy xếp ly Y2K', 'Mary Jane đế bánh mì', 'Kính râm gọng dày'],
     outfit: {
@@ -117,9 +120,10 @@ export const DJ_DECK_TRACKS: DjDeckPreset[] = [
     accentNeon: '#39FF14',
     borderNeon: 'border-[#39FF14]',
     shadowNeon: 'shadow-[0_0_20px_rgba(57,255,20,0.35)]',
-    genre: 'INDUSTRIAL ROCK & DARK TECHNO',
+    genre: 'DARK TECHNO',
     watermark: '🦇',
     emblemUrl: '/presets/dark-heritage.png',
+    emblemScale: 'scale-110',
     bpm: 142,
     highlights: ['Áo tay thụng nhung đen', 'Quần jeans rách wash xám', 'Boots Dr. Martens 1460', 'Xích bạc Cuban layer', 'Gothic cổ phong'],
     outfit: {
@@ -466,9 +470,9 @@ export const TheDjDeckPresets: React.FC<TheDjDeckPresetsProps> = ({
                     />
                   )}
 
-                  {/* Background Watermark Crest từ thư mục ANH/ (Downloads/ANH/) */}
+                  {/* Background Watermark Crest từ thư mục ANH/ (Downloads/ANH/) - Tinh chỉnh kích cỡ đồng đều */}
                   <div
-                    className="absolute right-2 -bottom-2 select-none pointer-events-none transition-opacity duration-300"
+                    className="absolute right-2 -bottom-2 select-none pointer-events-none transition-all duration-300 w-28 h-28 sm:w-36 sm:h-36 flex items-center justify-center overflow-hidden"
                     style={{
                       opacity: isSelected ? 0.28 : 0.08
                     }}
@@ -476,7 +480,7 @@ export const TheDjDeckPresets: React.FC<TheDjDeckPresetsProps> = ({
                     <img
                       src={track.emblemUrl}
                       alt={track.title}
-                      className="w-28 h-28 sm:w-32 sm:h-32 object-contain filter brightness-0 invert drop-shadow-[0_0_12px_rgba(255,255,255,0.25)]"
+                      className={`w-full h-full object-contain filter brightness-0 invert drop-shadow-[0_0_12px_rgba(255,255,255,0.25)] transition-transform duration-300 ${track.emblemScale || 'scale-100'}`}
                     />
                   </div>
 
@@ -501,11 +505,11 @@ export const TheDjDeckPresets: React.FC<TheDjDeckPresetsProps> = ({
                         </span>
                       </div>
 
-                      {/* Genre + PAD Number + BPM indicator */}
-                      <div className="flex items-center gap-1.5 sm:gap-2">
+                      {/* Genre + PAD Number + BPM indicator - Chống tràn dòng & cố định cỡ chữ */}
+                      <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
                         {/* Huy hiệu Thể loại Âm nhạc riêng */}
                         <span
-                          className="hidden sm:inline-block text-[9.5px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded border"
+                          className="hidden sm:inline-block text-[9.5px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded border whitespace-nowrap"
                           style={{
                             color: track.accentNeon,
                             borderColor: `${track.accentNeon}55`,
@@ -516,7 +520,7 @@ export const TheDjDeckPresets: React.FC<TheDjDeckPresetsProps> = ({
                         </span>
 
                         <span
-                          className="text-[10px] font-mono font-black px-2 py-0.5 rounded border flex items-center gap-1 transition-all"
+                          className="text-[10px] font-mono font-black px-2 py-0.5 rounded border flex items-center gap-1 transition-all shrink-0"
                           style={isSelected ? {
                             backgroundColor: track.accentNeon,
                             color: '#000000',
@@ -532,7 +536,7 @@ export const TheDjDeckPresets: React.FC<TheDjDeckPresetsProps> = ({
                           <span>PAD 0{index + 1}</span>
                         </span>
 
-                        <div className="flex items-center gap-1.5 bg-black/60 px-2 py-0.5 border border-white/10 rounded">
+                        <div className="flex items-center gap-1.5 bg-black/60 px-2 py-0.5 border border-white/10 rounded shrink-0">
                           <span
                             className={`w-1.5 h-1.5 rounded-full inline-block ${isSelected ? 'animate-ping' : ''}`}
                             style={{
@@ -540,7 +544,7 @@ export const TheDjDeckPresets: React.FC<TheDjDeckPresetsProps> = ({
                               boxShadow: isSelected ? `0 0 8px ${track.accentNeon}` : 'none'
                             }}
                           />
-                          <span className={`font-mono text-[10px] font-bold ${isSelected ? 'text-white' : 'text-stone-400'}`}>
+                          <span className={`font-mono text-[10px] font-bold whitespace-nowrap ${isSelected ? 'text-white' : 'text-stone-400'}`}>
                             {track.bpm} BPM
                           </span>
                         </div>
