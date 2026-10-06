@@ -68,15 +68,7 @@ export const MainWorkspace: React.FC<MainWorkspaceProps> = ({
 
   // Custom uploaded images from IndexedDB & default fixed images
   const [customItemImages, setCustomItemImages] = useState<Record<string, string>>(() => {
-    try {
-      const saved = localStorage.getItem('vietphuc_custom_item_images');
-      return {
-        ...DEFAULT_PRODUCT_IMAGES,
-        ...(saved ? JSON.parse(saved) : {})
-      };
-    } catch {
-      return { ...DEFAULT_PRODUCT_IMAGES };
-    }
+    return { ...DEFAULT_PRODUCT_IMAGES };
   });
 
   useEffect(() => {

@@ -1,10 +1,12 @@
 import { DEFAULT_PRODUCT_IMAGES } from '../data/defaultCustomImages';
 
 const DB_NAME = 'vietphuc_db';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 const STORE_NAME = 'custom_images';
 const LOCK_KEY = 'vietphuc_upload_locked';
 const LOCAL_STORAGE_KEY = 'vietphuc_custom_item_images';
+const VERSION_KEY = 'vietphuc_data_version';
+const CURRENT_VERSION = '2026_10_06_v3_curated';
 
 // Open IndexedDB database
 function openDB(): Promise<IDBDatabase> {
@@ -132,6 +134,17 @@ export async function compressImageFile(
  * Hợp nhất bộ ảnh mặc định cố định an toàn với ảnh người dùng đã lưu trong IndexedDB & localStorage.
  */
 export async function loadCustomImages(): Promise<Record<string, string>> {
+  try {
+    const curVer = localStorage.getItem(VERSION_KEY);
+    if (curVer !== CURRENT_VERSION) {
+      // Clear legacy overrides so DEFAULT_PRODUCT_IMAGES takes clean effect
+      localStorage.removeItem(LOCAL_STORAGE_KEY);
+      localStorage.setItem(VERSION_KEY, CURRENT_VERSION);
+      await writeAllToIndexedDB({});
+      return { ...DEFAULT_PRODUCT_IMAGES };
+    }
+  } catch {}
+
   let idbImages: Record<string, string> = {};
   let lsImages: Record<string, string> = {};
 
@@ -150,6 +163,18 @@ export async function loadCustomImages(): Promise<Record<string, string>> {
     ...lsImages,
     ...idbImages
   };
+}
+
+/**
+ * Reset toàn bộ ảnh tùy chỉnh về bộ ảnh mặc định chuẩn xác của Giang
+ */
+export async function resetCustomImages(): Promise<Record<string, string>> {
+  try {
+    localStorage.removeItem(LOCAL_STORAGE_KEY);
+    localStorage.setItem(VERSION_KEY, CURRENT_VERSION);
+    await writeAllToIndexedDB({});
+  } catch {}
+  return { ...DEFAULT_PRODUCT_IMAGES };
 }
 
 /**

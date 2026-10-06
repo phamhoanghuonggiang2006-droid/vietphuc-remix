@@ -33,6 +33,7 @@ import { DEFAULT_PRODUCT_IMAGES } from '../data/defaultCustomImages';
 import { 
   loadCustomImages, 
   saveCustomImages, 
+  resetCustomImages,
   compressImageFile, 
   getStoredLockStatus, 
   setStoredLockStatus
@@ -736,15 +737,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
   );
 
   const [customItemImages, setCustomItemImages] = useState<{ [itemId: string]: string }>(() => {
-    try {
-      const saved = localStorage.getItem('vietphuc_custom_item_images');
-      return {
-        ...DEFAULT_PRODUCT_IMAGES,
-        ...(saved ? JSON.parse(saved) : {})
-      };
-    } catch {
-      return { ...DEFAULT_PRODUCT_IMAGES };
-    }
+    return { ...DEFAULT_PRODUCT_IMAGES };
   });
 
   // Tải đồng bộ ảnh từ IndexedDB đảm bảo không bao giờ bị mất hoặc reset
@@ -3145,8 +3138,8 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
         }}
         onResetImage={handleResetItemImage}
         onResetAll={async () => {
-          setCustomItemImages(DEFAULT_PRODUCT_IMAGES);
-          await saveCustomImages(DEFAULT_PRODUCT_IMAGES);
+          const fresh = await resetCustomImages();
+          setCustomItemImages(fresh);
         }}
         isLocked={isUploadLocked}
         onToggleLock={toggleUploadLock}
