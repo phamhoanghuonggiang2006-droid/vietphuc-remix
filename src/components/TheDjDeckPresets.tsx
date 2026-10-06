@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Disc3, Radio, Sliders, Volume2, Sparkles, Flame, Activity } from 'lucide-react';
+import { Disc3, Radio, Sliders, Volume2, Sparkles, Flame, Activity, ChevronLeft, ChevronRight, Check } from 'lucide-react';
 import { playDjScratchSound, play808BassDropSound } from '../utils/soundEffects';
 
 export interface DjDeckPreset {
@@ -179,6 +179,33 @@ export const TheDjDeckPresets: React.FC<TheDjDeckPresetsProps> = ({
     onSelectPreset(targetPreset);
   };
 
+  const handleNext = () => {
+    const nextIdx = (currentTrackIndex + 1) % DJ_DECK_TRACKS.length;
+    triggerTrackSwitch(nextIdx);
+  };
+
+  const handlePrev = () => {
+    const prevIdx = (currentTrackIndex - 1 + DJ_DECK_TRACKS.length) % DJ_DECK_TRACKS.length;
+    triggerTrackSwitch(prevIdx);
+  };
+
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStartX(e.touches[0].clientX);
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX === null) return;
+    const diff = e.changedTouches[0].clientX - touchStartX;
+    if (diff > 45) {
+      handlePrev();
+    } else if (diff < -45) {
+      handleNext();
+    }
+    setTouchStartX(null);
+  };
+
   const activeTrack = DJ_DECK_TRACKS[currentTrackIndex];
 
   return (
@@ -317,165 +344,200 @@ export const TheDjDeckPresets: React.FC<TheDjDeckPresetsProps> = ({
                     : 'bg-black/40 text-stone-400 border-white/10 hover:border-white/20 hover:text-white'
                 }`}
               >
-                {t.tag.split('·')[0].trim()}
+                {t.tag.split('·')[0].trim()} · PAD 0{idx + 1}
               </button>
             );
           })}
         </div>
-      </div>
-
+      </div>      {/* ======================================================== */}
+      {/* 2. DẢI ĐIỀU HƯỚNG TRẠM MIXSET (GIỐNG MÀN HÌNH 1) */}
       {/* ======================================================== */}
-      {/* ======================================================== */}
-      {/* 2. THREE MPC RUBBER BEAT PADS (PHÍM GÕ CAO SU ĐÈN LED RGB) */}
-      {/* ======================================================== */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
-        {DJ_DECK_TRACKS.map((track, idx) => {
-          const isSelected = currentTrackIndex === idx;
-          const padIcon = idx === 0 ? '🛹' : idx === 1 ? '👑' : '🦇';
-          const padAccent = track.accentNeon;
-
-          return (
-            <button
-              key={track.id}
-              type="button"
-              onClick={() => triggerTrackSwitch(idx)}
-              className={`relative text-left p-3.5 sm:p-4 transition-all duration-200 cursor-pointer flex flex-col justify-between overflow-hidden group select-none active:scale-[0.98] rounded-lg ${
-                isSelected
-                  ? 'bg-gradient-to-b from-[#1a1a28] via-[#12121c] to-black border-2 border-[#00f3ff] shadow-[0_0_25px_rgba(0,243,255,0.35),inset_0_0_16px_rgba(0,243,255,0.12)]'
-                  : 'bg-[#121218]/95 border border-white/10 hover:border-white/30 hover:bg-[#181822] shadow-[inset_0_1px_3px_rgba(255,255,255,0.04),0_4px_16px_rgba(0,0,0,0.6)]'
-              }`}
-            >
-              {/* GHOST STENCIL NUMBER WATERMARK (01, 02, 03) CHÌM NGHỆ THUẬT */}
-              <span
-                className={`absolute -right-1 -bottom-3 text-6xl font-black font-mono tracking-tighter pointer-events-none select-none transition-all duration-300 ${
-                  isSelected
-                    ? 'text-[#00f3ff]/20 scale-105 drop-shadow-[0_0_12px_rgba(0,243,255,0.25)]'
-                    : 'text-white/[0.04] group-hover:text-white/[0.08]'
-                }`}
-              >
-                0{idx + 1}
-              </span>
-
-              {/* TOP HEADER: ICON + PAD NUMBER BADGE & LED BPM INDICATOR */}
-              <div className="flex items-center justify-between mb-2 relative z-10">
-                <span
-                  className={`text-[9.5px] font-mono font-black px-2 py-0.5 border flex items-center gap-1.5 rounded-sm transition-all ${
-                    isSelected
-                      ? 'bg-[#00f3ff] text-black border-[#00f3ff] shadow-[0_0_12px_rgba(0,243,255,0.6)]'
-                      : 'bg-black/80 text-stone-300 border-white/20 group-hover:border-white/40'
-                  }`}
-                >
-                  <span className="text-xs">{padIcon}</span>
-                  <span>PAD 0{idx + 1}</span>
-                </span>
-
-                <div className="flex items-center gap-1.5 bg-black/60 px-2 py-0.5 border border-white/10 rounded-sm">
-                  <span
-                    className={`w-2 h-2 rounded-full inline-block transition-all ${
-                      isSelected ? 'animate-ping' : ''
-                    }`}
-                    style={{
-                      backgroundColor: isSelected ? padAccent : '#444455',
-                      boxShadow: isSelected ? `0 0 10px ${padAccent}` : 'none'
-                    }}
-                  />
-                  <span className={`font-mono text-[9.5px] font-bold ${
-                    isSelected ? 'text-white' : 'text-stone-400'
-                  }`}>
-                    {track.bpm} BPM
-                  </span>
-                </div>
-              </div>
-
-              {/* MIDDLE: TRACK TITLE & VIBE DESCRIPTION */}
-              <div className="relative z-10 my-1">
-                <h4
-                  className={`font-black italic uppercase text-sm sm:text-[15px] tracking-wide transition-colors ${
-                    isSelected
-                      ? 'text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.35)]'
-                      : 'text-stone-200 group-hover:text-white'
-                  }`}
-                >
-                  {track.title}
-                </h4>
-                <p className="text-[10px] text-stone-400 font-sans line-clamp-2 mt-1 leading-relaxed">
-                  {track.description}
-                </p>
-              </div>
-
-              {/* BOTTOM: LOCATION & EQUALIZER SOUNDWAVE (KHI ACTIVE) */}
-              <div className="mt-3 pt-2.5 border-t border-white/10 flex items-center justify-between relative z-10">
-                <span className="text-[9.5px] font-mono font-bold tracking-wide text-white/90 drop-shadow-[0_0_6px_rgba(255,255,255,0.35)] truncate max-w-[120px]">
-                  📍 {track.location.split('·')[0].trim()}
-                </span>
-
-                {isSelected ? (
-                  <div className="flex items-center gap-1.5 bg-black/80 px-2 py-0.5 border border-[#00f3ff]/40 shadow-[0_0_10px_rgba(0,243,255,0.25)] rounded-xs">
-                    {/* DẢI SÓNG ÂM EQUALIZER SOUNDWAVE NHẢY THEO NHỊP */}
-                    <div className="flex items-end gap-0.5 h-3">
-                      <span className="w-0.5 bg-[#00f3ff] animate-pulse h-full" style={{ animationDuration: '400ms' }} />
-                      <span className="w-0.5 bg-[#39ff14] animate-pulse h-2" style={{ animationDuration: '650ms' }} />
-                      <span className="w-0.5 bg-[#00f3ff] animate-pulse h-3" style={{ animationDuration: '300ms' }} />
-                      <span className="w-0.5 bg-[#39ff14] animate-pulse h-1.5" style={{ animationDuration: '500ms' }} />
-                    </div>
-                    <span className="text-[9px] font-black uppercase tracking-wider text-[#00f3ff] font-mono">
-                      ON-AIR
-                    </span>
-                  </div>
-                ) : (
-                  <span className="text-[9px] font-mono text-stone-500 group-hover:text-[#00f3ff] uppercase tracking-wider flex items-center gap-1 transition-colors">
-                    <span>CUE TRIGGER</span>
-                    <span>⚡</span>
-                  </span>
-                )}
-              </div>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* ======================================================== */}
-      {/* 3. ACTIVE TRACK PLAYOUT BANNER & HIGHLIGHT TAGS */}
-      {/* ======================================================== */}
-      <div className="bg-[#0d0d12] border border-white/10 p-3.5 sm:p-4 space-y-3 shadow-inner">
-        {/* Top Header: Trái: Box TRẠM... glowing xanh neon chữ trắng, Phải: Địa chỉ glowing trắng nhẹ chống ngắt dòng */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-white/10">
-          {/* CÁI HÌNH CHỮ NHẬT VỚI TEXT "TRẠM..." NẰM Ở RÌA BÊN TRÁI, BO TRÒN, CHỮ TRẮNG, GLOWING XANH NEON */}
-          <div className="self-start px-3.5 py-1.5 bg-[#00f3ff]/10 border border-[#00f3ff] shadow-[0_0_15px_rgba(0,243,255,0.45),inset_0_0_10px_rgba(0,243,255,0.12)] rounded-lg flex items-center gap-2 shrink-0">
-            <span className="text-sm sm:text-base font-black text-white uppercase tracking-wider font-mono drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]">
-              {activeTrack.tag.split('·')[0].trim()}
-            </span>
-            <span className="text-[#00f3ff] text-xs font-bold">·</span>
-            <span className="text-xs sm:text-[12px] font-bold text-white uppercase tracking-wide font-sans drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]">
-              {activeTrack.tag.split('·')[1]?.trim()}
-            </span>
-          </div>
-
-          {/* THÔNG TIN ĐỊA CHỈ: GLOWING MÀU TRẮNG NHẸ, CHỐNG XUỐNG DÒNG, CHỐNG LỖI DẤU DOT */}
-          <div className="self-end sm:self-auto flex items-center gap-2 text-xs font-mono tracking-wide text-right whitespace-nowrap shrink-0">
-            <span className="w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.95)] shrink-0 animate-pulse" />
-            <span className="text-white/95 drop-shadow-[0_0_8px_rgba(255,255,255,0.5)] font-semibold tracking-wider">
-              {activeTrack.location}
-            </span>
-          </div>
+      <div className="flex items-center justify-between px-1 mb-3 pt-1">
+        <div className="flex items-center gap-2 text-xs font-mono text-[#00f3ff]">
+          <Disc3 className={`w-3.5 h-3.5 text-[#00f3ff] ${isScratching ? 'animate-spin' : ''}`} />
+          <span className="font-bold uppercase tracking-wider text-[11px] text-stone-200">
+            TRẠM MIXSET #{currentTrackIndex + 1} / {DJ_DECK_TRACKS.length}
+          </span>
         </div>
 
-        {/* Description */}
-        <p className="text-xs text-stone-300 leading-relaxed font-sans">
-          {activeTrack.description}
-        </p>
+        {/* Nút điều hướng Trái / Phải & Dots Indicator */}
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={handlePrev}
+            className="w-7 h-7 rounded-full bg-white/5 hover:bg-[#00f3ff]/20 text-white border border-white/20 hover:border-[#00f3ff] flex items-center justify-center transition-all cursor-pointer group active:scale-95 shadow-sm"
+            title="Trạm trước"
+          >
+            <ChevronLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
+          </button>
 
-        {/* Streetwear tags */}
-        <div className="flex flex-wrap items-center gap-1.5 pt-1 border-t border-white/10">
-          <span className="text-[10px] font-mono text-stone-400 uppercase mr-1">SET GỒM:</span>
-          {activeTrack.highlights.map((h, i) => (
-            <span
-              key={i}
-              className="text-[10px] font-sans font-bold px-2 py-0.5 bg-black/40 border border-white/10 text-stone-300"
-            >
-              #{h}
-            </span>
-          ))}
+          {/* Dots Indicator */}
+          <div className="flex items-center gap-1 px-1">
+            {DJ_DECK_TRACKS.map((t, idx) => (
+              <button
+                key={t.id}
+                type="button"
+                onClick={() => triggerTrackSwitch(idx)}
+                className={`h-2 rounded-full transition-all cursor-pointer ${
+                  currentTrackIndex === idx
+                    ? 'bg-[#00f3ff] w-5 shadow-[0_0_8px_rgba(0,243,255,0.7)]'
+                    : 'bg-white/20 w-2 hover:bg-white/40'
+                }`}
+                title={`Xem Trạm ${idx + 1}`}
+              />
+            ))}
+          </div>
+
+          <button
+            type="button"
+            onClick={handleNext}
+            className="w-7 h-7 rounded-full bg-white/5 hover:bg-[#00f3ff]/20 text-white border border-white/20 hover:border-[#00f3ff] flex items-center justify-center transition-all cursor-pointer group active:scale-95 shadow-sm relative"
+            title="Trạm tiếp theo"
+          >
+            <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-[#00f3ff] animate-ping opacity-75" />
+            <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform text-[#00f3ff]" />
+          </button>
+        </div>
+      </div>
+
+      {/* ======================================================== */}
+      {/* 3. CAROUSEL KHUNG HIỂN THỊ TRỌN VẸN (GIỐNG FORMAT BẢNG MÀN HÌNH 1) */}
+      {/* ======================================================== */}
+      <div
+        className="relative overflow-hidden"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
+        <div
+          className="flex transition-transform duration-500 ease-out"
+          style={{ transform: `translateX(-${currentTrackIndex * 100}%)` }}
+        >
+          {DJ_DECK_TRACKS.map((track, index) => {
+            const isSelected = currentTrackIndex === index;
+            const padIcon = index === 0 ? '🛹' : index === 1 ? '👑' : '🦇';
+
+            return (
+              <div
+                key={track.id}
+                className="w-full min-w-full flex-shrink-0 px-0.5"
+              >
+                <div
+                  onClick={() => triggerTrackSwitch(index)}
+                  className={`relative rounded-2xl p-4 sm:p-5 text-left transition-all duration-300 cursor-pointer overflow-hidden border flex flex-col justify-between group shadow-xl ${
+                    isSelected
+                      ? 'border-[#00f3ff] bg-gradient-to-b from-[#161622] via-[#0f0f16] to-[#0a0a0f] ring-2 ring-[#00f3ff]/40 shadow-[0_0_25px_rgba(0,243,255,0.25)]'
+                      : 'border-white/10 bg-[#121218] hover:border-white/30 hover:bg-[#181824]'
+                  }`}
+                >
+                  {/* Luồng sáng khi Selected */}
+                  {isSelected && (
+                    <div className="absolute inset-0 bg-gradient-to-tr from-[#00f3ff]/10 via-[#39ff14]/5 to-transparent pointer-events-none animate-pulse" />
+                  )}
+
+                  {/* Ghost Stencil Watermark */}
+                  <div className="absolute right-3 -bottom-2 text-7xl select-none pointer-events-none opacity-5 group-hover:opacity-10 transition-opacity font-mono font-black">
+                    0{index + 1}
+                  </div>
+
+                  <div className="relative z-10">
+                    {/* Header Thẻ: Box TRẠM bên trái + PAD / BPM bên phải */}
+                    <div className="flex items-center justify-between gap-2 mb-3">
+                      {/* Box TRẠM... glowing xanh neon, chữ trắng */}
+                      <div className="px-3 py-1 bg-[#00f3ff]/10 border border-[#00f3ff] shadow-[0_0_15px_rgba(0,243,255,0.45),inset_0_0_10px_rgba(0,243,255,0.12)] rounded-lg flex items-center gap-1.5 shrink-0">
+                        <span className="text-xs sm:text-[13px] font-black text-white uppercase tracking-wider font-mono drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]">
+                          {track.tag.split('·')[0].trim()}
+                        </span>
+                        <span className="text-[#00f3ff] text-xs font-bold">·</span>
+                        <span className="text-xs sm:text-[13px] font-bold text-white uppercase tracking-wide font-sans drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]">
+                          {track.tag.split('·')[1]?.trim()}
+                        </span>
+                      </div>
+
+                      {/* PAD Number + BPM indicator */}
+                      <div className="flex items-center gap-2">
+                        <span className={`text-[10px] font-mono font-black px-2 py-0.5 rounded border flex items-center gap-1 ${
+                          isSelected
+                            ? 'bg-[#00f3ff] text-black border-[#00f3ff] shadow-[0_0_10px_rgba(0,243,255,0.5)]'
+                            : 'bg-black/60 text-stone-400 border-white/10'
+                        }`}>
+                          <span>{padIcon}</span>
+                          <span>PAD 0{index + 1}</span>
+                        </span>
+
+                        <div className="flex items-center gap-1.5 bg-black/60 px-2 py-0.5 border border-white/10 rounded">
+                          <span
+                            className={`w-1.5 h-1.5 rounded-full inline-block ${isSelected ? 'animate-ping bg-[#39ff14]' : 'bg-stone-500'}`}
+                          />
+                          <span className={`font-mono text-[10px] font-bold ${isSelected ? 'text-white' : 'text-stone-400'}`}>
+                            {track.bpm} BPM
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Tiêu đề Track + Dấu Checkmark ✓ khi active */}
+                    <h3 className="text-xl sm:text-2xl font-black italic uppercase text-white group-hover:text-[#00f3ff] transition-colors flex items-center justify-between tracking-wide">
+                      <span>{track.title}</span>
+                      {isSelected && (
+                        <span className="w-5 h-5 rounded-full bg-[#00f3ff] text-black flex items-center justify-center text-[11px] font-black shadow-[0_0_10px_rgba(0,243,255,0.7)]">
+                          ✓
+                        </span>
+                      )}
+                    </h3>
+
+                    {/* Subtitle */}
+                    <div className="text-xs sm:text-[13px] text-[#00f3ff]/90 font-mono font-medium mt-1 tracking-tight">
+                      {track.subTitle}
+                    </div>
+
+                    {/* Description */}
+                    <p className="text-xs sm:text-[13px] text-stone-300 leading-relaxed font-sans mt-2.5">
+                      {track.description}
+                    </p>
+                  </div>
+
+                  {/* Danh mục phối sẵn (Pills) */}
+                  <div className="relative z-10 mt-3 pt-3 border-t border-white/10">
+                    <div className="text-[10px] uppercase font-bold tracking-wider text-[#00f3ff] mb-2 flex items-center gap-1 font-mono">
+                      <Sparkles className="w-3 h-3 text-[#00f3ff]" />
+                      <span>CẤU KIỆN MIXSET QUY CHUẨN:</span>
+                    </div>
+
+                    <div className="flex flex-wrap gap-1.5">
+                      {track.highlights.map((item, i) => (
+                        <span
+                          key={i}
+                          className={`text-[10.5px] px-2.5 py-0.5 rounded font-medium transition-colors ${
+                            isSelected
+                              ? 'bg-[#00f3ff]/20 text-white border border-[#00f3ff]/50 shadow-[0_0_8px_rgba(0,243,255,0.2)]'
+                              : 'bg-white/5 text-stone-300 border border-white/10 group-hover:border-white/20'
+                          }`}
+                        >
+                          #{item}
+                        </span>
+                      ))}
+                    </div>
+
+                    {/* Nút bấm trạng thái + Địa chỉ glowing màu trắng nhẹ chống xuống dòng */}
+                    <div className="mt-3.5 pt-2.5 border-t border-white/10 flex flex-wrap items-center justify-between gap-2">
+                      <span className="text-xs font-mono font-bold text-[#00f3ff] group-hover:text-white transition-colors flex items-center gap-1.5">
+                        <Flame className="w-3.5 h-3.5 text-[#00f3ff] animate-pulse" />
+                        <span>{isSelected ? '⚡ Đang diện bản phối này' : 'Nhấn để diện track mixset này →'}</span>
+                      </span>
+
+                      {/* Địa chỉ glowing màu trắng nhẹ */}
+                      <div className="flex items-center gap-1.5 text-xs font-mono whitespace-nowrap shrink-0">
+                        <span className="w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.95)] shrink-0 animate-pulse" />
+                        <span className="text-white/95 drop-shadow-[0_0_8px_rgba(255,255,255,0.5)] font-semibold tracking-wider">
+                          {track.location}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
