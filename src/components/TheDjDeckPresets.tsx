@@ -311,9 +311,9 @@ export const TheDjDeckPresets: React.FC<TheDjDeckPresetsProps> = ({
                 key={t.id}
                 type="button"
                 onClick={() => triggerTrackSwitch(idx)}
-                className={`text-[10px] sm:text-[11px] font-black uppercase tracking-tight py-1 px-1 border transition-all cursor-pointer ${
+                className={`text-[10px] sm:text-[11px] font-black uppercase tracking-tight py-1.5 px-2 border transition-all cursor-pointer rounded-sm ${
                   isCur
-                    ? 'bg-[#00f3ff]/15 text-[#00f3ff] font-extrabold border-[#00f3ff] shadow-[0_0_12px_rgba(0,243,255,0.2)]'
+                    ? 'bg-[#00f3ff]/15 text-white font-black border-[#00f3ff] shadow-[0_0_15px_rgba(0,243,255,0.45)]'
                     : 'bg-black/40 text-stone-400 border-white/10 hover:border-white/20 hover:text-white'
                 }`}
               >
@@ -399,23 +399,25 @@ export const TheDjDeckPresets: React.FC<TheDjDeckPresetsProps> = ({
       {/* 3. ACTIVE TRACK PLAYOUT BANNER & HIGHLIGHT TAGS */}
       {/* ======================================================== */}
       <div className="bg-[#0d0d12] border border-white/10 p-3.5 sm:p-4 space-y-3 shadow-inner">
-        {/* Top Header: Trái: Box TRẠM... bo tròn, Phải: Địa chỉ thu nhỏ dịu mắt, BỎ nút DROP BASS */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-3 border-b border-white/10">
-          {/* CÁI HÌNH CHỮ NHẬT VỚI TEXT "TRẠM..." NẰM Ở RÌA BÊN TRÁI, BO TRÒN, TEXT MÀU TRẮNG */}
-          <div className="self-start px-3.5 py-1.5 bg-white/[0.06] border border-white/20 rounded-lg flex items-center gap-2 shadow-sm">
-            <span className="text-sm sm:text-base font-black text-white uppercase tracking-wider font-mono">
+        {/* Top Header: Trái: Box TRẠM... glowing xanh neon chữ trắng, Phải: Địa chỉ glowing trắng nhẹ chống ngắt dòng */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-white/10">
+          {/* CÁI HÌNH CHỮ NHẬT VỚI TEXT "TRẠM..." NẰM Ở RÌA BÊN TRÁI, BO TRÒN, CHỮ TRẮNG, GLOWING XANH NEON */}
+          <div className="self-start px-3.5 py-1.5 bg-[#00f3ff]/10 border border-[#00f3ff] shadow-[0_0_15px_rgba(0,243,255,0.45),inset_0_0_10px_rgba(0,243,255,0.12)] rounded-lg flex items-center gap-2 shrink-0">
+            <span className="text-sm sm:text-base font-black text-white uppercase tracking-wider font-mono drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]">
               {activeTrack.tag.split('·')[0].trim()}
             </span>
-            <span className="text-white/40 text-xs">·</span>
-            <span className="text-xs sm:text-[12px] font-semibold text-white/90 uppercase tracking-wide font-sans">
+            <span className="text-[#00f3ff] text-xs font-bold">·</span>
+            <span className="text-xs sm:text-[12px] font-bold text-white uppercase tracking-wide font-sans drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]">
               {activeTrack.tag.split('·')[1]?.trim()}
             </span>
           </div>
 
-          {/* THÔNG TIN ĐỊA CHỈ: RÌA BÊN PHẢI, GIẢM KÍCH CỠ & ĐỘ SÁNG XUỐNG 30%, KHÔNG ÁT VÍA */}
-          <div className="self-end sm:self-auto flex items-center gap-1.5 text-[10.5px] sm:text-xs font-mono text-stone-400 tracking-wide text-right">
-            <span className="w-1.5 h-1.5 rounded-full bg-stone-500 shrink-0" />
-            <span>{activeTrack.location}</span>
+          {/* THÔNG TIN ĐỊA CHỈ: GLOWING MÀU TRẮNG NHẸ, CHỐNG XUỐNG DÒNG, CHỐNG LỖI DẤU DOT */}
+          <div className="self-end sm:self-auto flex items-center gap-2 text-xs font-mono tracking-wide text-right whitespace-nowrap shrink-0">
+            <span className="w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.95)] shrink-0 animate-pulse" />
+            <span className="text-white/95 drop-shadow-[0_0_8px_rgba(255,255,255,0.5)] font-semibold tracking-wider">
+              {activeTrack.location}
+            </span>
           </div>
         </div>
 
