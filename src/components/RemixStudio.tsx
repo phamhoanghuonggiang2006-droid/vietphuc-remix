@@ -1067,7 +1067,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
   ];
 
   return (
-    <div className="space-y-6">
+    <div className={`space-y-6 ${currentTier === 'fusion' ? 'font-streetwear' : ''}`}>
       {/* ======================================================== */}
       {/* 1. TOP BAR TINH GỌN: ĐỔI BỐI CẢNH + RESET MẪU + KHO ẢNH */}
       {/* ======================================================== */}

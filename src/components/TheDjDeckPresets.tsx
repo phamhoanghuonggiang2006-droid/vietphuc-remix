@@ -13,6 +13,8 @@ export interface DjDeckPreset {
   accentNeon: string;
   borderNeon: string;
   shadowNeon: string;
+  genre: string;
+  watermark: string;
   bpm: number;
   outfit: {
     garmentId: string;
@@ -45,7 +47,9 @@ export const DJ_DECK_TRACKS: DjDeckPreset[] = [
     description: 'Dành cho những buổi trượt ván ở công viên 30/4 hay dạo phố Bùi Viện.',
     accentNeon: '#00f3ff',
     borderNeon: 'border-[#00f3ff]',
-    shadowNeon: 'shadow-[0_0_15px_rgba(0,243,255,0.25)]',
+    shadowNeon: 'shadow-[0_0_20px_rgba(0,243,255,0.35)]',
+    genre: 'BOOM-BAP 90s',
+    watermark: '🛹',
     bpm: 130,
     highlights: ['Áo ngũ thân tay chẽn Graphic', 'Quần Cargo túi hộp', 'Sneaker Dunk Skate', 'Túi Chest Bag', 'Mũ Bucket'],
     outfit: {
@@ -74,9 +78,11 @@ export const DJ_DECK_TRACKS: DjDeckPreset[] = [
     tag: 'TRẠM 2 · NEON PRINCESS',
     location: 'Saigon Concert · Phố Đi Bộ',
     description: 'Tone màu bẻ sang Hồng Neon cá tính.',
-    accentNeon: '#00f3ff',
-    borderNeon: 'border-[#00f3ff]',
-    shadowNeon: 'shadow-[0_0_15px_rgba(0,243,255,0.25)]',
+    accentNeon: '#FF007F',
+    borderNeon: 'border-[#FF007F]',
+    shadowNeon: 'shadow-[0_0_20px_rgba(255,0,127,0.35)]',
+    genre: 'HYPERPOP & FUTURE BASS',
+    watermark: '👑',
     bpm: 138,
     highlights: ['Áo Nhật Bình form Crop-top', 'Hồng Hot Pink Neon', 'Chân váy xếp ly Y2K', 'Mary Jane đế bánh mì', 'Kính râm gọng dày'],
     outfit: {
@@ -105,9 +111,11 @@ export const DJ_DECK_TRACKS: DjDeckPreset[] = [
     tag: 'TRẠM 3 · GOTHIC CỔ PHONG',
     location: 'Underground Vault · Rock Club',
     description: 'Một chút bí ẩn, sắc lạnh, đúng chất Gothic cổ phong.',
-    accentNeon: '#39ff14',
-    borderNeon: 'border-[#39ff14]',
-    shadowNeon: 'shadow-[0_0_15px_rgba(57,255,20,0.25)]',
+    accentNeon: '#39FF14',
+    borderNeon: 'border-[#39FF14]',
+    shadowNeon: 'shadow-[0_0_20px_rgba(57,255,20,0.35)]',
+    genre: 'INDUSTRIAL ROCK & DARK TECHNO',
+    watermark: '🦇',
     bpm: 142,
     highlights: ['Áo tay thụng nhung đen', 'Quần jeans rách wash xám', 'Boots Dr. Martens 1460', 'Xích bạc Cuban layer', 'Gothic cổ phong'],
     outfit: {
@@ -340,21 +348,28 @@ export const TheDjDeckPresets: React.FC<TheDjDeckPresetsProps> = ({
                 onClick={() => triggerTrackSwitch(idx)}
                 className={`text-[10px] sm:text-[11px] font-black uppercase tracking-tight py-1.5 px-2 border transition-all cursor-pointer rounded-sm ${
                   isCur
-                    ? 'bg-[#00f3ff]/15 text-white font-black border-[#00f3ff] shadow-[0_0_15px_rgba(0,243,255,0.45)]'
+                    ? 'text-white'
                     : 'bg-black/40 text-stone-400 border-white/10 hover:border-white/20 hover:text-white'
                 }`}
+                style={isCur ? {
+                  backgroundColor: `${t.accentNeon}22`,
+                  borderColor: t.accentNeon,
+                  boxShadow: `0 0 15px ${t.accentNeon}66`
+                } : undefined}
               >
-                {t.tag.split('·')[0].trim()} · PAD 0{idx + 1}
+                {t.tag.split('·')[0].trim()} · {t.watermark}
               </button>
             );
           })}
         </div>
-      </div>      {/* ======================================================== */}
+      </div>
+
+      {/* ======================================================== */}
       {/* 2. DẢI ĐIỀU HƯỚNG TRẠM MIXSET (GIỐNG MÀN HÌNH 1) */}
       {/* ======================================================== */}
       <div className="flex items-center justify-between px-1 mb-3 pt-1">
-        <div className="flex items-center gap-2 text-xs font-mono text-[#00f3ff]">
-          <Disc3 className={`w-3.5 h-3.5 text-[#00f3ff] ${isScratching ? 'animate-spin' : ''}`} />
+        <div className="flex items-center gap-2 text-xs font-mono" style={{ color: activeTrack.accentNeon }}>
+          <Disc3 className={`w-3.5 h-3.5 ${isScratching ? 'animate-spin' : ''}`} style={{ color: activeTrack.accentNeon }} />
           <span className="font-bold uppercase tracking-wider text-[11px] text-stone-200">
             TRẠM MIXSET #{currentTrackIndex + 1} / {DJ_DECK_TRACKS.length}
           </span>
@@ -365,7 +380,7 @@ export const TheDjDeckPresets: React.FC<TheDjDeckPresetsProps> = ({
           <button
             type="button"
             onClick={handlePrev}
-            className="w-7 h-7 rounded-full bg-white/5 hover:bg-[#00f3ff]/20 text-white border border-white/20 hover:border-[#00f3ff] flex items-center justify-center transition-all cursor-pointer group active:scale-95 shadow-sm"
+            className="w-7 h-7 rounded-full bg-white/5 hover:bg-white/10 text-white border border-white/20 flex items-center justify-center transition-all cursor-pointer group active:scale-95 shadow-sm"
             title="Trạm trước"
           >
             <ChevronLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
@@ -379,10 +394,12 @@ export const TheDjDeckPresets: React.FC<TheDjDeckPresetsProps> = ({
                 type="button"
                 onClick={() => triggerTrackSwitch(idx)}
                 className={`h-2 rounded-full transition-all cursor-pointer ${
-                  currentTrackIndex === idx
-                    ? 'bg-[#00f3ff] w-5 shadow-[0_0_8px_rgba(0,243,255,0.7)]'
-                    : 'bg-white/20 w-2 hover:bg-white/40'
+                  currentTrackIndex === idx ? 'w-5' : 'bg-white/20 w-2 hover:bg-white/40'
                 }`}
+                style={currentTrackIndex === idx ? {
+                  backgroundColor: t.accentNeon,
+                  boxShadow: `0 0 8px ${t.accentNeon}`
+                } : undefined}
                 title={`Xem Trạm ${idx + 1}`}
               />
             ))}
@@ -391,11 +408,14 @@ export const TheDjDeckPresets: React.FC<TheDjDeckPresetsProps> = ({
           <button
             type="button"
             onClick={handleNext}
-            className="w-7 h-7 rounded-full bg-white/5 hover:bg-[#00f3ff]/20 text-white border border-white/20 hover:border-[#00f3ff] flex items-center justify-center transition-all cursor-pointer group active:scale-95 shadow-sm relative"
+            className="w-7 h-7 rounded-full bg-white/5 hover:bg-white/10 text-white border border-white/20 flex items-center justify-center transition-all cursor-pointer group active:scale-95 shadow-sm relative"
             title="Trạm tiếp theo"
           >
-            <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-[#00f3ff] animate-ping opacity-75" />
-            <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform text-[#00f3ff]" />
+            <span
+              className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full animate-ping opacity-75"
+              style={{ backgroundColor: activeTrack.accentNeon }}
+            />
+            <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" style={{ color: activeTrack.accentNeon }} />
           </button>
         </div>
       </div>
@@ -414,7 +434,6 @@ export const TheDjDeckPresets: React.FC<TheDjDeckPresetsProps> = ({
         >
           {DJ_DECK_TRACKS.map((track, index) => {
             const isSelected = currentTrackIndex === index;
-            const padIcon = index === 0 ? '🛹' : index === 1 ? '👑' : '🦇';
 
             return (
               <div
@@ -425,48 +444,94 @@ export const TheDjDeckPresets: React.FC<TheDjDeckPresetsProps> = ({
                   onClick={() => triggerTrackSwitch(index)}
                   className={`relative rounded-2xl p-4 sm:p-5 text-left transition-all duration-300 cursor-pointer overflow-hidden border flex flex-col justify-between group shadow-xl ${
                     isSelected
-                      ? 'border-[#00f3ff] bg-gradient-to-b from-[#161622] via-[#0f0f16] to-[#0a0a0f] ring-2 ring-[#00f3ff]/40 shadow-[0_0_25px_rgba(0,243,255,0.25)]'
+                      ? 'bg-gradient-to-b from-[#181824] via-[#101018] to-[#08080c]'
                       : 'border-white/10 bg-[#121218] hover:border-white/30 hover:bg-[#181824]'
                   }`}
+                  style={isSelected ? {
+                    borderColor: track.accentNeon,
+                    boxShadow: `0 0 25px ${track.accentNeon}33, inset 0 0 15px ${track.accentNeon}10`
+                  } : undefined}
                 >
                   {/* Luồng sáng khi Selected */}
                   {isSelected && (
-                    <div className="absolute inset-0 bg-gradient-to-tr from-[#00f3ff]/10 via-[#39ff14]/5 to-transparent pointer-events-none animate-pulse" />
+                    <div
+                      className="absolute inset-0 pointer-events-none animate-pulse"
+                      style={{
+                        background: `radial-gradient(ellipse at top left, ${track.accentNeon}20, transparent 70%)`
+                      }}
+                    />
                   )}
 
-                  {/* Ghost Stencil Watermark */}
-                  <div className="absolute right-3 -bottom-2 text-7xl select-none pointer-events-none opacity-5 group-hover:opacity-10 transition-opacity font-mono font-black">
-                    0{index + 1}
+                  {/* Ghost Stencil Watermark với số và icon riêng */}
+                  <div
+                    className="absolute right-3 -bottom-2 text-6xl sm:text-7xl select-none pointer-events-none transition-opacity font-mono font-black flex items-baseline gap-1"
+                    style={{
+                      opacity: isSelected ? 0.12 : 0.04
+                    }}
+                  >
+                    <span style={{ color: track.accentNeon }}>0{index + 1}</span>
+                    <span className="text-4xl sm:text-5xl">{track.watermark}</span>
                   </div>
 
                   <div className="relative z-10">
-                    {/* Header Thẻ: Box TRẠM bên trái + PAD / BPM bên phải */}
+                    {/* Header Thẻ: Box TRẠM bên trái + PAD / BPM / Genre bên phải */}
                     <div className="flex items-center justify-between gap-2 mb-3">
-                      {/* Box TRẠM... glowing xanh neon, chữ trắng */}
-                      <div className="px-3 py-1 bg-[#00f3ff]/10 border border-[#00f3ff] shadow-[0_0_15px_rgba(0,243,255,0.45),inset_0_0_10px_rgba(0,243,255,0.12)] rounded-lg flex items-center gap-1.5 shrink-0">
+                      {/* Box TRẠM... glowing màu neon riêng của từng Trạm, chữ trắng */}
+                      <div
+                        className="px-3 py-1 rounded-lg flex items-center gap-1.5 shrink-0 transition-all"
+                        style={{
+                          backgroundColor: `${track.accentNeon}18`,
+                          border: `1px solid ${track.accentNeon}`,
+                          boxShadow: `0 0 15px ${track.accentNeon}66, inset 0 0 10px ${track.accentNeon}22`
+                        }}
+                      >
                         <span className="text-xs sm:text-[13px] font-black text-white uppercase tracking-wider font-mono drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]">
                           {track.tag.split('·')[0].trim()}
                         </span>
-                        <span className="text-[#00f3ff] text-xs font-bold">·</span>
-                        <span className="text-xs sm:text-[13px] font-bold text-white uppercase tracking-wide font-sans drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]">
+                        <span className="text-xs font-bold" style={{ color: track.accentNeon }}>·</span>
+                        <span className="text-xs sm:text-[13px] font-bold text-white uppercase tracking-wide drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]">
                           {track.tag.split('·')[1]?.trim()}
                         </span>
                       </div>
 
-                      {/* PAD Number + BPM indicator */}
-                      <div className="flex items-center gap-2">
-                        <span className={`text-[10px] font-mono font-black px-2 py-0.5 rounded border flex items-center gap-1 ${
-                          isSelected
-                            ? 'bg-[#00f3ff] text-black border-[#00f3ff] shadow-[0_0_10px_rgba(0,243,255,0.5)]'
-                            : 'bg-black/60 text-stone-400 border-white/10'
-                        }`}>
-                          <span>{padIcon}</span>
+                      {/* Genre + PAD Number + BPM indicator */}
+                      <div className="flex items-center gap-1.5 sm:gap-2">
+                        {/* Huy hiệu Thể loại Âm nhạc riêng */}
+                        <span
+                          className="hidden sm:inline-block text-[9.5px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded border"
+                          style={{
+                            color: track.accentNeon,
+                            borderColor: `${track.accentNeon}55`,
+                            backgroundColor: 'rgba(0,0,0,0.6)'
+                          }}
+                        >
+                          {track.genre}
+                        </span>
+
+                        <span
+                          className="text-[10px] font-mono font-black px-2 py-0.5 rounded border flex items-center gap-1 transition-all"
+                          style={isSelected ? {
+                            backgroundColor: track.accentNeon,
+                            color: '#000000',
+                            borderColor: track.accentNeon,
+                            boxShadow: `0 0 10px ${track.accentNeon}88`
+                          } : {
+                            backgroundColor: 'rgba(0,0,0,0.6)',
+                            color: '#a8a29e',
+                            borderColor: 'rgba(255,255,255,0.1)'
+                          }}
+                        >
+                          <span>{track.watermark}</span>
                           <span>PAD 0{index + 1}</span>
                         </span>
 
                         <div className="flex items-center gap-1.5 bg-black/60 px-2 py-0.5 border border-white/10 rounded">
                           <span
-                            className={`w-1.5 h-1.5 rounded-full inline-block ${isSelected ? 'animate-ping bg-[#39ff14]' : 'bg-stone-500'}`}
+                            className={`w-1.5 h-1.5 rounded-full inline-block ${isSelected ? 'animate-ping' : ''}`}
+                            style={{
+                              backgroundColor: isSelected ? track.accentNeon : '#78716c',
+                              boxShadow: isSelected ? `0 0 8px ${track.accentNeon}` : 'none'
+                            }}
                           />
                           <span className={`font-mono text-[10px] font-bold ${isSelected ? 'text-white' : 'text-stone-400'}`}>
                             {track.bpm} BPM
@@ -476,17 +541,29 @@ export const TheDjDeckPresets: React.FC<TheDjDeckPresetsProps> = ({
                     </div>
 
                     {/* Tiêu đề Track + Dấu Checkmark ✓ khi active */}
-                    <h3 className="text-xl sm:text-2xl font-black italic uppercase text-white group-hover:text-[#00f3ff] transition-colors flex items-center justify-between tracking-wide">
-                      <span>{track.title}</span>
+                    <h3
+                      className="text-xl sm:text-2xl font-black italic uppercase text-white transition-colors flex items-center justify-between tracking-wide"
+                    >
+                      <span className="group-hover:translate-x-0.5 transition-transform">{track.title}</span>
                       {isSelected && (
-                        <span className="w-5 h-5 rounded-full bg-[#00f3ff] text-black flex items-center justify-center text-[11px] font-black shadow-[0_0_10px_rgba(0,243,255,0.7)]">
+                        <span
+                          className="w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-black shadow"
+                          style={{
+                            backgroundColor: track.accentNeon,
+                            color: '#000000',
+                            boxShadow: `0 0 12px ${track.accentNeon}`
+                          }}
+                        >
                           ✓
                         </span>
                       )}
                     </h3>
 
                     {/* Subtitle */}
-                    <div className="text-xs sm:text-[13px] text-[#00f3ff]/90 font-mono font-medium mt-1 tracking-tight">
+                    <div
+                      className="text-xs sm:text-[13px] font-mono font-medium mt-1 tracking-tight"
+                      style={{ color: isSelected ? track.accentNeon : '#a8a29e' }}
+                    >
                       {track.subTitle}
                     </div>
 
@@ -498,8 +575,11 @@ export const TheDjDeckPresets: React.FC<TheDjDeckPresetsProps> = ({
 
                   {/* Danh mục phối sẵn (Pills) */}
                   <div className="relative z-10 mt-3 pt-3 border-t border-white/10">
-                    <div className="text-[10px] uppercase font-bold tracking-wider text-[#00f3ff] mb-2 flex items-center gap-1 font-mono">
-                      <Sparkles className="w-3 h-3 text-[#00f3ff]" />
+                    <div
+                      className="text-[10px] uppercase font-bold tracking-wider mb-2 flex items-center gap-1 font-mono"
+                      style={{ color: track.accentNeon }}
+                    >
+                      <Sparkles className="w-3 h-3" style={{ color: track.accentNeon }} />
                       <span>CẤU KIỆN MIXSET QUY CHUẨN:</span>
                     </div>
 
@@ -507,11 +587,17 @@ export const TheDjDeckPresets: React.FC<TheDjDeckPresetsProps> = ({
                       {track.highlights.map((item, i) => (
                         <span
                           key={i}
-                          className={`text-[10.5px] px-2.5 py-0.5 rounded font-medium transition-colors ${
-                            isSelected
-                              ? 'bg-[#00f3ff]/20 text-white border border-[#00f3ff]/50 shadow-[0_0_8px_rgba(0,243,255,0.2)]'
-                              : 'bg-white/5 text-stone-300 border border-white/10 group-hover:border-white/20'
-                          }`}
+                          className="text-[10.5px] px-2.5 py-0.5 rounded font-medium transition-all"
+                          style={isSelected ? {
+                            backgroundColor: `${track.accentNeon}20`,
+                            color: '#ffffff',
+                            border: `1px solid ${track.accentNeon}55`,
+                            boxShadow: `0 0 6px ${track.accentNeon}33`
+                          } : {
+                            backgroundColor: 'rgba(255,255,255,0.05)',
+                            color: '#d6d3d1',
+                            border: '1px solid rgba(255,255,255,0.1)'
+                          }}
                         >
                           #{item}
                         </span>
@@ -520,8 +606,11 @@ export const TheDjDeckPresets: React.FC<TheDjDeckPresetsProps> = ({
 
                     {/* Nút bấm trạng thái + Địa chỉ glowing màu trắng nhẹ chống xuống dòng */}
                     <div className="mt-3.5 pt-2.5 border-t border-white/10 flex flex-wrap items-center justify-between gap-2">
-                      <span className="text-xs font-mono font-bold text-[#00f3ff] group-hover:text-white transition-colors flex items-center gap-1.5">
-                        <Flame className="w-3.5 h-3.5 text-[#00f3ff] animate-pulse" />
+                      <span
+                        className="text-xs font-mono font-bold flex items-center gap-1.5 transition-colors"
+                        style={{ color: isSelected ? track.accentNeon : '#a8a29e' }}
+                      >
+                        <Flame className="w-3.5 h-3.5 animate-pulse" style={{ color: track.accentNeon }} />
                         <span>{isSelected ? '⚡ Đang diện bản phối này' : 'Nhấn để diện track mixset này →'}</span>
                       </span>
 
