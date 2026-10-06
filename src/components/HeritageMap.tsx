@@ -150,7 +150,7 @@ export const HeritageMap: React.FC<HeritageMapProps> = ({ currentContext = 'heri
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         
         {/* LEFT COLUMN: SIMULATED INTERACTIVE MAP (6 Cols) */}
-        <div className={`rounded-2xl p-6 lg:sticky lg:top-24 space-y-4 border ${
+        <div className={`lg:col-span-6 rounded-2xl p-6 lg:sticky lg:top-24 space-y-4 border ${
           isModern ? 'bg-white/85 border-stone-200/90 shadow-sm' : 'bg-[#141419] border-[#23232c]'
         }`}>
           <div className="flex items-center justify-between">

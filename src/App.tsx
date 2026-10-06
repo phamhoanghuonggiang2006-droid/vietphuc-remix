@@ -49,33 +49,31 @@ export default function App() {
       {/* ======================================================== */}
       {isModern ? (
         <>
-          {/* MÀN HÌNH 2: NỀN NÓN LÁ TRUYỀN THỐNG (nen-man-hinh-2.jpg) + TRẮNG HƠN 50% & ÁNH SÁNG STUDIO */}
-          {/* Lớp 1: Ảnh nền nón lá (nen-man-hinh-2.jpg) */}
+          {/* MÀN HÌNH 2: NỀN NÓN LÁ TRUYỀN THỐNG (nen-man-hinh-2.jpg) HIỂN THỊ RÕ RÀNG */}
+          {/* Lớp nền màu be ngà cơ sở */}
+          <div className="fixed inset-0 pointer-events-none z-0 bg-[#F8F5EE]" />
+
+          {/* Lớp 1: Ảnh nền nón lá (nen-man-hinh-2.jpg) - Giảm độ sáng xuống 88%, tăng độ tương phản để thấy rõ nón lá */}
           <div 
             className="fixed inset-0 pointer-events-none z-0"
             style={{
               backgroundImage: 'url(/backgrounds/nen-man-hinh-2.jpg)',
               backgroundSize: 'cover',
-              backgroundPosition: 'center 35%',
+              backgroundPosition: 'center 30%',
               backgroundRepeat: 'no-repeat',
-              opacity: 0.16,
-              filter: 'blur(2.5px) contrast(95%) brightness(125%)'
+              opacity: 0.42,
+              filter: 'blur(0.5px) contrast(110%) brightness(88%)'
             }}
           />
 
-          {/* Lớp 2: Lớp phủ trắng 50% thanh lịch (Pure Editorial White Veil) */}
+          {/* Lớp 2: Lớp phủ sương trắng nhẹ bảo toàn độ sáng sang trọng của tạp chí mà không che mất nón lá */}
           <div 
-            className="fixed inset-0 pointer-events-none z-0 bg-white/55 backdrop-blur-[0.5px]"
+            className="fixed inset-0 pointer-events-none z-0 bg-gradient-to-b from-white/65 via-white/45 to-[#FAF6EE]/55"
           />
 
-          {/* Lớp 3: Gradient Tạp Chí Thời Trang Trắng Sáng (Whiter by 50%) */}
+          {/* Lớp 3: Gợn sớ lụa & giấy dó mỹ thuật nhẹ */}
           <div 
-            className="fixed inset-0 pointer-events-none z-0 bg-gradient-to-b from-[#FFFFFF]/90 via-[#FAF8F5]/85 to-[#F5F2EB]/90"
-          />
-
-          {/* Lớp 4: Gợn sớ lụa & giấy dó mỹ thuật nhẹ */}
-          <div 
-            className="fixed inset-0 pointer-events-none z-0 opacity-[0.025] mix-blend-multiply"
+            className="fixed inset-0 pointer-events-none z-0 opacity-[0.03] mix-blend-multiply"
             style={{
               backgroundImage: 'url(/patterns/so-lua-giay-do.svg)',
               backgroundSize: '48px 48px',
@@ -83,9 +81,9 @@ export default function App() {
             }}
           />
 
-          {/* Lớp 5: Ánh sáng Studio Tự Nhiên cực sáng (Natural Soft Key Lighting) */}
+          {/* Lớp 4: Ánh sáng Studio Tự Nhiên tạo điểm nhấn êm dịu */}
           <div 
-            className="fixed inset-0 pointer-events-none z-0 bg-[radial-gradient(circle_at_50%_15%,rgba(255,255,255,0.96)_0%,rgba(252,250,247,0.75)_50%,rgba(246,243,238,0.55)_100%)]"
+            className="fixed inset-0 pointer-events-none z-0 bg-[radial-gradient(circle_at_50%_18%,rgba(255,255,255,0.72)_0%,rgba(252,250,247,0.30)_55%,rgba(240,235,225,0.20)_100%)]"
           />
         </>
       ) : isFusion ? (
