@@ -271,6 +271,22 @@ export const ThanhLichBentoLookbook: React.FC<ThanhLichBentoLookbookProps> = ({
         }}
       />
 
+      {/* Dấu Ấn Định Vị Bản In Tạp Chí (Crop Marks + ở 4 Góc) */}
+      <div className="absolute top-2.5 left-2.5 text-[10px] text-stone-300 font-mono select-none pointer-events-none">+</div>
+      <div className="absolute top-2.5 right-2.5 text-[10px] text-stone-300 font-mono select-none pointer-events-none">+</div>
+      <div className="absolute bottom-2.5 left-2.5 text-[10px] text-stone-300 font-mono select-none pointer-events-none">+</div>
+      <div className="absolute bottom-2.5 right-2.5 text-[10px] text-stone-300 font-mono select-none pointer-events-none">+</div>
+
+      {/* Quầng Sáng Studio Nền (Ambient Studio Aura Glow Thích Ứng Theo Preset) */}
+      <div 
+        className="absolute -top-16 -right-16 w-60 h-60 rounded-full blur-3xl pointer-events-none transition-all duration-700 opacity-20"
+        style={{ backgroundColor: BENTO_PRESETS[currentIndex]?.accentColor || '#8BA888' }}
+      />
+      <div 
+        className="absolute -bottom-16 -left-16 w-52 h-52 rounded-full blur-3xl pointer-events-none transition-all duration-700 opacity-15"
+        style={{ backgroundColor: BENTO_PRESETS[currentIndex]?.accentColor || '#8BA888' }}
+      />
+
       {/* Dấu Ấn Biên Tập Góc Bìa Tạp Chí */}
       <div className="absolute top-3 left-4 font-mono text-[9px] text-stone-400 select-none tracking-widest uppercase">
         [VOL. 04]
@@ -286,11 +302,8 @@ export const ThanhLichBentoLookbook: React.FC<ThanhLichBentoLookbookProps> = ({
           <span>Ấn Bản Phố Thị · S/S 2026</span>
         </div>
 
-        <h2 className="text-xl sm:text-2xl font-serif font-black tracking-wide text-stone-900 drop-shadow-sm flex items-center justify-center gap-2">
+        <h2 className="text-xl sm:text-2xl font-serif font-black tracking-wide text-stone-900 drop-shadow-sm flex items-center justify-center">
           <span>Tạp Chí Thời Trang</span>
-          <span className="text-[10px] font-sans font-semibold px-2 py-0.5 rounded-full bg-stone-100 text-stone-600 border border-stone-300">
-            Editorial Lookbook
-          </span>
         </h2>
 
         <p className="text-[11px] text-stone-500 max-w-sm mx-auto mt-0.5 font-serif italic">
@@ -379,14 +392,23 @@ export const ThanhLichBentoLookbook: React.FC<ThanhLichBentoLookbookProps> = ({
                   onClick={() => handlePresetClick(preset)}
                   className={`relative rounded-2xl p-4 sm:p-4.5 text-left transition-all duration-300 cursor-pointer overflow-hidden border flex flex-col justify-between group shadow-sm ${
                     isSelected
-                      ? 'border-[#8BA888] bg-white ring-2 ring-[#8BA888]/40 shadow-xl'
+                      ? 'border-[#8BA888] bg-gradient-to-br from-white via-[#FAF8F5] to-[#F5F1EB] ring-4 ring-[#8BA888]/15 shadow-xl'
                       : 'border-stone-200/90 bg-white/80 hover:bg-white hover:border-stone-300 hover:shadow-md'
                   }`}
                 >
-                  {/* Subtle Accent Glow khi Selected */}
-                  {isSelected && (
-                    <div className="absolute inset-0 bg-gradient-to-tr from-[#8BA888]/10 via-[#FAF7F2]/40 to-transparent pointer-events-none" />
-                  )}
+                  {/* Quầng Sáng Studio Spotlight Trong Thẻ */}
+                  <div 
+                    className="absolute -top-12 -right-12 w-44 h-44 rounded-full blur-2xl pointer-events-none transition-all duration-700"
+                    style={{
+                      backgroundColor: preset.accentColor,
+                      opacity: isSelected ? 0.16 : 0.05
+                    }}
+                  />
+
+                  {/* Watermark Số Trang In Chìm Chuẩn Tạp Chí (Didot Haute Couture Typography) */}
+                  <div className="absolute right-2 -bottom-4 text-7xl sm:text-8xl font-serif font-black tracking-tighter select-none pointer-events-none opacity-[0.05] group-hover:opacity-[0.09] transition-opacity text-stone-900 leading-none">
+                    {String(index + 1).padStart(2, '0')}
+                  </div>
 
                   <div className="relative z-10">
                     {/* Header Thẻ: Badge + Mini Barcode + Trang số */}
@@ -445,13 +467,12 @@ export const ThanhLichBentoLookbook: React.FC<ThanhLichBentoLookbookProps> = ({
                         <span className="font-medium text-stone-700">{preset.whereToWear}</span>
                       </div>
 
-                      {/* Palette Swatches */}
-                      <div className="flex items-center gap-1">
-                        <span className="text-[10px] text-stone-400 font-mono mr-1">Tone:</span>
+                      {/* Palette Swatches (Không còn chữ Tone, tinh giản sang trọng) */}
+                      <div className="flex items-center gap-1.5" title="Bảng màu trang phục">
                         {preset.palette.map((c, ci) => (
                           <span
                             key={ci}
-                            className="w-3.5 h-3.5 rounded-full border border-stone-300 shadow-2xs transition-transform hover:scale-125"
+                            className="w-3.5 h-3.5 rounded-full border border-stone-300/80 shadow-2xs transition-transform hover:scale-125"
                             style={{ backgroundColor: c.hex }}
                             title={c.name}
                           />
