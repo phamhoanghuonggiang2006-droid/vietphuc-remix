@@ -254,7 +254,6 @@ export const ThanhLichBentoLookbook: React.FC<ThanhLichBentoLookbookProps> = ({
   const handlePresetClick = (preset: BentoLookbookPreset) => {
     try {
       playPageFlipSound();
-      playButtonClinkSound();
     } catch {}
     onSelectPreset(preset);
   };

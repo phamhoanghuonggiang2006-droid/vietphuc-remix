@@ -73,12 +73,25 @@ export default function App() {
       ) : isFusion ? (
         <>
           {/* MÀN HÌNH 3: PHỐ THỊ PHÁ CÁCH (FUSION STREETWEAR) */}
-          {/* Lớp 1: Nền Solid Dark Charcoal (#0A0A0A) - Không vân mây truyền thống */}
-          <div className="fixed inset-0 pointer-events-none z-0 bg-[#0A0A0A]" />
+          {/* Lớp 1: Nền sẫm tone đêm đô thị */}
+          <div className="fixed inset-0 pointer-events-none z-0 bg-[#0c0c12]" />
 
-          {/* Lớp 2: Texture lưới điện tử (Digital Grid) cực mảnh với Opacity thấp (6%) */}
+          {/* Lớp 2: Ảnh nền Chung cư Cà phê 42 Nguyễn Huệ về đêm (Neon Cafe Apartment) */}
           <div 
-            className="fixed inset-0 pointer-events-none z-0 opacity-[0.06]"
+            className="fixed inset-0 pointer-events-none z-0"
+            style={{
+              backgroundImage: 'url(/backgrounds/fusion-saigon-apartments.jpg)',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center 28%',
+              backgroundRepeat: 'no-repeat',
+              opacity: 0.38,
+              filter: 'blur(3.5px) contrast(110%) brightness(95%)'
+            }}
+          />
+
+          {/* Lớp 3: Texture lưới điện tử mờ cực nhẹ (Digital Grid 3.5%) */}
+          <div 
+            className="fixed inset-0 pointer-events-none z-0 opacity-[0.035]"
             style={{
               backgroundImage: `
                 linear-gradient(to right, rgba(0, 243, 255, 0.35) 1px, transparent 1px),
@@ -88,9 +101,9 @@ export default function App() {
             }}
           />
 
-          {/* Lớp 3: Chiều sâu công nghệ mờ ảo (Soft cyber vignette) */}
+          {/* Lớp 4: Chiều sâu ánh sáng tương tự Màn 1 nhưng ít đen hơn để nổi bật ánh đèn neon */}
           <div 
-            className="fixed inset-0 pointer-events-none z-0 bg-[radial-gradient(circle_at_50%_25%,rgba(18,18,22,0.4)_0%,rgba(10,10,10,0.95)_100%)]"
+            className="fixed inset-0 pointer-events-none z-0 bg-[radial-gradient(circle_at_50%_25%,transparent_25%,rgba(10,10,16,0.35)_60%,rgba(8,8,12,0.65)_100%)]"
           />
         </>
       ) : (

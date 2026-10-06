@@ -49,7 +49,10 @@ import {
   ArrowLeft,
   Scroll,
   Crown,
-  Zap
+  Zap,
+  Lock,
+  Unlock,
+  FolderOpen
 } from 'lucide-react';
 
 interface ExtractedColorChip {
@@ -582,7 +585,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
     }
   }, [initialContext]);
 
-  // Xử lý chọn Preset Ngự Lãm Y Quan với Auto-fill Layering (Xếp lớp tuần tự 3 nhịp)
+  // Xử lý chọn Preset Ngự Lãm Y Quan với Auto-fill Layering (Rút gọn chỉ 1 âm thanh khánh đồng hoàng cung trang nghiêm)
   const handleSelectHeritagePreset = (preset: HeritagePreset) => {
     setActiveHeritagePresetId(preset.id);
     setIsLayeringActive(true);
@@ -590,7 +593,6 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
 
     setSelectedBottomId(preset.outfit.bottomId);
     setSelectedLayerId(preset.outfit.layerId);
-    playFabricRustleSound();
 
     setTimeout(() => {
       setLayeringStep(2);
@@ -598,26 +600,21 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
       setSelectedColorHex(preset.outfit.colorHex);
       setSelectedButtonId(preset.outfit.buttonId);
       setSelectedStyleVibe(preset.outfit.styleVibe);
-      playGarmentSelectSound();
-      playButtonClinkSound();
-    }, 380);
+    }, 320);
 
     setTimeout(() => {
       setLayeringStep(3);
       setSelectedShoesId(preset.outfit.shoesId);
       setSelectedAccessoryId(preset.outfit.accessoryId);
-      playWoodClogSound();
-      playCourtBrassSound();
-    }, 760);
+    }, 640);
 
     setTimeout(() => {
       setIsLayeringActive(false);
       setLayeringStep(0);
-      playDanTranhTabSound();
-    }, 1180);
+    }, 980);
   };
 
-  // Xử lý chọn Preset Bento Lookbook Thanh Lịch với Auto-fill Layering (Xếp lớp tuần tự 3 nhịp)
+  // Xử lý chọn Preset Bento Lookbook Thanh Lịch với Auto-fill Layering (Rút gọn chỉ 1 âm thanh xoạt lật trang tạp chí)
   const handleSelectBentoPreset = (preset: BentoLookbookPreset) => {
     setActiveBentoPresetId(preset.id);
     setIsLayeringActive(true);
@@ -625,7 +622,6 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
 
     setSelectedBottomId(preset.outfit.bottomId);
     setSelectedLayerId(preset.outfit.layerId);
-    playFabricRustleSound();
 
     setTimeout(() => {
       setLayeringStep(2);
@@ -633,22 +629,18 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
       setSelectedColorHex(preset.outfit.colorHex);
       setSelectedButtonId(preset.outfit.buttonId);
       setSelectedStyleVibe(preset.outfit.styleVibe);
-      playGarmentSelectSound();
-      playButtonClinkSound();
-    }, 350);
+    }, 300);
 
     setTimeout(() => {
       setLayeringStep(3);
       setSelectedShoesId(preset.outfit.shoesId);
       setSelectedAccessoryId(preset.outfit.accessoryId);
-      playWoodClogSound();
-    }, 700);
+    }, 600);
 
     setTimeout(() => {
       setIsLayeringActive(false);
       setLayeringStep(0);
-      playDanTranhTabSound();
-    }, 1100);
+    }, 920);
   };
 
   // Xử lý chọn Preset Trạm Trộn Mixset (The DJ Deck) với Layering trực quan (rút gọn chỉ 1 âm thanh duy nhất ở component)
@@ -745,10 +737,33 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
   });
 
   const [isCustomImageModalOpen, setIsCustomImageModalOpen] = useState<boolean>(false);
+  const [isUploadLocked, setIsUploadLocked] = useState<boolean>(() => {
+    try {
+      const saved = localStorage.getItem('vietphuc_upload_locked');
+      return saved === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  const toggleUploadLock = () => {
+    const next = !isUploadLocked;
+    setIsUploadLocked(next);
+    try {
+      localStorage.setItem('vietphuc_upload_locked', next ? 'true' : 'false');
+    } catch {}
+    if (next) {
+      playCourtBrassSound();
+    } else {
+      playDanTranhTabSound();
+    }
+  };
+
   const itemFileInputRef = useRef<HTMLInputElement>(null);
   const [activeUploadItemId, setActiveUploadItemId] = useState<string | null>(null);
 
   const triggerItemImageUpload = (itemId: string) => {
+    if (isUploadLocked) return;
     setActiveUploadItemId(itemId);
     if (itemFileInputRef.current) {
       itemFileInputRef.current.value = '';
@@ -1126,8 +1141,17 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
             className="px-3 py-1.5 text-xs text-[#f5f2eb] hover:text-[#e5c365] border border-[#c5a059]/40 hover:border-[#c5a059] rounded-xl transition-all flex items-center gap-1.5 bg-[#1b1b26] hover:bg-[#222230] cursor-pointer shadow-sm"
             title="Quản lý ảnh cá nhân tải lên"
           >
-            <Upload className="w-3.5 h-3.5 text-[#e5c365]" />
+            {isUploadLocked ? (
+              <Lock className="w-3.5 h-3.5 text-emerald-400" />
+            ) : (
+              <Upload className="w-3.5 h-3.5 text-[#e5c365]" />
+            )}
             <span>Kho ảnh</span>
+            {isUploadLocked ? (
+              <span className="text-[9px] font-bold text-emerald-300 bg-emerald-500/20 px-1 rounded">
+                Khóa
+              </span>
+            ) : null}
             {Object.keys(customItemImages).length > 0 && (
               <span className="w-4 h-4 rounded-full bg-[#c5a059] text-stone-950 text-[10px] font-bold flex items-center justify-center">
                 {Object.keys(customItemImages).length}
@@ -1167,6 +1191,104 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
               activePresetId={activeDjPresetId || undefined}
               onSelectPreset={handleSelectDjPreset}
             />
+          )}
+
+          {/* MỤC UPLOAD ẢNH SẢN PHẨM THỦ CÔNG (CHUYÊN BIỆT CHO MÀN HÌNH 1 THEO YÊU CẦU CỦA GIANG) */}
+          {currentTier === 'heritage' && (
+            <div className={`rounded-2xl border transition-all duration-300 overflow-hidden shadow-lg ${
+              isUploadLocked
+                ? 'bg-gradient-to-r from-[#14141c] to-[#121217] border-emerald-500/30'
+                : 'bg-gradient-to-br from-[#1c1822] via-[#14121a] to-[#100e16] border-[#c5a059]/50 shadow-[0_4px_25px_rgba(197,160,89,0.15)]'
+            }`}>
+              {/* Header bar */}
+              <div className="p-3.5 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/5">
+                <div className="flex items-center gap-2.5">
+                  <div className={`p-2 rounded-xl border ${
+                    isUploadLocked
+                      ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-400'
+                      : 'bg-[#c5a059]/20 border-[#c5a059]/40 text-[#e5c365]'
+                  }`}>
+                    {isUploadLocked ? <Lock className="w-4 h-4" /> : <Upload className="w-4 h-4" />}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-xs sm:text-sm font-royal font-bold text-[#faedd0]">
+                        Mục Upload Ảnh Sản Phẩm Thủ Công
+                      </span>
+                      {isUploadLocked ? (
+                        <span className="px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center gap-1 shadow-xs">
+                          <CheckCircle2 className="w-2.5 h-2.5 text-emerald-400" />
+                          ĐÃ KHÓA · TỰ ĐỘNG ĐỒNG BỘ 3 MÀN HÌNH
+                        </span>
+                      ) : (
+                        <span className="px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center gap-1 animate-pulse shadow-xs">
+                          <Unlock className="w-2.5 h-2.5 text-amber-400" />
+                          ĐANG MỞ KHÓA UPLOAD
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-[11px] text-stone-400 mt-0.5">
+                      {isUploadLocked
+                        ? `Đã khóa cố định ${Object.keys(customItemImages).length} ảnh sản phẩm. Tự động đồng bộ sang Màn hình 2 & Màn hình 3.`
+                        : 'Tải ảnh đại diện cho các sản phẩm. Sau khi hoàn thành, nhấn "Khóa Lại & Đồng Bộ" để cố định sang Màn 2 & 3.'}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
+                  <button
+                    type="button"
+                    onClick={toggleUploadLock}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-sm ${
+                      isUploadLocked
+                        ? 'bg-white/10 hover:bg-white/20 text-stone-200 border border-white/20'
+                        : 'bg-gradient-to-r from-[#c5a059] to-[#e5c365] text-stone-950 font-bold hover:brightness-110 shadow-md'
+                    }`}
+                  >
+                    {isUploadLocked ? (
+                      <>
+                        <Unlock className="w-3.5 h-3.5 text-amber-400" />
+                        <span>Mở Khóa Chỉnh Sửa</span>
+                      </>
+                    ) : (
+                      <>
+                        <Lock className="w-3.5 h-3.5" />
+                        <span>Khóa Lại & Đồng Bộ</span>
+                      </>
+                    )}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setIsCustomImageModalOpen(true)}
+                    className="px-3 py-1.5 rounded-xl bg-[#1f1d2b] hover:bg-[#282638] text-[#e5c365] border border-[#c5a059]/40 text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-colors shadow-2xs"
+                    title="Mở bảng quản lý ảnh toàn bộ các danh mục"
+                  >
+                    <FolderOpen className="w-3.5 h-3.5" />
+                    <span>Kho Ảnh ({Object.keys(customItemImages).length})</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Status info details */}
+              <div className={`px-4 py-2.5 text-[11px] flex items-center justify-between gap-2 ${
+                isUploadLocked ? 'bg-emerald-950/25 text-emerald-200/90' : 'bg-[#c5a059]/10 text-amber-200/90'
+              }`}>
+                <div className="flex items-center gap-1.5">
+                  <Sparkles className="w-3 h-3 text-[#e5c365] shrink-0" />
+                  <span>
+                    {isUploadLocked
+                      ? '🔒 Đã khóa an toàn: Ảnh đại diện sản phẩm đang được tự động đồng bộ hóa trên Màn hình 1, 2 và 3.'
+                      : '💡 Mẹo: Giang có thể bấm nút "Tải ảnh" trực tiếp trên từng thẻ sản phẩm bên dưới hoặc bấm nút "Kho Ảnh" để xem tất cả.'}
+                  </span>
+                </div>
+                {Object.keys(customItemImages).length > 0 && (
+                  <span className="font-mono text-[10px] text-stone-400 shrink-0">
+                    {Object.keys(customItemImages).length} ảnh đã lưu
+                  </span>
+                )}
+              </div>
+            </div>
           )}
 
           {/* B. KHU VỰC TỦ ĐỒ DẠNG TABS */}
@@ -1393,6 +1515,51 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                         }`}>
                           {item.subName}
                         </div>
+
+                        {/* Ảnh Đại Diện Sản Phẩm */}
+                        {(() => {
+                          const garmentImg = getItemImageUrl(item.id, (item as any).thumbnailUrl);
+                          return garmentImg ? (
+                            <div className="mt-2 w-full h-24 rounded-lg overflow-hidden bg-black/40 border border-white/10 flex items-center justify-center relative group/img">
+                              <img 
+                                src={garmentImg} 
+                                alt={item.name} 
+                                className="w-full h-full object-cover transition-transform group-hover/img:scale-105" 
+                              />
+                              {customItemImages[item.id] && (
+                                <span className="absolute top-1 left-1 bg-emerald-500 text-stone-950 text-[8.5px] font-black px-1.5 py-0.5 rounded shadow">
+                                  ĐÃ TẢI
+                                </span>
+                              )}
+                            </div>
+                          ) : null;
+                        })()}
+
+                        {/* Nút Tải ảnh trực tiếp khi CHƯA KHÓA */}
+                        {!isUploadLocked && (
+                          <div 
+                            className="mt-2 pt-1.5 border-t border-white/10 flex items-center justify-between gap-1"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <button
+                              type="button"
+                              onClick={() => triggerItemImageUpload(item.id)}
+                              className="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-[#c5a059]/20 hover:bg-[#c5a059] text-[#e5c365] hover:text-stone-950 border border-[#c5a059]/40 transition-colors flex items-center gap-1 cursor-pointer"
+                            >
+                              <Upload className="w-2.5 h-2.5" />
+                              <span>{customItemImages[item.id] ? 'Đổi ảnh' : 'Tải ảnh'}</span>
+                            </button>
+                            {customItemImages[item.id] && (
+                              <button
+                                type="button"
+                                onClick={() => handleResetItemImage(item.id)}
+                                className="text-[9.5px] text-stone-400 hover:text-rose-400 underline cursor-pointer"
+                              >
+                                Gỡ
+                              </button>
+                            )}
+                          </div>
+                        )}
 
                         {isTooltipOpen && (
                           <div 
@@ -1766,7 +1933,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                           </div>
                         </div>
 
-                        {UPLOADABLE_PRODUCT_IDS.has(item.id) && (
+                        {!isUploadLocked && (
                           <div className={`mt-2 pt-1.5 border-t flex items-center justify-between ${
                             currentTier === 'modern' ? 'border-stone-200' : 'border-white/10'
                           }`} onClick={(e) => e.stopPropagation()}>
@@ -1976,7 +2143,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                           </div>
                         </div>
 
-                        {UPLOADABLE_PRODUCT_IDS.has(item.id) && (
+                        {!isUploadLocked && (
                           <div className={`mt-2 pt-1.5 border-t flex items-center justify-between ${
                             currentTier === 'modern' ? 'border-stone-200' : 'border-white/10'
                           }`} onClick={(e) => e.stopPropagation()}>
@@ -2151,7 +2318,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                           </div>
                         </div>
 
-                        {UPLOADABLE_PRODUCT_IDS.has(item.id) && (
+                        {!isUploadLocked && (
                           <div className={`mt-2 pt-1.5 border-t flex items-center justify-between ${
                             currentTier === 'modern' ? 'border-stone-200' : 'border-white/10'
                           }`} onClick={(e) => e.stopPropagation()}>
@@ -2327,7 +2494,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                           </div>
                         </div>
 
-                        {UPLOADABLE_PRODUCT_IDS.has(item.id) && (
+                        {!isUploadLocked && (
                           <div className={`mt-2 pt-1.5 border-t flex items-center justify-between ${
                             currentTier === 'modern' ? 'border-stone-200' : 'border-white/10'
                           }`} onClick={(e) => e.stopPropagation()}>
@@ -2970,6 +3137,8 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
             console.warn('Could not clear localStorage', err);
           }
         }}
+        isLocked={isUploadLocked}
+        onToggleLock={toggleUploadLock}
       />
 
       {/* ======================================================== */}

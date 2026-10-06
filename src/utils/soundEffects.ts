@@ -1051,3 +1051,178 @@ export function playNeonStampSound(): void {
   spark.stop(now + 0.15);
 }
 
+/**
+ * 23. TIẾNG XỊT SƠN GRAFFITI (Tường Bê Tông Xước - Screen 3)
+ * Âm thanh xì nén hơi của bình sơn xịt dứt khoát trên nền tường xi măng
+ */
+export function playSprayPaintSound(): void {
+  if (isMutedState) return;
+  const ctx = getAudioContext();
+  if (!ctx) return;
+
+  const now = ctx.currentTime;
+  const buffer = createNoiseBuffer(ctx, 0.28);
+  const noise = ctx.createBufferSource();
+  noise.buffer = buffer;
+
+  // Lọc dải cao tiếng xì aerosol
+  const filter = ctx.createBiquadFilter();
+  filter.type = 'bandpass';
+  filter.frequency.setValueAtTime(2200, now);
+  filter.frequency.exponentialRampToValueAtTime(1400, now + 0.25);
+  filter.Q.setValueAtTime(2.2, now);
+
+  const gain = ctx.createGain();
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.linearRampToValueAtTime(0.24, now + 0.025);
+  gain.gain.linearRampToValueAtTime(0.18, now + 0.12);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.27);
+
+  noise.connect(filter);
+  filter.connect(gain);
+  gain.connect(ctx.destination);
+
+  noise.start(now);
+  noise.stop(now + 0.28);
+}
+
+/**
+ * 24. TIẾNG GLITCH CHẬP MẠCH ĐIỆN TỬ (Màn Hình LED Glitch - Screen 3)
+ * Âm thanh chập tia quét neon, tần số viễn tưởng cyber glitch
+ */
+export function playLedGlitchSound(): void {
+  if (isMutedState) return;
+  const ctx = getAudioContext();
+  if (!ctx) return;
+
+  const now = ctx.currentTime;
+
+  // Sóng vuông nhảy tần số ngẫu nhiên cực nhanh (Glitch stutter)
+  const osc = ctx.createOscillator();
+  osc.type = 'sawtooth';
+  osc.frequency.setValueAtTime(880, now);
+  osc.frequency.setValueAtTime(220, now + 0.03);
+  osc.frequency.setValueAtTime(1450, now + 0.06);
+  osc.frequency.setValueAtTime(440, now + 0.09);
+  osc.frequency.setValueAtTime(980, now + 0.13);
+
+  const gainOsc = ctx.createGain();
+  gainOsc.gain.setValueAtTime(0.0001, now);
+  gainOsc.gain.linearRampToValueAtTime(0.15, now + 0.015);
+  gainOsc.gain.exponentialRampToValueAtTime(0.0001, now + 0.18);
+
+  // Thêm một vệt nhiễu kim loại điện tử
+  const noiseBuffer = createNoiseBuffer(ctx, 0.16);
+  const noise = ctx.createBufferSource();
+  noise.buffer = noiseBuffer;
+  const noiseFilter = ctx.createBiquadFilter();
+  noiseFilter.type = 'highpass';
+  noiseFilter.frequency.setValueAtTime(2800, now);
+  const gainNoise = ctx.createGain();
+  gainNoise.gain.setValueAtTime(0.0001, now);
+  gainNoise.gain.linearRampToValueAtTime(0.12, now + 0.02);
+  gainNoise.gain.exponentialRampToValueAtTime(0.0001, now + 0.16);
+
+  osc.connect(gainOsc);
+  gainOsc.connect(ctx.destination);
+  noise.connect(noiseFilter);
+  noiseFilter.connect(gainNoise);
+  gainNoise.connect(ctx.destination);
+
+  osc.start(now);
+  osc.stop(now + 0.19);
+  noise.start(now);
+  noise.stop(now + 0.17);
+}
+
+/**
+ * 25. TIẾNG VÁN TRƯỢT DỘNG SÀN BÊ TÔNG (Skatepark 30/4 - Screen 3)
+ * Tiếng "Clack-Thud!" dứt khoát của mặt ván gỗ dập xuống nền xi măng
+ */
+export function playSkaterDropSound(): void {
+  if (isMutedState) return;
+  const ctx = getAudioContext();
+  if (!ctx) return;
+
+  const now = ctx.currentTime;
+
+  // Cú pop gỗ mặt ván (wooden snap)
+  const snapOsc = ctx.createOscillator();
+  snapOsc.type = 'triangle';
+  snapOsc.frequency.setValueAtTime(420, now);
+  snapOsc.frequency.exponentialRampToValueAtTime(90, now + 0.05);
+
+  const snapGain = ctx.createGain();
+  snapGain.gain.setValueAtTime(0.0001, now);
+  snapGain.gain.linearRampToValueAtTime(0.3, now + 0.005);
+  snapGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.08);
+
+  snapOsc.connect(snapGain);
+  snapGain.connect(ctx.destination);
+  snapOsc.start(now);
+  snapOsc.stop(now + 0.09);
+
+  // Cú thud bánh xe dộng nền bê tông xi măng (low thud)
+  const thudOsc = ctx.createOscillator();
+  thudOsc.type = 'sine';
+  thudOsc.frequency.setValueAtTime(160, now + 0.015);
+  thudOsc.frequency.exponentialRampToValueAtTime(48, now + 0.14);
+
+  const thudGain = ctx.createGain();
+  thudGain.gain.setValueAtTime(0.0001, now + 0.015);
+  thudGain.gain.linearRampToValueAtTime(0.28, now + 0.025);
+  thudGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.16);
+
+  thudOsc.connect(thudGain);
+  thudGain.connect(ctx.destination);
+  thudOsc.start(now + 0.015);
+  thudOsc.stop(now + 0.17);
+}
+
+/**
+ * 26. TIẾNG BASS ĐÊM BÙI VIỆN (Phố Đêm Bùi Viện - Screen 3)
+ * Âm bass nhịp điệu club sôi động đặc trưng của con phố giải trí về đêm
+ */
+export function playBuiVienNightSound(): void {
+  if (isMutedState) return;
+  const ctx = getAudioContext();
+  if (!ctx) return;
+
+  const now = ctx.currentTime;
+
+  // Kick punchy
+  const kick = ctx.createOscillator();
+  kick.type = 'sine';
+  kick.frequency.setValueAtTime(150, now);
+  kick.frequency.exponentialRampToValueAtTime(38, now + 0.12);
+
+  const kickGain = ctx.createGain();
+  kickGain.gain.setValueAtTime(0.0001, now);
+  kickGain.gain.linearRampToValueAtTime(0.36, now + 0.008);
+  kickGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.18);
+
+  kick.connect(kickGain);
+  kickGain.connect(ctx.destination);
+  kick.start(now);
+  kick.stop(now + 0.19);
+
+  // Open hi-hat club sizzle
+  const hatBuffer = createNoiseBuffer(ctx, 0.08);
+  const hat = ctx.createBufferSource();
+  hat.buffer = hatBuffer;
+  const hatFilter = ctx.createBiquadFilter();
+  hatFilter.type = 'highpass';
+  hatFilter.frequency.setValueAtTime(7000, now + 0.05);
+  const hatGain = ctx.createGain();
+  hatGain.gain.setValueAtTime(0.0001, now + 0.05);
+  hatGain.gain.linearRampToValueAtTime(0.12, now + 0.058);
+  hatGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
+
+  hat.connect(hatFilter);
+  hatFilter.connect(hatGain);
+  hatGain.connect(ctx.destination);
+  hat.start(now + 0.05);
+  hat.stop(now + 0.13);
+}
+
+

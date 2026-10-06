@@ -14,7 +14,11 @@ import {
   playCameraShutterSound,
   playCoffeeChimeSound,
   playMuseumEchoSound,
-  playAutumnBreezeSound
+  playAutumnBreezeSound,
+  playSprayPaintSound,
+  playLedGlitchSound,
+  playSkaterDropSound,
+  playBuiVienNightSound
 } from '../utils/soundEffects';
 import { 
   Eye, 
@@ -1162,7 +1166,17 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
               type="button"
               onClick={() => {
                 setSelectedBg(bg.id);
-                if (currentTier === 'modern') {
+                if (currentTier === 'fusion') {
+                  if (bg.id === 'studio') {
+                    playSprayPaintSound();
+                  } else if (bg.id === 'cafe') {
+                    playLedGlitchSound();
+                  } else if (bg.id === 'museum') {
+                    playSkaterDropSound();
+                  } else if (bg.id === 'street') {
+                    playBuiVienNightSound();
+                  }
+                } else if (currentTier === 'modern') {
                   if (bg.id === 'studio') {
                     playCameraShutterSound();
                   } else if (bg.id === 'cafe') {
@@ -1186,7 +1200,9 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
               }}
               className={`px-2.5 py-1 rounded-lg text-[11px] font-medium transition-all flex items-center gap-1.5 border cursor-pointer ${
                 selectedBg === bg.id
-                  ? (currentTier === 'modern' 
+                  ? (currentTier === 'fusion'
+                      ? 'bg-white/20 border-white text-white font-bold shadow-[0_0_12px_rgba(255,255,255,0.4)]'
+                      : currentTier === 'modern' 
                       ? 'bg-[#8BA888]/20 border-[#8BA888] text-[#2C4A28] font-bold shadow-sm' 
                       : 'bg-[#c5a059]/20 border-[#c5a059] text-[#e5c365] font-bold shadow-sm')
                   : (currentTier === 'modern' 
