@@ -15,6 +15,7 @@ export interface DjDeckPreset {
   shadowNeon: string;
   genre: string;
   watermark: string;
+  emblemUrl: string;
   bpm: number;
   outfit: {
     garmentId: string;
@@ -50,6 +51,7 @@ export const DJ_DECK_TRACKS: DjDeckPreset[] = [
     shadowNeon: 'shadow-[0_0_20px_rgba(0,243,255,0.35)]',
     genre: 'BOOM-BAP 90s',
     watermark: '🛹',
+    emblemUrl: '/presets/tet-core-skater.png',
     bpm: 130,
     highlights: ['Áo ngũ thân tay chẽn Graphic', 'Quần Cargo túi hộp', 'Sneaker Dunk Skate', 'Túi Chest Bag', 'Mũ Bucket'],
     outfit: {
@@ -83,6 +85,7 @@ export const DJ_DECK_TRACKS: DjDeckPreset[] = [
     shadowNeon: 'shadow-[0_0_20px_rgba(255,0,127,0.35)]',
     genre: 'HYPERPOP & FUTURE BASS',
     watermark: '👑',
+    emblemUrl: '/presets/royal-y2k.png',
     bpm: 138,
     highlights: ['Áo Nhật Bình form Crop-top', 'Hồng Hot Pink Neon', 'Chân váy xếp ly Y2K', 'Mary Jane đế bánh mì', 'Kính râm gọng dày'],
     outfit: {
@@ -116,6 +119,7 @@ export const DJ_DECK_TRACKS: DjDeckPreset[] = [
     shadowNeon: 'shadow-[0_0_20px_rgba(57,255,20,0.35)]',
     genre: 'INDUSTRIAL ROCK & DARK TECHNO',
     watermark: '🦇',
+    emblemUrl: '/presets/dark-heritage.png',
     bpm: 142,
     highlights: ['Áo tay thụng nhung đen', 'Quần jeans rách wash xám', 'Boots Dr. Martens 1460', 'Xích bạc Cuban layer', 'Gothic cổ phong'],
     outfit: {
@@ -357,7 +361,7 @@ export const TheDjDeckPresets: React.FC<TheDjDeckPresetsProps> = ({
                   boxShadow: `0 0 15px ${t.accentNeon}66`
                 } : undefined}
               >
-                {t.tag.split('·')[0].trim()} · {t.watermark}
+                {t.tag.split('·')[0].trim()}
               </button>
             );
           })}
@@ -462,15 +466,18 @@ export const TheDjDeckPresets: React.FC<TheDjDeckPresetsProps> = ({
                     />
                   )}
 
-                  {/* Ghost Stencil Watermark với số và icon riêng */}
+                  {/* Background Watermark Crest từ thư mục ANH/ (Downloads/ANH/) */}
                   <div
-                    className="absolute right-3 -bottom-2 text-6xl sm:text-7xl select-none pointer-events-none transition-opacity font-mono font-black flex items-baseline gap-1"
+                    className="absolute right-2 -bottom-2 select-none pointer-events-none transition-opacity duration-300"
                     style={{
-                      opacity: isSelected ? 0.12 : 0.04
+                      opacity: isSelected ? 0.28 : 0.08
                     }}
                   >
-                    <span style={{ color: track.accentNeon }}>0{index + 1}</span>
-                    <span className="text-4xl sm:text-5xl">{track.watermark}</span>
+                    <img
+                      src={track.emblemUrl}
+                      alt={track.title}
+                      className="w-28 h-28 sm:w-32 sm:h-32 object-contain filter brightness-0 invert drop-shadow-[0_0_12px_rgba(255,255,255,0.25)]"
+                    />
                   </div>
 
                   <div className="relative z-10">
@@ -540,11 +547,11 @@ export const TheDjDeckPresets: React.FC<TheDjDeckPresetsProps> = ({
                       </div>
                     </div>
 
-                    {/* Tiêu đề Track + Dấu Checkmark ✓ khi active */}
+                    {/* Tiêu đề Track (In đậm, không nghiêng) + Dấu Checkmark ✓ khi active */}
                     <h3
-                      className="text-xl sm:text-2xl font-black italic uppercase text-white transition-colors flex items-center justify-between tracking-wide"
+                      className="text-xl sm:text-2xl font-black not-italic font-bold uppercase text-white transition-colors flex items-center justify-between tracking-wide"
                     >
-                      <span className="group-hover:translate-x-0.5 transition-transform">{track.title}</span>
+                      <span className="group-hover:translate-x-0.5 transition-transform font-black not-italic font-bold">{track.title}</span>
                       {isSelected && (
                         <span
                           className="w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-black shadow"
@@ -558,14 +565,6 @@ export const TheDjDeckPresets: React.FC<TheDjDeckPresetsProps> = ({
                         </span>
                       )}
                     </h3>
-
-                    {/* Subtitle */}
-                    <div
-                      className="text-xs sm:text-[13px] font-mono font-medium mt-1 tracking-tight"
-                      style={{ color: isSelected ? track.accentNeon : '#a8a29e' }}
-                    >
-                      {track.subTitle}
-                    </div>
 
                     {/* Description */}
                     <p className="text-xs sm:text-[13px] text-stone-300 leading-relaxed font-sans mt-2.5">

@@ -65,9 +65,19 @@
 /* Màn 3: Brutalism & Cyberpunk Streetwear Font (Orbitron-Medium) & Animations */
 .font-streetwear,
 .font-streetwear * {
-  font-family: 'Orbitron', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
-  font-weight: 500;
+  font-family: 'Orbitron', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   letter-spacing: 0.02em;
+}
+
+.font-streetwear {
+  font-weight: 500;
+}
+
+.font-streetwear .font-black,
+.font-streetwear .font-bold,
+.font-streetwear b,
+.font-streetwear strong {
+  font-weight: 900 !important;
 }
 
 @keyframes bassShake {
