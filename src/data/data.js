@@ -605,21 +605,6 @@ export const BOTTOMS = [
     img: '👖',
     realImg: '/5.png'
   },
-  {
-    id: 'bottom-court-long-skirt',
-    name: 'Váy Lọng Dài Cung Đình (Phối Áo Tấc / Nhật Bình)',
-    category: 'quan',
-    styleLine: 'heritage_core',
-    allowedTiers: ['heritage'],
-    unfitNotice: {
-      modern: 'Váy lọng cung đình quét đất quá cầu kỳ cho sinh hoạt công sở thường nhật.',
-      fusion: 'Váy lọng đại lễ không thích hợp mix cùng đồ đường phố.'
-    },
-    sub: 'Váy dài chấm đất may bằng lụa đọng hoặc gấm thêu viền, đi cùng lễ phục nữ.',
-    isTaboo: false,
-    img: '👗',
-    realImg: '/6.png'
-  },
 
   // --- B. DÒNG MODERN HERITAGE ---
   {
@@ -657,7 +642,7 @@ export const BOTTOMS = [
     styleLine: 'modern_heritage',
     allowedTiers: ['modern'],
     unfitNotice: {
-      heritage: 'Chân váy xếp ly hiện đại không đúng quy chế y phục tôn nghiêm (cần váy lọng hoặc quần lụa).',
+      heritage: 'Chân váy xếp ly hiện đại không đúng quy chế y phục tôn nghiêm (cần quần lụa ống sớ truyền thống).',
       fusion: 'Chân váy midi suông nhã nhặn hợp tiệc nhẹ hơn là phong cách nổi loạn.'
     },
     sub: 'Chân váy xếp ly chuyển động uyển chuyển nhẹ nhàng theo từng bước đi.',

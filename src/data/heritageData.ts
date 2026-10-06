@@ -408,16 +408,6 @@ export const REMIX_ITEMS: ModernRemixItem[] = [
     canvas2dUrl: '/canvas/canvas-quan-jeans.png'
   },
   {
-    id: 'bottom-court-long-skirt',
-    category: 'bottom',
-    name: 'Váy Lọng Dài Cung Đình',
-    styleVibe: 'Lễ Nghi Hoàng Cung',
-    isCulturallyRespectful: true,
-    description: 'Váy dài chấm đất may bằng lụa đọng hoặc gấm thêu viền, đi cùng lễ phục nữ hoàng triều.',
-    thumbnailUrl: '/6.png',
-    canvas2dUrl: '/canvas/canvas-vay-xep-ly.png'
-  },
-  {
     id: 'bottom-tailored-wide-leg',
     category: 'bottom',
     name: 'Quần Tây Wide-Leg Be/Xám',
