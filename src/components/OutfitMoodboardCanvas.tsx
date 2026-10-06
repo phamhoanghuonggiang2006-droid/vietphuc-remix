@@ -846,14 +846,19 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
 
     const heritageBgKey = (selectedBg in HERITAGE_BACKGROUND_IMAGES ? selectedBg : 'studio') as HeritageBackground;
     const currentBg = HERITAGE_BACKGROUND_IMAGES[heritageBgKey] || HERITAGE_BACKGROUND_IMAGES.studio;
+    const heritageBlurPx = (bgBlurPercent / 100) * 10;
+
     return (
       <div className="absolute inset-0 pointer-events-none overflow-hidden transition-all duration-700 select-none">
-        {/* Real Heritage Photo - Softly blurred & dreamy atmospheric perspective */}
+        {/* Real Heritage Photo - Blur động theo tùy chọn độ mờ (30%, 50%, 70%) */}
         <img
           key={heritageBgKey}
           src={currentBg.src}
           alt={currentBg.alt}
-          className="absolute inset-0 w-full h-full object-cover object-center scale-105 filter blur-[1.5px] transition-all duration-700 opacity-45 brightness-90 contrast-110"
+          className="absolute inset-0 w-full h-full object-cover object-center scale-110 transition-all duration-500 opacity-60 brightness-95 contrast-110 pointer-events-none"
+          style={{
+            filter: `blur(${heritageBlurPx}px)`,
+          }}
         />
 
         {/* Ambient Color Tone Overlay based on heritage location */}
@@ -1050,34 +1055,42 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
             </button>
           ))}
 
-          {/* Quick blur level selector in modern tier (mặc định 50% theo yêu cầu) */}
-          {currentTier === 'modern' && (
-            <div className="flex items-center gap-1.5 ml-2 pl-2 border-l border-stone-200/80">
-              <span className="text-[10px] uppercase font-bold text-stone-400 tracking-wider">
-                Độ Mờ:
-              </span>
-              <div className="flex items-center gap-1 bg-white/80 rounded-lg p-0.5 border border-stone-200 shadow-2xs">
-                {[
-                  { label: '30%', value: 30 },
-                  { label: '50% (Chuẩn)', value: 50 },
-                  { label: '70%', value: 70 },
-                ].map((item) => (
-                  <button
-                    key={item.value}
-                    type="button"
-                    onClick={() => setBgBlurPercent(item.value)}
-                    className={`px-2 py-0.5 rounded text-[10px] font-medium transition-all cursor-pointer ${
-                      bgBlurPercent === item.value
-                        ? 'bg-[#8BA888]/20 border border-[#8BA888]/60 text-[#2C4A28] font-bold shadow-2xs'
-                        : 'text-stone-500 hover:text-stone-900 border border-transparent'
-                    }`}
-                  >
-                    {item.label}
-                  </button>
-                ))}
-              </div>
+          {/* Quick blur level selector (Hiển thị cho cả Màn 1 & Màn 2 theo yêu cầu) */}
+          <div className={`flex items-center gap-1.5 ml-2 pl-2 border-l ${
+            currentTier === 'modern' ? 'border-stone-200/80' : 'border-white/10'
+          }`}>
+            <span className="text-[10px] uppercase font-bold text-stone-400 tracking-wider">
+              Độ Mờ:
+            </span>
+            <div className={`flex items-center gap-1 rounded-lg p-0.5 border shadow-2xs ${
+              currentTier === 'modern'
+                ? 'bg-white/80 border-stone-200'
+                : 'bg-[#14141c] border-white/10'
+            }`}>
+              {[
+                { label: '30%', value: 30 },
+                { label: '50% (Chuẩn)', value: 50 },
+                { label: '70%', value: 70 },
+              ].map((item) => (
+                <button
+                  key={item.value}
+                  type="button"
+                  onClick={() => setBgBlurPercent(item.value)}
+                  className={`px-2 py-0.5 rounded text-[10px] font-medium transition-all cursor-pointer ${
+                    bgBlurPercent === item.value
+                      ? (currentTier === 'modern'
+                          ? 'bg-[#8BA888]/20 border border-[#8BA888]/60 text-[#2C4A28] font-bold shadow-2xs'
+                          : 'bg-[#c5a059]/20 border border-[#c5a059]/60 text-[#e5c365] font-bold shadow-2xs')
+                      : (currentTier === 'modern'
+                          ? 'text-stone-500 hover:text-stone-900 border border-transparent'
+                          : 'text-stone-400 hover:text-stone-200 border border-transparent')
+                  }`}
+                >
+                  {item.label}
+                </button>
+              ))}
             </div>
-          )}
+          </div>
         </div>
 
         <div className="flex items-center gap-2">
