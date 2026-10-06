@@ -651,7 +651,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
     }, 1100);
   };
 
-  // Xử lý chọn Preset Trạm Trộn Mixset (The DJ Deck) với Bass Drop 808 & Layering
+  // Xử lý chọn Preset Trạm Trộn Mixset (The DJ Deck) với Layering trực quan (rút gọn chỉ 1 âm thanh duy nhất ở component)
   const handleSelectDjPreset = (preset: DjDeckPreset) => {
     setActiveDjPresetId(preset.id);
     setIsLayeringActive(true);
@@ -659,7 +659,6 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
 
     setSelectedBottomId(preset.outfit.bottomId);
     setSelectedLayerId(preset.outfit.layerId);
-    playFabricRustleSound();
 
     setTimeout(() => {
       setLayeringStep(2);
@@ -667,21 +666,17 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
       setSelectedColorHex(preset.outfit.colorHex);
       setSelectedButtonId(preset.outfit.buttonId);
       setSelectedStyleVibe(preset.outfit.styleVibe);
-      playGarmentSelectSound();
-      playButtonClinkSound();
     }, 280);
 
     setTimeout(() => {
       setLayeringStep(3);
       setSelectedShoesId(preset.outfit.shoesId);
       setSelectedAccessoryId(preset.outfit.accessoryId);
-      play808BassDropSound();
     }, 560);
 
     setTimeout(() => {
       setIsLayeringActive(false);
       setLayeringStep(0);
-      playNeonStampSound();
     }, 880);
   };
 

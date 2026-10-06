@@ -165,15 +165,14 @@ export const TheDjDeckPresets: React.FC<TheDjDeckPresetsProps> = ({
   const triggerTrackSwitch = (newIndex: number) => {
     if (newIndex < 0 || newIndex >= DJ_DECK_TRACKS.length) return;
     
-    // SFX
-    playDjScratchSound();
+    // SFX: duy nhất 1 âm thanh bass drop sạch và uy lực
     play808BassDropSound();
 
-    // Trigger visual bass shake animation
+    // Trigger visual bass shake animation (đã giảm độ rung xuống 30% ở CSS, thời lượng ngắn gọn 320ms)
     setIsBassShaking(true);
     setIsScratching(true);
-    setTimeout(() => setIsBassShaking(false), 500);
-    setTimeout(() => setIsScratching(false), 350);
+    setTimeout(() => setIsBassShaking(false), 320);
+    setTimeout(() => setIsScratching(false), 300);
 
     setCurrentTrackIndex(newIndex);
     const targetPreset = DJ_DECK_TRACKS[newIndex];
@@ -369,15 +368,20 @@ export const TheDjDeckPresets: React.FC<TheDjDeckPresetsProps> = ({
                 <h4 className="font-black italic uppercase text-sm tracking-wide text-white">
                   {track.title}
                 </h4>
-                <p className="text-[10.5px] text-stone-300 font-sans line-clamp-2 mt-1 leading-snug">
-                  {track.subTitle}
+                {/* Thay dòng phụ kiện bằng dòng mô tả từng trạm */}
+                <p className="text-[10px] text-stone-300 font-sans line-clamp-3 mt-1.5 leading-relaxed">
+                  {track.description}
                 </p>
               </div>
 
-              {/* Vibe tag */}
+              {/* Vibe tag & Thông tin địa điểm nổi bật phát sáng, BỎ EMOJI PIN */}
               <div className="mt-3 pt-2 border-t border-white/10 flex items-center justify-between">
-                <span className="text-[9px] font-mono text-stone-400 truncate max-w-[110px]">
-                  📍 {track.location.split('·')[0].trim()}
+                <span className={`text-[9.5px] font-mono font-bold tracking-wide truncate max-w-[125px] ${
+                  isSelected 
+                    ? 'text-[#00f3ff] drop-shadow-[0_0_8px_rgba(0,243,255,0.7)]' 
+                    : 'text-[#39ff14] drop-shadow-[0_0_6px_rgba(57,255,20,0.5)]'
+                }`}>
+                  {track.location.split('·')[0].trim()}
                 </span>
                 {isSelected && (
                   <span className="text-[9px] font-black uppercase text-[#00f3ff] flex items-center gap-0.5">
@@ -394,38 +398,46 @@ export const TheDjDeckPresets: React.FC<TheDjDeckPresetsProps> = ({
       {/* ======================================================== */}
       {/* 3. ACTIVE TRACK PLAYOUT BANNER & HIGHLIGHT TAGS */}
       {/* ======================================================== */}
-      <div className="bg-[#0d0d12] border border-white/10 p-3 sm:p-3.5 space-y-2.5">
-        <div className="flex items-start justify-between gap-2">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-mono font-black px-2 py-0.5 bg-[#00f3ff]/15 text-[#00f3ff] border border-[#00f3ff]/40 uppercase">
-                {activeTrack.tag}
-              </span>
-              <span className="text-xs text-stone-300 font-mono">
-                📍 {activeTrack.location}
-              </span>
-            </div>
-            <p className="text-xs text-stone-300 mt-1.5 leading-relaxed font-sans">
-              {activeTrack.description}
-            </p>
+      <div className="bg-[#0d0d12] border border-white/10 p-3.5 sm:p-4 space-y-3 shadow-inner">
+        {/* Top Header: Hình chữ nhật với text TRẠM... nằm ở giữa & Địa điểm nổi bật phát sáng */}
+        <div className="grid grid-cols-1 md:grid-cols-3 items-center gap-3 pb-3 border-b border-white/10">
+          {/* Thông tin địa điểm NỔI BẬT PHÁT SÁNG, BỎ EMOJI PIN (Bên trái) */}
+          <div className="flex items-center justify-center md:justify-start gap-2 order-2 md:order-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#39ff14] animate-ping shrink-0" />
+            <span className="text-xs sm:text-sm font-mono font-bold text-[#00f3ff] drop-shadow-[0_0_10px_rgba(0,243,255,0.85)] tracking-wide">
+              {activeTrack.location}
+            </span>
           </div>
 
-          {/* Quick Sound Scratch Button */}
-          <button
-            type="button"
-            onClick={() => {
-              playDjScratchSound();
-              play808BassDropSound();
-              setIsBassShaking(true);
-              setTimeout(() => setIsBassShaking(false), 450);
-            }}
-            className="shrink-0 px-2.5 py-1.5 bg-[#00f3ff]/10 hover:bg-[#00f3ff]/20 text-[#00f3ff] border border-[#00f3ff]/40 text-[10px] font-mono font-black flex items-center gap-1 cursor-pointer transition-all active:scale-95"
-            title="Nhấn để kích hoạt hiệu ứng scratch và bass drop"
-          >
-            <Zap className="w-3 h-3 text-[#39FF14]" />
-            <span>DROP BASS</span>
-          </button>
+          {/* CÁI HÌNH CHỮ NHẬT VỚI TEXT "TRẠM..." NẰM Ở GIỮA */}
+          <div className="flex items-center justify-center order-1 md:order-2">
+            <div className="px-4 py-1.5 bg-[#00f3ff]/15 text-[#00f3ff] border border-[#00f3ff]/50 text-xs font-mono font-black uppercase tracking-wider flex items-center justify-center text-center shadow-[0_0_12px_rgba(0,243,255,0.25)]">
+              {activeTrack.tag}
+            </div>
+          </div>
+
+          {/* Quick Sound Scratch / Drop Bass Button (Bên phải) */}
+          <div className="flex items-center justify-center md:justify-end order-3">
+            <button
+              type="button"
+              onClick={() => {
+                play808BassDropSound();
+                setIsBassShaking(true);
+                setTimeout(() => setIsBassShaking(false), 320);
+              }}
+              className="shrink-0 px-3 py-1.5 bg-[#00f3ff]/10 hover:bg-[#00f3ff]/20 text-[#00f3ff] border border-[#00f3ff]/40 text-[10.5px] font-mono font-black flex items-center justify-center gap-1.5 cursor-pointer transition-all active:scale-95 shadow-[0_0_10px_rgba(0,243,255,0.15)]"
+              title="Nhấn để kích hoạt hiệu ứng 808 bass drop"
+            >
+              <Zap className="w-3.5 h-3.5 text-[#39FF14]" />
+              <span>DROP BASS</span>
+            </button>
+          </div>
         </div>
+
+        {/* Description */}
+        <p className="text-xs text-stone-300 leading-relaxed font-sans">
+          {activeTrack.description}
+        </p>
 
         {/* Streetwear tags */}
         <div className="flex flex-wrap items-center gap-1.5 pt-1 border-t border-white/10">

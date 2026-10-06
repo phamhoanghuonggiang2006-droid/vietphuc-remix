@@ -69,16 +69,16 @@
 
 @keyframes bassShake {
   0% { transform: translate(0, 0) scale(1); }
-  15% { transform: translate(-4px, 3px) scale(1.01); }
-  30% { transform: translate(4px, -3px) scale(0.995); }
-  45% { transform: translate(-3px, -2px) scale(1.008); }
-  60% { transform: translate(3px, 2px) scale(0.998); }
-  75% { transform: translate(-2px, 1px) scale(1.004); }
+  15% { transform: translate(-1.2px, 0.9px) scale(1.003); }
+  30% { transform: translate(1.2px, -0.9px) scale(0.998); }
+  45% { transform: translate(-0.9px, -0.6px) scale(1.002); }
+  60% { transform: translate(0.9px, 0.6px) scale(0.999); }
+  75% { transform: translate(-0.6px, 0.3px) scale(1.001); }
   100% { transform: translate(0, 0) scale(1); }
 }
 
 .animate-bass-shake {
-  animation: bassShake 480ms cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+  animation: bassShake 320ms cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
 }
 
 @keyframes stampSlam {
