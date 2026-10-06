@@ -49,29 +49,31 @@ export default function App() {
       {/* ======================================================== */}
       {isModern ? (
         <>
-          {/* MÀN HÌNH 2: NỀN TẠP CHÍ THỜI TRANG VỚI ẢNH CHỢ NÓN LÁ TRẮNG SÁNG 80% */}
-          {/* Lớp 1: Nền trắng ngà / Studio sáng */}
-          <div className="fixed inset-0 pointer-events-none z-0 bg-[#FAF8F5]" />
-
-          {/* Lớp 2: Ảnh nền Chợ Nón Lá (nen-man-hinh-2.jpg) với độ phủ trắng 80% (opacity 20%) */}
+          {/* MÀN HÌNH 2: NỀN NÓN LÁ TRUYỀN THỐNG (nen-man-hinh-2.jpg) + TRẮNG HƠN 50% & ÁNH SÁNG STUDIO */}
+          {/* Lớp 1: Ảnh nền nón lá (nen-man-hinh-2.jpg) */}
           <div 
             className="fixed inset-0 pointer-events-none z-0"
             style={{
               backgroundImage: 'url(/backgrounds/nen-man-hinh-2.jpg)',
               backgroundSize: 'cover',
-              backgroundPosition: 'center 40%',
+              backgroundPosition: 'center 35%',
               backgroundRepeat: 'no-repeat',
-              opacity: 0.20,
-              filter: 'blur(2.5px) brightness(105%) contrast(92%)'
+              opacity: 0.16,
+              filter: 'blur(2.5px) contrast(95%) brightness(125%)'
             }}
           />
 
-          {/* Lớp 3: Lớp phủ trắng 80% sáng dịu kiểu tạp chí thời trang cao cấp */}
+          {/* Lớp 2: Lớp phủ trắng 50% thanh lịch (Pure Editorial White Veil) */}
           <div 
-            className="fixed inset-0 pointer-events-none z-0 bg-[radial-gradient(circle_at_50%_20%,rgba(255,255,255,0.85)_0%,rgba(250,248,245,0.80)_60%,rgba(240,236,228,0.75)_100%)]"
+            className="fixed inset-0 pointer-events-none z-0 bg-white/55 backdrop-blur-[0.5px]"
           />
 
-          {/* Lớp 4: Gợn sớ lụa & giấy dó sáng màu mỹ thuật nhẹ */}
+          {/* Lớp 3: Gradient Tạp Chí Thời Trang Trắng Sáng (Whiter by 50%) */}
+          <div 
+            className="fixed inset-0 pointer-events-none z-0 bg-gradient-to-b from-[#FFFFFF]/90 via-[#FAF8F5]/85 to-[#F5F2EB]/90"
+          />
+
+          {/* Lớp 4: Gợn sớ lụa & giấy dó mỹ thuật nhẹ */}
           <div 
             className="fixed inset-0 pointer-events-none z-0 opacity-[0.025] mix-blend-multiply"
             style={{
@@ -80,14 +82,19 @@ export default function App() {
               backgroundRepeat: 'repeat'
             }}
           />
+
+          {/* Lớp 5: Ánh sáng Studio Tự Nhiên cực sáng (Natural Soft Key Lighting) */}
+          <div 
+            className="fixed inset-0 pointer-events-none z-0 bg-[radial-gradient(circle_at_50%_15%,rgba(255,255,255,0.96)_0%,rgba(252,250,247,0.75)_50%,rgba(246,243,238,0.55)_100%)]"
+          />
         </>
       ) : isFusion ? (
         <>
-          {/* MÀN HÌNH 3: PHỐ THỊ PHÁ CÁCH (FUSION STREETWEAR) - TỐI ĐI 30% THEO YÊU CẦU */}
-          {/* Lớp 1: Nền sẫm tone đêm đô thị đậm đà */}
-          <div className="fixed inset-0 pointer-events-none z-0 bg-[#06060a]" />
+          {/* MÀN HÌNH 3: PHỐ THỊ PHÁ CÁCH (TỐI ĐI 10% THEO YÊU CẦU) */}
+          {/* Lớp 1: Nền sẫm tone đêm đô thị (tối đi 10%) */}
+          <div className="fixed inset-0 pointer-events-none z-0 bg-[#07070a]" />
 
-          {/* Lớp 2: Ảnh nền Chung cư Cà phê 42 Nguyễn Huệ về đêm (Neon Cafe Apartment) - Giảm sáng 30% */}
+          {/* Lớp 2: Ảnh nền Chung cư Cà phê 42 Nguyễn Huệ về đêm (giảm độ sáng 10%) */}
           <div 
             className="fixed inset-0 pointer-events-none z-0"
             style={{
@@ -95,14 +102,14 @@ export default function App() {
               backgroundSize: 'cover',
               backgroundPosition: 'center 28%',
               backgroundRepeat: 'no-repeat',
-              opacity: 0.25,
-              filter: 'blur(3.5px) contrast(115%) brightness(68%)'
+              opacity: 0.30,
+              filter: 'blur(3.5px) contrast(110%) brightness(85%)'
             }}
           />
 
-          {/* Lớp 3: Texture lưới điện tử mờ cực nhẹ (Digital Grid) */}
+          {/* Lớp 3: Texture lưới điện tử mờ cực nhẹ (Digital Grid 3%) */}
           <div 
-            className="fixed inset-0 pointer-events-none z-0 opacity-[0.025]"
+            className="fixed inset-0 pointer-events-none z-0 opacity-[0.03]"
             style={{
               backgroundImage: `
                 linear-gradient(to right, rgba(0, 243, 255, 0.35) 1px, transparent 1px),
@@ -112,9 +119,9 @@ export default function App() {
             }}
           />
 
-          {/* Lớp 4: Chiều sâu ánh sáng tương phản đô thị - Tối hơn 30% để nổi bật neon */}
+          {/* Lớp 4: Chiều sâu ánh sáng tối đi 10% tôn neon và glowing trắng */}
           <div 
-            className="fixed inset-0 pointer-events-none z-0 bg-[radial-gradient(circle_at_50%_25%,rgba(6,6,10,0.35)_15%,rgba(4,4,8,0.72)_55%,rgba(2,2,5,0.92)_100%)]"
+            className="fixed inset-0 pointer-events-none z-0 bg-[radial-gradient(circle_at_50%_25%,rgba(5,5,8,0.2)_10%,rgba(6,6,10,0.50)_60%,rgba(4,4,8,0.78)_100%)]"
           />
         </>
       ) : (
@@ -173,8 +180,8 @@ export default function App() {
             />
           </ErrorBoundary>
         )}
-        {activeTab === 'story' && <HeritageStory />}
-        {activeTab === 'map' && <HeritageMap />}
+        {activeTab === 'story' && <HeritageStory currentContext={selectedContext} />}
+        {activeTab === 'map' && <HeritageMap currentContext={selectedContext} />}
       </main>
 
       {/* Heritage Citation Footer */}

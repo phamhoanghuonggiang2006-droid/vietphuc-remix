@@ -389,17 +389,12 @@ export const ThanhLichBentoLookbook: React.FC<ThanhLichBentoLookbookProps> = ({
               >
                 <div
                   onClick={() => handlePresetClick(preset)}
-                  className={`relative rounded-2xl p-4 sm:p-4.5 text-left transition-all duration-300 cursor-pointer overflow-hidden border flex flex-col justify-between group shadow-lg ${
+                  className={`relative rounded-2xl p-4 sm:p-4.5 text-left transition-all duration-300 cursor-pointer overflow-hidden border flex flex-col justify-between group shadow-sm ${
                     isSelected
-                      ? 'border-[#f5e6c8] bg-gradient-to-br from-[#FFFDF9] via-[#FAF6ED] to-[#F3ECE0] ring-2 ring-[#e5c365] shadow-[0_0_25px_rgba(229,195,101,0.38)]'
+                      ? 'border-[#8BA888] bg-gradient-to-br from-white via-[#FAF8F5] to-[#F5F1EB] ring-4 ring-[#8BA888]/15 shadow-xl'
                       : 'border-stone-200/90 bg-white/80 hover:bg-white hover:border-stone-300 hover:shadow-md'
                   }`}
                 >
-                  {/* Luồng sáng vàng nhấp nháy bên trong hình chữ nhật khi Selected (Breathing Light Vàng Kim) */}
-                  {isSelected && (
-                    <div className="absolute inset-0 bg-gradient-to-tr from-[#e5c365]/25 via-[#faedd0]/30 to-transparent pointer-events-none animate-pulse" />
-                  )}
-
                   {/* Quầng Sáng Studio Spotlight Trong Thẻ */}
                   <div 
                     className="absolute -top-12 -right-12 w-44 h-44 rounded-full blur-2xl pointer-events-none transition-all duration-700"
@@ -419,7 +414,7 @@ export const ThanhLichBentoLookbook: React.FC<ThanhLichBentoLookbookProps> = ({
                     <div className="flex items-center justify-between gap-2 mb-2">
                       <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border shadow-sm ${
                         isSelected 
-                          ? 'bg-[#e5c365] text-stone-950 border-[#f5e6c8]' 
+                          ? 'bg-[#8BA888] text-white border-[#6c8869]' 
                           : 'bg-[#8BA888]/15 text-[#2E482B] border-[#8BA888]/30'
                       }`}>
                         {preset.badge}
@@ -445,7 +440,7 @@ export const ThanhLichBentoLookbook: React.FC<ThanhLichBentoLookbookProps> = ({
                     <h3 className="text-xl font-serif font-black text-stone-900 group-hover:text-[#2E482B] transition-colors flex items-center justify-between">
                       <span>{preset.title}</span>
                       {isSelected && (
-                        <span className="w-5 h-5 rounded-full bg-[#e5c365] text-stone-950 flex items-center justify-center text-[11px] font-bold shadow">
+                        <span className="w-5 h-5 rounded-full bg-[#8BA888] text-white flex items-center justify-center text-[11px] font-bold shadow">
                           ✓
                         </span>
                       )}

@@ -21,7 +21,12 @@ import {
   RotateCcw
 } from 'lucide-react';
 
-export const HeritageStory: React.FC = () => {
+export interface HeritageStoryProps {
+  currentContext?: 'heritage' | 'modern' | 'fusion';
+}
+
+export const HeritageStory: React.FC<HeritageStoryProps> = ({ currentContext = 'heritage' }) => {
+  const isModern = currentContext === 'modern';
   const [selectedStoryId, setSelectedStoryId] = useState<string>('story-5-panels');
   const [interactiveHotspot, setInteractiveHotspot] = useState<string>('panels');
   const [activeGarmentTab, setActiveGarmentTab] = useState<'ngu_than' | 'nhat_binh'>('ngu_than');
@@ -98,39 +103,47 @@ export const HeritageStory: React.FC = () => {
   return (
     <div className="space-y-12">
       {/* Editorial Header */}
-      <div className="relative border-b border-[#24242d] pb-6 pt-2">
-        <div className="text-xs text-[#c5a059] font-medium tracking-wide mb-1">
+      <div className={`relative border-b pb-6 pt-2 ${isModern ? 'border-stone-300' : 'border-[#24242d]'}`}>
+        <div className={`text-xs font-medium tracking-wide mb-1 ${isModern ? 'text-[#8a6825] font-semibold' : 'text-[#c5a059]'}`}>
           Di Sản Story · Tri Thức Cung Đình
         </div>
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#f5f2eb]">
+        <h1 className={`text-2xl sm:text-3xl font-bold tracking-tight ${isModern ? 'text-stone-900 font-royal' : 'text-[#f5f2eb]'}`}>
           Ý Nghĩa Triết Lý Y Quan Triều Nguyễn
         </h1>
-        <p className="mt-2 text-stone-300 text-sm max-w-2xl leading-relaxed">
+        <p className={`mt-2 text-sm max-w-2xl leading-relaxed ${isModern ? 'text-stone-700' : 'text-stone-300'}`}>
           Giải mã 5 thân áo, 5 cúc Ngũ Thường, hoa văn Phượng Ổ, Thủy Ba Tam Sơn bằng góc nhìn trẻ trung, dí dỏm nhưng chuẩn mực nghiên cứu lịch sử.
         </p>
       </div>
 
       {/* SECTION 1: INTERACTIVE ROBE EXPLORER */}
-      <div className="bg-[#141418] border border-[#23232c] rounded-xl p-5 sm:p-6 space-y-5">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#202028] pb-3">
+      <div className={`rounded-xl p-5 sm:p-6 space-y-5 border ${
+        isModern ? 'bg-white/85 border-stone-200/90 shadow-sm' : 'bg-[#141418] border-[#23232c]'
+      }`}>
+        <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-3 ${
+          isModern ? 'border-stone-200' : 'border-[#202028]'
+        }`}>
           <div>
-            <h3 className="text-base font-bold text-[#f5f2eb]">
+            <h3 className={`text-base font-bold ${isModern ? 'text-stone-900 font-royal' : 'text-[#f5f2eb]'}`}>
               Khám Phá Chi Tiết Trên Thân Áo
             </h3>
-            <span className="text-xs text-stone-400">Chạm vào điểm tròn để tra cứu ý nghĩa</span>
+            <span className={`text-xs ${isModern ? 'text-stone-500' : 'text-stone-400'}`}>
+              Chạm vào điểm tròn để tra cứu ý nghĩa
+            </span>
           </div>
 
           {/* Garment Switcher */}
-          <div className="flex items-center p-1 bg-[#0d0d12] rounded-lg border border-[#242430]">
+          <div className={`flex items-center p-1 rounded-lg border ${
+            isModern ? 'bg-stone-100 border-stone-200' : 'bg-[#0d0d12] border-[#242430]'
+          }`}>
             <button
               onClick={() => {
                 setActiveGarmentTab('ngu_than');
                 setSelectedStoryId('story-5-panels');
               }}
-              className={`px-3 py-1 rounded text-xs font-semibold transition-all ${
+              className={`px-3 py-1 rounded text-xs font-semibold transition-all cursor-pointer ${
                 activeGarmentTab === 'ngu_than'
-                  ? 'bg-[#c5a059] text-[#0d0d12]'
-                  : 'text-stone-400 hover:text-white'
+                  ? 'bg-[#c5a059] text-[#0d0d12] shadow-xs'
+                  : isModern ? 'text-stone-600 hover:text-stone-950' : 'text-stone-400 hover:text-white'
               }`}
             >
               Áo Ngũ Thân
@@ -140,10 +153,10 @@ export const HeritageStory: React.FC = () => {
                 setActiveGarmentTab('nhat_binh');
                 setSelectedStoryId('story-phuong-o');
               }}
-              className={`px-3 py-1 rounded text-xs font-semibold transition-all ${
+              className={`px-3 py-1 rounded text-xs font-semibold transition-all cursor-pointer ${
                 activeGarmentTab === 'nhat_binh'
-                  ? 'bg-[#c5a059] text-[#0d0d12]'
-                  : 'text-stone-400 hover:text-white'
+                  ? 'bg-[#c5a059] text-[#0d0d12] shadow-xs'
+                  : isModern ? 'text-stone-600 hover:text-stone-950' : 'text-stone-400 hover:text-white'
               }`}
             >
               Áo Nhật Bình
@@ -165,44 +178,52 @@ export const HeritageStory: React.FC = () => {
               activeHotspot={interactiveHotspot}
               onSelectHotspot={handleSelectHotspot}
             />
-            <p className="text-xs text-stone-400 mt-2 text-center">
+            <p className={`text-xs mt-2 text-center ${isModern ? 'text-stone-600' : 'text-stone-400'}`}>
               💡 Bấm vào điểm tròn vàng trên áo để tra cứu ý nghĩa.
             </p>
           </div>
 
           {/* Detailed Hotspot Explanation */}
           <div className="lg:col-span-7 space-y-4">
-            <div className="p-5 rounded-xl bg-[#0f0f14] border border-[#242430] space-y-3.5">
+            <div className={`p-5 rounded-xl border space-y-3.5 ${
+              isModern ? 'bg-[#FBF9F5] border-stone-200' : 'bg-[#0f0f14] border-[#242430]'
+            }`}>
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-lg bg-[#c5a059]/10 text-[#c5a059] flex items-center justify-center border border-[#c5a059]/30 shrink-0">
                   {getStoryIcon(activeStory.iconName)}
                 </div>
                 <div>
-                  <span className="text-xs text-[#c5a059]">
+                  <span className={`text-xs font-semibold ${isModern ? 'text-[#8a6825]' : 'text-[#c5a059]'}`}>
                     {activeStory.tagline}
                   </span>
-                  <h3 className="text-base sm:text-lg font-bold text-[#f5f2eb]">
+                  <h3 className={`text-base sm:text-lg font-bold ${isModern ? 'text-stone-900 font-royal' : 'text-[#f5f2eb]'}`}>
                     {activeStory.title}
                   </h3>
                 </div>
               </div>
 
               {/* Gen Z Persona Callout */}
-              <div className="p-3.5 rounded-lg bg-[#14141e] border-l-2 border-[#c5a059] text-xs text-stone-200 italic leading-relaxed">
+              <div className={`p-3.5 rounded-lg border-l-2 text-xs italic leading-relaxed ${
+                isModern ? 'bg-amber-50/80 border-[#8a6825] text-stone-800' : 'bg-[#14141e] border-[#c5a059] text-stone-200'
+              }`}>
                 {activeStory.genZTone}
               </div>
 
               {/* Deep Dive Historical Fact */}
-              <p className="text-xs sm:text-sm text-stone-300 leading-relaxed">
+              <p className={`text-xs sm:text-sm leading-relaxed ${isModern ? 'text-stone-700' : 'text-stone-300'}`}>
                 {activeStory.deepDive}
               </p>
 
               {/* 3 Key Breakdown Bullets */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-2 border-t border-[#1e1e28]">
+              <div className={`grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-2 border-t ${
+                isModern ? 'border-stone-200' : 'border-[#1e1e28]'
+              }`}>
                 {activeStory.points.map((pt, idx) => (
-                  <div key={idx} className="p-2.5 rounded-lg bg-[#0a0a0e] border border-[#1d1d24]">
-                    <div className="text-xs font-bold text-[#c5a059] mb-0.5">{pt.label}</div>
-                    <div className="text-xs text-stone-400 leading-normal">{pt.text}</div>
+                  <div key={idx} className={`p-2.5 rounded-lg border ${
+                    isModern ? 'bg-white border-stone-200 shadow-xs' : 'bg-[#0a0a0e] border-[#1d1d24]'
+                  }`}>
+                    <div className={`text-xs font-bold mb-0.5 ${isModern ? 'text-[#8a6825]' : 'text-[#c5a059]'}`}>{pt.label}</div>
+                    <div className={`text-xs leading-normal ${isModern ? 'text-stone-600' : 'text-stone-400'}`}>{pt.text}</div>
                   </div>
                 ))}
               </div>
@@ -215,10 +236,10 @@ export const HeritageStory: React.FC = () => {
       {/* SECTION 2: 6 ARCHIVAL STORY CARDS */}
       <div className="space-y-4">
         <div>
-          <span className="text-xs text-[#c5a059] font-medium tracking-wide">
+          <span className={`text-xs font-medium tracking-wide ${isModern ? 'text-[#8a6825] font-semibold' : 'text-[#c5a059]'}`}>
             Kho tài liệu văn hóa
           </span>
-          <h2 className="text-xl sm:text-2xl font-bold text-[#f5f2eb] mt-0.5">
+          <h2 className={`text-xl sm:text-2xl font-bold mt-0.5 ${isModern ? 'text-stone-900 font-royal' : 'text-[#f5f2eb]'}`}>
             6 Quy Tắc Cốt Lõi Định Hình Bản Sắc
           </h2>
         </div>
@@ -239,7 +260,11 @@ export const HeritageStory: React.FC = () => {
                 }}
                 className={`p-5 rounded-xl border transition-all cursor-pointer flex flex-col justify-between ${
                   isSelected
-                    ? 'bg-[#1b1b22] border-[#c5a059] shadow-sm'
+                    ? isModern
+                      ? 'bg-white border-[#8a6825] ring-2 ring-[#8a6825]/30 shadow-md'
+                      : 'bg-[#1b1b22] border-[#c5a059] shadow-sm'
+                    : isModern
+                    ? 'bg-white/80 border-stone-200/90 hover:border-stone-400 hover:bg-white shadow-xs'
                     : 'bg-[#141418] border-[#22222a] hover:border-[#383848]'
                 }`}
               >
@@ -249,21 +274,23 @@ export const HeritageStory: React.FC = () => {
                       {getStoryIcon(story.iconName)}
                     </div>
                     {isSelected && (
-                      <span className="text-xs px-2 py-0.5 rounded bg-[#c5a059]/20 text-[#e5c365] font-semibold">
+                      <span className="text-xs px-2 py-0.5 rounded bg-[#c5a059]/20 text-[#8a6825] font-semibold">
                         Đang xem
                       </span>
                     )}
                   </div>
 
-                  <h4 className="text-sm font-bold text-[#f5f2eb]">
+                  <h4 className={`text-sm font-bold ${isModern ? 'text-stone-900 font-royal' : 'text-[#f5f2eb]'}`}>
                     {story.title}
                   </h4>
-                  <p className="text-xs text-stone-300 leading-relaxed line-clamp-3">
+                  <p className={`text-xs leading-relaxed line-clamp-3 ${isModern ? 'text-stone-600' : 'text-stone-300'}`}>
                     {story.deepDive}
                   </p>
                 </div>
 
-                <div className="mt-3 pt-3 border-t border-[#202028] flex items-center justify-between text-xs text-[#c5a059] font-medium">
+                <div className={`mt-3 pt-3 border-t flex items-center justify-between text-xs font-medium ${
+                  isModern ? 'border-stone-200 text-[#8a6825]' : 'border-[#202028] text-[#c5a059]'
+                }`}>
                   <span>Khám phá triết lý</span>
                   <ChevronRight className="w-3.5 h-3.5" />
                 </div>
@@ -274,24 +301,28 @@ export const HeritageStory: React.FC = () => {
       </div>
 
       {/* SECTION 3: QUICK 1-MINUTE CULTURAL KNOWLEDGE CHECK */}
-      <div className="bg-[#141418] border border-[#2a241e] rounded-xl p-5 sm:p-6 space-y-5">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#24201a] pb-3">
+      <div className={`rounded-xl p-5 sm:p-6 space-y-5 border ${
+        isModern ? 'bg-white/85 border-stone-200/90 shadow-sm' : 'bg-[#141418] border-[#2a241e]'
+      }`}>
+        <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-3 ${
+          isModern ? 'border-stone-200' : 'border-[#24201a]'
+        }`}>
           <div>
-            <div className="flex items-center gap-1.5 text-xs text-[#e5c365] font-medium">
+            <div className={`flex items-center gap-1.5 text-xs font-medium ${isModern ? 'text-[#8a6825]' : 'text-[#e5c365]'}`}>
               <Award className="w-4 h-4" />
               <span>Thử thách 1 phút</span>
             </div>
-            <h3 className="text-lg font-bold text-[#f5f2eb] mt-0.5">
+            <h3 className={`text-lg font-bold mt-0.5 ${isModern ? 'text-stone-900 font-royal' : 'text-[#f5f2eb]'}`}>
               Check Xem Bạn Có Phạm Húy Triều Đình?
             </h3>
           </div>
           
           <div className="flex items-center gap-4">
-            <div className="text-xs text-stone-300">
-              Điểm số: <span className="font-bold text-[#e5c365]">{quizScore}đ</span>
+            <div className={`text-xs ${isModern ? 'text-stone-700' : 'text-stone-300'}`}>
+              Điểm số: <span className={`font-bold ${isModern ? 'text-[#8a6825]' : 'text-[#e5c365]'}`}>{quizScore}đ</span>
             </div>
             {!quizFinished && (
-              <div className="text-xs text-stone-400">
+              <div className={`text-xs ${isModern ? 'text-stone-500' : 'text-stone-400'}`}>
                 Câu hỏi: {quizIdx + 1} / {COURT_TABOO_QUIZ.length}
               </div>
             )}
@@ -300,11 +331,13 @@ export const HeritageStory: React.FC = () => {
 
         {!quizFinished ? (
           <div className="space-y-4 pt-1">
-            <div className="p-4 rounded-xl bg-[#0e0e13] border border-[#26201a] space-y-1">
-              <div className="flex items-center justify-between text-xs text-[#c5a059] font-semibold">
+            <div className={`p-4 rounded-xl border space-y-1 ${
+              isModern ? 'bg-[#FAF7F0] border-stone-200' : 'bg-[#0e0e13] border-[#26201a]'
+            }`}>
+              <div className={`flex items-center justify-between text-xs font-semibold ${isModern ? 'text-[#8a6825]' : 'text-[#c5a059]'}`}>
                 <span>Câu hỏi {currentQuiz.questionNumber}: {currentQuiz.scenarioContext}</span>
               </div>
-              <p className="text-sm font-bold text-[#f5f2eb] mt-1 leading-relaxed">
+              <p className={`text-sm font-bold mt-1 leading-relaxed ${isModern ? 'text-stone-900' : 'text-[#f5f2eb]'}`}>
                 {currentQuiz.question}
               </p>
             </div>
@@ -315,16 +348,20 @@ export const HeritageStory: React.FC = () => {
                   key={opt.id}
                   onClick={() => handleSelectQuizOption(opt)}
                   disabled={selectedOpt !== null}
-                  className="w-full p-3.5 rounded-xl border text-left text-xs sm:text-sm transition-all flex items-start justify-between gap-3 cursor-pointer bg-[#101015] border-[#242430] hover:border-[#c5a059]/60 text-stone-200 hover:text-white"
+                  className={`w-full p-3.5 rounded-xl border text-left text-xs sm:text-sm transition-all flex items-start justify-between gap-3 cursor-pointer ${
+                    isModern
+                      ? 'bg-white border-stone-200 hover:border-[#8a6825] text-stone-800 hover:text-stone-950 shadow-xs'
+                      : 'bg-[#101015] border-[#242430] hover:border-[#c5a059]/60 text-stone-200 hover:text-white'
+                  }`}
                 >
                   <span className="leading-relaxed">{opt.text}</span>
-                  <ChevronRight className="w-4 h-4 text-stone-500 shrink-0 mt-0.5" />
+                  <ChevronRight className={`w-4 h-4 shrink-0 mt-0.5 ${isModern ? 'text-stone-400' : 'text-stone-500'}`} />
                 </button>
               ))}
             </div>
 
             {/* Instruction tooltip */}
-            <div className="text-[11px] text-stone-400 italic">
+            <div className={`text-[11px] italic ${isModern ? 'text-stone-500' : 'text-stone-400'}`}>
               💡 Bấm chọn đáp án để xem phản hồi và đánh giá từ Stylist Cổ Phục Viễn Đông!
             </div>
           </div>
@@ -336,17 +373,17 @@ export const HeritageStory: React.FC = () => {
             </div>
             
             <div>
-              <span className="text-xs text-stone-400 font-medium">
+              <span className={`text-xs font-medium ${isModern ? 'text-stone-500' : 'text-stone-400'}`}>
                 Hoàn thành khảo thí · Đạt {quizScore} điểm
               </span>
-              <h4 className="text-xl sm:text-2xl text-[#f5f2eb] font-bold mt-1">
+              <h4 className={`text-xl sm:text-2xl font-bold mt-1 ${isModern ? 'text-stone-900 font-royal' : 'text-[#f5f2eb]'}`}>
                 {quizScore >= 110
                   ? 'Trạng Nguyên Mix Đồ Hoàng Triều'
                   : quizScore >= 90
                   ? 'Thượng Thư Bắt Trend Di Sản'
                   : 'Sĩ Tử Cần Ôn Lại Taboos'}
               </h4>
-              <p className="text-xs sm:text-sm text-stone-300 max-w-md mx-auto mt-2 leading-relaxed">
+              <p className={`text-xs sm:text-sm max-w-md mx-auto mt-2 leading-relaxed ${isModern ? 'text-stone-700' : 'text-stone-300'}`}>
                 {quizScore >= 110
                   ? '“Đỉnh nóc kịch trần luôn bạn hiền ơi! Kiến thức y quan của người đẹp thuộc hàng học sĩ uyên bác, tự tin ra đường phối cổ phục không sợ ai bắt lỗi!”'
                   : '“Kiến thức rất đáng khen nha bạn hiền! Hãy nhớ các quy tắc vàng: không cúc vải Tàu, bắt buộc Đơn Y và tránh màu Vàng Minh Hoàng nhé!”'}
@@ -356,7 +393,11 @@ export const HeritageStory: React.FC = () => {
             <div className="pt-2">
               <button
                 onClick={handleResetQuiz}
-                className="px-5 py-2.5 rounded-xl bg-[#1f1f28] hover:bg-[#282834] text-stone-200 text-xs font-semibold border border-[#2d2d3a] transition-colors inline-flex items-center gap-2 cursor-pointer"
+                className={`px-5 py-2.5 rounded-xl text-xs font-semibold border transition-colors inline-flex items-center gap-2 cursor-pointer ${
+                  isModern
+                    ? 'bg-stone-100 hover:bg-stone-200 text-stone-800 border-stone-300'
+                    : 'bg-[#1f1f28] hover:bg-[#282834] text-stone-200 border-[#2d2d3a]'
+                }`}
               >
                 <RotateCcw className="w-3.5 h-3.5" />
                 <span>Làm lại thử thách</span>

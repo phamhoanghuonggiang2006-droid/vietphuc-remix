@@ -452,16 +452,22 @@ export const TheDjDeckPresets: React.FC<TheDjDeckPresetsProps> = ({
                   onClick={() => triggerTrackSwitch(index)}
                   className={`relative rounded-2xl p-4 sm:p-5 text-left transition-all duration-300 cursor-pointer overflow-hidden border flex flex-col justify-between group shadow-xl ${
                     isSelected
-                      ? 'border-[#f5e6c8] bg-gradient-to-b from-[#251e18] via-[#161214] to-[#0d0a0f] ring-2 ring-[#e5c365] shadow-[0_0_28px_rgba(229,195,101,0.38)]'
+                      ? 'bg-gradient-to-b from-[#181824] via-[#101018] to-[#08080c]'
                       : 'border-white/10 bg-[#121218] hover:border-white/30 hover:bg-[#181824]'
                   }`}
                   style={isSelected ? {
-                    boxShadow: `0 0 28px rgba(229,195,101,0.38), inset 0 0 18px rgba(229,195,101,0.15)`
+                    borderColor: track.accentNeon,
+                    boxShadow: `0 0 25px ${track.accentNeon}33, inset 0 0 15px ${track.accentNeon}10`
                   } : undefined}
                 >
-                  {/* Luồng sáng vàng nhấp nháy bên trong hình chữ nhật khi Selected (Breathing Light Vàng Kim) */}
+                  {/* Luồng sáng khi Selected */}
                   {isSelected && (
-                    <div className="absolute inset-0 bg-gradient-to-tr from-[#e5c365]/20 via-[#faedd0]/25 to-transparent pointer-events-none animate-pulse" />
+                    <div
+                      className="absolute inset-0 pointer-events-none animate-pulse"
+                      style={{
+                        background: `radial-gradient(ellipse at top left, ${track.accentNeon}20, transparent 70%)`
+                      }}
+                    />
                   )}
 
                   {/* Background Watermark Crest từ thư mục ANH/ (Downloads/ANH/) - Tinh chỉnh kích cỡ đồng đều */}
@@ -539,7 +545,12 @@ export const TheDjDeckPresets: React.FC<TheDjDeckPresetsProps> = ({
                       <span className="group-hover:translate-x-0.5 transition-transform font-black not-italic font-bold">{track.title}</span>
                       {isSelected && (
                         <span
-                          className="w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-black shadow bg-[#e5c365] text-stone-950 shadow-[0_0_12px_rgba(229,195,101,0.6)]"
+                          className="w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-black shadow"
+                          style={{
+                            backgroundColor: track.accentNeon,
+                            color: '#000000',
+                            boxShadow: `0 0 12px ${track.accentNeon}`
+                          }}
                         >
                           ✓
                         </span>
