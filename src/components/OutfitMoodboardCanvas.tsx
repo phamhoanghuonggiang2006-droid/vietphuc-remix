@@ -25,8 +25,11 @@ import {
   Maximize2,
   X,
   Download,
-  Loader2
+  Loader2,
+  Volume2,
+  VolumeX
 } from 'lucide-react';
+import { useSoundMute } from '../utils/soundEffects';
 
 export type CanvasViewMode = 'mannequin' | 'editorial' | 'breakdown';
 export type HeritageBackground = 'studio' | 'hue' | 'hoian' | 'thanglong';
@@ -44,6 +47,9 @@ interface OutfitMoodboardCanvasProps {
   isChineseButtonSelected: boolean;
   isImperialYellowSelected: boolean;
   isTabooClashSelected: boolean;
+  isLayeringActive?: boolean;
+  layeringStep?: number;
+  currentTier?: 'heritage' | 'modern' | 'fusion';
 }
 
 export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
@@ -59,6 +65,9 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
   isChineseButtonSelected,
   isImperialYellowSelected,
   isTabooClashSelected,
+  isLayeringActive = false,
+  layeringStep = 0,
+  currentTier = 'heritage',
 }) => {
   const [viewMode, setViewMode] = useState<CanvasViewMode>('mannequin');
   const [selectedBg, setSelectedBg] = useState<HeritageBackground>('studio');
@@ -67,6 +76,7 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
   const [isZoomModalOpen, setIsZoomModalOpen] = useState<boolean>(false);
   const [isExportingPoster, setIsExportingPoster] = useState<boolean>(false);
   const [exportSuccessMessage, setExportSuccessMessage] = useState<string | null>(null);
+  const { isMuted, toggleMute } = useSoundMute();
 
   // Check if any taboo is currently active
   const hasActiveTaboo = isChineseButtonSelected || isImperialYellowSelected || isTabooClashSelected || !hasDonY;
@@ -693,6 +703,32 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
   // HERITAGE BACKGROUND ARTWORK
   // ==========================================
   const renderHeritageBackgroundArt = () => {
+    if (currentTier === 'modern') {
+      return (
+        <div className="absolute inset-0 pointer-events-none overflow-hidden transition-all duration-700 select-none">
+          {/* Natural Studio Gradient */}
+          <div className="absolute inset-0 bg-gradient-to-b from-[#FAF8F5] via-[#F2EFE9] to-[#E5E1D8]" />
+          {/* Natural Studio Radial Soft Key Light */}
+          <div 
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background: 'radial-gradient(circle at 50% 36%, rgba(255,255,255,0.9) 0%, rgba(246,243,237,0.55) 45%, rgba(224,219,209,0.75) 100%)'
+            }}
+          />
+          {/* Editorial Rice Paper / Linen Grain Texture */}
+          <div 
+            className="absolute inset-0 opacity-[0.04] mix-blend-multiply pointer-events-none"
+            style={{
+              backgroundImage: 'radial-gradient(#2b2b2f 1px, transparent 1px)',
+              backgroundSize: '16px 16px'
+            }}
+          />
+          {/* Soft Contact Shadow under mannequin's feet */}
+          <div className="absolute bottom-5 left-1/2 -translate-x-1/2 w-48 sm:w-56 h-5 rounded-[50%] bg-stone-900/15 blur-sm pointer-events-none" />
+        </div>
+      );
+    }
+
     const currentBg = BACKGROUND_IMAGES[selectedBg] || BACKGROUND_IMAGES.studio;
     return (
       <div className="absolute inset-0 pointer-events-none overflow-hidden transition-all duration-700 select-none">
@@ -748,38 +784,58 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
   };
 
   return (
-    <div className="bg-[#141419] border border-[#23232c] rounded-2xl overflow-hidden shadow-2xl flex flex-col transition-all">
+    <div className={`rounded-2xl overflow-hidden flex flex-col transition-all ${
+      currentTier === 'modern'
+        ? 'bg-white/85 border border-stone-200/90 shadow-xl backdrop-blur-xl text-stone-800'
+        : 'bg-[#141419] border border-[#23232c] shadow-2xl text-[#f5f2eb]'
+    }`}>
       {/* HEADER: TITLE & CONTROLS */}
-      <div className="p-4 sm:p-5 border-b border-[#22222c] bg-gradient-to-r from-[#171720] to-[#121217] flex flex-wrap items-center justify-between gap-3">
+      <div className={`p-4 sm:p-5 border-b flex flex-wrap items-center justify-between gap-3 ${
+        currentTier === 'modern'
+          ? 'border-stone-200/80 bg-white/70'
+          : 'border-[#22222c] bg-gradient-to-r from-[#171720] to-[#121217]'
+      }`}>
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-[#c5a059]/15 border border-[#c5a059]/30 flex items-center justify-center text-[#c5a059]">
+          <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+            currentTier === 'modern'
+              ? 'bg-[#8BA888]/15 border border-[#8BA888]/30 text-[#436240]'
+              : 'bg-[#c5a059]/15 border border-[#c5a059]/30 text-[#c5a059]'
+          }`}>
             <Sparkles className="w-4 h-4" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xs uppercase tracking-wider text-[#c5a059] font-bold">
-                CANVAS PREVIEW OUTFIT TỔNG THỂ
+              <span className={`text-xs uppercase tracking-wider font-bold ${
+                currentTier === 'modern' ? 'text-[#3E5C3B]' : 'text-[#c5a059]'
+              }`}>
+                {currentTier === 'modern' ? 'STUDIO CANVAS · NATURAL LIGHTING' : 'CANVAS PREVIEW OUTFIT TỔNG THỂ'}
               </span>
               {hasActiveTaboo ? (
-                <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30 font-medium animate-pulse">
-                  <ShieldAlert className="w-3 h-3" />
-                  Cần Chỉnh Quy Chuẩn
+                <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-800 border border-amber-500/30 font-medium">
+                  <ShieldAlert className="w-3 h-3 text-amber-600" />
+                  Gợi Ý Tinh Chỉnh
                 </span>
               ) : (
-                <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-medium">
-                  <CheckCircle2 className="w-3 h-3" />
-                  Hài Hòa Di Sản
+                <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-800 border border-emerald-500/30 font-medium">
+                  <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                  Thanh Lịch Hài Hòa
                 </span>
               )}
             </div>
-            <p className="text-[11px] text-stone-400">
-              Đồng bộ trực quan 10 món phối 2D cùng Y quan Triều Nguyễn
+            <p className={`text-[11px] ${currentTier === 'modern' ? 'text-stone-500' : 'text-stone-400'}`}>
+              {currentTier === 'modern' 
+                ? 'Ánh sáng tự nhiên mềm mại, hiển thị trực quan bản phối Acubi & Quiet Luxury'
+                : 'Đồng bộ trực quan 10 món phối 2D cùng Y quan Triều Nguyễn'}
             </p>
           </div>
         </div>
 
         {/* View Mode Toggle Buttons */}
-        <div className="flex items-center bg-[#0d0d12] p-1 rounded-xl border border-[#262635]">
+        <div className={`flex items-center p-1 rounded-xl border ${
+          currentTier === 'modern'
+            ? 'bg-stone-100/90 border-stone-200/90'
+            : 'bg-[#0d0d12] border-[#262635]'
+        }`}>
           <button
             type="button"
             onClick={() => {
@@ -788,8 +844,8 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
             }}
             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer ${
               viewMode === 'mannequin'
-                ? 'bg-[#c5a059] text-[#0d0d12] font-bold shadow-md'
-                : 'text-stone-400 hover:text-stone-200'
+                ? (currentTier === 'modern' ? 'bg-[#8BA888] text-white font-bold shadow-sm' : 'bg-[#c5a059] text-[#0d0d12] font-bold shadow-md')
+                : (currentTier === 'modern' ? 'text-stone-600 hover:text-stone-900' : 'text-stone-400 hover:text-stone-200')
             }`}
           >
             <span>👔 Toàn Thân</span>
@@ -802,8 +858,8 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
             }}
             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer ${
               viewMode === 'editorial'
-                ? 'bg-[#c5a059] text-[#0d0d12] font-bold shadow-md'
-                : 'text-stone-400 hover:text-stone-200'
+                ? (currentTier === 'modern' ? 'bg-[#8BA888] text-white font-bold shadow-sm' : 'bg-[#c5a059] text-[#0d0d12] font-bold shadow-md')
+                : (currentTier === 'modern' ? 'text-stone-600 hover:text-stone-900' : 'text-stone-400 hover:text-stone-200')
             }`}
           >
             <span>🎨 Moodboard</span>
@@ -816,17 +872,21 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
             }}
             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer ${
               viewMode === 'breakdown'
-                ? 'bg-[#c5a059] text-[#0d0d12] font-bold shadow-md'
-                : 'text-stone-400 hover:text-stone-200'
+                ? (currentTier === 'modern' ? 'bg-[#8BA888] text-white font-bold shadow-sm' : 'bg-[#c5a059] text-[#0d0d12] font-bold shadow-md')
+                : (currentTier === 'modern' ? 'text-stone-600 hover:text-stone-900' : 'text-stone-400 hover:text-stone-200')
             }`}
           >
-            <span>🎴 Chi Tiết 2D</span>
+            <span>📐 Tách Lớp</span>
           </button>
         </div>
       </div>
 
       {/* HERITAGE BACKGROUND SELECTOR & ACTIONS SUB-BAR */}
-      <div className="px-4 py-2.5 bg-[#0e0e13] border-b border-[#1f1f28] flex flex-wrap items-center justify-between gap-2.5 text-xs">
+      <div className={`px-4 py-2.5 border-b flex flex-wrap items-center justify-between gap-2.5 text-xs ${
+        currentTier === 'modern'
+          ? 'bg-stone-50/80 border-stone-200/70 text-stone-700'
+          : 'bg-[#0e0e13] border-[#1f1f28] text-stone-300'
+      }`}>
         <div className="flex items-center gap-1.5 flex-wrap">
           <span className="text-[10px] uppercase font-bold text-stone-400 tracking-wider mr-1">
             Bối Cảnh:
@@ -849,8 +909,12 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
               }}
               className={`px-2.5 py-1 rounded-lg text-[11px] font-medium transition-all flex items-center gap-1.5 border cursor-pointer ${
                 selectedBg === bg.id
-                  ? 'bg-[#c5a059]/20 border-[#c5a059] text-[#e5c365] font-bold shadow-sm'
-                  : 'bg-[#14141c] border-white/5 text-stone-400 hover:text-stone-200 hover:border-white/10'
+                  ? (currentTier === 'modern' 
+                      ? 'bg-[#8BA888]/20 border-[#8BA888] text-[#2C4A28] font-bold shadow-sm' 
+                      : 'bg-[#c5a059]/20 border-[#c5a059] text-[#e5c365] font-bold shadow-sm')
+                  : (currentTier === 'modern' 
+                      ? 'bg-white border-stone-200 text-stone-600 hover:text-stone-900 shadow-2xs' 
+                      : 'bg-[#14141c] border-white/5 text-stone-400 hover:text-stone-200 hover:border-white/10')
               }`}
             >
               <span>{bg.icon}</span>
@@ -865,15 +929,19 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
             type="button"
             onClick={exportOutfitPoster}
             disabled={isExportingPoster}
-            className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-[#c5a059] to-[#d4af37] text-[#0d0d12] font-bold text-[11px] shadow hover:brightness-110 active:scale-95 transition-all flex items-center gap-1.5 disabled:opacity-50"
-            title="Tải ảnh Poster Lookbook Hoàng Gia để nộp bài hoặc lưu trữ"
+            className={`px-3 py-1.5 rounded-lg font-bold text-[11px] shadow hover:brightness-105 active:scale-95 transition-all flex items-center gap-1.5 disabled:opacity-50 cursor-pointer ${
+              currentTier === 'modern'
+                ? 'bg-gradient-to-r from-[#8BA888] to-[#6E8F6B] text-white shadow-sm'
+                : 'bg-gradient-to-r from-[#c5a059] to-[#d4af37] text-[#0d0d12]'
+            }`}
+            title={currentTier === 'modern' ? 'Tải trang bìa Tạp Chí Lookbook' : 'Tải Poster Lookbook Hoàng Gia'}
           >
             {isExportingPoster ? (
               <Loader2 className="w-3.5 h-3.5 animate-spin" />
             ) : (
               <Download className="w-3.5 h-3.5" />
             )}
-            <span>{isExportingPoster ? 'Đang xuất...' : 'Tải Poster Hoàng Gia'}</span>
+            <span>{isExportingPoster ? 'Đang xuất...' : currentTier === 'modern' ? 'Tải Tạp Chí Lookbook' : 'Tải Poster Hoàng Gia'}</span>
           </button>
         </div>
       </div>
@@ -901,28 +969,60 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
         {/* Top Controls Bar on Canvas */}
         <div className="absolute top-3 left-3 right-3 flex items-center justify-between z-20 pointer-events-auto">
           {/* Active color swatch & garment title */}
-          <div className="bg-black/75 backdrop-blur-md border border-[#c5a059]/30 rounded-full px-3 py-1 flex items-center gap-2 shadow-lg">
+          <div className={`backdrop-blur-md rounded-full px-3 py-1 flex items-center gap-2 shadow-sm ${
+            currentTier === 'modern'
+              ? 'bg-white/90 border border-stone-200 text-stone-800'
+              : 'bg-black/75 border border-[#c5a059]/30 text-stone-200 shadow-lg'
+          }`}>
             <span 
-              className="w-2.5 h-2.5 rounded-full ring-1 ring-white/30 shrink-0" 
+              className="w-2.5 h-2.5 rounded-full ring-1 ring-black/10 shrink-0" 
               style={{ backgroundColor: selectedColorHex }} 
             />
-            <span className="text-xs font-bold text-stone-200 truncate max-w-[140px] sm:max-w-[180px]">
+            <span className="text-xs font-bold truncate max-w-[140px] sm:max-w-[180px]">
               {activeGarment.name}
             </span>
-            <span className="text-[10px] text-[#c5a059] hidden sm:inline">
+            <span className={`text-[10px] hidden sm:inline ${
+              currentTier === 'modern' ? 'text-[#3E5C3B] font-semibold' : 'text-[#c5a059]'
+            }`}>
               • {activeColor.vietnameseName.split('(')[0]}
             </span>
           </div>
 
           <div className="flex items-center gap-1.5">
+            {/* Audio Toggle: Bật tiếng để full Vibe */}
+            <button
+              type="button"
+              onClick={toggleMute}
+              className={`px-2.5 py-1.5 rounded-lg border text-xs transition-all flex items-center gap-1.5 shadow-sm ${
+                isMuted
+                  ? 'bg-black/70 text-stone-300 border-white/15 hover:border-[#D4AF37]/50 hover:text-[#f5e6c8]'
+                  : 'bg-[#D4AF37]/25 text-[#f5e6c8] border-[#D4AF37]/70 shadow-[0_0_12px_rgba(212,175,55,0.4)] font-medium animate-pulse'
+              }`}
+              title={isMuted ? 'Nhấn để bật âm thanh cổ phong khi phối đồ' : 'Nhấn để tắt âm thanh'}
+            >
+              {isMuted ? (
+                <>
+                  <VolumeX className="w-3.5 h-3.5 text-stone-400" />
+                  <span className="text-[11px] font-medium hidden sm:inline">Bật tiếng để full Vibe 🎵</span>
+                  <span className="text-[11px] font-medium sm:hidden">Mute</span>
+                </>
+              ) : (
+                <>
+                  <Volume2 className="w-3.5 h-3.5 text-[#e5c365]" />
+                  <span className="text-[11px] font-bold text-[#e5c365] hidden sm:inline">Âm thanh: Đang Bật 🎶</span>
+                  <span className="text-[11px] font-bold text-[#e5c365] sm:hidden">Bật 🎶</span>
+                </>
+              )}
+            </button>
+
             {/* Toggle Labels */}
             <button
               type="button"
               onClick={() => setShowLabels(!showLabels)}
-              className={`p-1.5 rounded-lg border text-xs transition-all flex items-center gap-1 ${
+              className={`p-1.5 rounded-lg border text-xs transition-all flex items-center gap-1 cursor-pointer ${
                 showLabels 
-                  ? 'bg-[#c5a059]/20 text-[#c5a059] border-[#c5a059]/40' 
-                  : 'bg-black/60 text-stone-400 border-white/10 hover:text-stone-200'
+                  ? (currentTier === 'modern' ? 'bg-[#8BA888]/20 text-[#2C4A28] border-[#8BA888]/50 font-medium' : 'bg-[#c5a059]/20 text-[#c5a059] border-[#c5a059]/40')
+                  : (currentTier === 'modern' ? 'bg-white/80 text-stone-600 border-stone-200 hover:text-stone-900 shadow-2xs' : 'bg-black/60 text-stone-400 border-white/10 hover:text-stone-200')
               }`}
               title="Bật/Tắt nhãn thông tin trên Canvas"
             >
@@ -934,7 +1034,11 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
             <button
               type="button"
               onClick={() => setIsZoomModalOpen(true)}
-              className="p-1.5 rounded-lg bg-black/60 text-stone-300 border border-white/10 hover:text-white transition-all"
+              className={`p-1.5 rounded-lg border transition-all cursor-pointer ${
+                currentTier === 'modern'
+                  ? 'bg-white/80 text-stone-600 border-stone-200 hover:text-stone-900 shadow-2xs'
+                  : 'bg-black/60 text-stone-300 border-white/10 hover:text-white'
+              }`}
               title="Phóng to Canvas"
             >
               <Maximize2 className="w-3.5 h-3.5" />
@@ -993,9 +1097,23 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
               <ellipse cx="200" cy="546" rx="80" ry="10" fill="none" stroke="#E5C365" strokeWidth="0.6" strokeOpacity="0.4" />
             </svg>
 
+            {/* LAYER STATUS FLOATING BADGE (DÀNH CHO AUTO-FILL LAYERING) */}
+            {isLayeringActive && (
+              <div className="absolute top-4 left-1/2 -translate-x-1/2 z-40 bg-gradient-to-r from-[#2c1a10] via-[#1c1008] to-[#140b06] border border-[#e5c365] text-[#faedd0] px-4 py-1.5 rounded-full text-xs font-serif font-bold shadow-[0_0_25px_rgba(229,195,101,0.5)] flex items-center gap-2 animate-pulse whitespace-nowrap">
+                <Sparkles className="w-3.5 h-3.5 text-[#e5c365]" />
+                <span>
+                  {layeringStep === 1 && 'Bước 1/3: Diện Quần lụa & Áo lót Đơn Y trắng...'}
+                  {layeringStep === 2 && 'Bước 2/3: Khoác Áo ngoài Cổ Phục trang nghiêm...'}
+                  {(layeringStep === 3 || layeringStep === 0) && 'Bước 3/3: Điểm xuyết Khăn đóng, Guốc mộc & Phụ kiện hoàn tất!'}
+                </span>
+              </div>
+            )}
+
             {/* 1. HEAD ZONE: KHĂN ĐÓNG (ĐỘI LÊN ĐẦU MA NƠ CANH) */}
             {isKhanDongSelected && (
-              <div className="relative z-30 flex flex-col items-center -mb-4 sm:-mb-5 transition-all duration-300">
+              <div className={`relative z-30 flex flex-col items-center -mb-4 sm:-mb-5 transition-all duration-500 ${
+                isLayeringActive && layeringStep < 3 ? 'opacity-0 scale-90 -translate-y-4' : 'opacity-100 scale-100 translate-y-0'
+              }`}>
                 <div 
                   className="relative group cursor-pointer"
                   onClick={() => setActiveHotspot(activeHotspot === 'head' ? null : 'head')}
@@ -1015,7 +1133,9 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
             )}
 
             {/* 2. UPPER BODY ZONE: ÁO CỔ PHỤC (ROBE VISUALIZER HOẶC ẢNH UPLOAD) */}
-            <div className="relative z-20 w-full max-w-[320px] sm:max-w-[350px] transition-all duration-500">
+            <div className={`relative z-20 w-full max-w-[320px] sm:max-w-[350px] transition-all duration-700 ${
+              isLayeringActive && layeringStep < 2 ? 'opacity-0 scale-90 translate-y-6' : 'opacity-100 scale-100 translate-y-0'
+            }`}>
               {uploadedImage ? (
                 <div className="relative aspect-[4/5] rounded-2xl overflow-hidden shadow-2xl">
                   <img
@@ -1092,7 +1212,9 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
             </div>
 
             {/* 3. BOTTOM ZONE: THÂN DƯỚI (QUẦN LINEN / CHÂN VÁY / JEANS) */}
-            <div className="relative z-10 w-full max-w-[280px] -mt-16 sm:-mt-20 flex flex-col items-center transition-all duration-500">
+            <div className={`relative z-10 w-full max-w-[280px] -mt-16 sm:-mt-20 flex flex-col items-center transition-all duration-500 ${
+              isLayeringActive && layeringStep === 1 ? 'scale-105 filter drop-shadow-[0_0_15px_rgba(229,195,101,0.6)]' : ''
+            }`}>
               {bottomCanvasImg ? (
                 <div 
                   className="relative group cursor-pointer w-full flex justify-center"
@@ -1118,7 +1240,9 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
             </div>
 
             {/* 4. FOOTWEAR ZONE: GIÀY / GUỐC (GUỐC MỘC / HÀI THÊU / SNEAKERS) */}
-            <div className="relative z-20 w-full max-w-[260px] -mt-10 sm:-mt-12 flex flex-col items-center transition-all duration-500">
+            <div className={`relative z-20 w-full max-w-[260px] -mt-10 sm:-mt-12 flex flex-col items-center transition-all duration-500 ${
+              isLayeringActive && layeringStep < 3 ? 'opacity-0 scale-90 translate-y-4' : 'opacity-100 scale-100 translate-y-0'
+            }`}>
               {/* Ground contact shadow ellipse */}
               <div className="absolute bottom-2 w-48 h-5 bg-black/70 blur-md rounded-full pointer-events-none" />
 

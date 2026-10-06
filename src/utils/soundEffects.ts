@@ -16,14 +16,15 @@ import { useState, useEffect } from 'react';
 const STORAGE_KEY = 'vietphuc_sound_muted';
 
 let audioCtx: AudioContext | null = null;
-let isMutedState = false;
+let isMutedState = true;
 
-// Initialize mute state from localStorage if available
+// Initialize mute state from localStorage if available (Mặc định TẮT theo yêu cầu để thân thiện người dùng)
 if (typeof window !== 'undefined') {
   try {
-    isMutedState = localStorage.getItem(STORAGE_KEY) === 'true';
+    const saved = localStorage.getItem(STORAGE_KEY);
+    isMutedState = saved === null ? true : saved === 'true';
   } catch {
-    isMutedState = false;
+    isMutedState = true;
   }
 }
 

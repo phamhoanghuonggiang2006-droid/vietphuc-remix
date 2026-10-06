@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <defs>
+    <!-- Sớ vải lụa tơ tằm cổ phong & giấy dó Việt Nam -->
+    <pattern id="silkGrid" width="16" height="16" patternUnits="userSpaceOnUse">
+      <!-- Sợi dọc (Warp fibers) -->
+      <line x1="2" y1="0" x2="2" y2="16" stroke="#D4AF37" stroke-width="0.35" stroke-opacity="0.35" stroke-dasharray="3 1 2 2" />
+      <line x1="6" y1="0" x2="6" y2="16" stroke="#faedd0" stroke-width="0.25" stroke-opacity="0.2" stroke-dasharray="1 3 4 1" />
+      <line x1="10" y1="0" x2="10" y2="16" stroke="#D4AF37" stroke-width="0.4" stroke-opacity="0.3" stroke-dasharray="4 2 1 1" />
+      <line x1="14" y1="0" x2="14" y2="16" stroke="#faedd0" stroke-width="0.2" stroke-opacity="0.25" stroke-dasharray="2 2 3 1" />
+      
+      <!-- Sợi ngang (Weft fibers) -->
+      <line x1="0" y1="2" x2="16" y2="2" stroke="#D4AF37" stroke-width="0.3" stroke-opacity="0.3" stroke-dasharray="2 3 1 2" />
+      <line x1="0" y1="6" x2="16" y2="6" stroke="#faedd0" stroke-width="0.25" stroke-opacity="0.2" stroke-dasharray="4 1 2 1" />
+      <line x1="0" y1="10" x2="16" y2="10" stroke="#D4AF37" stroke-width="0.35" stroke-opacity="0.35" stroke-dasharray="1 2 3 2" />
+      <line x1="0" y1="14" x2="16" y2="14" stroke="#faedd0" stroke-width="0.2" stroke-opacity="0.2" stroke-dasharray="3 1 1 3" />
+
+      <!-- Xơ sợi giấy dó điểm xuyết (Organic Dó fibers) -->
+      <circle cx="4" cy="9" r="0.6" fill="#D4AF37" fill-opacity="0.4" />
+      <circle cx="12" cy="3" r="0.5" fill="#faedd0" fill-opacity="0.35" />
+      <circle cx="8" cy="13" r="0.7" fill="#C5A059" fill-opacity="0.3" />
+    </pattern>
+  </defs>
+
+  <rect width="64" height="64" fill="url(#silkGrid)" />
+</svg>

@@ -7,29 +7,13 @@ import {
   HeritageItem,
   ColorOption,
   ModernRemixItem,
-  TabooRule,
-  LINK_ANH_CUC_KIM_LOAI,
-  LINK_ANH_CUC_NGOC,
-  LINK_ANH_CUC_GO,
-  LINK_ANH_CUC_VAI,
-  LINK_ANH_QUAN_LUA,
-  LINK_ANH_QUAN_LINEN,
-  LINK_ANH_VAY_XEP_LY,
-  LINK_ANH_QUAN_JEANS,
-  LINK_ANH_GUOC_MOC,
-  LINK_ANH_HAI_THEU,
-  LINK_ANH_SNEAKERS,
-  LINK_ANH_CHUNKY_LOAFERS,
-  LINK_ANH_QUAT_GIAY,
-  LINK_ANH_KHAN_DONG,
-  LINK_ANH_KHAN_VANH_DAY,
-  LINK_ANH_BOI_NGOC,
-  LINK_ANH_KIENG_BAC,
-  LINK_ANH_DONG_HO
+  TabooRule
 } from '../data/heritageData';
-import { RobeVisualizer } from './RobeVisualizer';
 import { OutfitMoodboardCanvas } from './OutfitMoodboardCanvas';
 import { CustomImageManagerModal } from './CustomImageManagerModal';
+import { NguLamYQuanPresets, HeritagePreset } from './NguLamYQuanPresets';
+import { ThanhLichBentoLookbook, BentoLookbookPreset } from './ThanhLichBentoLookbook';
+import { checkItemTierCompliance } from '../data/data';
 import {
   playDanTranhTabSound,
   playButtonClinkSound,
@@ -38,7 +22,8 @@ import {
   playFabricRustleSound,
   playWoodClogSound,
   playColorPickSound,
-  playTabooDenialSound
+  playTabooDenialSound,
+  playCourtBrassSound
 } from '../utils/soundEffects';
 import { 
   Sparkles, 
@@ -51,12 +36,15 @@ import {
   Palette, 
   Scan, 
   Check, 
-  Layers, 
-  Eye, 
-  Flame,
-  Zap,
-  ShieldAlert,
-  Image as ImageIcon 
+  ShieldAlert, 
+  Filter, 
+  EyeOff, 
+  X, 
+  Info, 
+  BookOpen,
+  ArrowLeft,
+  Scroll,
+  Crown
 } from 'lucide-react';
 
 interface ExtractedColorChip {
@@ -114,7 +102,6 @@ export interface DualMetricEvaluation {
   canAutoFix: boolean;
 }
 
-// Danh sách các sản phẩm mới có tính năng tải ảnh thủ công theo yêu cầu
 export const UPLOADABLE_PRODUCT_IDS = new Set<string>([
   'btn-silver-lotus',
   'btn-mother-of-pearl',
@@ -188,7 +175,6 @@ export const getButtonHeritageInfo = (buttonId: string): ButtonHeritageInfo => {
       isTaboo: true
     };
   }
-  // Mặc định Cúc Đồng Đúc Bát Bửu
   return {
     title: 'Cúc Đồng Đúc Bát Bửu',
     nguThuong: 'Ngũ Thường (Nhân, Nghĩa, Lễ, Trí, Tín)',
@@ -294,24 +280,18 @@ export const computeRealtimeDualMetrics = (
   const isChineseButton = buttonId === 'btn-chinese-cloth';
   const isImperialYellow = !!color.isImperialRestricted;
   
-  // Áo lễ gồm Áo Tấc, Nhật Bình, Viên Lĩnh
   const isCeremonialRobe = garment.id === 'ao-tac' || garment.id === 'ao-nhat-binh' || garment.id === 'ao-vien-linh';
-  
-  // Cấm kỵ triều đình: Cúc vải Tàu hoặc Vàng Minh Hoàng
   const isTabooAlert = isChineseButton || isImperialYellow;
   
-  // Lỗi lạc quẻ (Anachronism): Phối áo lễ với Sneakers hoặc Đồng hồ thông minh
   const isAnachronism = (isCeremonialRobe && (shoesId === 'shoes-white-sneakers' || accessoryId === 'acc-smartwatch')) ||
                         (!isCeremonialRobe && accessoryId === 'acc-smartwatch');
 
-  // Lấy chi tiết Ngũ Thường và Ngũ Hành
   const buttonInfo = getButtonHeritageInfo(buttonId);
   const colorInfo = getColorHeritageInfo(color);
 
   const nguThuongAnalysis = `${buttonInfo.title} [${buttonInfo.nguThuong}]: ${buttonInfo.moral}`;
   const nguHanhAnalysis = `${colorInfo.title} [${colorInfo.nguHanh} - ${colorInfo.giaiTang}]: ${colorInfo.meaning}`;
 
-  // 1. TÍNH ĐỘ CHUẨN DI SẢN (HERITAGE SCORE %)
   let heritage = 100;
   if (!hasDonY) heritage -= 25;
   if (isChineseButton) heritage -= 35;
@@ -322,9 +302,7 @@ export const computeRealtimeDualMetrics = (
   if (isCeremonialRobe && bottomId === 'bottom-high-waist-jeans') heritage -= 10;
   if (!isCeremonialRobe && bottomId === 'bottom-high-waist-jeans') heritage -= 3;
 
-  // Hiệu chỉnh theo bối cảnh tỏa sáng đã chọn
   if (contextId === 'heritage') {
-    // Chốn Tôn Nghiêm (Đền chùa, Di tích, Lễ nghi): khắt khe hơn với trang phục phá cách
     if (shoesId === 'shoes-white-sneakers' || bottomId === 'bottom-high-waist-jeans' || accessoryId === 'acc-smartwatch') {
       heritage = Math.max(15, heritage - 10);
     }
@@ -332,27 +310,22 @@ export const computeRealtimeDualMetrics = (
 
   heritage = Math.max(15, Math.min(100, heritage));
 
-  // 2. TÍNH SLAY SCORE (%)
   let slay = 78;
-  // Tone màu hài hòa
   if (color.hex === '#2B5B84' || color.hex === '#7A222C' || color.hex === '#334D3C' || color.hex === '#5E3A58') {
     slay += 10;
   } else if (color.hex === '#F2EAD8' || color.hex === '#4A3525') {
     slay += 8;
   }
-  // Cúc áo thẩm mỹ & triết lý
   if (buttonId === 'btn-silver-lotus' || buttonId === 'btn-mother-of-pearl') {
     slay += 10;
   } else if (buttonId === 'btn-jade-green' || buttonId === 'btn-metal-copper' || buttonId === 'btn-wood-agarwood') {
     slay += 7;
   }
-  // Thân dưới cá tính & duyên dáng
   if (bottomId === 'bottom-pleated-midi-skirt' || bottomId === 'bottom-silk-wide-pants' || bottomId === 'bottom-linen-wide-pants') {
     slay += 8;
   } else if (bottomId === 'bottom-high-waist-jeans') {
     slay += (contextId === 'fusion' ? 10 : 7);
   }
-  // Giày & phụ kiện
   if (shoesId === 'shoes-wooden-clogs' || shoesId === 'shoes-embroidered-slippers') {
     slay += (contextId === 'heritage' ? 9 : 6);
   } else if (shoesId === 'shoes-chunky-loafers') {
@@ -364,29 +337,30 @@ export const computeRealtimeDualMetrics = (
     slay += 5;
   }
 
-  // Nếu vi phạm cấm kỵ thì bị trừ Slay nhẹ
   if (isTabooAlert) slay -= 16;
   if (isAnachronism) slay -= 8;
   slay = Math.max(45, Math.min(99, slay));
 
-  // 3. PHÂN ĐỊNH 4 KỊCH BẢN VÀ LỜI BÌNH AI STYLIST GEN Z (THEO BỐI CẢNH TỎA SÁNG)
-  // KỊCH BẢN 1: CẢNH BÁO CẤM KỴ (TABOO ALERT)
   if (isTabooAlert) {
     const quote = isChineseButton 
-      ? (contextId === 'heritage'
+      ? (contextId === 'modern'
+          ? `“Cúc Tàu không nằm trong từ điển thanh lịch của y quan nhà Nguyễn đâu nha! Đổi sang Cúc Xà Cừ Ánh Trăng hoặc Cúc Gỗ Trầm để giữ trọn nét tinh tế Quiet Luxury nhé!”`
+          : contextId === 'heritage'
           ? `“Cảnh báo Chốn Tôn Nghiêm: Đi đền chùa, lễ nghi mà dùng cúc vải Tàu là phạm húy nghiêm trọng! Đổi sang Cúc Bạc Hoa Sen hoặc Cúc Đồng Đúc Bát Bửu cho chuẩn mực nhé!”`
           : `“Cảnh báo hú hồn: ${buttonInfo.genzQuote} Cụ Nguồn gật đầu khen cá tính nhưng Triều Đình hơi rén nhé! Đổi sang Cúc Bạc Hoa Sen hoặc Cúc Đồng Đúc Bát Bửu cho chuẩn gu nào!”`)
       : `“Ủa alo bạn hiền! Sắc ${colorInfo.title} (${colorInfo.nguHanh}) là đại cấm kỵ hoàng triều: ${colorInfo.genzQuote} Đổi ngay sang Xanh Thanh Thiên hay Tím Chính Sắc cho vừa slay vừa an toàn nào!”`;
 
     const advice = isChineseButton 
-      ? `Quy chuẩn Y quan nước Nam luôn là khuy rời đúc kim loại/gỗ/ngọc (đại diện Ngũ Thường Nhân-Nghĩa-Lễ-Trí-Tín), tuyệt đối cấm cúc vải bện kiểu Tàu lai căng!` 
+      ? (contextId === 'modern'
+          ? `Quy chuẩn Y quan nước Nam triều Nguyễn dùng khuy rời đúc bằng kim loại, ngọc hoặc xà cừ đại diện Ngũ Thường. Cúc vải bện kiểu Tàu không nằm trong từ điển thanh lịch của y quan nước Nam!`
+          : `Quy chuẩn Y quan nước Nam luôn là khuy rời đúc kim loại/gỗ/ngọc (đại diện Ngũ Thường Nhân-Nghĩa-Lễ-Trí-Tín), tuyệt đối cấm cúc vải bện kiểu Tàu lai căng!`)
       : `Sắc Vàng Minh Hoàng là đặc quyền tối thượng của bậc Thiên Tử Triều Nguyễn. Thứ dân mặc sẽ vi phạm quy chế y quan triều đình!`;
 
     return {
       slayScore: slay,
       heritageScore: heritage,
       scenario: 'taboo',
-      badgeTitle: 'Cảnh Báo Cấm Kỵ (Taboo Alert)',
+      badgeTitle: contextId === 'modern' ? 'Nhắc Nhở Nhã Nhặn (Quiet Reminder)' : 'Cảnh Báo Cấm Kỵ (Taboo Alert)',
       stylistQuote: quote,
       subAdvice: advice,
       nguThuongAnalysis,
@@ -397,10 +371,11 @@ export const computeRealtimeDualMetrics = (
     };
   }
 
-  // KỊCH BẢN 2: LỖI LẠC QUẺ (ANACHRONISM)
   if (isAnachronism) {
     const anachQuote = contextId === 'heritage'
       ? `“Ủa alo bạn hiền! Chốn Tôn Nghiêm đền chùa lễ hội cần sự tề chỉnh tuyệt đối, áo lễ ${garment.name} mà đi cùng Sneakers hay Smartwatch trông hơi cấn cấn đó! Đổi sang Guốc Mộc hoặc Hài Thêu để vừa thanh tịnh vừa trọn vẹn điểm chuẩn mực nhé!”`
+      : contextId === 'modern'
+      ? `“Set đồ đang rất chuẩn phong cách Quiet Luxury, nhưng chiếc Smartwatch thể thao phối cùng ${garment.name} hơi phá vỡ độ trầm mặc thanh nhã! Đổi sang Kính Râm Gọng Vàng hoặc Túi Da Đeo Chéo để đạt trọn điểm visual nhé!”`
       : `“Ủa alo bạn hiền! Áo lễ ${garment.name} phối cùng ${buttonInfo.title} và sắc ${colorInfo.title} (${colorInfo.nguHanh}) đang rất đỉnh chóp, mà 'cưỡi' đôi Sneakers quẹt Smartwatch trông hơi cấn cấn đó nha! Đổi sang Guốc Mộc hoặc Hài Thêu Cung Đình để vừa chuẩn di sản vừa slay hết nấc nào!”`;
 
     return {
@@ -409,7 +384,7 @@ export const computeRealtimeDualMetrics = (
       scenario: 'anachronism',
       badgeTitle: 'Lỗi Lạc Quẻ (Anachronism)',
       stylistQuote: anachQuote,
-      subAdvice: `${garment.name} là lễ phục trang trọng, sự kết hợp với giày thể thao hoặc đồng hồ thông minh tạo ra sự cọc cạch thị giác đối với y quan truyền thống.`,
+      subAdvice: `${garment.name} là y phục thanh lịch, sự kết hợp với phụ kiện thể thao công nghệ tạo ra sự cọc cạch thị giác đối với phong cách Quiet Luxury.`,
       nguThuongAnalysis,
       nguHanhAnalysis,
       isTaboo: false,
@@ -418,9 +393,10 @@ export const computeRealtimeDualMetrics = (
     };
   }
 
-  // KỊCH BẢN 3: CHUẨN CỔ PHONG (MATCH > 90%)
   if (heritage >= 90) {
-    const heritageQuote = contextId === 'heritage'
+    const heritageQuote = contextId === 'modern'
+      ? `“Set đồ phối rất tinh tế, gọn gàng, chuẩn phong cách Quiet Luxury. Điểm thanh lịch: 8.8/10. Phù hợp diện đi làm, ghé Phê La hay ăn tối tại Pizza 4P's.”`
+      : contextId === 'heritage'
       ? `“Tuyệt phẩm Chốn Tôn Nghiêm! Bộ này diện đến đền chùa hay lễ hội truyền thống là chuẩn mực 10/10, đoan trang thanh tịnh, tôn vinh đạo Ngũ Thường (${buttonInfo.nguThuong}) và sắc ${colorInfo.title} vương giả!”`
       : contextId === 'fusion'
       ? `“Outfit Phố Thị Phá Cách đỉnh nóc kịch trần! Vừa chuẩn di sản Ngũ Thường vừa đậm chất Slay đương đại, diện đi Concert hay Cafe check-in là visual chiếm trọn spotlight!”`
@@ -430,9 +406,11 @@ export const computeRealtimeDualMetrics = (
       slayScore: slay,
       heritageScore: heritage,
       scenario: 'heritage',
-      badgeTitle: 'Chuẩn Cổ Phong (Match > 90%)',
+      badgeTitle: contextId === 'modern' ? 'Thanh Lịch Đời Thường (Quiet Luxury)' : 'Chuẩn Cổ Phong (Match > 90%)',
       stylistQuote: heritageQuote,
-      subAdvice: `Bản phối đạt tỷ lệ vàng cổ phong: Phù hợp ${colorInfo.giaiTang}, tôn vinh đạo Ngũ Thường và cốt cách đoan chính của cổ nhân.`,
+      subAdvice: contextId === 'modern'
+        ? `Bản phối Quiet Luxury kết hợp hài hòa giữa nét thanh tao của Áo ngũ thân tay chẽn và phom dáng thời thượng đương đại.`
+        : `Bản phối đạt tỷ lệ vàng cổ phong: Phù hợp ${colorInfo.giaiTang}, tôn vinh đạo Ngũ Thường và cốt cách đoan chính của cổ nhân.`,
       nguThuongAnalysis,
       nguHanhAnalysis,
       isTaboo: false,
@@ -441,11 +419,10 @@ export const computeRealtimeDualMetrics = (
     };
   }
 
-  // KỊCH BẢN 4: CÁCH TÂN LỊCH SỰ (MATCH 70-89%)
-  const modernQuote = contextId === 'fusion'
+  const modernQuote = contextId === 'modern'
+    ? `“Set đồ phối rất tinh tế, gọn gàng, chuẩn phong cách Quiet Luxury. Điểm thanh lịch: 8.8/10. Phù hợp diện đi làm, ghé Phê La hay ăn tối tại Pizza 4P's.”`
+    : contextId === 'fusion'
     ? `“Bản phối Phố Thị Phá Cách cực chiến! Sắc ${colorInfo.title} hòa nhịp cùng ${buttonInfo.title} tạo nên tuyên ngôn thời trang Á Đông hiện đại không thể trộn lẫn!”`
-    : contextId === 'modern'
-    ? `“Vibe Thanh Lịch Đời Thường chuẩn Quiet Luxury! Sắc ${colorInfo.title} nhẹ nhàng cùng ${buttonInfo.title}, diện đi làm hay dạo phố Tết đều toát lên cốt cách tri thức, nho nhã!”`
     : !hasDonY 
       ? `“Gu phối đồ bén ngót với sắc ${colorInfo.title} và ${buttonInfo.title}! Cách tân rất có duyên, nhưng nhớ mặc đủ Áo Đơn Y lót trong để 10/10 không có nhưng nhé!”`
       : `“Bản phối giao thoa cổ kim cực slay! Sắc ${colorInfo.title} (${colorInfo.nguHanh}) đi cùng ${buttonInfo.title} (${buttonInfo.nguThuong}) tạo nên phong thái ${colorInfo.giaiTang} phóng khoáng và cuốn hút!”`;
@@ -454,11 +431,13 @@ export const computeRealtimeDualMetrics = (
     slayScore: slay,
     heritageScore: heritage,
     scenario: 'modern_polite',
-    badgeTitle: 'Cách Tân Lịch Sự (Match 70-89%)',
+    badgeTitle: contextId === 'modern' ? 'Thanh Lịch Đời Thường (Quiet Luxury)' : 'Cách Tân Lịch Sự (Match 70-89%)',
     stylistQuote: modernQuote,
-    subAdvice: !hasDonY 
-      ? 'Nhắc nhở: Lớp Áo Đơn Y trắng cổ đứng cao hơn áo ngoài 2mm là biểu tượng cốt cách sạch sẽ, đoan chính của cổ nhân.' 
-      : `Sự kết hợp tinh tế giữa quy chuẩn Ngũ Thường (${buttonInfo.nguThuong}) và bảng màu Ngũ Hành tương sinh, phù hợp bối cảnh tỏa sáng mà bạn lựa chọn.`,
+    subAdvice: contextId === 'modern'
+      ? `Bản phối Quiet Luxury kết hợp hài hòa giữa nét thanh tao của Áo ngũ thân tay chẽn và phom dáng thời thượng đương đại.`
+      : !hasDonY 
+        ? 'Nhắc nhở: Lớp Áo Đơn Y trắng cổ đứng cao hơn áo ngoài 2mm là biểu tượng cốt cách sạch sẽ, đoan chính của cổ nhân.' 
+        : `Sự kết hợp tinh tế giữa quy chuẩn Ngũ Thường (${buttonInfo.nguThuong}) và bảng màu Ngũ Hành tương sinh, phù hợp bối cảnh tỏa sáng mà bạn lựa chọn.`,
     nguThuongAnalysis,
     nguHanhAnalysis,
     isTaboo: false,
@@ -470,18 +449,50 @@ export const computeRealtimeDualMetrics = (
 export interface RemixStudioProps {
   initialContext?: string;
   onChangeContext?: () => void;
+  onContextSwitch?: (tierId: string) => void;
   onToggleWorkspace?: () => void;
 }
 
+export type WardrobeTab = 'garment' | 'color' | 'button' | 'bottom' | 'shoes' | 'accessory' | 'layer';
+
 export const RemixStudio: React.FC<RemixStudioProps> = ({
   initialContext = 'heritage',
-  onChangeContext,
-  onToggleWorkspace
+  onChangeContext
 }) => {
+  const [currentTier, setCurrentTier] = useState<'heritage' | 'modern' | 'fusion'>(
+    (initialContext as 'heritage' | 'modern' | 'fusion') || 'heritage'
+  );
+  const [activeHeritagePresetId, setActiveHeritagePresetId] = useState<string | null>('preset-nghi-thuc-gia-tien');
+  const [activeBentoPresetId, setActiveBentoPresetId] = useState<string | null>('bento-chic-minimalist');
+  
+  // Tab wardrobe đang chọn
+  const [activeWardrobeTab, setActiveWardrobeTab] = useState<WardrobeTab>('garment');
+
+  // Popover info tooltip
+  const [activeTooltipItemId, setActiveTooltipItemId] = useState<string | null>(null);
+
+  // Modal Hồ Sơ Y Phục Lookbook Toàn Màn Hình
+  const [isLookbookModalOpen, setIsLookbookModalOpen] = useState<boolean>(false);
+
+  // Micro-interactions: Auto-fill Layering xếp lớp tuần tự (~1.2s tổng)
+  const [isLayeringActive, setIsLayeringActive] = useState<boolean>(false);
+  const [layeringStep, setLayeringStep] = useState<number>(0);
+
+  // Bộ lọc Tủ đồ Tàng Hình: Mặc định false (Làm mờ 85% kèm nhãn cảnh báo đỏ)
+  const [hideUnfitItems, setHideUnfitItems] = useState<boolean>(false);
+
+  // Modal giải thích ranh giới văn hóa khi bấm vào món đồ bị làm mờ
+  const [unfitModalItem, setUnfitModalItem] = useState<{
+    name: string;
+    notice: string;
+    tier: string;
+    itemId: string;
+  } | null>(null);
+
   // Selection States
-  const [selectedGarmentId, setSelectedGarmentId] = useState<string>('ngu-than-tay-chen');
-  const [selectedColorHex, setSelectedColorHex] = useState<string>('#2B5B84');
-  const [selectedStyleVibe, setSelectedStyleVibe] = useState<string>('Indochine Sartorial Dandy');
+  const [selectedGarmentId, setSelectedGarmentId] = useState<string>('ao-tac');
+  const [selectedColorHex, setSelectedColorHex] = useState<string>('#5E3A58');
+  const [selectedStyleVibe, setSelectedStyleVibe] = useState<string>('Lễ Nghi Tôn Nghiêm Gia Tộc');
   
   // Custom uploaded image & Multimodal AI state
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
@@ -493,14 +504,89 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
   // Layer & Accessories States
   const [selectedLayerId, setSelectedLayerId] = useState<string>('layer-don-y-white');
   const [selectedButtonId, setSelectedButtonId] = useState<string>('btn-metal-copper');
-  const [selectedBottomId, setSelectedBottomId] = useState<string>('bottom-linen-wide-pants');
+  const [selectedBottomId, setSelectedBottomId] = useState<string>('bottom-silk-wide-pants');
   const [selectedShoesId, setSelectedShoesId] = useState<string>('shoes-wooden-clogs');
-  const [selectedAccessoryId, setSelectedAccessoryId] = useState<string>('acc-paper-fan');
+  const [selectedAccessoryId, setSelectedAccessoryId] = useState<string>('acc-khan-dong');
 
-  // Generator & Animation State
+  // Generator State
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const [remixResult, setRemixResult] = useState<RemixResult | null>(null);
   const [copiedLookbook, setCopiedLookbook] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (initialContext) {
+      setCurrentTier(initialContext as 'heritage' | 'modern' | 'fusion');
+    }
+  }, [initialContext]);
+
+  // Xử lý chọn Preset Ngự Lãm Y Quan với Auto-fill Layering (Xếp lớp tuần tự 3 nhịp)
+  const handleSelectHeritagePreset = (preset: HeritagePreset) => {
+    setActiveHeritagePresetId(preset.id);
+    setIsLayeringActive(true);
+    setLayeringStep(1);
+
+    setSelectedBottomId(preset.outfit.bottomId);
+    setSelectedLayerId(preset.outfit.layerId);
+    playFabricRustleSound();
+
+    setTimeout(() => {
+      setLayeringStep(2);
+      setSelectedGarmentId(preset.outfit.garmentId);
+      setSelectedColorHex(preset.outfit.colorHex);
+      setSelectedButtonId(preset.outfit.buttonId);
+      setSelectedStyleVibe(preset.outfit.styleVibe);
+      playGarmentSelectSound();
+      playButtonClinkSound();
+    }, 380);
+
+    setTimeout(() => {
+      setLayeringStep(3);
+      setSelectedShoesId(preset.outfit.shoesId);
+      setSelectedAccessoryId(preset.outfit.accessoryId);
+      playWoodClogSound();
+      playCourtBrassSound();
+    }, 760);
+
+    setTimeout(() => {
+      setIsLayeringActive(false);
+      setLayeringStep(0);
+      playDanTranhTabSound();
+    }, 1180);
+  };
+
+  // Xử lý chọn Preset Bento Lookbook Thanh Lịch với Auto-fill Layering (Xếp lớp tuần tự 3 nhịp)
+  const handleSelectBentoPreset = (preset: BentoLookbookPreset) => {
+    setActiveBentoPresetId(preset.id);
+    setIsLayeringActive(true);
+    setLayeringStep(1);
+
+    setSelectedBottomId(preset.outfit.bottomId);
+    setSelectedLayerId(preset.outfit.layerId);
+    playFabricRustleSound();
+
+    setTimeout(() => {
+      setLayeringStep(2);
+      setSelectedGarmentId(preset.outfit.garmentId);
+      setSelectedColorHex(preset.outfit.colorHex);
+      setSelectedButtonId(preset.outfit.buttonId);
+      setSelectedStyleVibe(preset.outfit.styleVibe);
+      playGarmentSelectSound();
+      playButtonClinkSound();
+    }, 350);
+
+    setTimeout(() => {
+      setLayeringStep(3);
+      setSelectedShoesId(preset.outfit.shoesId);
+      setSelectedAccessoryId(preset.outfit.accessoryId);
+      playWoodClogSound();
+    }, 700);
+
+    setTimeout(() => {
+      setIsLayeringActive(false);
+      setLayeringStep(0);
+      playDanTranhTabSound();
+    }, 1100);
+  };
 
   // Available options
   const activeGarment = HERITAGE_GARMENTS.find(g => g.id === selectedGarmentId) || HERITAGE_GARMENTS[0];
@@ -512,42 +598,40 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
   const shoesOptions = REMIX_ITEMS.filter(i => i.category === 'shoes');
   const accessoryOptions = REMIX_ITEMS.filter(i => i.category === 'accessory');
 
-  // Currently active selected items
   const activeButtonItem = buttonOptions.find(b => b.id === selectedButtonId) || buttonOptions[0];
   const activeBottomItem = bottomOptions.find(b => b.id === selectedBottomId) || bottomOptions[0];
   const activeShoesItem = shoesOptions.find(s => s.id === selectedShoesId) || shoesOptions[0];
   const activeAccessoryItem = accessoryOptions.find(a => a.id === selectedAccessoryId) || accessoryOptions[0];
 
-  // Tự động tinh chỉnh trang phục ban đầu theo Bối Cảnh Onboarding
   useEffect(() => {
     if (initialContext === 'heritage') {
       setSelectedGarmentId('ao-tac');
-      setSelectedColorHex('#2B5B84'); // Xanh Thanh Thiên
+      setSelectedColorHex('#2B5B84');
       setSelectedStyleVibe('Dạ Hội Cung Đình Luxury');
-      setSelectedBottomId('bottom-silk-wide-pants'); // Quần Ống Sớ Lụa
-      setSelectedShoesId('shoes-wooden-clogs'); // Guốc Mộc
-      setSelectedButtonId('btn-metal-copper'); // Cúc Đồng Đúc Bát Bửu
-      setSelectedAccessoryId('acc-khan-dong'); // Khăn Đóng Chữ Nhân
+      setSelectedBottomId('bottom-silk-wide-pants');
+      setSelectedShoesId('shoes-wooden-clogs');
+      setSelectedButtonId('btn-metal-copper');
+      setSelectedAccessoryId('acc-khan-dong');
     } else if (initialContext === 'modern') {
       setSelectedGarmentId('ngu-than-tay-chen');
-      setSelectedColorHex('#334D3C'); // Xanh Rêu Trầm
-      setSelectedStyleVibe('Chic Heritage Minimalist');
-      setSelectedBottomId('bottom-linen-wide-pants'); // Quần Linen
-      setSelectedShoesId('shoes-wooden-clogs'); // Guốc Mộc
-      setSelectedButtonId('btn-wood-agarwood'); // Cúc Gỗ Trầm Hương
-      setSelectedAccessoryId('acc-paper-fan'); // Quạt Giấy Trầm Hương
+      setSelectedColorHex('#F2EAD8');
+      setSelectedStyleVibe('Chic Minimalist Quiet Luxury');
+      setSelectedBottomId('bottom-tailored-wide-leg');
+      setSelectedShoesId('shoes-chunky-loafers');
+      setSelectedButtonId('btn-mother-of-pearl');
+      setSelectedAccessoryId('acc-sunglasses-gold');
+      setSelectedLayerId('layer-don-y-white');
     } else if (initialContext === 'fusion') {
       setSelectedGarmentId('ao-giao-linh');
-      setSelectedColorHex('#5E3A58'); // Tím Chính Sắc
+      setSelectedColorHex('#5E3A58');
       setSelectedStyleVibe('Streetwear Á Đông Phá Cách');
-      setSelectedBottomId('bottom-high-waist-jeans'); // Quần Jeans Cạp Cao
-      setSelectedShoesId('shoes-chunky-loafers'); // Chunky Loafers
-      setSelectedButtonId('btn-mother-of-pearl'); // Cúc Xà Cừ Khảm Ốc
-      setSelectedAccessoryId('acc-kieng-bac'); // Kiềng Bạc
+      setSelectedBottomId('bottom-high-waist-jeans');
+      setSelectedShoesId('shoes-chunky-loafers');
+      setSelectedButtonId('btn-mother-of-pearl');
+      setSelectedAccessoryId('acc-kieng-bac');
     }
   }, [initialContext]);
 
-  // Real-time Dual-Metric Evaluation: Slay Score & Độ Chuẩn Di Sản
   const dualMetrics = computeRealtimeDualMetrics(
     activeGarment,
     activeColor,
@@ -556,10 +640,9 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
     selectedBottomId,
     selectedShoesId,
     selectedAccessoryId,
-    initialContext
+    currentTier
   );
 
-  // User custom uploaded product images (lưu bộ nhớ trình duyệt localStorage)
   const [customItemImages, setCustomItemImages] = useState<{ [itemId: string]: string }>(() => {
     try {
       const saved = localStorage.getItem('vietphuc_custom_item_images');
@@ -615,12 +698,10 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
     playButtonClinkSound();
   };
 
-  // Helper to get image URL for any item (hỗ trợ ảnh tải lên thủ công hoặc ảnh mặc định)
   const getItemImageUrl = (itemId: string, defaultThumbnail?: string): string => {
     return customItemImages[itemId] || defaultThumbnail || '';
   };
 
-  // Sample curated palettes for image analysis simulation
   const SAMPLE_AI_PALETTES: { [key: number]: ExtractedColorChip[] } = {
     0: [
       { name: 'Xanh Thanh Thiên Đậm', hex: '#2B5B84', percentage: 48, role: 'Sắc Phục Chính' },
@@ -642,7 +723,6 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
     ]
   };
 
-  // MULTIMODAL AI IMAGE ANALYSIS SIMULATION (1.5 seconds)
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -712,8 +792,6 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
             };
 
             setAiOutfitSuggestion(suggestion);
-
-            // Automatically apply suggested outfit
             setSelectedGarmentId(suggestedGarment);
             setSelectedBottomId(suggestedBottom);
             setSelectedShoesId(suggestedShoes);
@@ -826,10 +904,20 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
 
     let feedback = '';
     if (triggered.length > 0) {
-      const quotes = triggered.map(t => t.genZQuote).join(' ');
-      feedback = `Báo động đỏ nè bạn hiền ơi! Stylist ngó qua outfit là thấy có tín hiệu "lệch sóng di sản" liền. ${quotes} Nhấn ngay nút "Khắc Phục Chuẩn Triều Nguyễn" ở trên để Stylist cứu nguy cho diện mạo mười điểm không có nhưng nhé!`;
+      if (currentTier === 'modern') {
+        feedback = buttonItem.id === 'btn-chinese-cloth'
+          ? `Nhắc nhở nhẹ nhàng từ Stylist: Cúc Tàu không nằm trong từ điển thanh lịch của y quan nhà Nguyễn đâu nha! Hãy đổi sang Cúc Xà Cừ hoặc Cúc Gỗ Trầm để giữ trọn vẹn nét tinh tế, nhã nhặn chuẩn Quiet Luxury!`
+          : `Nhắc nhở nhẹ nhàng: Bản phối có cấu kiện chưa chuẩn chỉnh y quan. Nhấn nút khắc phục để hoàn thiện bản phối chuẩn mực nhé!`;
+      } else {
+        const quotes = triggered.map(t => t.genZQuote).join(' ');
+        feedback = `Báo động đỏ nè bạn hiền ơi! Stylist ngó qua outfit là thấy có tín hiệu "lệch sóng di sản" liền. ${quotes} Nhấn ngay nút "Khắc Phục Chuẩn Triều Nguyễn" ở trên để Stylist cứu nguy cho diện mạo mười điểm không có nhưng nhé!`;
+      }
     } else {
-      feedback = `Trời ơi xuất sắc luôn người đẹp ơi! Gu phối đồ của bạn hiền hôm nay phải gọi là "drip đỉnh nóc, slay kịch trần"! Lớp áo ${garment.name} tông ${color.name} quyền quý, có cổ Đơn Y trắng viền tinh khôi làm bừng sáng thần thái. Kết hợp cùng ${bottomItem.name}, ${shoesItem.name} và ${accessoryItem.name} vừa chuẩn quy chuẩn y quan Nguyễn Triều lại vừa ngập tràn hơi thở đương đại! Ra phố diện bộ này là chuẩn phong thái vương giả khiến ai cũng phải ngoái nhìn!`;
+      if (currentTier === 'modern') {
+        feedback = `Set đồ phối rất tinh tế, gọn gàng, chuẩn phong cách Quiet Luxury. Điểm thanh lịch: 8.8/10. Phù hợp diện đi làm, ghé Phê La hay ăn tối tại Pizza 4P's. Phom dáng ${garment.name} sắc ${color.name} kết hợp cùng ${bottomItem.name}, ${shoesItem.name} và ${buttonItem.name} mang lại thần thái vừa tri thức vừa sang trọng!`;
+      } else {
+        feedback = `Trời ơi xuất sắc luôn người đẹp ơi! Gu phối đồ của bạn hiền hôm nay phải gọi là "drip đỉnh nóc, slay kịch trần"! Lớp áo ${garment.name} tông ${color.name} quyền quý, có cổ Đơn Y trắng viền tinh khôi làm bừng sáng thần thái. Kết hợp cùng ${bottomItem.name}, ${shoesItem.name} và ${accessoryItem.name} vừa chuẩn quy chuẩn y quan Nguyễn Triều lại vừa ngập tràn hơi thở đương đại! Ra phố diện bộ này là chuẩn phong thái vương giả khiến ai cũng phải ngoái nhìn!`;
+      }
     }
 
     const palette = [
@@ -862,11 +950,8 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
         paletteItems: palette
       });
       setIsGenerating(false);
-
-      const resultElem = document.getElementById('remix-result-section');
-      if (resultElem) {
-        resultElem.scrollIntoView({ behavior: 'smooth' });
-      }
+      setIsLookbookModalOpen(true); // Bung Pop-up Toàn Màn Hình Sang Trọng!
+      playCourtBrassSound();
     }, 600);
   };
 
@@ -879,1069 +964,1276 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
   const isImperialYellowSelected = !!activeColor.isImperialRestricted;
   const isTabooClashSelected = activeAccessoryItem.id === 'acc-smartwatch' || (!activeShoesItem.isCulturallyRespectful);
 
+  const WARDROBE_TABS: { id: WardrobeTab; label: string; icon: string; count?: number }[] = [
+    { id: 'garment', label: 'Áo Ngoài', icon: '👘', count: HERITAGE_GARMENTS.length },
+    { id: 'color', label: 'Sắc Phục', icon: '🎨', count: TRADITIONAL_COLORS.length },
+    { id: 'button', label: 'Khuy Cúc', icon: '🔘', count: buttonOptions.length },
+    { id: 'bottom', label: 'Thân Dưới', icon: '👖', count: bottomOptions.length },
+    { id: 'shoes', label: 'Giày / Guốc', icon: '👞', count: shoesOptions.length },
+    { id: 'accessory', label: 'Phụ Kiện', icon: '🪭', count: accessoryOptions.length },
+    { id: 'layer', label: 'Đơn Y', icon: '🥼', count: layerOptions.length }
+  ];
+
   return (
-    <div className="space-y-12">
-      {/* Acubi / Quiet Luxury Context Banner */}
-      <div className="bg-[#14141c] border border-[#D4AF37]/35 rounded-3xl p-5 md:p-6 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative overflow-hidden">
-        <div className="absolute -right-10 -top-10 w-40 h-40 bg-[#D4AF37]/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="flex items-center gap-4 relative z-10">
-          <div className="w-14 h-14 rounded-2xl bg-white/5 border border-[#D4AF37]/40 flex items-center justify-center text-3xl shadow-inner shrink-0">
-            {initialContext === 'heritage' ? '⛩️' : initialContext === 'modern' ? '🍃' : '⚡'}
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#D4AF37]">
-                Bối Cảnh Đã Chọn
-              </span>
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-[#D4AF37]/15 text-[#e5c365] border border-[#D4AF37]/30 uppercase">
-                {initialContext === 'heritage' ? 'Trang trọng & Chuẩn mực' : initialContext === 'modern' ? 'Tinh tế & Hiện đại' : 'Cá tính & Nổi loạn'}
-              </span>
-            </div>
-            <h3 className="text-lg md:text-xl font-serif font-bold text-[#f5f2eb] mt-1">
-              {initialContext === 'heritage' ? 'Chốn Tôn Nghiêm' : initialContext === 'modern' ? 'Thanh Lịch Đời Thường' : 'Phố Thị Phá Cách'}
-            </h3>
-            <p className="text-xs text-stone-400 mt-1 max-w-xl leading-relaxed">
-              {initialContext === 'heritage' 
-                ? 'Đền chùa, di tích lịch sử, Lễ nghi truyền thống — AI Stylist ưu tiên quy chuẩn trang nghiêm và y quan chuẩn mực triều đình.'
-                : initialContext === 'modern'
-                ? 'Công sở, Dạo phố nhẹ nhàng, Tết gia đình — AI Stylist tối ưu phom dáng gọn gàng, thanh lịch và thoải mái.'
-                : 'Concert, Cafe check-in, Dạo phố đêm — AI Stylist khuyến khích bản phối streetwear phá cách, nổi bật và độc bản!'}
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2 self-start sm:self-auto shrink-0 relative z-10 flex-wrap">
-          {onToggleWorkspace && (
-            <button
-              type="button"
-              onClick={onToggleWorkspace}
-              className="px-4 py-2.5 rounded-full text-xs font-semibold bg-white/10 hover:bg-white/20 text-[#f5f2eb] border border-white/20 transition-all flex items-center gap-1.5 cursor-pointer shadow-sm"
-              title="Chuyển sang Giao diện chính Acubi 4:6"
-            >
-              <span>🎨 Giao diện Acubi 4:6</span>
-            </button>
-          )}
+    <div className="space-y-6">
+      {/* ======================================================== */}
+      {/* 1. TOP BAR TINH GỌN: ĐỔI BỐI CẢNH + RESET MẪU + KHO ẢNH */}
+      {/* ======================================================== */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#121217] border border-[#23232c] rounded-2xl px-4 py-3 shadow-md">
+        <div className="flex items-center gap-2.5">
           {onChangeContext && (
-            <button
-              type="button"
-              onClick={onChangeContext}
-              className="px-5 py-2.5 rounded-full text-xs font-semibold bg-[#D4AF37]/15 hover:bg-[#D4AF37] text-[#e5c365] hover:text-[#0e0e12] border border-[#D4AF37]/40 hover:border-[#D4AF37] transition-all flex items-center gap-2 cursor-pointer shadow-sm"
-            >
-              <span>✦</span>
-              <span>Đổi Bối Cảnh</span>
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* Editorial Header */}
-      <div className="relative border-b border-[#24242d] pb-6 pt-2">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-          <div>
-            <div className="text-xs text-[#c5a059] font-medium tracking-wide mb-1 flex items-center gap-2">
-              <span>Stylist Cổ Phục Viễn Đông · HeritStyle AI</span>
-              <span className="px-2 py-0.5 rounded-full bg-[#c5a059]/15 text-[#e5c365] text-[10px] font-semibold border border-[#c5a059]/30">
-                Quy Chuẩn Triều Nguyễn
-              </span>
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#f5f2eb]">
-              Phối Trang Phục Cổ Phong & Hiện Đại
-            </h1>
-            <p className="mt-2 text-stone-300 text-sm max-w-2xl leading-relaxed">
-              Khám phá phom dáng Áo Ngũ Thân, Áo Tấc, Nhật Bình hòa quyện cùng thời trang đương đại. 
-              Hệ thống tự động thẩm định theo quy chế y quan triều Nguyễn và bộ lọc Taboos Engine.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => {
-                setSelectedGarmentId('ngu-than-tay-chen');
-                setSelectedColorHex('#2B5B84');
-                setSelectedStyleVibe('Indochine Sartorial Dandy');
-                setSelectedLayerId('layer-don-y-white');
-                setSelectedButtonId('btn-metal-copper');
-                setSelectedBottomId('bottom-linen-wide-pants');
-                setSelectedShoesId('shoes-wooden-clogs');
-                setSelectedAccessoryId('acc-paper-fan');
-                setExtractedPalette(null);
-                setAiOutfitSuggestion(null);
-              }}
-              className="px-3.5 py-1.5 text-xs text-stone-300 hover:text-[#d4af37] border border-[#2a2a35] hover:border-[#d4af37]/40 rounded-lg transition-colors flex items-center gap-1.5 bg-[#141418] cursor-pointer"
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-              <span>Gợi ý mẫu chuẩn</span>
-            </button>
-
-            <button
-              onClick={() => setIsCustomImageModalOpen(true)}
-              className="px-3.5 py-1.5 text-xs text-[#f5f2eb] hover:text-[#e5c365] border border-[#c5a059]/40 hover:border-[#c5a059] rounded-lg transition-all flex items-center gap-1.5 bg-[#181822] hover:bg-[#20202c] cursor-pointer shadow-sm"
-              title="Quản lý toàn bộ ảnh tải lên thủ công"
-            >
-              <Upload className="w-3.5 h-3.5 text-[#e5c365]" />
-              <span>Kho ảnh thủ công</span>
-              {Object.keys(customItemImages).length > 0 && (
-                <span className="w-4 h-4 rounded-full bg-[#c5a059] text-stone-950 text-[10px] font-bold flex items-center justify-center">
-                  {Object.keys(customItemImages).length}
-                </span>
-              )}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* ======================================================== */}
-      {/* BẢNG ĐÁNH GIÁ "SLAY & CHUẨN CỔ PHONG" - REALTIME EVALUATION */}
-      {/* ======================================================== */}
-      <div className={`p-5 sm:p-6 rounded-2xl border transition-all duration-500 relative overflow-hidden backdrop-blur-xl ${
-        dualMetrics.scenario === 'taboo'
-          ? 'bg-gradient-to-br from-[#2a0e14]/95 via-[#19080c]/95 to-[#120508]/95 border-rose-500 shadow-[0_0_35px_rgba(244,63,94,0.35)] animate-pulse'
-          : dualMetrics.scenario === 'anachronism'
-          ? 'bg-gradient-to-br from-[#2a1b0a]/95 via-[#1a1106]/95 to-[#120c04]/95 border-amber-500/80 shadow-[0_0_30px_rgba(245,158,11,0.25)]'
-          : dualMetrics.scenario === 'heritage'
-          ? 'bg-gradient-to-br from-[#12231b]/95 via-[#0e171f]/95 to-[#1c170e]/95 border-[#e5c365] shadow-[0_0_35px_rgba(229,195,101,0.25)]'
-          : 'bg-gradient-to-br from-[#1e1028]/95 via-[#130d1d]/95 to-[#0e0c16]/95 border-purple-500/70 shadow-[0_0_30px_rgba(168,85,247,0.2)]'
-      }`}>
-        {/* Glow ambient background highlight */}
-        <div className={`absolute top-0 right-0 w-80 h-80 rounded-full blur-[100px] pointer-events-none opacity-20 ${
-          dualMetrics.scenario === 'taboo' ? 'bg-rose-500' :
-          dualMetrics.scenario === 'anachronism' ? 'bg-amber-500' :
-          dualMetrics.scenario === 'heritage' ? 'bg-[#e5c365]' :
-          'bg-purple-500'
-        }`} />
-
-        <div className="relative z-10 space-y-5">
-          {/* TOP BAR: BADGE & LIVE STATUS */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-4">
-            <div className="flex items-center gap-3">
-              <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-sm ${
-                dualMetrics.scenario === 'taboo'
-                  ? 'bg-rose-600 text-white animate-bounce'
-                  : dualMetrics.scenario === 'anachronism'
-                  ? 'bg-amber-500 text-stone-950 font-black'
-                  : dualMetrics.scenario === 'heritage'
-                  ? 'bg-gradient-to-r from-[#c5a059] to-[#e5c365] text-stone-950 font-black'
-                  : 'bg-gradient-to-r from-purple-600 to-pink-600 text-white'
-              }`}>
-                {dualMetrics.scenario === 'taboo' && <AlertTriangle className="w-3.5 h-3.5" />}
-                {dualMetrics.scenario === 'anachronism' && <AlertTriangle className="w-3.5 h-3.5" />}
-                {dualMetrics.scenario === 'heritage' && <Sparkles className="w-3.5 h-3.5" />}
-                {dualMetrics.scenario === 'modern_polite' && <CheckCircle2 className="w-3.5 h-3.5" />}
-                <span>{dualMetrics.badgeTitle}</span>
-              </span>
-              <span className="text-[11px] text-stone-300 hidden md:inline">
-                ⚡ Tự động thẩm định kép theo thời gian thực
-              </span>
-            </div>
-
-            {dualMetrics.canAutoFix && (
-              <button
-                type="button"
-                onClick={handleAutoFixTaboos}
-                className="px-3.5 py-1.5 rounded-lg bg-[#c5a059] hover:bg-[#d8b566] text-[#0d0d10] font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-md transition-all self-start sm:self-auto active:scale-95"
-              >
-                <Wand2 className="w-3.5 h-3.5" />
-                <span>Khắc Phục Chuẩn Triều Nguyễn (1 Chạm)</span>
-              </button>
-            )}
-          </div>
-
-          {/* DUAL METRICS PROGRESS BARS */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-            
-            {/* 1. SLAY SCORE */}
-            <div className="bg-black/40 backdrop-blur-md border border-white/10 rounded-xl p-4 space-y-2.5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <span className="text-xs uppercase tracking-wider text-pink-400 font-bold flex items-center gap-1.5">
-                    <span>💅 Slay Score</span>
-                    <span className="px-1.5 py-0.2 rounded bg-pink-500/20 text-pink-300 text-[10px] font-semibold border border-pink-500/30">
-                      Gen Z Vibe
-                    </span>
-                  </span>
-                  <div className="text-[11px] text-stone-300 mt-0.5">
-                    Tỷ lệ phối màu hài hòa & độ cá tính Gen Z
-                  </div>
-                </div>
-                <div className="text-right">
-                  <span className="text-2xl sm:text-3xl font-black text-pink-400 font-mono tracking-tight">
-                    {dualMetrics.slayScore}%
-                  </span>
-                </div>
-              </div>
-
-              {/* Progress Track */}
-              <div className="w-full h-3 bg-black/60 rounded-full overflow-hidden p-0.5 border border-white/10">
-                <div
-                  className="h-full rounded-full bg-gradient-to-r from-pink-500 via-rose-500 to-purple-500 transition-all duration-700 shadow-[0_0_12px_rgba(236,72,153,0.5)]"
-                  style={{ width: `${dualMetrics.slayScore}%` }}
-                />
-              </div>
-            </div>
-
-            {/* 2. ĐỘ CHUẨN DI SẢN */}
-            <div className="bg-black/40 backdrop-blur-md border border-white/10 rounded-xl p-4 space-y-2.5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <span className="text-xs uppercase tracking-wider text-[#e5c365] font-bold flex items-center gap-1.5">
-                    <span>👑 Độ Chuẩn Di Sản</span>
-                    <span className="px-1.5 py-0.2 rounded bg-[#c5a059]/20 text-[#e5c365] text-[10px] font-semibold border border-[#c5a059]/30">
-                      Y Quan Triều Nguyễn
-                    </span>
-                  </span>
-                  <div className="text-[11px] text-stone-300 mt-0.5">
-                    Tuân thủ quy chế (Áo Đơn Y, khuy cúc, phụ kiện)
-                  </div>
-                </div>
-                <div className="text-right">
-                  <span className={`text-2xl sm:text-3xl font-black font-mono tracking-tight ${
-                    dualMetrics.heritageScore >= 90 ? 'text-[#e5c365]' :
-                    dualMetrics.heritageScore >= 70 ? 'text-amber-400' : 'text-rose-400'
-                  }`}>
-                    {dualMetrics.heritageScore}%
-                  </span>
-                </div>
-              </div>
-
-              {/* Progress Track */}
-              <div className="w-full h-3 bg-black/60 rounded-full overflow-hidden p-0.5 border border-white/10">
-                <div
-                  className={`h-full rounded-full transition-all duration-700 ${
-                    dualMetrics.heritageScore >= 90
-                      ? 'bg-gradient-to-r from-amber-400 via-yellow-400 to-emerald-400 shadow-[0_0_12px_rgba(229,195,101,0.5)]'
-                      : dualMetrics.heritageScore >= 70
-                      ? 'bg-gradient-to-r from-amber-500 to-yellow-400 shadow-[0_0_12px_rgba(245,158,11,0.4)]'
-                      : 'bg-gradient-to-r from-rose-600 to-red-500 shadow-[0_0_12px_rgba(239,68,68,0.5)]'
-                  }`}
-                  style={{ width: `${dualMetrics.heritageScore}%` }}
-                />
-              </div>
-            </div>
-
-          </div>
-
-          {/* AI STYLIST GEN Z SPEECH BUBBLE */}
-          <div className="p-4 sm:p-4.5 rounded-xl bg-black/55 backdrop-blur-md border border-white/10 flex items-start gap-3.5">
-            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br from-[#c5a059] to-rose-500 text-stone-950 font-black text-xs sm:text-sm flex items-center justify-center shrink-0 shadow-lg border border-white/20">
-              AI 💅
-            </div>
-            <div className="min-w-0 flex-1 space-y-1">
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-[#e5c365]">AI Stylist Cổ Phục Viễn Đông</span>
-                <span className="text-[10px] text-stone-400 font-medium hidden sm:inline">• Thẩm định văn phong Gen Z & Triết lý Di sản</span>
-              </div>
-              <p className="text-sm sm:text-base font-semibold italic text-stone-100 leading-relaxed">
-                {dualMetrics.stylistQuote}
-              </p>
-              <p className="text-xs text-stone-300/90 leading-relaxed pt-0.5">
-                {dualMetrics.subAdvice}
-              </p>
-
-              {/* CHI TIẾT THẨM ĐỊNH NGŨ THƯỜNG & NGŨ HÀNH GIAI TẦNG */}
-              <div className="pt-2.5 grid grid-cols-1 md:grid-cols-2 gap-2.5 text-[11px]">
-                <div className="p-2.5 rounded-xl bg-white/[0.04] border border-[#c5a059]/25 flex items-start gap-2 shadow-sm">
-                  <span className="text-base shrink-0 leading-none mt-0.5">🔘</span>
-                  <div className="min-w-0">
-                    <span className="font-bold text-[#e5c365] block uppercase text-[10px] tracking-wider">
-                      Đạo Ngũ Thường (Khuy Cúc)
-                    </span>
-                    <span className="text-stone-200 leading-snug block mt-0.5 font-medium">
-                      {dualMetrics.nguThuongAnalysis}
-                    </span>
-                  </div>
-                </div>
-                <div className="p-2.5 rounded-xl bg-white/[0.04] border border-[#c5a059]/25 flex items-start gap-2 shadow-sm">
-                  <span className="text-base shrink-0 leading-none mt-0.5">🎨</span>
-                  <div className="min-w-0">
-                    <span className="font-bold text-[#e5c365] block uppercase text-[10px] tracking-wider">
-                      Ngũ Hành & Giai Tầng (Sắc Phục)
-                    </span>
-                    <span className="text-stone-200 leading-snug block mt-0.5 font-medium">
-                      {dualMetrics.nguHanhAnalysis}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Studio Grid: Left Configuration & Right Visualizer */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        
-        {/* LEFT COLUMN: Controls & Selections (7 Cols) */}
-        <div className="lg:col-span-7 space-y-6">
-          
-          {/* STEP 1: Garment Selection or Photo Upload with Multimodal AI */}
-          <div className="bg-[#141418] border border-[#23232c] rounded-xl p-5 space-y-4">
-            <div className="flex items-center justify-between border-b border-[#202028] pb-2.5">
-              <h3 className="text-base font-bold text-[#f5f2eb]">
-                1. Chọn Dòng Cổ Phục
-              </h3>
-              <span className="text-xs text-stone-400">Quy chuẩn Y quan</span>
-            </div>
-
-            {/* 5 Garment Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
-              {HERITAGE_GARMENTS.map((item) => {
-                const isSelected = selectedGarmentId === item.id;
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => {
-                      setSelectedGarmentId(item.id);
-                      setSelectedColorHex(item.defaultColor);
-                      playGarmentSelectSound();
-                    }}
-                    className={`text-left p-3.5 rounded-xl border transition-all relative cursor-pointer ${
-                      isSelected
-                        ? 'bg-[#1b1b22] border-[#c5a059] shadow-sm'
-                        : 'bg-[#101014] border-[#22222a] hover:border-[#383845]'
-                    }`}
-                  >
-                    {isSelected && (
-                      <span className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-[#c5a059]" />
-                    )}
-                    <div className="font-bold text-sm text-[#f5f2eb]">{item.name}</div>
-                    <div className="text-xs text-[#c5a059] mt-0.5">{item.dynasty}</div>
-                    <p className="text-xs text-stone-300 line-clamp-2 mt-2 leading-relaxed">
-                      {item.subName}
-                    </p>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* PHOTO UPLOAD WITH MULTIMODAL AI ANALYSIS SIMULATION */}
-            <div className="pt-3 border-t border-[#1f1f28] space-y-3">
-              <div className="flex items-center justify-between text-xs text-stone-400">
-                <span className="flex items-center gap-1.5 font-medium text-stone-300">
-                  <Scan className="w-3.5 h-3.5 text-[#c5a059]" />
-                  <span>Hoặc tải ảnh trang phục của bạn (AI Multimodal Analysis):</span>
-                </span>
-                {uploadedImage && (
-                  <button
-                    onClick={() => {
-                      setUploadedImage(null);
-                      setExtractedPalette(null);
-                      setAiOutfitSuggestion(null);
-                    }}
-                    className="text-rose-400 hover:underline cursor-pointer"
-                  >
-                    Xóa ảnh
-                  </button>
-                )}
-              </div>
-
-              {/* Upload Dropzone */}
-              <label className="border border-dashed border-[#2f2f3d] hover:border-[#c5a059]/70 bg-[#0f0f14] rounded-xl p-3.5 flex items-center justify-center gap-3 cursor-pointer group transition-colors relative overflow-hidden">
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="hidden"
-                />
-                <Upload className="w-4 h-4 text-[#c5a059] group-hover:scale-110 transition-transform" />
-                <span className="text-xs text-stone-300 group-hover:text-white font-medium">
-                  {uploadedImage ? 'Đã tải ảnh lên (Bấm để chọn ảnh khác)' : 'Tải ảnh trang phục cá nhân để AI quét phom dáng & tone màu'}
-                </span>
-              </label>
-
-              {/* SIMULATED AI MULTIMODAL SCANNING OVERLAY (1.5 SECONDS) */}
-              {isAnalyzingImage && (
-                <div className="p-4 rounded-xl bg-[#0d1624] border border-[#3b82f6]/40 space-y-3 animate-fadeIn relative overflow-hidden">
-                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#38bdf8] to-transparent animate-pulse" />
-                  
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2.5 text-xs text-[#38bdf8] font-semibold">
-                      <Wand2 className="w-4 h-4 animate-spin text-[#38bdf8]" />
-                      <span>AI đang quét phom dáng & tone màu...</span>
-                    </div>
-                    <span className="text-xs font-mono font-bold text-[#38bdf8]">{analysisProgress}%</span>
-                  </div>
-
-                  <div className="w-full h-1.5 bg-[#172554] rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-gradient-to-r from-cyan-500 to-[#38bdf8] transition-all duration-75"
-                      style={{ width: `${analysisProgress}%` }}
-                    />
-                  </div>
-
-                  <div className="flex items-center justify-between text-[11px] text-stone-400">
-                    <span>[Multimodal Vision Model] Đang trích xuất RGB & so khớp quy chuẩn...</span>
-                    <span className="text-cyan-300 font-mono">1.5s Simulation</span>
-                  </div>
-                </div>
-              )}
-
-              {/* EXTRACTED COLOR PALETTE & AI OUTFIT SUGGESTION CARD */}
-              {!isAnalyzingImage && extractedPalette && (
-                <div className="p-4 rounded-xl bg-[#111119] border border-[#c5a059]/40 space-y-3.5 animate-fadeIn">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-xs font-bold text-[#e5c365]">
-                      <Palette className="w-4 h-4" />
-                      <span>Thẻ Màu Nhận Diện Từ Ảnh (Extracted Palette)</span>
-                    </div>
-                    <span className="text-[11px] text-emerald-400 font-medium bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-500/20">
-                      ✓ Đã quét thành công
-                    </span>
-                  </div>
-
-                  {/* Color Chips Grid */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                    {extractedPalette.map((chip, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => {
-                          setSelectedColorHex(chip.hex);
-                          playColorPickSound();
-                        }}
-                        className={`p-2 rounded-lg border text-left flex items-center gap-2 transition-all cursor-pointer ${
-                          selectedColorHex === chip.hex
-                            ? 'bg-[#1b1b26] border-[#c5a059] shadow-sm'
-                            : 'bg-[#0d0d12] border-[#22222d] hover:border-[#383848]'
-                        }`}
-                      >
-                        <span 
-                          className="w-4 h-4 rounded shrink-0 border border-white/20" 
-                          style={{ backgroundColor: chip.hex }} 
-                        />
-                        <div className="min-w-0">
-                          <div className="text-xs font-semibold text-stone-200 truncate">{chip.name}</div>
-                          <div className="text-[10px] text-stone-400 font-mono">{chip.hex} ({chip.percentage}%)</div>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-
-                  {/* AI Outfit Suggestion Box */}
-                  {aiOutfitSuggestion && (
-                    <div className="p-3.5 rounded-lg bg-[#181824] border border-[#303046] space-y-2 mt-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-[#f5f2eb] flex items-center gap-1.5">
-                          <Sparkles className="w-3.5 h-3.5 text-[#c5a059]" />
-                          <span>{aiOutfitSuggestion.title}</span>
-                        </span>
-                        <button
-                          onClick={handleApplyAiSuggestion}
-                          className="px-2.5 py-1 rounded bg-[#c5a059] hover:bg-[#d8b566] text-[#0d0d10] font-bold text-[11px] transition-colors cursor-pointer flex items-center gap-1"
-                        >
-                          <Check className="w-3 h-3" />
-                          <span>Áp dụng gợi ý</span>
-                        </button>
-                      </div>
-
-                      <p className="text-xs text-stone-300 leading-relaxed">
-                        {aiOutfitSuggestion.rationale}
-                      </p>
-
-                      <div className="text-xs text-[#faedd0] italic bg-black/30 p-2.5 rounded border-l-2 border-[#c5a059] leading-relaxed">
-                        {aiOutfitSuggestion.stylistQuote}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-
-            </div>
-          </div>
-
-          {/* STEP 2: Royal Color Selection */}
-          <div className="bg-[#141418] border border-[#23232c] rounded-xl p-5 space-y-4">
-            <div className="flex items-center justify-between border-b border-[#202028] pb-2.5">
-              <h3 className="text-base font-bold text-[#f5f2eb]">
-                2. Sắc Phục Truyền Thống
-              </h3>
-              <span className="text-xs text-stone-400">Màu sắc triều Nguyễn</span>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5">
-              {TRADITIONAL_COLORS.map((col) => {
-                const isSelected = selectedColorHex === col.hex;
-                return (
-                  <button
-                    key={col.hex}
-                    onClick={() => {
-                      setSelectedColorHex(col.hex);
-                      if (col.isImperialRestricted) {
-                        playTabooDenialSound();
-                      } else {
-                        playColorPickSound();
-                      }
-                    }}
-                    className={`p-2.5 rounded-xl border text-left flex items-start gap-2.5 transition-all relative cursor-pointer group ${
-                      isSelected
-                        ? col.isImperialRestricted
-                          ? 'bg-rose-950/60 border-rose-500 shadow-md ring-1 ring-rose-500'
-                          : 'bg-[#1b1b22] border-[#c5a059] shadow-sm ring-1 ring-[#c5a059]'
-                        : 'bg-[#101014] border-[#22222a] hover:border-[#333342]'
-                    }`}
-                  >
-                    <span 
-                      className="w-5 h-5 rounded-lg shrink-0 border border-white/20 mt-0.5 shadow-sm" 
-                      style={{ backgroundColor: col.hex }} 
-                    />
-                    <div className="min-w-0 flex-1">
-                      <div className="text-xs font-semibold text-stone-200 truncate flex items-center gap-1">
-                        <span>{col.name}</span>
-                        {col.isImperialRestricted && (
-                          <span className="text-[10px] bg-rose-500/20 text-rose-300 px-1 py-0.2 rounded border border-rose-500/40 font-bold" title="Cấm kỵ Hoàng quyền">Cấm kỵ</span>
-                        )}
-                      </div>
-                      <div className="text-[10px] text-[#c5a059] font-medium mt-0.5 truncate">
-                        {col.element || 'Ngũ Hành'}
-                      </div>
-                      <div className="text-[10px] text-stone-400 font-mono mt-0.5">{col.hex}</div>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Notice about Imperial Yellow */}
-            {activeColor.isImperialRestricted && (
-              <div className="p-3 bg-rose-950/40 border border-rose-600/40 rounded-xl flex items-start gap-2.5 text-xs text-rose-300">
-                <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-rose-400" />
-                <div>
-                  <strong className="font-semibold text-rose-200">Cảnh báo Taboos Engine:</strong> Sắc Vàng Minh Hoàng là đặc quyền hoàng đế triều Nguyễn. Thứ dân mặc sẽ vi phạm quy chế y quan!
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* STEP 3: Curated Heritage & Modern Remix Items with Image Thumbnails */}
-          <div className="bg-[#141418] border border-[#23232c] rounded-xl p-5 space-y-6">
-            <div className="flex items-center justify-between border-b border-[#202028] pb-3">
-              <h3 className="text-base font-bold text-[#f5f2eb]">
-                3. Tùy Chọn Chi Tiết & Phối Đồ
-              </h3>
-              <span className="text-xs text-[#c5a059] font-medium">14 món chuẩn quy chuẩn cố định</span>
-            </div>
-
-            {/* A. LỚP ÁO LÓT TRONG: YÊU CẦU 1 - LOẠI BỎ HOÀN TOÀN HÌNH ẢNH MINH HỌA, CHỈ GIỮ LẠI THẺ CHỮ & VĂN HÓA */}
-            <div className="space-y-2.5">
-              <label className="text-xs font-semibold text-stone-200 flex items-center justify-between">
-                <span>Lớp Áo Lót Trong (Đơn Y):</span>
-                <span className="text-xs text-[#c5a059] font-medium">*Bắt buộc theo quy chuẩn</span>
-              </label>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {layerOptions.map(item => (
-                  <button
-                    key={item.id}
-                    onClick={() => {
-                      setSelectedLayerId(item.id);
-                      if (!item.isCulturallyRespectful) {
-                        playTabooDenialSound();
-                      } else {
-                        playFabricRustleSound();
-                      }
-                    }}
-                    className={`p-4 rounded-xl border text-left text-xs transition-all cursor-pointer flex flex-col justify-between ${
-                      selectedLayerId === item.id
-                        ? 'bg-[#1b1b24] border-[#c5a059] text-[#f5f2eb] ring-1 ring-[#c5a059]'
-                        : 'bg-[#101014] border-[#22222a] text-stone-300 hover:border-[#383847]'
-                    }`}
-                  >
-                    <div>
-                      <div className="font-bold flex items-center justify-between text-xs sm:text-sm">
-                        <span>{item.name}</span>
-                        {item.isCulturallyRespectful ? (
-                          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                        ) : (
-                          <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
-                        )}
-                      </div>
-                      <p className="text-xs text-stone-400 mt-2 leading-relaxed">{item.description}</p>
-                    </div>
-
-                    <div className="mt-3 pt-2 border-t border-white/5 flex items-center justify-between text-[11px]">
-                      <span className={item.isCulturallyRespectful ? 'text-emerald-400 font-medium' : 'text-rose-400 font-medium'}>
-                        {item.isCulturallyRespectful ? '✓ Chuẩn cốt cách cổ nhân' : '⚠️ Lệch chuẩn trang phục'}
-                      </span>
-                      <span className="text-stone-500 italic text-[10px]">Ghi chú y quan</span>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* B. HẠT KHUY CÚC ÁO (1.png, 2.png, 3.png, 4.png) */}
-            <div className="space-y-3 pt-1">
-              <div className="flex items-center justify-between">
-                <label className="text-xs font-semibold text-stone-200">
-                  Hạt Khuy Cúc Áo (Ngũ Thường):
-                </label>
-                <span className="text-xs text-rose-400 font-semibold">*Cấm cúc vải Tàu</span>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {buttonOptions.map(item => {
-                  const isSelected = selectedButtonId === item.id;
-                  const isTaboo = item.id === 'btn-chinese-cloth';
-                  const imgSrc = getItemImageUrl(item.id, item.thumbnailUrl);
-
-                  return (
-                    <div
-                      key={item.id}
-                      onClick={() => {
-                        setSelectedButtonId(item.id);
-                        if (item.id === 'btn-chinese-cloth') {
-                          playTabooDenialSound();
-                        } else {
-                          playButtonClinkSound();
-                        }
-                      }}
-                      className={`p-3 rounded-xl border text-left text-xs transition-all cursor-pointer flex flex-col justify-between relative group ${
-                        isSelected
-                          ? isTaboo
-                            ? 'bg-rose-950/60 border-rose-500 text-rose-200 shadow-md ring-1 ring-rose-500'
-                            : 'bg-[#1b1b24] border-[#c5a059] text-[#f5f2eb] ring-1 ring-[#c5a059]'
-                          : 'bg-[#101014] border-[#22222a] text-stone-300 hover:border-[#383847]'
-                      }`}
-                    >
-                      <div className="flex gap-3">
-                        {/* Fixed Image Thumbnail */}
-                        <div className="w-14 h-14 rounded-lg overflow-hidden shrink-0 relative border border-white/10 bg-black/40">
-                          {customItemImages[item.id] && (
-                            <div className="absolute top-1 left-1 bg-[#c5a059] text-stone-950 text-[8px] font-bold px-1 py-0.2 rounded shadow z-10 flex items-center gap-0.5">
-                              ★ Ảnh riêng
-                            </div>
-                          )}
-                          <img 
-                            src={imgSrc} 
-                            alt={item.name} 
-                            onError={(e) => {
-                              if (item.id === 'btn-metal-copper') e.currentTarget.src = '/1.png';
-                              if (item.id === 'btn-jade-green') e.currentTarget.src = '/2.png';
-                              if (item.id === 'btn-wood-agarwood') e.currentTarget.src = '/3.png';
-                              if (item.id === 'btn-silver-lotus') e.currentTarget.src = '/1.png';
-                              if (item.id === 'btn-mother-of-pearl') e.currentTarget.src = '/2.png';
-                              if (item.id === 'btn-chinese-cloth') e.currentTarget.src = '/4.png';
-                            }}
-                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
-                          />
-                        </div>
-
-                        <div className="min-w-0 flex-1">
-                          <div className="font-semibold flex items-center justify-between">
-                            <span className="truncate pr-1 text-xs">{item.name}</span>
-                            {item.isCulturallyRespectful ? (
-                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                            ) : (
-                              <AlertTriangle className="w-3.5 h-3.5 text-rose-400 shrink-0 animate-pulse" />
-                            )}
-                          </div>
-                          <div className={`text-[11px] mt-0.5 font-medium ${isTaboo ? 'text-rose-400' : 'text-[#c5a059]'}`}>
-                            {item.styleVibe}
-                          </div>
-                          <p className="text-[10px] text-stone-400 mt-1 line-clamp-2 leading-relaxed">
-                            {item.description}
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Nút Tải ảnh lên cho sản phẩm mới */}
-                      {UPLOADABLE_PRODUCT_IDS.has(item.id) && (
-                        <div className="mt-2.5 pt-2 border-t border-white/10 flex items-center justify-between gap-1.5" onClick={(e) => e.stopPropagation()}>
-                          <button
-                            type="button"
-                            onClick={() => triggerItemImageUpload(item.id)}
-                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all shadow-sm ${
-                              customItemImages[item.id]
-                                ? 'bg-emerald-950/50 hover:bg-emerald-900/70 text-emerald-300 border border-emerald-500/40'
-                                : 'bg-[#c5a059]/20 hover:bg-[#c5a059]/35 text-[#e5c365] border border-[#c5a059]/40 hover:border-[#c5a059]'
-                            }`}
-                          >
-                            <Upload className="w-3 h-3" />
-                            <span>{customItemImages[item.id] ? 'Đổi ảnh đã tải' : 'Tải ảnh lên'}</span>
-                          </button>
-                          {customItemImages[item.id] && (
-                            <button
-                              type="button"
-                              onClick={() => handleResetItemImage(item.id)}
-                              className="px-2 py-1 rounded-lg bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 border border-rose-500/30 text-[10px] font-medium"
-                              title="Khôi phục ảnh mặc định"
-                            >
-                              Gỡ
-                            </button>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* TABOOS WARNING BANNER ON BUTTON SELECTION */}
-              {isChineseButtonSelected && (
-                <div className="p-4 rounded-xl bg-[#261014] border-2 border-rose-500 text-rose-200 space-y-2.5 animate-fadeIn shadow-xl">
-                  <div className="flex items-center gap-2 font-bold text-rose-100 text-sm">
-                    <AlertTriangle className="w-5 h-5 text-rose-400 shrink-0 animate-bounce" />
-                    <span>CẢNH BÁO PHẠM HÚY TRIỀU ĐÌNH: CÚC VẢI / CÚC TÀU</span>
-                  </div>
-                  <p className="text-xs text-rose-200/90 leading-relaxed">
-                    Quy chuẩn Y quan thời Nguyễn từ thời chúa Nguyễn Phúc Khoát và vua Minh Mạng quy định nút áo Ngũ Thân luôn là khuy tròn rời gắn vào khuyết, làm bằng kim loại (đồng, bạc, vàng chạm) hoặc gỗ quý, ngọc thạch. <strong>Tuyệt đối không dùng cúc bện vải (cúc bàn đinh kiểu Mãn Thanh/Sườn xám)</strong> vì đây là lai căng, sai lệch văn hóa y quan Việt!
-                  </p>
-                  <div className="pt-1 flex items-center gap-3">
-                    <button
-                      onClick={() => {
-                        setSelectedButtonId('btn-metal-copper');
-                        playButtonClinkSound();
-                      }}
-                      className="px-3.5 py-1.5 rounded-lg bg-[#c5a059] hover:bg-[#d8b566] text-stone-950 font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow transition-all"
-                    >
-                      <Wand2 className="w-3.5 h-3.5" />
-                      <span>Đổi Sang Cúc Kim Loại Chuẩn Triều Nguyễn</span>
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* C. THÂN DƯỚI PHỐI CÙNG (Quần Ống Sớ Lụa, Quần Linen, Chân Váy Xếp Ly, Quần Jeans Cạp Cao) */}
-            <div className="space-y-2.5 pt-1">
-              <label className="text-xs font-semibold text-stone-200 flex items-center justify-between">
-                <span>Thân Dưới Phối Cùng (Quần / Chân Váy Hiện Đại):</span>
-                <span className="text-[11px] text-[#c5a059]">4 lựa chọn phom dáng</span>
-              </label>
-
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                {bottomOptions.map(item => {
-                  const isSelected = selectedBottomId === item.id;
-                  const imgSrc = getItemImageUrl(item.id, item.thumbnailUrl);
-
-                  return (
-                    <div
-                      key={item.id}
-                      onClick={() => {
-                        setSelectedBottomId(item.id);
-                        playFabricRustleSound();
-                      }}
-                      className={`rounded-xl border overflow-hidden text-left transition-all cursor-pointer flex flex-col relative group ${
-                        isSelected
-                          ? 'bg-[#1b1b24] border-[#c5a059] shadow-md ring-1 ring-[#c5a059]'
-                          : 'bg-[#101014] border-[#22222a] hover:border-[#383848]'
-                      }`}
-                    >
-                      {/* Fixed Thumbnail Image */}
-                      <div className="h-28 w-full relative overflow-hidden bg-black/40">
-                        {customItemImages[item.id] && (
-                          <div className="absolute top-2 left-2 bg-[#c5a059] text-stone-950 text-[9px] font-bold px-1.5 py-0.5 rounded shadow z-10 flex items-center gap-1">
-                            <Sparkles className="w-2.5 h-2.5" />
-                            <span>Ảnh riêng</span>
-                          </div>
-                        )}
-                        <img 
-                          src={imgSrc} 
-                          alt={item.name} 
-                          onError={(e) => {
-                            if (item.id === 'bottom-linen-wide-pants' || item.id === 'bottom-silk-wide-pants') e.currentTarget.src = '/5.png';
-                            if (item.id === 'bottom-pleated-midi-skirt') e.currentTarget.src = '/6.png';
-                            if (item.id === 'bottom-high-waist-jeans') e.currentTarget.src = '/7.png';
-                          }}
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        />
-                        {isSelected && (
-                          <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-[#c5a059] text-stone-950 flex items-center justify-center font-bold text-xs shadow">
-                            ✓
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="p-3 space-y-1 flex-1 flex flex-col justify-between">
-                        <div>
-                          <div className="font-bold text-xs text-[#f5f2eb] line-clamp-1">{item.name}</div>
-                          <div className="text-[11px] text-[#c5a059] mt-0.5">{item.styleVibe}</div>
-                          <p className="text-[11px] text-stone-400 line-clamp-2 leading-relaxed pt-1">
-                            {item.description}
-                          </p>
-                        </div>
-                        {UPLOADABLE_PRODUCT_IDS.has(item.id) && (
-                          <div className="pt-2 mt-1 border-t border-white/10 flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
-                            <button
-                              type="button"
-                              onClick={() => triggerItemImageUpload(item.id)}
-                              className={`flex-1 inline-flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-[11px] font-semibold transition-all shadow-sm ${
-                                customItemImages[item.id]
-                                  ? 'bg-emerald-950/50 hover:bg-emerald-900/70 text-emerald-300 border border-emerald-500/40'
-                                  : 'bg-[#c5a059]/20 hover:bg-[#c5a059]/35 text-[#e5c365] border border-[#c5a059]/40 hover:border-[#c5a059]'
-                              }`}
-                            >
-                              <Upload className="w-3 h-3" />
-                              <span>{customItemImages[item.id] ? 'Đổi ảnh đã tải' : 'Tải ảnh lên'}</span>
-                            </button>
-                            {customItemImages[item.id] && (
-                              <button
-                                type="button"
-                                onClick={() => handleResetItemImage(item.id)}
-                                className="px-2 py-1.5 rounded-lg bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 border border-rose-500/30 text-[10px]"
-                                title="Khôi phục ảnh mặc định"
-                              >
-                                Gỡ
-                              </button>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* D. GIÀY / GUỐC (Guốc Mộc Truyền Thống, Hài Thêu Cung Đình, Sneakers Trắng, Chunky Loafers) */}
-            <div className="space-y-2.5 pt-1">
-              <label className="text-xs font-semibold text-stone-200 flex items-center justify-between">
-                <span>Giày / Guốc:</span>
-                <span className="text-[11px] text-[#c5a059]">4 lựa chọn hài hòa</span>
-              </label>
-
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                {shoesOptions.map(item => {
-                  const isSelected = selectedShoesId === item.id;
-                  const isSneakerClash = item.id === 'shoes-white-sneakers' && (activeGarment.id === 'ao-tac' || activeGarment.id === 'ao-nhat-binh' || activeGarment.id === 'ao-vien-linh');
-                  const imgSrc = getItemImageUrl(item.id, item.thumbnailUrl);
-
-                  return (
-                    <div
-                      key={item.id}
-                      onClick={() => {
-                        setSelectedShoesId(item.id);
-                        playWoodClogSound();
-                      }}
-                      className={`rounded-xl border overflow-hidden text-left transition-all cursor-pointer flex flex-col relative group ${
-                        isSelected
-                          ? isSneakerClash
-                            ? 'bg-amber-950/40 border-amber-500 ring-1 ring-amber-500'
-                            : 'bg-[#1b1b24] border-[#c5a059] shadow-md ring-1 ring-[#c5a059]'
-                          : 'bg-[#101014] border-[#22222a] hover:border-[#383848]'
-                      }`}
-                    >
-                      {/* Fixed Thumbnail Image */}
-                      <div className="h-28 w-full relative overflow-hidden bg-black/40">
-                        {customItemImages[item.id] && (
-                          <div className="absolute top-2 left-2 bg-[#c5a059] text-stone-950 text-[9px] font-bold px-1.5 py-0.5 rounded shadow z-10 flex items-center gap-1">
-                            <Sparkles className="w-2.5 h-2.5" />
-                            <span>Ảnh riêng</span>
-                          </div>
-                        )}
-                        <img 
-                          src={imgSrc} 
-                          alt={item.name} 
-                          onError={(e) => {
-                            if (item.id === 'shoes-wooden-clogs') e.currentTarget.src = '/8.png';
-                            if (item.id === 'shoes-embroidered-slippers') e.currentTarget.src = '/9.png';
-                            if (item.id === 'shoes-white-sneakers' || item.id === 'shoes-chunky-loafers') e.currentTarget.src = '/10.png';
-                          }}
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        />
-                        {isSelected && (
-                          <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-[#c5a059] text-stone-950 flex items-center justify-center font-bold text-xs shadow">
-                            ✓
-                          </div>
-                        )}
-                        {isSneakerClash && (
-                          <div className="absolute bottom-2 left-2 right-2 bg-amber-950/90 text-amber-200 border border-amber-500/50 text-[10px] px-1.5 py-0.5 rounded font-semibold text-center">
-                            ⚠️ Cân nhắc lễ phục
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="p-3 space-y-1 flex-1 flex flex-col justify-between">
-                        <div>
-                          <div className="font-bold text-xs text-[#f5f2eb] line-clamp-1">{item.name}</div>
-                          <div className="text-[11px] text-[#c5a059] mt-0.5">{item.styleVibe}</div>
-                          <p className="text-[11px] text-stone-400 line-clamp-2 leading-relaxed pt-1">
-                            {item.description}
-                          </p>
-                        </div>
-                        {UPLOADABLE_PRODUCT_IDS.has(item.id) && (
-                          <div className="pt-2 mt-1 border-t border-white/10 flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
-                            <button
-                              type="button"
-                              onClick={() => triggerItemImageUpload(item.id)}
-                              className={`flex-1 inline-flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-[11px] font-semibold transition-all shadow-sm ${
-                                customItemImages[item.id]
-                                  ? 'bg-emerald-950/50 hover:bg-emerald-900/70 text-emerald-300 border border-emerald-500/40'
-                                  : 'bg-[#c5a059]/20 hover:bg-[#c5a059]/35 text-[#e5c365] border border-[#c5a059]/40 hover:border-[#c5a059]'
-                              }`}
-                            >
-                              <Upload className="w-3 h-3" />
-                              <span>{customItemImages[item.id] ? 'Đổi ảnh đã tải' : 'Tải ảnh lên'}</span>
-                            </button>
-                            {customItemImages[item.id] && (
-                              <button
-                                type="button"
-                                onClick={() => handleResetItemImage(item.id)}
-                                className="px-2 py-1.5 rounded-lg bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 border border-rose-500/30 text-[10px]"
-                                title="Khôi phục ảnh mặc định"
-                              >
-                                Gỡ
-                              </button>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* E. PHỤ KIỆN ĐI KÈM (Khăn Đóng Chữ Nhân, Khăn Vành Dây, Quạt Giấy Trầm Hương, Bội Ngọc Bích, Kiềng Bạc, Đồng Hồ Thông Minh (Hiện Đại)) */}
-            <div className="space-y-2.5 pt-1">
-              <label className="text-xs font-semibold text-stone-200 flex items-center justify-between">
-                <span>Phụ Kiện Đi Kèm (6 món cổ phong & hiện đại):</span>
-                <span className="text-[11px] text-[#c5a059]">Điểm xuyết cốt cách</span>
-              </label>
-
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-                {accessoryOptions.map(item => {
-                  const isSelected = selectedAccessoryId === item.id;
-                  const isSmartwatch = item.id === 'acc-smartwatch';
-                  const imgSrc = getItemImageUrl(item.id, item.thumbnailUrl);
-
-                  return (
-                    <div
-                      key={item.id}
-                      onClick={() => {
-                        setSelectedAccessoryId(item.id);
-                        playFanFlutterSound();
-                      }}
-                      className={`rounded-xl border overflow-hidden text-left transition-all cursor-pointer flex flex-col relative group ${
-                        isSelected
-                          ? isSmartwatch
-                            ? 'bg-rose-950/40 border-rose-500 ring-1 ring-rose-500'
-                            : 'bg-[#1b1b24] border-[#c5a059] shadow-md ring-1 ring-[#c5a059]'
-                          : 'bg-[#101014] border-[#22222a] hover:border-[#383848]'
-                      }`}
-                    >
-                      {/* Fixed Thumbnail Image */}
-                      <div className="h-24 w-full relative overflow-hidden bg-black/40">
-                        {customItemImages[item.id] && (
-                          <div className="absolute top-1.5 left-1.5 bg-[#c5a059] text-stone-950 text-[9px] font-bold px-1.5 py-0.5 rounded shadow z-10 flex items-center gap-1">
-                            <Sparkles className="w-2.5 h-2.5" />
-                            <span>Ảnh riêng</span>
-                          </div>
-                        )}
-                        <img 
-                          src={imgSrc} 
-                          alt={item.name} 
-                          onError={(e) => {
-                            if (item.id === 'acc-paper-fan') e.currentTarget.src = '/11.png';
-                            if (item.id === 'acc-khan-dong' || item.id === 'acc-khan-vanh-day') e.currentTarget.src = '/12.png';
-                            if (item.id === 'acc-jade-pendant' || item.id === 'acc-kieng-bac') e.currentTarget.src = '/13.png';
-                            if (item.id === 'acc-smartwatch') e.currentTarget.src = '/14.png';
-                          }}
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
-                        />
-                        {isSelected && (
-                          <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-[#c5a059] text-stone-950 flex items-center justify-center font-bold text-xs shadow z-10">
-                            ✓
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="p-2.5 space-y-1.5 flex-1 flex flex-col justify-between">
-                        <div>
-                          <div className="font-bold text-xs text-[#f5f2eb] line-clamp-1">{item.name}</div>
-                          <div className={`text-[10px] mt-0.5 ${isSmartwatch ? 'text-rose-400' : 'text-[#c5a059]'}`}>
-                            {item.styleVibe}
-                          </div>
-                          <p className="text-[10px] text-stone-400 line-clamp-2 leading-relaxed pt-1">
-                            {item.description}
-                          </p>
-                        </div>
-                        {UPLOADABLE_PRODUCT_IDS.has(item.id) && (
-                          <div className="pt-2 mt-1 border-t border-white/10 flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
-                            <button
-                              type="button"
-                              onClick={() => triggerItemImageUpload(item.id)}
-                              className={`flex-1 inline-flex items-center justify-center gap-1 px-1.5 py-1 rounded-lg text-[10px] font-semibold transition-all shadow-sm ${
-                                customItemImages[item.id]
-                                  ? 'bg-emerald-950/50 hover:bg-emerald-900/70 text-emerald-300 border border-emerald-500/40'
-                                  : 'bg-[#c5a059]/20 hover:bg-[#c5a059]/35 text-[#e5c365] border border-[#c5a059]/40 hover:border-[#c5a059]'
-                              }`}
-                            >
-                              <Upload className="w-2.5 h-2.5 shrink-0" />
-                              <span className="truncate">{customItemImages[item.id] ? 'Đổi ảnh' : 'Tải ảnh lên'}</span>
-                            </button>
-                            {customItemImages[item.id] && (
-                              <button
-                                type="button"
-                                onClick={() => handleResetItemImage(item.id)}
-                                className="px-1.5 py-1 rounded-lg bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 border border-rose-500/30 text-[9px] shrink-0"
-                                title="Khôi phục ảnh mặc định"
-                              >
-                                Gỡ
-                              </button>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* F. Style Vibe Selection */}
-            <div className="space-y-2 pt-1">
-              <label className="text-xs font-semibold text-stone-200">Phong Cách Remix Đương Đại:</label>
-              <div className="flex flex-wrap gap-2">
-                {[
-                  'Indochine Sartorial Dandy',
-                  'Chic Heritage Minimalist',
-                  'Cyberpunk Cổ Phong',
-                  'Dạ Hội Cung Đình Luxury',
-                  'Streetwear Á Đông Phá Cách'
-                ].map(vibe => (
-                  <button
-                    key={vibe}
-                    onClick={() => setSelectedStyleVibe(vibe)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
-                      selectedStyleVibe === vibe
-                        ? 'bg-[#c5a059] text-[#0d0d10] font-bold'
-                        : 'bg-[#16161d] text-stone-300 hover:bg-[#20202a] border border-[#2a2a35]'
-                    }`}
-                  >
-                    {vibe}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-          </div>
-
-          {/* MAIN CTA BUTTON: TẠO OUTFIT REMIX */}
-          <div className="pt-2">
             <button
               onClick={() => {
                 playDanTranhTabSound();
-                generateRemixOutfit();
+                onChangeContext();
               }}
-              disabled={isGenerating}
-              className="w-full py-4 px-6 rounded-xl bg-[#c5a059] hover:bg-[#d4b065] text-[#0f0f14] font-bold text-base transition-all shadow-lg flex items-center justify-center gap-2.5 disabled:opacity-50 cursor-pointer active:scale-[0.99]"
+              className="px-3 py-1.5 rounded-xl bg-white/[0.05] hover:bg-[#c5a059]/20 text-stone-300 hover:text-[#e5c365] border border-white/10 hover:border-[#c5a059]/40 text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer group"
+              title="Quay lại chọn bối cảnh khác"
             >
-              {isGenerating ? (
-                <>
-                  <Wand2 className="w-5 h-5 animate-spin" />
-                  <span>Đang tổng hợp outfit & kiểm tra Taboos...</span>
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-5 h-5" />
-                  <span>Tạo Outfit Remix & Thẩm Định Di Sản</span>
-                </>
-              )}
+              <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
+              <span>Đổi Bối Cảnh</span>
             </button>
+          )}
+
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-xs font-serif font-bold text-[#e5c365] tracking-wide">
+              {currentTier === 'heritage' ? '⛩️ Chốn Tôn Nghiêm (Heritage Core)' :
+               currentTier === 'modern' ? '🌿 Thanh Lịch Đời Thường (Quiet Luxury)' :
+               '⚡ Đô Thị Phá Cách (Urban Streetwear)'}
+            </span>
+            <span className="text-[10px] text-stone-400 font-mono hidden md:inline">
+              · Điển lễ & Tôn ti
+            </span>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 self-end sm:self-auto">
+          <button
+            onClick={() => {
+              setSelectedGarmentId('ao-tac');
+              setSelectedColorHex('#2B5B84');
+              setSelectedStyleVibe('Dạ Hội Cung Đình Luxury');
+              setSelectedLayerId('layer-don-y-white');
+              setSelectedButtonId('btn-metal-copper');
+              setSelectedBottomId('bottom-silk-wide-pants');
+              setSelectedShoesId('shoes-wooden-clogs');
+              setSelectedAccessoryId('acc-khan-dong');
+              setExtractedPalette(null);
+              setAiOutfitSuggestion(null);
+              playDanTranhTabSound();
+            }}
+            className="px-3 py-1.5 text-xs text-stone-300 hover:text-[#e5c365] border border-white/10 hover:border-[#c5a059]/40 rounded-xl transition-colors flex items-center gap-1.5 bg-[#171720] cursor-pointer"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span>Mẫu chuẩn</span>
+          </button>
+
+          <button
+            onClick={() => setIsCustomImageModalOpen(true)}
+            className="px-3 py-1.5 text-xs text-[#f5f2eb] hover:text-[#e5c365] border border-[#c5a059]/40 hover:border-[#c5a059] rounded-xl transition-all flex items-center gap-1.5 bg-[#1b1b26] hover:bg-[#222230] cursor-pointer shadow-sm"
+            title="Quản lý ảnh cá nhân tải lên"
+          >
+            <Upload className="w-3.5 h-3.5 text-[#e5c365]" />
+            <span>Kho ảnh</span>
+            {Object.keys(customItemImages).length > 0 && (
+              <span className="w-4 h-4 rounded-full bg-[#c5a059] text-stone-950 text-[10px] font-bold flex items-center justify-center">
+                {Object.keys(customItemImages).length}
+              </span>
+            )}
+          </button>
+        </div>
+      </div>
+
+      {/* ======================================================== */}
+      {/* 2. MAIN BỐ CỤC 2 CỘT (40% CHỌN ĐỒ / 60% THỊ GIÁC & ĐIỂM SỐ) */}
+      {/* ======================================================== */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+        
+        {/* ======================================================== */}
+        {/* CỘT TRÁI (40% - lg:col-span-5): ĐIỀU HƯỚNG & CHỌN ĐỒ */}
+        {/* ======================================================== */}
+        <div className="lg:col-span-5 space-y-5">
+          
+          {/* A. PRESET GỢI Ý BỐI CẢNH */}
+          {currentTier === 'heritage' && (
+            <NguLamYQuanPresets
+              activePresetId={activeHeritagePresetId}
+              onSelectPreset={handleSelectHeritagePreset}
+            />
+          )}
+
+          {currentTier === 'modern' && (
+            <ThanhLichBentoLookbook
+              activePresetId={activeBentoPresetId}
+              onSelectPreset={handleSelectBentoPreset}
+            />
+          )}
+
+          {/* B. KHU VỰC TỦ ĐỒ DẠNG TABS */}
+          <div className={`rounded-2xl p-4 sm:p-5 space-y-4 transition-all ${
+            currentTier === 'modern'
+              ? 'bg-white/85 border border-stone-200/90 shadow-sm backdrop-blur-xl text-stone-800'
+              : 'bg-[#141419] border border-[#23232c] shadow-xl text-[#f5f2eb]'
+          }`}>
+            
+            {/* Header tủ đồ & nút gạt Tàng hình 85% */}
+            <div className={`flex items-center justify-between border-b pb-3 ${
+              currentTier === 'modern' ? 'border-stone-200/80' : 'border-white/5'
+            }`}>
+              <div>
+                <h3 className={`text-sm font-bold flex items-center gap-1.5 ${
+                  currentTier === 'modern' ? 'text-stone-900' : 'text-[#f5f2eb]'
+                }`}>
+                  <span>{currentTier === 'modern' ? 'Tủ Đồ Thanh Lịch' : 'Tủ Đồ Ngự Lãm'}</span>
+                  <span className={`text-[10px] px-2 py-0.5 rounded-full border ${
+                    currentTier === 'modern'
+                      ? 'bg-[#8BA888]/15 text-[#355232] border-[#8BA888]/30 font-sans font-medium'
+                      : 'bg-[#c5a059]/15 text-[#e5c365] border-[#c5a059]/30 font-serif'
+                  }`}>
+                    {currentTier === 'modern' ? 'Acubi / Quiet Luxury' : 'Triều Nguyễn'}
+                  </span>
+                </h3>
+              </div>
+
+              {/* Toggle Ẩn / Hiện mờ 85% */}
+              <button
+                type="button"
+                onClick={() => {
+                  setHideUnfitItems(!hideUnfitItems);
+                  playDanTranhTabSound();
+                }}
+                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all cursor-pointer ${
+                  hideUnfitItems
+                    ? (currentTier === 'modern' ? 'bg-[#8BA888] text-white font-bold shadow-sm' : 'bg-[#c5a059] text-stone-950 font-bold shadow-md')
+                    : (currentTier === 'modern' ? 'bg-stone-100 text-stone-700 hover:bg-stone-200 border border-stone-200' : 'bg-stone-800/80 text-stone-300 hover:text-stone-100 border border-white/10 hover:border-[#c5a059]/40')
+                }`}
+                title={hideUnfitItems ? 'Nhấn để xem cả đồ lệch chuẩn (mờ 85%)' : 'Nhấn để ẩn hoàn toàn đồ lệch chuẩn'}
+              >
+                {hideUnfitItems ? (
+                  <>
+                    <EyeOff className={`w-3 h-3 ${currentTier === 'modern' ? 'text-white' : 'text-stone-950'}`} />
+                    <span>Ẩn lệch chuẩn</span>
+                  </>
+                ) : (
+                  <>
+                    <Filter className={`w-3 h-3 ${currentTier === 'modern' ? 'text-[#8BA888]' : 'text-[#c5a059]'}`} />
+                    <span>Hiện mờ 85%</span>
+                  </>
+                )}
+              </button>
+            </div>
+
+            {/* THANH TABS NGANG ĐIỀU HƯỚNG CÁC DANH MỤC */}
+            <div className={`flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-thin ${
+              currentTier === 'modern' ? 'border-b border-stone-200/80 pb-2.5' : 'scrollbar-thumb-stone-700'
+            }`}>
+              {WARDROBE_TABS.map((tab) => {
+                const isActive = activeWardrobeTab === tab.id;
+                if (currentTier === 'modern') {
+                  return (
+                    <button
+                      key={tab.id}
+                      onClick={() => {
+                        setActiveWardrobeTab(tab.id);
+                        playDanTranhTabSound();
+                      }}
+                      className={`px-3 py-1.5 text-xs font-semibold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 shrink-0 border-b-2 ${
+                        isActive
+                          ? 'border-[#5C715E] text-[#2C4A28] font-bold'
+                          : 'border-transparent text-stone-500 hover:text-stone-900 hover:border-stone-300'
+                      }`}
+                    >
+                      <span>{tab.icon}</span>
+                      <span>{tab.label}</span>
+                    </button>
+                  );
+                }
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => {
+                      setActiveWardrobeTab(tab.id);
+                      playDanTranhTabSound();
+                    }}
+                    className={`px-3 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 shrink-0 ${
+                      isActive
+                        ? 'bg-gradient-to-r from-[#c5a059] to-[#e5c365] text-stone-950 font-bold shadow-md shadow-[#c5a059]/20'
+                        : 'bg-[#0f0f13] text-stone-300 hover:text-white hover:bg-[#1b1b24] border border-white/5'
+                    }`}
+                  >
+                    <span>{tab.icon}</span>
+                    <span>{tab.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* ======================================================== */}
+            {/* NỘI DUNG TỪNG TAB: THẺ GỌN GÀNG + TOOLTIP [i] HOVER */}
+            {/* ======================================================== */}
+
+            {/* TAB 1: ÁO NGOÀI */}
+            {activeWardrobeTab === 'garment' && (
+              <div className="space-y-4 animate-fadeIn">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                  {HERITAGE_GARMENTS.map((item) => {
+                    const isSelected = selectedGarmentId === item.id;
+                    const isTooltipOpen = activeTooltipItemId === item.id;
+                    return (
+                      <div
+                        key={item.id}
+                        onClick={() => {
+                          setSelectedGarmentId(item.id);
+                          setSelectedColorHex(item.defaultColor);
+                          playGarmentSelectSound();
+                        }}
+                        className={`p-3 rounded-xl border text-left transition-all relative cursor-pointer group flex flex-col justify-between ${
+                          isSelected
+                            ? currentTier === 'modern'
+                              ? 'bg-white border-[#8BA888] shadow-sm ring-2 ring-[#8BA888] text-stone-900'
+                              : 'bg-[#1b1b26] border-[#c5a059] shadow-sm ring-1 ring-[#c5a059]'
+                            : currentTier === 'modern'
+                              ? 'bg-[#FAF8F5] border-stone-200 hover:border-stone-400 text-stone-800'
+                              : 'bg-[#0f0f14] border-[#22222d] hover:border-[#383848]'
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-1">
+                          <span className={`text-[10px] font-medium font-serif ${
+                            currentTier === 'modern' ? 'text-[#5C7E5A]' : 'text-[#c5a059]'
+                          }`}>
+                            {item.dynasty}
+                          </span>
+                          <div className="flex items-center gap-1">
+                            {isSelected && (
+                              <span className={`w-2 h-2 rounded-full ${currentTier === 'modern' ? 'bg-[#8BA888]' : 'bg-[#c5a059]'}`} />
+                            )}
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setActiveTooltipItemId(isTooltipOpen ? null : item.id);
+                              }}
+                              className={`w-4 h-4 rounded-full text-[10px] font-mono flex items-center justify-center transition-colors ${
+                                currentTier === 'modern'
+                                  ? 'bg-stone-200/80 hover:bg-[#8BA888] hover:text-white text-stone-600'
+                                  : 'bg-white/10 hover:bg-[#c5a059] hover:text-stone-950 text-stone-400'
+                              }`}
+                              title="Xem ý nghĩa văn hóa"
+                            >
+                              i
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className={`mt-2 font-bold text-xs line-clamp-1 ${
+                          currentTier === 'modern' ? 'text-stone-900' : 'text-[#f5f2eb]'
+                        }`}>
+                          {item.name}
+                        </div>
+                        <div className={`text-[11px] line-clamp-1 mt-0.5 ${
+                          currentTier === 'modern' ? 'text-stone-500' : 'text-stone-400'
+                        }`}>
+                          {item.subName}
+                        </div>
+
+                        {isTooltipOpen && (
+                          <div 
+                            className={`absolute z-30 bottom-full left-0 right-0 mb-2 p-3 rounded-xl shadow-2xl text-[11px] space-y-1.5 animate-fadeIn ${
+                              currentTier === 'modern'
+                                ? 'bg-white border border-stone-200 text-stone-700 shadow-[0_10px_30px_rgba(0,0,0,0.12)]'
+                                : 'bg-[#1c1822] border border-[#c5a059]/60 text-stone-200'
+                            }`}
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <div className={`flex items-center justify-between font-bold ${
+                              currentTier === 'modern' ? 'text-[#3E5B3C]' : 'text-[#e5c365]'
+                            }`}>
+                              <span>✦ {item.name}</span>
+                              <button 
+                                onClick={() => setActiveTooltipItemId(null)}
+                                className={currentTier === 'modern' ? 'text-stone-400 hover:text-stone-700' : 'text-stone-400 hover:text-white'}
+                              >
+                                ✕
+                              </button>
+                            </div>
+                            <p className={`leading-relaxed font-serif text-[10.5px] ${
+                              currentTier === 'modern' ? 'text-stone-600' : 'text-stone-300'
+                            }`}>
+                              {(item as any).culturalSignificance || item.description}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* SCAN ẢNH AI DROPZONE */}
+                <div className={`pt-3 border-t space-y-2 ${currentTier === 'modern' ? 'border-stone-200' : 'border-white/5'}`}>
+                  <div className={`flex items-center justify-between text-xs ${currentTier === 'modern' ? 'text-stone-600' : 'text-stone-400'}`}>
+                    <span className={`flex items-center gap-1 font-medium ${currentTier === 'modern' ? 'text-stone-800' : 'text-stone-300'}`}>
+                      <Scan className={`w-3.5 h-3.5 ${currentTier === 'modern' ? 'text-[#8BA888]' : 'text-[#c5a059]'}`} />
+                      <span>Quét ảnh cá nhân (AI Multimodal):</span>
+                    </span>
+                    {uploadedImage && (
+                      <button
+                        onClick={() => {
+                          setUploadedImage(null);
+                          setExtractedPalette(null);
+                          setAiOutfitSuggestion(null);
+                        }}
+                        className="text-rose-500 hover:underline cursor-pointer text-[11px]"
+                      >
+                        Xóa
+                      </button>
+                    )}
+                  </div>
+
+                  <label className={`border border-dashed rounded-xl p-3 flex items-center justify-center gap-2 cursor-pointer group transition-colors ${
+                    currentTier === 'modern'
+                      ? 'border-stone-300 hover:border-[#8BA888] bg-stone-50'
+                      : 'border-[#2f2f3d] hover:border-[#c5a059]/70 bg-[#0c0c10]'
+                  }`}>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                    />
+                    <Upload className={`w-3.5 h-3.5 group-hover:scale-110 transition-transform ${
+                      currentTier === 'modern' ? 'text-[#8BA888]' : 'text-[#c5a059]'
+                    }`} />
+                    <span className={`text-[11px] ${
+                      currentTier === 'modern' ? 'text-stone-600 group-hover:text-stone-900' : 'text-stone-300 group-hover:text-white'
+                    }`}>
+                      {uploadedImage ? 'Đã tải ảnh lên (Bấm đổi ảnh)' : 'Tải ảnh để AI trích xuất bảng màu & phom dáng'}
+                    </span>
+                  </label>
+
+                  {isAnalyzingImage && (
+                    <div className={`p-3 rounded-xl border space-y-2 animate-fadeIn ${
+                      currentTier === 'modern' ? 'bg-sky-50 border-sky-200' : 'bg-[#0d1624] border-[#3b82f6]/40'
+                    }`}>
+                      <div className={`flex items-center justify-between text-xs font-semibold ${
+                        currentTier === 'modern' ? 'text-sky-800' : 'text-[#38bdf8]'
+                      }`}>
+                        <span className="flex items-center gap-1.5">
+                          <Wand2 className="w-3.5 h-3.5 animate-spin" />
+                          <span>AI đang phân tích bảng màu...</span>
+                        </span>
+                        <span className="font-mono">{analysisProgress}%</span>
+                      </div>
+                      <div className={`w-full h-1 rounded-full overflow-hidden ${
+                        currentTier === 'modern' ? 'bg-sky-200' : 'bg-[#172554]'
+                      }`}>
+                        <div 
+                          className="h-full bg-[#38bdf8] transition-all duration-75"
+                          style={{ width: `${analysisProgress}%` }}
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {!isAnalyzingImage && aiOutfitSuggestion && (
+                    <div className={`p-3 rounded-xl border space-y-2 text-xs ${
+                      currentTier === 'modern' ? 'bg-stone-50 border-stone-200' : 'bg-[#181824] border-[#c5a059]/40'
+                    }`}>
+                      <div className={`flex items-center justify-between font-bold ${
+                        currentTier === 'modern' ? 'text-[#3E5B3C]' : 'text-[#e5c365]'
+                      }`}>
+                        <span className="flex items-center gap-1">
+                          <Sparkles className="w-3.5 h-3.5" />
+                          <span>Gợi ý từ AI Vision</span>
+                        </span>
+                        <button
+                          onClick={handleApplyAiSuggestion}
+                          className={`px-2 py-0.5 rounded font-bold text-[10px] ${
+                            currentTier === 'modern' ? 'bg-[#8BA888] text-white' : 'bg-[#c5a059] text-stone-950'
+                          }`}
+                        >
+                          Áp dụng
+                        </button>
+                      </div>
+                      <p className={`text-[11px] italic ${
+                        currentTier === 'modern' ? 'text-stone-600' : 'text-stone-300'
+                      }`}>
+                        {aiOutfitSuggestion.stylistQuote}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* TAB 2: SẮC PHỤC */}
+            {activeWardrobeTab === 'color' && (
+              <div className="space-y-3 animate-fadeIn">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                  {TRADITIONAL_COLORS.map((col) => {
+                    const isSelected = selectedColorHex === col.hex;
+                    const isTooltipOpen = activeTooltipItemId === `color-${col.hex}`;
+                    const colorInfo = getColorHeritageInfo(col);
+
+                    return (
+                      <div
+                        key={col.hex}
+                        onClick={() => {
+                          setSelectedColorHex(col.hex);
+                          if (col.isImperialRestricted) {
+                            playTabooDenialSound();
+                          } else {
+                            playColorPickSound();
+                          }
+                        }}
+                        className={`p-2.5 rounded-xl border text-left flex items-start gap-2.5 transition-all relative cursor-pointer ${
+                          isSelected
+                            ? col.isImperialRestricted
+                              ? 'bg-rose-950/60 border-rose-500 shadow-md ring-1 ring-rose-500'
+                              : currentTier === 'modern'
+                              ? 'bg-white border-[#8BA888] shadow-sm ring-2 ring-[#8BA888] text-stone-900'
+                              : 'bg-[#1b1b24] border-[#c5a059] shadow-sm ring-1 ring-[#c5a059]'
+                            : currentTier === 'modern'
+                            ? 'bg-[#FAF8F5] border-stone-200 hover:border-stone-400 text-stone-800'
+                            : 'bg-[#0f0f14] border-[#22222d] hover:border-[#383848]'
+                        }`}
+                      >
+                        <span 
+                          className="w-5 h-5 rounded-lg shrink-0 border border-black/10 mt-0.5 shadow-xs" 
+                          style={{ backgroundColor: col.hex }} 
+                        />
+                        <div className="min-w-0 flex-1">
+                          <div className={`text-xs font-semibold truncate flex items-center justify-between ${
+                            currentTier === 'modern' ? 'text-stone-900' : 'text-stone-200'
+                          }`}>
+                            <span className="truncate">{col.name}</span>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setActiveTooltipItemId(isTooltipOpen ? null : `color-${col.hex}`);
+                              }}
+                              className={`w-3.5 h-3.5 rounded-full text-[9px] font-mono flex items-center justify-center shrink-0 ml-1 ${
+                                currentTier === 'modern'
+                                  ? 'bg-stone-200/80 hover:bg-[#8BA888] hover:text-white text-stone-600'
+                                  : 'bg-white/10 hover:bg-[#c5a059] hover:text-stone-950 text-stone-400'
+                              }`}
+                              title="Xem ngũ hành & giai tầng"
+                            >
+                              i
+                            </button>
+                          </div>
+                          <div className={`text-[10px] font-medium mt-0.5 truncate ${
+                            currentTier === 'modern' ? 'text-[#5C7E5A]' : 'text-[#c5a059]'
+                          }`}>
+                            {col.element || 'Ngũ Hành'}
+                          </div>
+                          {col.isImperialRestricted && (
+                            <span className="text-[9px] bg-rose-500/20 text-rose-400 px-1 rounded font-bold block mt-1">
+                              ⚠️ Cấm kỵ hoàng quyền
+                            </span>
+                          )}
+                        </div>
+
+                        {isTooltipOpen && (
+                          <div 
+                            className={`absolute z-30 bottom-full left-0 right-0 mb-2 p-3 rounded-xl shadow-2xl text-[11px] space-y-1 animate-fadeIn ${
+                              currentTier === 'modern'
+                                ? 'bg-white border border-stone-200 text-stone-700 shadow-[0_10px_30px_rgba(0,0,0,0.12)]'
+                                : 'bg-[#1c1822] border border-[#c5a059]/60 text-stone-200'
+                            }`}
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <div className={`flex items-center justify-between font-bold ${
+                              currentTier === 'modern' ? 'text-[#3E5B3C]' : 'text-[#e5c365]'
+                            }`}>
+                              <span>✦ {colorInfo.title} ({colorInfo.nguHanh})</span>
+                              <button onClick={() => setActiveTooltipItemId(null)} className={currentTier === 'modern' ? 'text-stone-400 hover:text-stone-700' : 'text-stone-400 hover:text-white'}>✕</button>
+                            </div>
+                            <div className={`text-[10px] font-semibold ${currentTier === 'modern' ? 'text-[#5C7E5A]' : 'text-[#c5a059]'}`}>
+                              Giai tầng: {colorInfo.giaiTang}
+                            </div>
+                            <p className={`font-serif text-[10.5px] leading-relaxed ${currentTier === 'modern' ? 'text-stone-600' : 'text-stone-300'}`}>
+                              {colorInfo.meaning}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {activeColor.isImperialRestricted && (
+                  <div className="p-3 bg-rose-950/40 border border-rose-600/40 rounded-xl flex items-start gap-2 text-xs text-rose-300">
+                    <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-rose-400" />
+                    <div>
+                      <strong className="font-semibold text-rose-200">Cảnh báo Taboos Engine:</strong> Sắc Vàng Minh Hoàng là đặc quyền hoàng đế triều Nguyễn. Thứ dân mặc sẽ vi phạm quy chế y quan!
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* TAB 3: KHUY CÚC */}
+            {activeWardrobeTab === 'button' && (
+              <div className="space-y-3 animate-fadeIn">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                  {buttonOptions.map(item => {
+                    const compliance = checkItemTierCompliance(item.id, currentTier);
+                    const isCompliant = compliance.isCompliant;
+                    if (hideUnfitItems && !isCompliant) return null;
+
+                    const isSelected = selectedButtonId === item.id;
+                    const isTaboo = item.id === 'btn-chinese-cloth' || !isCompliant;
+                    const imgSrc = getItemImageUrl(item.id, item.thumbnailUrl);
+                    const isTooltipOpen = activeTooltipItemId === item.id;
+                    const buttonInfo = getButtonHeritageInfo(item.id);
+
+                    return (
+                      <div
+                        key={item.id}
+                        onClick={() => {
+                          if (!isCompliant) {
+                            playTabooDenialSound();
+                            setUnfitModalItem({
+                              name: item.name,
+                              notice: compliance.notice || 'Cúc vải bện sườn xám là dị bản lai căng. Y quan nước Nam triều Nguyễn chỉ dùng khuy đúc rời kim loại, ngọc hoặc gỗ.',
+                              tier: currentTier,
+                              itemId: item.id
+                            });
+                          } else {
+                            setSelectedButtonId(item.id);
+                            playButtonClinkSound();
+                          }
+                        }}
+                        className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between relative group ${
+                          !isCompliant
+                            ? 'opacity-25 grayscale-[0.6] hover:opacity-50 border-dashed border-rose-500/60 bg-[#160c0e]'
+                            : isSelected
+                            ? isTaboo
+                              ? currentTier === 'modern'
+                                ? 'bg-[#FFF8F4] border-[#D97746] text-[#8C3413] shadow-sm ring-1 ring-[#D97746]'
+                                : 'bg-rose-950/60 border-rose-500 text-rose-200 shadow-md ring-1 ring-rose-500'
+                              : currentTier === 'modern'
+                              ? 'bg-white border-[#8BA888] text-stone-900 ring-2 ring-[#8BA888] shadow-sm'
+                              : 'bg-[#1b1b24] border-[#c5a059] text-[#f5f2eb] ring-1 ring-[#c5a059]'
+                            : currentTier === 'modern'
+                            ? 'bg-[#FAF8F5] border-stone-200 text-stone-800 hover:border-stone-400'
+                            : 'bg-[#0f0f14] border-[#22222d] text-stone-300 hover:border-[#383847]'
+                        }`}
+                      >
+                        {!isCompliant && (
+                          <div className="absolute -top-2 right-1.5 bg-rose-950/95 border border-rose-500/60 text-rose-300 text-[8.5px] font-bold px-1.5 py-0.2 rounded-full shadow flex items-center gap-0.5 z-10">
+                            <AlertTriangle className="w-2.5 h-2.5 text-rose-400" />
+                            <span>Lệch chuẩn</span>
+                          </div>
+                        )}
+
+                        <div className="w-full">
+                          <div className={`aspect-square w-full rounded-lg overflow-hidden relative border mb-2 ${
+                            currentTier === 'modern' ? 'border-stone-200 bg-stone-100' : 'border-white/10 bg-black/40'
+                          }`}>
+                            <img 
+                              src={imgSrc} 
+                              alt={item.name} 
+                              onError={(e) => {
+                                if (item.id === 'btn-metal-copper') e.currentTarget.src = '/1.png';
+                                if (item.id === 'btn-jade-green') e.currentTarget.src = '/2.png';
+                                if (item.id === 'btn-wood-agarwood') e.currentTarget.src = '/3.png';
+                                if (item.id === 'btn-silver-lotus') e.currentTarget.src = '/1.png';
+                                if (item.id === 'btn-mother-of-pearl') e.currentTarget.src = '/2.png';
+                                if (item.id === 'btn-chinese-cloth') e.currentTarget.src = '/4.png';
+                              }}
+                              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
+                            />
+                            {isSelected && (
+                              <div className={`absolute top-1.5 right-1.5 w-4 h-4 rounded-full flex items-center justify-center font-bold text-[10px] shadow ${
+                                currentTier === 'modern' ? 'bg-[#8BA888] text-white' : 'bg-[#c5a059] text-stone-950'
+                              }`}>
+                                ✓
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="flex items-center justify-between">
+                            <div className={`font-semibold text-xs truncate flex-1 pr-1 ${
+                              currentTier === 'modern' ? 'text-stone-900' : 'text-[#f5f2eb]'
+                            }`}>
+                              {item.name}
+                            </div>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setActiveTooltipItemId(isTooltipOpen ? null : item.id);
+                              }}
+                              className={`w-4 h-4 rounded-full text-[9px] font-mono flex items-center justify-center shrink-0 ${
+                                currentTier === 'modern'
+                                  ? 'bg-stone-200/80 hover:bg-[#8BA888] hover:text-white text-stone-600'
+                                  : 'bg-white/10 hover:bg-[#c5a059] hover:text-stone-950 text-stone-400'
+                              }`}
+                              title="Xem ý nghĩa Ngũ Thường"
+                            >
+                              i
+                            </button>
+                          </div>
+                        </div>
+
+                        {UPLOADABLE_PRODUCT_IDS.has(item.id) && (
+                          <div className={`mt-2 pt-1.5 border-t flex items-center justify-between ${
+                            currentTier === 'modern' ? 'border-stone-200' : 'border-white/10'
+                          }`} onClick={(e) => e.stopPropagation()}>
+                            <button
+                              type="button"
+                              onClick={() => triggerItemImageUpload(item.id)}
+                              className={`px-2 py-0.5 rounded text-[10px] font-semibold border flex items-center gap-1 ${
+                                currentTier === 'modern'
+                                  ? 'bg-stone-100 hover:bg-stone-200 text-stone-700 border-stone-300'
+                                  : 'bg-[#c5a059]/20 hover:bg-[#c5a059]/35 text-[#e5c365] border-[#c5a059]/40'
+                              }`}
+                            >
+                              <Upload className="w-2.5 h-2.5" />
+                              <span>{customItemImages[item.id] ? 'Đổi ảnh' : 'Tải ảnh'}</span>
+                            </button>
+                            {customItemImages[item.id] && (
+                              <button
+                                type="button"
+                                onClick={() => handleResetItemImage(item.id)}
+                                className="text-rose-500 hover:text-rose-700 text-[10px]"
+                              >
+                                Gỡ
+                              </button>
+                            )}
+                          </div>
+                        )}
+
+                        {isTooltipOpen && (
+                          <div 
+                            className={`absolute z-30 bottom-full left-0 right-0 mb-2 p-3 rounded-xl shadow-2xl text-[11px] space-y-1 animate-fadeIn ${
+                              currentTier === 'modern'
+                                ? 'bg-white border border-stone-200 text-stone-700 shadow-[0_10px_30px_rgba(0,0,0,0.12)]'
+                                : 'bg-[#1c1822] border border-[#c5a059]/60 text-stone-200'
+                            }`}
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <div className={`flex items-center justify-between font-bold ${
+                              currentTier === 'modern' ? 'text-[#3E5B3C]' : 'text-[#e5c365]'
+                            }`}>
+                              <span>✦ {buttonInfo.title}</span>
+                              <button onClick={() => setActiveTooltipItemId(null)} className={currentTier === 'modern' ? 'text-stone-400 hover:text-stone-700' : 'text-stone-400 hover:text-white'}>✕</button>
+                            </div>
+                            <div className={`text-[10px] font-semibold ${currentTier === 'modern' ? 'text-[#5C7E5A]' : 'text-[#c5a059]'}`}>{buttonInfo.nguThuong}</div>
+                            <p className={`font-serif text-[10.5px] leading-relaxed ${currentTier === 'modern' ? 'text-stone-600' : 'text-stone-300'}`}>{buttonInfo.moral}</p>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {isChineseButtonSelected && (
+                  <div className={`p-3.5 rounded-xl space-y-2 animate-fadeIn text-xs border ${
+                    currentTier === 'modern'
+                      ? 'bg-[#FFF8F4] border-[#D97746] text-[#8C3413]'
+                      : 'bg-[#261014] border-rose-500 text-rose-200'
+                  }`}>
+                    <div className={`flex items-center gap-1.5 font-bold ${
+                      currentTier === 'modern' ? 'text-[#C2511F]' : 'text-rose-100'
+                    }`}>
+                      <AlertTriangle className={`w-4 h-4 shrink-0 ${currentTier === 'modern' ? 'text-[#D97746]' : 'text-rose-400'}`} />
+                      <span>{currentTier === 'modern' ? 'NHẮC NHỞ: CÚC TÀU LAI CĂNG' : 'CẢNH BÁO: CÚC VẢI BỆN DÂY KIỂU TÀU'}</span>
+                    </div>
+                    <p className={`leading-relaxed text-[11px] ${
+                      currentTier === 'modern' ? 'text-[#7C361A]' : 'text-rose-200/90'
+                    }`}>
+                      {currentTier === 'modern'
+                        ? 'Cúc Tàu không nằm trong từ điển thanh lịch của y quan nhà Nguyễn đâu nha! Hãy chọn khuy rời đúc kim loại, xà cừ hoặc gỗ để giữ trọn nét tinh tế Quiet Luxury.'
+                        : 'Quy chuẩn Y quan Triều Nguyễn quy định cúc áo Ngũ Thân luôn là khuy rời đúc bằng kim loại, gỗ hoặc ngọc. Tuyệt đối không dùng cúc vải bện sườn xám!'}
+                    </p>
+                    <button
+                      onClick={() => {
+                        setSelectedButtonId(currentTier === 'modern' ? 'btn-mother-of-pearl' : 'btn-metal-copper');
+                        playButtonClinkSound();
+                      }}
+                      className={`px-3 py-1 rounded-lg font-bold text-[11px] flex items-center gap-1 cursor-pointer ${
+                        currentTier === 'modern'
+                          ? 'bg-[#8BA888] text-white hover:bg-[#789675]'
+                          : 'bg-[#c5a059] text-stone-950'
+                      }`}
+                    >
+                      <Wand2 className="w-3 h-3" />
+                      <span>{currentTier === 'modern' ? 'Đổi sang Cúc Xà Cừ Nhã Nhặn' : 'Đổi sang Cúc Kim Loại Chuẩn Mực'}</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* TAB 4: THÂN DƯỚI */}
+            {activeWardrobeTab === 'bottom' && (
+              <div className="space-y-3 animate-fadeIn">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                  {bottomOptions.map(item => {
+                    const compliance = checkItemTierCompliance(item.id, currentTier);
+                    const isCompliant = compliance.isCompliant;
+                    if (hideUnfitItems && !isCompliant) return null;
+
+                    const isSelected = selectedBottomId === item.id;
+                    const imgSrc = getItemImageUrl(item.id, item.thumbnailUrl);
+                    const isTooltipOpen = activeTooltipItemId === item.id;
+
+                    return (
+                      <div
+                        key={item.id}
+                        onClick={() => {
+                          if (!isCompliant) {
+                            playTabooDenialSound();
+                            setUnfitModalItem({
+                              name: item.name,
+                              notice: compliance.notice || 'Chốn tôn nghiêm yêu cầu quần lụa rộng buông rủ kín đáo, không sử dụng quần jeans hoặc váy ngắn.',
+                              tier: currentTier,
+                              itemId: item.id
+                            });
+                          } else {
+                            setSelectedBottomId(item.id);
+                            playFabricRustleSound();
+                          }
+                        }}
+                        className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between relative group ${
+                          !isCompliant
+                            ? currentTier === 'modern'
+                              ? 'opacity-35 grayscale-[0.6] hover:opacity-60 border-dashed border-rose-300 bg-rose-50/50'
+                              : 'opacity-25 grayscale-[0.6] hover:opacity-50 border-dashed border-rose-500/60 bg-[#160c0e]'
+                            : isSelected
+                            ? currentTier === 'modern'
+                              ? 'bg-white border-[#8BA888] text-stone-900 ring-2 ring-[#8BA888] shadow-sm'
+                              : 'bg-[#1b1b24] border-[#c5a059] text-[#f5f2eb] ring-1 ring-[#c5a059]'
+                            : currentTier === 'modern'
+                            ? 'bg-[#FAF8F5] border-stone-200 text-stone-800 hover:border-stone-400'
+                            : 'bg-[#0f0f14] border-[#22222d] text-stone-300 hover:border-[#383847]'
+                        }`}
+                      >
+                        {!isCompliant && (
+                          <div className={`absolute -top-2 right-1.5 text-[8.5px] font-bold px-1.5 py-0.2 rounded-full shadow flex items-center gap-0.5 z-10 ${
+                            currentTier === 'modern'
+                              ? 'bg-rose-100 border border-rose-300 text-rose-700'
+                              : 'bg-rose-950/95 border border-rose-500/60 text-rose-300'
+                          }`}>
+                            <AlertTriangle className="w-2.5 h-2.5 text-rose-500" />
+                            <span>Lệch chuẩn</span>
+                          </div>
+                        )}
+
+                        <div className="w-full">
+                          <div className={`aspect-square w-full rounded-lg overflow-hidden relative mb-2 ${
+                            currentTier === 'modern' ? 'border border-stone-200 bg-stone-100' : 'border border-white/10 bg-black/40'
+                          }`}>
+                            <img 
+                              src={imgSrc} 
+                              alt={item.name} 
+                              onError={(e) => {
+                                if (item.id === 'bottom-silk-wide-pants' || item.id === 'bottom-linen-wide-pants') e.currentTarget.src = '/5.png';
+                                if (item.id === 'bottom-pleated-midi-skirt') e.currentTarget.src = '/6.png';
+                                if (item.id === 'bottom-high-waist-jeans') e.currentTarget.src = '/7.png';
+                              }}
+                              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
+                            />
+                            {isSelected && (
+                              <div className={`absolute top-1.5 right-1.5 w-4 h-4 rounded-full flex items-center justify-center font-bold text-[10px] shadow ${
+                                currentTier === 'modern' ? 'bg-[#8BA888] text-white' : 'bg-[#c5a059] text-stone-950'
+                              }`}>
+                                ✓
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="flex items-center justify-between">
+                            <div className={`font-semibold text-xs truncate flex-1 pr-1 ${
+                              currentTier === 'modern' ? 'text-stone-900' : 'text-[#f5f2eb]'
+                            }`}>
+                              {item.name}
+                            </div>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setActiveTooltipItemId(isTooltipOpen ? null : item.id);
+                              }}
+                              className={`w-4 h-4 rounded-full text-[9px] font-mono flex items-center justify-center shrink-0 ${
+                                currentTier === 'modern'
+                                  ? 'bg-stone-200/80 hover:bg-[#8BA888] hover:text-white text-stone-600'
+                                  : 'bg-white/10 hover:bg-[#c5a059] hover:text-stone-950 text-stone-400'
+                              }`}
+                              title="Xem chi tiết"
+                            >
+                              i
+                            </button>
+                          </div>
+                        </div>
+
+                        {UPLOADABLE_PRODUCT_IDS.has(item.id) && (
+                          <div className={`mt-2 pt-1.5 border-t flex items-center justify-between ${
+                            currentTier === 'modern' ? 'border-stone-200' : 'border-white/10'
+                          }`} onClick={(e) => e.stopPropagation()}>
+                            <button
+                              type="button"
+                              onClick={() => triggerItemImageUpload(item.id)}
+                              className={`px-2 py-0.5 rounded text-[10px] font-semibold border flex items-center gap-1 ${
+                                currentTier === 'modern'
+                                  ? 'bg-[#8BA888]/15 hover:bg-[#8BA888]/25 text-[#304E2E] border-[#8BA888]/40'
+                                  : 'bg-[#c5a059]/20 hover:bg-[#c5a059]/35 text-[#e5c365] border-[#c5a059]/40'
+                              }`}
+                            >
+                              <Upload className="w-2.5 h-2.5" />
+                              <span>{customItemImages[item.id] ? 'Đổi ảnh' : 'Tải ảnh'}</span>
+                            </button>
+                            {customItemImages[item.id] && (
+                              <button
+                                type="button"
+                                onClick={() => handleResetItemImage(item.id)}
+                                className="text-rose-500 hover:text-rose-700 text-[10px]"
+                              >
+                                Gỡ
+                              </button>
+                            )}
+                          </div>
+                        )}
+
+                        {isTooltipOpen && (
+                          <div 
+                            className={`absolute z-30 bottom-full left-0 right-0 mb-2 p-3 rounded-xl shadow-2xl text-[11px] space-y-1 animate-fadeIn ${
+                              currentTier === 'modern'
+                                ? 'bg-white border border-stone-200 text-stone-700 shadow-[0_10px_30px_rgba(0,0,0,0.12)]'
+                                : 'bg-[#1c1822] border border-[#c5a059]/60 text-stone-200'
+                            }`}
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <div className={`flex items-center justify-between font-bold ${
+                              currentTier === 'modern' ? 'text-[#3E5B3C]' : 'text-[#e5c365]'
+                            }`}>
+                              <span>✦ {item.name}</span>
+                              <button onClick={() => setActiveTooltipItemId(null)} className={currentTier === 'modern' ? 'text-stone-400 hover:text-stone-700' : 'text-stone-400 hover:text-white'}>✕</button>
+                            </div>
+                            <p className={`${currentTier === 'modern' ? 'text-stone-600' : 'text-stone-300'} font-serif text-[10.5px] leading-relaxed`}>{item.description}</p>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* TAB 5: GIÀY / GUỐC */}
+            {activeWardrobeTab === 'shoes' && (
+              <div className="space-y-3 animate-fadeIn">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                  {shoesOptions.map(item => {
+                    const compliance = checkItemTierCompliance(item.id, currentTier);
+                    const isCompliant = compliance.isCompliant;
+                    if (hideUnfitItems && !isCompliant) return null;
+
+                    const isSelected = selectedShoesId === item.id;
+                    const imgSrc = getItemImageUrl(item.id, item.thumbnailUrl);
+                    const isTooltipOpen = activeTooltipItemId === item.id;
+
+                    return (
+                      <div
+                        key={item.id}
+                        onClick={() => {
+                          if (!isCompliant) {
+                            playTabooDenialSound();
+                            setUnfitModalItem({
+                              name: item.name,
+                              notice: compliance.notice || 'Chốn tôn nghiêm yêu cầu guốc mộc truyền thống hoặc hài thêu tề chỉnh, không đi giày thể thao hầm hố hay chunky loafers.',
+                              tier: currentTier,
+                              itemId: item.id
+                            });
+                          } else {
+                            setSelectedShoesId(item.id);
+                            playWoodClogSound();
+                          }
+                        }}
+                        className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between relative group ${
+                          !isCompliant
+                            ? currentTier === 'modern'
+                              ? 'opacity-35 grayscale-[0.6] hover:opacity-60 border-dashed border-rose-300 bg-rose-50/50'
+                              : 'opacity-25 grayscale-[0.6] hover:opacity-50 border-dashed border-rose-500/60 bg-[#160c0e]'
+                            : isSelected
+                            ? currentTier === 'modern'
+                              ? 'bg-white border-[#8BA888] text-stone-900 ring-2 ring-[#8BA888] shadow-sm'
+                              : 'bg-[#1b1b24] border-[#c5a059] text-[#f5f2eb] ring-1 ring-[#c5a059]'
+                            : currentTier === 'modern'
+                            ? 'bg-[#FAF8F5] border-stone-200 text-stone-800 hover:border-stone-400'
+                            : 'bg-[#0f0f14] border-[#22222d] text-stone-300 hover:border-[#383847]'
+                        }`}
+                      >
+                        {!isCompliant && (
+                          <div className={`absolute -top-2 right-1.5 text-[8.5px] font-bold px-1.5 py-0.2 rounded-full shadow flex items-center gap-0.5 z-10 ${
+                            currentTier === 'modern'
+                              ? 'bg-rose-100 border border-rose-300 text-rose-700'
+                              : 'bg-rose-950/95 border border-rose-500/60 text-rose-300'
+                          }`}>
+                            <AlertTriangle className="w-2.5 h-2.5 text-rose-500" />
+                            <span>Lệch chuẩn</span>
+                          </div>
+                        )}
+
+                        <div className="w-full">
+                          <div className={`aspect-square w-full rounded-lg overflow-hidden relative mb-2 ${
+                            currentTier === 'modern' ? 'border border-stone-200 bg-stone-100' : 'border border-white/10 bg-black/40'
+                          }`}>
+                            <img 
+                              src={imgSrc} 
+                              alt={item.name} 
+                              onError={(e) => {
+                                if (item.id === 'shoes-wooden-clogs') e.currentTarget.src = '/8.png';
+                                if (item.id === 'shoes-embroidered-slippers') e.currentTarget.src = '/9.png';
+                                if (item.id === 'shoes-white-sneakers' || item.id === 'shoes-chunky-loafers') e.currentTarget.src = '/10.png';
+                              }}
+                              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
+                            />
+                            {isSelected && (
+                              <div className={`absolute top-1.5 right-1.5 w-4 h-4 rounded-full flex items-center justify-center font-bold text-[10px] shadow ${
+                                currentTier === 'modern' ? 'bg-[#8BA888] text-white' : 'bg-[#c5a059] text-stone-950'
+                              }`}>
+                                ✓
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="flex items-center justify-between">
+                            <div className={`font-semibold text-xs truncate flex-1 pr-1 ${
+                              currentTier === 'modern' ? 'text-stone-900' : 'text-[#f5f2eb]'
+                            }`}>
+                              {item.name}
+                            </div>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setActiveTooltipItemId(isTooltipOpen ? null : item.id);
+                              }}
+                              className={`w-4 h-4 rounded-full text-[9px] font-mono flex items-center justify-center shrink-0 ${
+                                currentTier === 'modern'
+                                  ? 'bg-stone-200/80 hover:bg-[#8BA888] hover:text-white text-stone-600'
+                                  : 'bg-white/10 hover:bg-[#c5a059] hover:text-stone-950 text-stone-400'
+                              }`}
+                              title="Xem chi tiết"
+                            >
+                              i
+                            </button>
+                          </div>
+                        </div>
+
+                        {UPLOADABLE_PRODUCT_IDS.has(item.id) && (
+                          <div className={`mt-2 pt-1.5 border-t flex items-center justify-between ${
+                            currentTier === 'modern' ? 'border-stone-200' : 'border-white/10'
+                          }`} onClick={(e) => e.stopPropagation()}>
+                            <button
+                              type="button"
+                              onClick={() => triggerItemImageUpload(item.id)}
+                              className={`px-2 py-0.5 rounded text-[10px] font-semibold border flex items-center gap-1 ${
+                                currentTier === 'modern'
+                                  ? 'bg-[#8BA888]/15 hover:bg-[#8BA888]/25 text-[#304E2E] border-[#8BA888]/40'
+                                  : 'bg-[#c5a059]/20 hover:bg-[#c5a059]/35 text-[#e5c365] border-[#c5a059]/40'
+                              }`}
+                            >
+                              <Upload className="w-2.5 h-2.5" />
+                              <span>{customItemImages[item.id] ? 'Đổi ảnh' : 'Tải ảnh'}</span>
+                            </button>
+                            {customItemImages[item.id] && (
+                              <button
+                                type="button"
+                                onClick={() => handleResetItemImage(item.id)}
+                                className="text-rose-500 hover:text-rose-700 text-[10px]"
+                              >
+                                Gỡ
+                              </button>
+                            )}
+                          </div>
+                        )}
+
+                        {isTooltipOpen && (
+                          <div 
+                            className={`absolute z-30 bottom-full left-0 right-0 mb-2 p-3 rounded-xl shadow-2xl text-[11px] space-y-1 animate-fadeIn ${
+                              currentTier === 'modern'
+                                ? 'bg-white border border-stone-200 text-stone-700 shadow-[0_10px_30px_rgba(0,0,0,0.12)]'
+                                : 'bg-[#1c1822] border border-[#c5a059]/60 text-stone-200'
+                            }`}
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <div className={`flex items-center justify-between font-bold ${
+                              currentTier === 'modern' ? 'text-[#3E5B3C]' : 'text-[#e5c365]'
+                            }`}>
+                              <span>✦ {item.name}</span>
+                              <button onClick={() => setActiveTooltipItemId(null)} className={currentTier === 'modern' ? 'text-stone-400 hover:text-stone-700' : 'text-stone-400 hover:text-white'}>✕</button>
+                            </div>
+                            <p className={`${currentTier === 'modern' ? 'text-stone-600' : 'text-stone-300'} font-serif text-[10.5px] leading-relaxed`}>{item.description}</p>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* TAB 6: PHỤ KIỆN */}
+            {activeWardrobeTab === 'accessory' && (
+              <div className="space-y-3 animate-fadeIn">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                  {accessoryOptions.map(item => {
+                    const compliance = checkItemTierCompliance(item.id, currentTier);
+                    const isCompliant = compliance.isCompliant;
+                    if (hideUnfitItems && !isCompliant) return null;
+
+                    const isSelected = selectedAccessoryId === item.id;
+                    const imgSrc = getItemImageUrl(item.id, item.thumbnailUrl);
+                    const isTooltipOpen = activeTooltipItemId === item.id;
+
+                    return (
+                      <div
+                        key={item.id}
+                        onClick={() => {
+                          if (!isCompliant) {
+                            playTabooDenialSound();
+                            setUnfitModalItem({
+                              name: item.name,
+                              notice: compliance.notice || 'Chốn tôn nghiêm yêu cầu khăn đóng, quạt giấy hoặc trang sức cổ phong nhã nhặn, không đeo đồng hồ thông minh hay phụ kiện kim loại phá cách.',
+                              tier: currentTier,
+                              itemId: item.id
+                            });
+                          } else {
+                            setSelectedAccessoryId(item.id);
+                            playFanFlutterSound();
+                          }
+                        }}
+                        className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between relative group ${
+                          !isCompliant
+                            ? currentTier === 'modern'
+                              ? 'opacity-35 grayscale-[0.6] hover:opacity-60 border-dashed border-rose-300 bg-rose-50/50'
+                              : 'opacity-25 grayscale-[0.6] hover:opacity-50 border-dashed border-rose-500/60 bg-[#160c0e]'
+                            : isSelected
+                            ? currentTier === 'modern'
+                              ? 'bg-white border-[#8BA888] text-stone-900 ring-2 ring-[#8BA888] shadow-sm'
+                              : 'bg-[#1b1b24] border-[#c5a059] text-[#f5f2eb] ring-1 ring-[#c5a059]'
+                            : currentTier === 'modern'
+                            ? 'bg-[#FAF8F5] border-stone-200 text-stone-800 hover:border-stone-400'
+                            : 'bg-[#0f0f14] border-[#22222d] text-stone-300 hover:border-[#383847]'
+                        }`}
+                      >
+                        {!isCompliant && (
+                          <div className={`absolute -top-2 right-1.5 text-[8.5px] font-bold px-1.5 py-0.2 rounded-full shadow flex items-center gap-0.5 z-10 ${
+                            currentTier === 'modern'
+                              ? 'bg-rose-100 border border-rose-300 text-rose-700'
+                              : 'bg-rose-950/95 border border-rose-500/60 text-rose-300'
+                          }`}>
+                            <AlertTriangle className="w-2.5 h-2.5 text-rose-500" />
+                            <span>Lệch chuẩn</span>
+                          </div>
+                        )}
+
+                        <div className="w-full">
+                          <div className={`aspect-square w-full rounded-lg overflow-hidden relative mb-2 ${
+                            currentTier === 'modern' ? 'border border-stone-200 bg-stone-100' : 'border border-white/10 bg-black/40'
+                          }`}>
+                            <img 
+                              src={imgSrc} 
+                              alt={item.name} 
+                              onError={(e) => {
+                                if (item.id === 'acc-paper-fan') e.currentTarget.src = '/11.png';
+                                if (item.id === 'acc-khan-dong' || item.id === 'acc-khan-vanh-day') e.currentTarget.src = '/12.png';
+                                if (item.id === 'acc-jade-pendant' || item.id === 'acc-kieng-bac') e.currentTarget.src = '/13.png';
+                                if (item.id === 'acc-smartwatch') e.currentTarget.src = '/14.png';
+                              }}
+                              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
+                            />
+                            {isSelected && (
+                              <div className={`absolute top-1.5 right-1.5 w-4 h-4 rounded-full flex items-center justify-center font-bold text-[10px] shadow ${
+                                currentTier === 'modern' ? 'bg-[#8BA888] text-white' : 'bg-[#c5a059] text-stone-950'
+                              }`}>
+                                ✓
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="flex items-center justify-between">
+                            <div className={`font-semibold text-xs truncate flex-1 pr-1 ${
+                              currentTier === 'modern' ? 'text-stone-900' : 'text-[#f5f2eb]'
+                            }`}>
+                              {item.name}
+                            </div>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setActiveTooltipItemId(isTooltipOpen ? null : item.id);
+                              }}
+                              className={`w-4 h-4 rounded-full text-[9px] font-mono flex items-center justify-center shrink-0 ${
+                                currentTier === 'modern'
+                                  ? 'bg-stone-200/80 hover:bg-[#8BA888] hover:text-white text-stone-600'
+                                  : 'bg-white/10 hover:bg-[#c5a059] hover:text-stone-950 text-stone-400'
+                              }`}
+                              title="Xem chi tiết"
+                            >
+                              i
+                            </button>
+                          </div>
+                        </div>
+
+                        {UPLOADABLE_PRODUCT_IDS.has(item.id) && (
+                          <div className={`mt-2 pt-1.5 border-t flex items-center justify-between ${
+                            currentTier === 'modern' ? 'border-stone-200' : 'border-white/10'
+                          }`} onClick={(e) => e.stopPropagation()}>
+                            <button
+                              type="button"
+                              onClick={() => triggerItemImageUpload(item.id)}
+                              className={`px-2 py-0.5 rounded text-[10px] font-semibold border flex items-center gap-1 ${
+                                currentTier === 'modern'
+                                  ? 'bg-[#8BA888]/15 hover:bg-[#8BA888]/25 text-[#304E2E] border-[#8BA888]/40'
+                                  : 'bg-[#c5a059]/20 hover:bg-[#c5a059]/35 text-[#e5c365] border-[#c5a059]/40'
+                              }`}
+                            >
+                              <Upload className="w-2.5 h-2.5" />
+                              <span>{customItemImages[item.id] ? 'Đổi ảnh' : 'Tải ảnh'}</span>
+                            </button>
+                            {customItemImages[item.id] && (
+                              <button
+                                type="button"
+                                onClick={() => handleResetItemImage(item.id)}
+                                className="text-rose-500 hover:text-rose-700 text-[10px]"
+                              >
+                                Gỡ
+                              </button>
+                            )}
+                          </div>
+                        )}
+
+                        {isTooltipOpen && (
+                          <div 
+                            className={`absolute z-30 bottom-full left-0 right-0 mb-2 p-3 rounded-xl shadow-2xl text-[11px] space-y-1 animate-fadeIn ${
+                              currentTier === 'modern'
+                                ? 'bg-white border border-stone-200 text-stone-700 shadow-[0_10px_30px_rgba(0,0,0,0.12)]'
+                                : 'bg-[#1c1822] border border-[#c5a059]/60 text-stone-200'
+                            }`}
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <div className={`flex items-center justify-between font-bold ${
+                              currentTier === 'modern' ? 'text-[#3E5B3C]' : 'text-[#e5c365]'
+                            }`}>
+                              <span>✦ {item.name}</span>
+                              <button onClick={() => setActiveTooltipItemId(null)} className={currentTier === 'modern' ? 'text-stone-400 hover:text-stone-700' : 'text-stone-400 hover:text-white'}>✕</button>
+                            </div>
+                            <p className={`${currentTier === 'modern' ? 'text-stone-600' : 'text-stone-300'} font-serif text-[10.5px] leading-relaxed`}>{item.description}</p>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* TAB 7: LỚP ÁO LÓT ĐƠN Y */}
+            {activeWardrobeTab === 'layer' && (
+              <div className="space-y-3 animate-fadeIn">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {layerOptions.map(item => {
+                    const compliance = checkItemTierCompliance(item.id, currentTier);
+                    const isCompliant = compliance.isCompliant;
+                    if (hideUnfitItems && !isCompliant) return null;
+                    const isSelected = selectedLayerId === item.id;
+
+                    return (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={() => {
+                          if (!isCompliant) {
+                            playTabooDenialSound();
+                            setUnfitModalItem({
+                              name: item.name,
+                              notice: compliance.notice || 'Chốn tôn nghiêm yêu cầu mặc áo lót Đơn y trắng cổ đứng để đảm bảo sự đoan chính, thanh tịnh.',
+                              tier: currentTier,
+                              itemId: item.id
+                            });
+                          } else {
+                            setSelectedLayerId(item.id);
+                            if (!item.isCulturallyRespectful) {
+                              playTabooDenialSound();
+                            } else {
+                              playFabricRustleSound();
+                            }
+                          }
+                        }}
+                        className={`p-4 rounded-xl border text-left text-xs transition-all cursor-pointer flex flex-col justify-between relative ${
+                          !isCompliant
+                            ? currentTier === 'modern'
+                              ? 'opacity-35 grayscale-[0.6] hover:opacity-60 border-dashed border-rose-300 bg-rose-50/50'
+                              : 'opacity-25 grayscale-[0.6] hover:opacity-50 border-dashed border-rose-500/60 bg-[#160c0e]'
+                            : isSelected
+                            ? currentTier === 'modern'
+                              ? 'bg-white border-[#8BA888] text-stone-900 ring-2 ring-[#8BA888] shadow-sm'
+                              : 'bg-[#1b1b24] border-[#c5a059] text-[#f5f2eb] ring-1 ring-[#c5a059]'
+                            : currentTier === 'modern'
+                            ? 'bg-[#FAF8F5] border-stone-200 text-stone-800 hover:border-stone-400'
+                            : 'bg-[#0f0f14] border-[#22222a] text-stone-300 hover:border-[#383847]'
+                        }`}
+                      >
+                        {!isCompliant && (
+                          <div className={`absolute -top-2.5 right-3 text-[10px] font-bold px-2 py-0.5 rounded-full shadow flex items-center gap-1 z-10 ${
+                            currentTier === 'modern'
+                              ? 'bg-rose-100 border border-rose-300 text-rose-700'
+                              : 'bg-rose-950/95 border border-rose-500/60 text-rose-300'
+                          }`}>
+                            <AlertTriangle className="w-3 h-3 text-rose-500" />
+                            <span>⚠️ Lệch chuẩn trang phục</span>
+                          </div>
+                        )}
+                        <div>
+                          <div className={`font-bold flex items-center justify-between text-xs sm:text-sm ${
+                            currentTier === 'modern' ? 'text-stone-900' : 'text-[#f5f2eb]'
+                          }`}>
+                            <span>{item.name}</span>
+                            {isCompliant ? (
+                              <CheckCircle2 className={`w-4 h-4 shrink-0 ${currentTier === 'modern' ? 'text-[#8BA888]' : 'text-emerald-400'}`} />
+                            ) : (
+                              <AlertTriangle className="w-4 h-4 text-rose-500 shrink-0 animate-pulse" />
+                            )}
+                          </div>
+                          <p className={`text-xs mt-2 leading-relaxed font-serif ${
+                            currentTier === 'modern' ? 'text-stone-600' : 'text-stone-400'
+                          }`}>
+                            {item.description}
+                          </p>
+                        </div>
+
+                        <div className={`mt-3 pt-2 border-t flex items-center justify-between text-[11px] ${
+                          currentTier === 'modern' ? 'border-stone-200' : 'border-white/5'
+                        }`}>
+                          <span className={isCompliant ? (currentTier === 'modern' ? 'text-[#304E2E] font-semibold' : 'text-emerald-400 font-medium') : 'text-rose-500 font-semibold'}>
+                            {isCompliant ? (currentTier === 'modern' ? '✓ Chuẩn chỉn chu thanh lịch' : '✓ Chuẩn cốt cách cổ nhân') : '⚠️ Lệch chuẩn (Nhấn xem giải thích)'}
+                          </span>
+                          <span className={`${currentTier === 'modern' ? 'text-stone-500' : 'text-stone-500'} italic text-[10px]`}>Cổ đứng cao hơn 2mm</span>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
           </div>
 
         </div>
 
-        {/* RIGHT COLUMN: YÊU CẦU NÂNG CẤP - KHUNG CANVAS PREVIEW OUTFIT TỔNG THỂ */}
-        <div className="lg:col-span-5 space-y-6 lg:sticky lg:top-24">
+        {/* ======================================================== */}
+        {/* CỘT PHẢI (60% - lg:col-span-7): THỊ GIÁC CANVAS & BẢNG ĐIỂM AI */}
+        {/* ======================================================== */}
+        <div className="lg:col-span-7 space-y-5 lg:sticky lg:top-6">
+          
+          {/* 1. KHUNG CANVAS MOODBOARD 2D (BÚP BÊ XẾP LỚP TUẦN TỰ) */}
           <OutfitMoodboardCanvas
             activeGarment={activeGarment}
             activeColor={activeColor}
@@ -1971,373 +2263,317 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
             isChineseButtonSelected={isChineseButtonSelected}
             isImperialYellowSelected={isImperialYellowSelected}
             isTabooClashSelected={isTabooClashSelected}
+            isLayeringActive={isLayeringActive}
+            layeringStep={layeringStep}
+            currentTier={currentTier}
           />
 
-          {/* Quick Spec Card */}
-          <div className="bg-[#141419] border border-[#23232c] rounded-2xl p-4 sm:p-5 space-y-2 text-xs">
-            <div className="flex items-center justify-between border-b border-[#22222c] pb-2.5 mb-2">
-              <span className="text-[11px] font-bold text-[#c5a059] uppercase tracking-wider flex items-center gap-1.5">
-                <Layers className="w-3.5 h-3.5" />
-                Thông Số Kỹ Thuật Y Quan
-              </span>
-              <span className="text-[10px] text-stone-400">Thời Nguyễn (TK 18-20)</span>
-            </div>
-            <div className="flex justify-between text-stone-400">
-              <span>Dòng áo:</span>
-              <span className="text-[#f5f2eb] font-medium">{activeGarment.name}</span>
-            </div>
-            <div className="flex justify-between text-stone-400">
-              <span>Sắc phục:</span>
-              <span className="text-stone-200 font-medium flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full inline-block" style={{ backgroundColor: selectedColorHex }} />
-                {activeColor.vietnameseName}
-              </span>
-            </div>
-            <div className="flex justify-between text-stone-400">
-              <span>Quy chuẩn Đơn Y:</span>
-              <span className={selectedLayerId === 'layer-don-y-white' ? 'text-emerald-400 font-medium' : 'text-rose-400 font-medium'}>
-                {selectedLayerId === 'layer-don-y-white' ? '✓ Đã có áo lót trắng' : '⚠️ Thiếu Đơn Y (Taboo)'}
-              </span>
-            </div>
-            <div className="flex justify-between text-stone-400">
-              <span>Cúc áo 5 khuy:</span>
-              <span className={isChineseButtonSelected ? 'text-rose-400 font-bold flex items-center gap-1' : 'text-stone-200 font-medium'}>
-                {isChineseButtonSelected && <AlertTriangle className="w-3 h-3 text-rose-400" />}
-                {activeButtonItem.name}
-              </span>
-            </div>
-            <div className="flex justify-between text-stone-400">
-              <span>Thân dưới phối:</span>
-              <span className="text-stone-200 font-medium">{activeBottomItem.name}</span>
-            </div>
-            <div className="flex justify-between text-stone-400">
-              <span>Giày / Guốc:</span>
-              <span className="text-stone-200 font-medium">{activeShoesItem.name}</span>
-            </div>
-            <div className="flex justify-between text-stone-400">
-              <span>Phụ kiện kèm:</span>
-              <span className="text-stone-200 font-medium">{activeAccessoryItem.name}</span>
+          {/* ======================================================== */}
+          {/* 2. BẢNG ĐÁNH GIÁ "SLAY & CHUẨN CỔ PHONG" - NẰM NGAY DƯỚI CANVAS */}
+          {/* ======================================================== */}
+          <div className={`p-4 sm:p-5 rounded-2xl border transition-all duration-500 relative overflow-hidden backdrop-blur-xl ${
+            currentTier === 'modern'
+              ? 'bg-white/85 border-stone-200/90 shadow-[0_10px_35px_rgba(0,0,0,0.06)] text-stone-800'
+              : dualMetrics.scenario === 'taboo'
+              ? 'bg-gradient-to-br from-[#2a0e14]/95 via-[#19080c]/95 to-[#120508]/95 border-rose-500 shadow-[0_0_35px_rgba(244,63,94,0.35)] animate-pulse'
+              : dualMetrics.scenario === 'anachronism'
+              ? 'bg-gradient-to-br from-[#2a1b0a]/95 via-[#1a1106]/95 to-[#120c04]/95 border-amber-500/80 shadow-[0_0_30px_rgba(245,158,11,0.25)]'
+              : dualMetrics.scenario === 'heritage'
+              ? 'bg-gradient-to-br from-[#12231b]/95 via-[#0e171f]/95 to-[#1c170e]/95 border-[#e5c365] shadow-[0_0_35px_rgba(229,195,101,0.25)]'
+              : 'bg-gradient-to-br from-[#1e1028]/95 via-[#130d1d]/95 to-[#0e0c16]/95 border-purple-500/70 shadow-[0_0_30px_rgba(168,85,247,0.2)]'
+          }`}>
+            <div className="relative z-10 space-y-4">
+              
+              {/* GATEKEEPER ALERT: VIỀN CAM ĐẤT (TERRACOTTA) KHI CHỌN CÚC TÀU TRONG MÀN 2 */}
+              {currentTier === 'modern' && isChineseButtonSelected && (
+                <div className="p-3.5 rounded-xl border border-[#D97746] bg-[#FFF8F4] text-[#8C3413] shadow-sm flex items-start gap-2.5 animate-fadeIn">
+                  <span className="text-lg shrink-0">🪴</span>
+                  <div className="flex-1 text-xs">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-[#C2511F] uppercase tracking-wide text-[11px] flex items-center gap-1">
+                        <span>Nhắc Nhở Nhã Nhặn (Quiet Reminder)</span>
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedButtonId('btn-mother-of-pearl');
+                          playButtonClinkSound();
+                        }}
+                        className="text-[11px] font-bold text-[#C2511F] hover:underline cursor-pointer flex items-center gap-0.5"
+                      >
+                        Đổi sang Cúc Xà Cừ ➜
+                      </button>
+                    </div>
+                    <p className="mt-1 leading-relaxed text-[#7C361A] font-serif">
+                      "Cúc Tàu không nằm trong từ điển thanh lịch của y quan nhà Nguyễn đâu nha! Hãy chọn khuy rời đúc xà cừ, gỗ trầm hoặc kim loại để giữ trọn nét tinh tế Quiet Luxury."
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* BADGE TIÊU ĐỀ & NÚT KHẮC PHỤC 1 CHẠM */}
+              <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-3 ${
+                currentTier === 'modern' ? 'border-b border-stone-200/80' : 'border-b border-white/10'
+              }`}>
+                <div className="flex items-center gap-2">
+                  <span className={`px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-sm ${
+                    currentTier === 'modern'
+                      ? isChineseButtonSelected
+                        ? 'bg-[#D97746]/15 text-[#9C3810] border border-[#D97746]/30'
+                        : 'bg-[#8BA888]/20 text-[#304E2E] border border-[#8BA888]/40'
+                      : dualMetrics.scenario === 'taboo'
+                      ? 'bg-rose-600 text-white animate-bounce'
+                      : dualMetrics.scenario === 'anachronism'
+                      ? 'bg-amber-500 text-stone-950 font-black'
+                      : dualMetrics.scenario === 'heritage'
+                      ? 'bg-gradient-to-r from-[#c5a059] to-[#e5c365] text-stone-950 font-black'
+                      : 'bg-gradient-to-r from-purple-600 to-pink-600 text-white'
+                  }`}>
+                    {currentTier === 'modern' ? (
+                      isChineseButtonSelected ? (
+                        <AlertTriangle className="w-3.5 h-3.5 text-[#D97746]" />
+                      ) : (
+                        <Sparkles className="w-3.5 h-3.5 text-[#5C7E5A]" />
+                      )
+                    ) : (
+                      <>
+                        {dualMetrics.scenario === 'taboo' && <AlertTriangle className="w-3.5 h-3.5" />}
+                        {dualMetrics.scenario === 'anachronism' && <AlertTriangle className="w-3.5 h-3.5" />}
+                        {dualMetrics.scenario === 'heritage' && <Sparkles className="w-3.5 h-3.5" />}
+                        {dualMetrics.scenario === 'modern_polite' && <CheckCircle2 className="w-3.5 h-3.5" />}
+                      </>
+                    )}
+                    <span>{dualMetrics.badgeTitle}</span>
+                  </span>
+                  <span className={`text-[10px] font-mono hidden sm:inline ${
+                    currentTier === 'modern' ? 'text-stone-500' : 'text-stone-400'
+                  }`}>
+                    · {currentTier === 'modern' ? 'Editorial Evaluation' : 'Realtime AI Evaluation'}
+                  </span>
+                </div>
+
+                {dualMetrics.canAutoFix && (
+                  <button
+                    type="button"
+                    onClick={handleAutoFixTaboos}
+                    className={`px-3 py-1 rounded-lg font-bold text-xs flex items-center gap-1 cursor-pointer shadow transition-all self-start sm:self-auto ${
+                      currentTier === 'modern'
+                        ? 'bg-[#8BA888] hover:bg-[#789675] text-white'
+                        : 'bg-[#c5a059] hover:bg-[#d8b566] text-[#0d0d10]'
+                    }`}
+                  >
+                    <Wand2 className="w-3 h-3" />
+                    <span>Khắc Phục Chuẩn Mực (1 Chạm)</span>
+                  </button>
+                )}
+              </div>
+
+              {/* HAI THANH ĐIỂM SỐ TIẾN TRÌNH (SLAY & DI SẢN) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                
+                {/* 1. SLAY SCORE */}
+                <div className={`p-3 space-y-1.5 rounded-xl border backdrop-blur-md ${
+                  currentTier === 'modern'
+                    ? 'bg-stone-50/90 border-stone-200/80'
+                    : 'bg-black/40 border-white/10'
+                }`}>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className={`text-xs uppercase tracking-wider font-bold flex items-center gap-1 ${
+                        currentTier === 'modern' ? 'text-[#4A6448]' : 'text-pink-400'
+                      }`}>
+                        <span>{currentTier === 'modern' ? '💅 Slay & Chic' : '💅 Slay Score'}</span>
+                        <span className={`px-1.5 py-0.2 rounded text-[9px] font-semibold ${
+                          currentTier === 'modern'
+                            ? 'bg-[#8BA888]/20 text-[#304E2E]'
+                            : 'bg-pink-500/20 text-pink-300'
+                        }`}>
+                          {currentTier === 'modern' ? 'Acubi' : 'Gen Z'}
+                        </span>
+                      </span>
+                      <div className={`text-[10px] ${currentTier === 'modern' ? 'text-stone-500' : 'text-stone-400'}`}>
+                        {currentTier === 'modern' ? 'Độ thanh lịch & hài hòa' : 'Độ bắt mắt & phối sắc'}
+                      </div>
+                    </div>
+                    <span className={`text-2xl font-black font-mono ${
+                      currentTier === 'modern' ? 'text-[#3E5B3C]' : 'text-pink-400'
+                    }`}>
+                      {dualMetrics.slayScore}%
+                    </span>
+                  </div>
+                  <div className={`w-full h-2 rounded-full overflow-hidden p-0.5 border ${
+                    currentTier === 'modern' ? 'bg-stone-200/80 border-stone-200' : 'bg-black/60 border-white/10'
+                  }`}>
+                    <div
+                      className={`h-full rounded-full transition-all duration-700 ${
+                        currentTier === 'modern'
+                          ? 'bg-gradient-to-r from-[#8BA888] to-[#CBD5E1]'
+                          : 'bg-gradient-to-r from-pink-500 via-rose-500 to-purple-500 shadow-[0_0_10px_rgba(236,72,153,0.5)]'
+                      }`}
+                      style={{ width: `${dualMetrics.slayScore}%` }}
+                    />
+                  </div>
+                </div>
+
+                {/* 2. ĐỘ CHUẨN DI SẢN */}
+                <div className={`p-3 space-y-1.5 rounded-xl border backdrop-blur-md ${
+                  currentTier === 'modern'
+                    ? 'bg-stone-50/90 border-stone-200/80'
+                    : 'bg-black/40 border-white/10'
+                }`}>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className={`text-xs uppercase tracking-wider font-bold flex items-center gap-1 ${
+                        currentTier === 'modern' ? 'text-[#4A6448]' : 'text-[#e5c365]'
+                      }`}>
+                        <span>{currentTier === 'modern' ? '🌿 Tinh Thần Di Sản' : '👑 Chuẩn Di Sản'}</span>
+                        <span className={`px-1.5 py-0.2 rounded text-[9px] font-semibold ${
+                          currentTier === 'modern'
+                            ? 'bg-[#8BA888]/20 text-[#304E2E]'
+                            : 'bg-[#c5a059]/20 text-[#e5c365]'
+                        }`}>
+                          Triều Nguyễn
+                        </span>
+                      </span>
+                      <div className={`text-[10px] ${currentTier === 'modern' ? 'text-stone-500' : 'text-stone-400'}`}>
+                        Đơn Y, khuy cúc, phụ kiện
+                      </div>
+                    </div>
+                    <span className={`text-2xl font-black font-mono ${
+                      currentTier === 'modern'
+                        ? 'text-[#3E5B3C]'
+                        : dualMetrics.heritageScore >= 90 ? 'text-[#e5c365]' :
+                          dualMetrics.heritageScore >= 70 ? 'text-amber-400' : 'text-rose-400'
+                    }`}>
+                      {dualMetrics.heritageScore}%
+                    </span>
+                  </div>
+                  <div className={`w-full h-2 rounded-full overflow-hidden p-0.5 border ${
+                    currentTier === 'modern' ? 'bg-stone-200/80 border-stone-200' : 'bg-black/60 border-white/10'
+                  }`}>
+                    <div
+                      className={`h-full rounded-full transition-all duration-700 ${
+                        currentTier === 'modern'
+                          ? 'bg-gradient-to-r from-[#8BA888] to-[#587355]'
+                          : dualMetrics.heritageScore >= 90
+                          ? 'bg-gradient-to-r from-amber-400 to-emerald-400 shadow-[0_0_10px_rgba(229,195,101,0.5)]'
+                          : dualMetrics.heritageScore >= 70
+                          ? 'bg-gradient-to-r from-amber-500 to-yellow-400'
+                          : 'bg-gradient-to-r from-rose-600 to-red-500'
+                      }`}
+                      style={{ width: `${dualMetrics.heritageScore}%` }}
+                    />
+                  </div>
+                </div>
+
+              </div>
+
+              {/* LỜI BÌNH AI STYLIST */}
+              <div className={`p-3.5 rounded-xl border flex items-start gap-3 backdrop-blur-md ${
+                currentTier === 'modern'
+                  ? 'bg-stone-50/90 border-stone-200/80 text-stone-800'
+                  : 'bg-black/55 border-white/10 text-stone-100'
+              }`}>
+                <div className={`w-9 h-9 rounded-xl font-black text-xs flex items-center justify-center shrink-0 shadow border ${
+                  currentTier === 'modern'
+                    ? 'bg-[#8BA888] text-white border-white/40'
+                    : 'bg-gradient-to-br from-[#c5a059] to-rose-500 text-stone-950 border-white/20'
+                }`}>
+                  AI 💅
+                </div>
+                <div className="min-w-0 flex-1 space-y-1 text-xs">
+                  <div className="flex items-center gap-1.5">
+                    <span className={`font-bold ${currentTier === 'modern' ? 'text-[#3E5B3C]' : 'text-[#e5c365]'}`}>
+                      {currentTier === 'modern' ? 'AI Stylist Thanh Lịch (Editorial Lookbook)' : 'AI Stylist Cổ Phục Viễn Đông'}
+                    </span>
+                  </div>
+                  <p className={`font-semibold italic leading-relaxed font-serif ${
+                    currentTier === 'modern' ? 'text-stone-800' : 'text-stone-100'
+                  }`}>
+                    {dualMetrics.stylistQuote}
+                  </p>
+                  <p className={`text-[11px] leading-relaxed ${
+                    currentTier === 'modern' ? 'text-stone-600' : 'text-stone-300/90'
+                  }`}>
+                    {dualMetrics.subAdvice}
+                  </p>
+                </div>
+              </div>
+
+              {/* CHI TIẾT NGŨ THƯỜNG & NGŨ HÀNH GIAI TẦNG */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
+                <div className={`p-2.5 rounded-xl border flex items-start gap-2 ${
+                  currentTier === 'modern'
+                    ? 'bg-stone-50/80 border-stone-200/80'
+                    : 'bg-white/[0.03] border-[#c5a059]/20'
+                }`}>
+                  <span className="text-sm shrink-0">🔘</span>
+                  <div className="min-w-0">
+                    <span className={`font-bold block uppercase text-[9.5px] tracking-wider ${
+                      currentTier === 'modern' ? 'text-[#4A6448]' : 'text-[#e5c365]'
+                    }`}>
+                      Đạo Ngũ Thường (Khuy Cúc)
+                    </span>
+                    <span className={`leading-snug block mt-0.5 text-[10.5px] ${
+                      currentTier === 'modern' ? 'text-stone-600' : 'text-stone-300'
+                    }`}>
+                      {dualMetrics.nguThuongAnalysis}
+                    </span>
+                  </div>
+                </div>
+                <div className={`p-2.5 rounded-xl border flex items-start gap-2 ${
+                  currentTier === 'modern'
+                    ? 'bg-stone-50/80 border-stone-200/80'
+                    : 'bg-white/[0.03] border-[#c5a059]/20'
+                }`}>
+                  <span className="text-sm shrink-0">🎨</span>
+                  <div className="min-w-0">
+                    <span className={`font-bold block uppercase text-[9.5px] tracking-wider ${
+                      currentTier === 'modern' ? 'text-[#4A6448]' : 'text-[#e5c365]'
+                    }`}>
+                      Ngũ Hành & Giai Tầng (Sắc Phục)
+                    </span>
+                    <span className={`leading-snug block mt-0.5 text-[10.5px] ${
+                      currentTier === 'modern' ? 'text-stone-600' : 'text-stone-300'
+                    }`}>
+                      {dualMetrics.nguHanhAnalysis}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* NÚT TẠO OUTFIT REMIX / XUẤT TẠP CHÍ LOOKBOOK */}
+              <button
+                onClick={() => {
+                  playDanTranhTabSound();
+                  generateRemixOutfit();
+                }}
+                disabled={isGenerating}
+                className={`w-full py-4 px-4 rounded-xl font-serif font-black text-sm sm:text-base tracking-wide transition-all flex items-center justify-center gap-2.5 disabled:opacity-50 cursor-pointer active:scale-[0.99] border ${
+                  currentTier === 'modern'
+                    ? 'bg-gradient-to-r from-[#8BA888] via-[#759472] to-[#8BA888] hover:brightness-105 text-white shadow-[0_8px_25px_rgba(139,168,136,0.35)] border-white/40'
+                    : 'bg-gradient-to-r from-[#c5a059] via-[#e5c365] to-[#c5a059] hover:brightness-110 text-stone-950 shadow-[0_8px_25px_rgba(212,175,55,0.35)] border-[#fff5db]/50'
+                }`}
+              >
+                {isGenerating ? (
+                  <>
+                    <Wand2 className={`w-5 h-5 animate-spin ${currentTier === 'modern' ? 'text-white' : 'text-stone-950'}`} />
+                    <span>{currentTier === 'modern' ? 'Đang Biên Tập Ấn Phẩm Tạp Chí Lookbook...' : 'Đang Khâm Định Y Quan & Thẩm Duyệt Điển Lễ...'}</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className={`w-5 h-5 ${currentTier === 'modern' ? 'text-white' : 'text-stone-950'}`} />
+                    <span>{currentTier === 'modern' ? 'Tạo Bản Phối Thanh Lịch & Xuất Tạp Chí' : 'Tạo Outfit Remix & Thẩm Định Chi Tiết'}</span>
+                  </>
+                )}
+              </button>
+
             </div>
           </div>
+
         </div>
 
       </div>
-
-      {/* ======================================================== */}
-      {/* RESULT SECTION: APPEARS AFTER CLICKING "TẠO OUTFIT REMIX" */}
-      {/* ======================================================== */}
-      {remixResult && (
-        <div id="remix-result-section" className="pt-8 border-t border-[#2a2a35] space-y-8 animate-fadeIn">
-          
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-              <span className="text-xs text-[#c5a059] font-medium tracking-wide">
-                Đề xuất từ Stylist Cổ Phục Viễn Đông
-              </span>
-              <h2 className="text-2xl font-bold text-[#f5f2eb] mt-1">
-                Bản Phối Y Phục Hoàng Triều Remix
-              </h2>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <button
-                onClick={handleShareLookbook}
-                className="px-4 py-2 bg-[#1b1b22] hover:bg-[#252530] text-stone-200 text-xs font-medium rounded-xl border border-[#2c2c3a] transition-colors flex items-center gap-2 cursor-pointer"
-              >
-                <Share2 className="w-3.5 h-3.5 text-[#c5a059]" />
-                <span>{copiedLookbook ? 'Đã sao chép link lookbook!' : 'Chia sẻ Lookbook'}</span>
-              </button>
-            </div>
-          </div>
-
-          {/* TABOOS WARNING BANNER (IF VIOLATIONS EXIST) */}
-          {remixResult.taboosTriggered.length > 0 && (
-            <div className="p-5 rounded-xl bg-[#231215] border border-rose-500/40 space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-rose-500/20 text-rose-400 flex items-center justify-center border border-rose-500/30 shrink-0">
-                    <AlertTriangle className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h4 className="text-sm sm:text-base font-bold text-rose-200">
-                      Cảnh báo Taboos Y quan ({remixResult.taboosTriggered.length} điểm vi phạm)
-                    </h4>
-                    <p className="text-xs text-rose-300/80">
-                      Phối đồ chưa đúng quy chế cung đình, có nguy cơ làm lệch nét đẹp di sản.
-                    </p>
-                  </div>
-                </div>
-
-                {/* 1-Click Remedy Button */}
-                <button
-                  onClick={handleAutoFixTaboos}
-                  className="px-4 py-2 bg-[#c5a059] hover:bg-[#d8b566] text-[#0d0d10] font-bold text-xs rounded-lg transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer shrink-0"
-                >
-                  <Wand2 className="w-4 h-4" />
-                  <span>Sửa Lỗi Tự Động Chuẩn Triều Nguyễn</span>
-                </button>
-              </div>
-
-              {/* List of Taboos */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 border-t border-rose-500/20">
-                {remixResult.taboosTriggered.map(taboo => (
-                  <div key={taboo.id} className="p-3.5 rounded-lg bg-black/40 border border-rose-500/30 space-y-2">
-                    <div className="flex items-center justify-between text-xs font-bold text-rose-200">
-                      <span>{taboo.title}</span>
-                      <span className="text-rose-400">-{taboo.penaltyScore}đ</span>
-                    </div>
-                    <p className="text-xs text-stone-300 leading-relaxed">
-                      {taboo.explanation}
-                    </p>
-                    <div className="text-xs text-[#e5c365] italic bg-black/30 p-2 rounded border-l-2 border-[#e5c365]">
-                      {taboo.genZQuote}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* MAIN RESULTS GRID: Score Meter + Palette + Stylist Review + Lookbook Breakdown */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            
-            {/* 1. MATCH SCORE & METRICS (4 Cols) */}
-            <div className="lg:col-span-4 bg-[#141418] border border-[#23232c] rounded-xl p-5 space-y-5">
-              <div>
-                <span className="text-xs text-stone-400 font-medium">
-                  Đánh giá tổng quan
-                </span>
-                <h3 className="text-base font-bold text-[#f5f2eb] mt-0.5">
-                  HeritStyle Match Score
-                </h3>
-              </div>
-
-              {/* Circular Score Gauge */}
-              <div className="flex flex-col items-center justify-center p-5 bg-[#0f0f14] rounded-xl border border-[#242430]">
-                <div className="relative w-32 h-32 flex items-center justify-center">
-                  <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-                    <circle
-                      cx="50"
-                      cy="50"
-                      r="40"
-                      stroke="#22222d"
-                      strokeWidth="7"
-                      fill="none"
-                    />
-                    <circle
-                      cx="50"
-                      cy="50"
-                      r="40"
-                      stroke={remixResult.matchScore >= 85 ? '#c5a059' : remixResult.matchScore >= 70 ? '#10B981' : '#e11d48'}
-                      strokeWidth="7"
-                      strokeDasharray={`${2 * Math.PI * 40}`}
-                      strokeDashoffset={`${2 * Math.PI * 40 * (1 - remixResult.matchScore / 100)}`}
-                      strokeLinecap="round"
-                      fill="none"
-                      className="transition-all duration-1000 ease-out"
-                    />
-                  </svg>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-3xl font-bold text-[#f5f2eb]">
-                      {remixResult.matchScore}
-                    </span>
-                    <span className="text-xs text-[#c5a059] font-semibold mt-0.5">
-                      {remixResult.matchScore >= 85 ? 'Xuất Sắc' : remixResult.matchScore >= 70 ? 'Khá Ổn' : 'Cần Chỉnh'}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="mt-3 text-center">
-                  <span className="text-xs text-stone-300">
-                    {remixResult.taboosTriggered.length === 0
-                      ? '✓ Chuẩn 100% quy chuẩn Y quan Triều Nguyễn'
-                      : `⚠️ Bị trừ điểm do dính ${remixResult.taboosTriggered.length} lỗi Taboos`}
-                  </span>
-                </div>
-              </div>
-
-              {/* 3 Metric Bars */}
-              <div className="space-y-3 text-xs">
-                <div>
-                  <div className="flex justify-between text-stone-300 mb-1">
-                    <span>Chuẩn Quy Chế Triều Nguyễn</span>
-                    <span className="text-[#c5a059] font-bold">{remixResult.scoreBreakdown.yQuanStandard}%</span>
-                  </div>
-                  <div className="w-full h-1.5 bg-[#22222e] rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-[#c5a059] rounded-full transition-all duration-700" 
-                      style={{ width: `${remixResult.scoreBreakdown.yQuanStandard}%` }} 
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <div className="flex justify-between text-stone-300 mb-1">
-                    <span>Độ Slay & Phong Cách Gen Z</span>
-                    <span className="text-emerald-400 font-bold">{remixResult.scoreBreakdown.genZFashion}%</span>
-                  </div>
-                  <div className="w-full h-1.5 bg-[#22222e] rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-emerald-500 rounded-full transition-all duration-700" 
-                      style={{ width: `${remixResult.scoreBreakdown.genZFashion}%` }} 
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <div className="flex justify-between text-stone-300 mb-1">
-                    <span>Khí Chất Đoan Trang & Sang Trọng</span>
-                    <span className="text-indigo-400 font-bold">{remixResult.scoreBreakdown.eleganceVibe}%</span>
-                  </div>
-                  <div className="w-full h-1.5 bg-[#22222e] rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-indigo-500 rounded-full transition-all duration-700" 
-                      style={{ width: `${remixResult.scoreBreakdown.eleganceVibe}%` }} 
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Color Palette Card */}
-              <div className="pt-3 border-t border-[#23232c] space-y-2">
-                <span className="text-xs text-stone-400 font-medium">
-                  Bảng màu phối hợp:
-                </span>
-                <div className="grid grid-cols-2 gap-2">
-                  {remixResult.paletteItems.map(p => (
-                    <div key={p.name} className="p-2 rounded-lg bg-[#0e0e13] border border-[#22222a] flex items-center gap-2">
-                      <span className="w-3.5 h-3.5 rounded border border-white/20 shrink-0" style={{ backgroundColor: p.hex }} />
-                      <div className="min-w-0">
-                        <div className="text-xs text-stone-200 truncate font-medium">{p.name}</div>
-                        <div className="text-[10px] text-stone-400 font-mono">{p.hex}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-            </div>
-
-            {/* 2. STYLIST FEEDBACK & ITEMS BREAKDOWN (8 Cols) */}
-            <div className="lg:col-span-8 space-y-5">
-              
-              {/* Persona Stylist Speech Box */}
-              <div className="bg-[#141418] border border-[#262634] rounded-xl p-5 relative overflow-hidden">
-                <div className="flex items-center gap-2.5 mb-2.5">
-                  <div className="w-7 h-7 rounded-full bg-[#c5a059] text-[#0d0d10] font-bold text-xs flex items-center justify-center">
-                    SV
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-bold text-[#f5f2eb]">
-                      Stylist Cổ Phục Viễn Đông
-                    </h4>
-                    <span className="text-xs text-[#c5a059]">Chuyên gia Y quan Nguyễn & Fashion Gen Z</span>
-                  </div>
-                </div>
-
-                <div className="text-sm text-stone-200 leading-relaxed bg-[#0e0e13] p-4 rounded-lg border border-[#20202a]">
-                  {remixResult.stylistFeedback}
-                </div>
-              </div>
-
-              {/* Outfit Breakdown Cards with thumbnails */}
-              <div className="bg-[#141418] border border-[#23232c] rounded-xl p-5 space-y-3.5">
-                <h4 className="text-xs font-semibold text-stone-400">
-                  Chi tiết danh mục trang phục & phụ kiện:
-                </h4>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {/* Item 1: Áo Cổ Phục Chính */}
-                  <div className="p-3.5 rounded-lg bg-[#0e0e13] border border-[#202028] space-y-1">
-                    <span className="text-[11px] text-[#c5a059] font-medium">Áo Cổ Phục Chính</span>
-                    <div className="text-sm font-bold text-[#f5f2eb]">{remixResult.garment.name}</div>
-                    <p className="text-xs text-stone-300 leading-relaxed">
-                      Chất liệu gấm tơ tằm dệt thủ công, phom dáng {remixResult.garment.dynasty}.
-                    </p>
-                  </div>
-
-                  {/* Item 2: Áo Đơn Y */}
-                  <div className="p-3.5 rounded-lg bg-[#0e0e13] border border-[#202028] space-y-1">
-                    <span className="text-[11px] text-stone-400 font-medium">Lớp Áo Lót Cốt Cách</span>
-                    <div className="text-sm font-bold text-[#f5f2eb]">{remixResult.selectedItems.layer.name}</div>
-                    <p className="text-xs text-stone-300 leading-relaxed">
-                      {remixResult.selectedItems.layer.description}
-                    </p>
-                  </div>
-
-                  {/* Item 3: Cúc Áo */}
-                  <div className="p-3.5 rounded-lg bg-[#0e0e13] border border-[#202028] flex items-center gap-3">
-                    <img 
-                      src={getItemImageUrl(remixResult.selectedItems.button.id, remixResult.selectedItems.button.thumbnailUrl)}
-                      alt={remixResult.selectedItems.button.name}
-                      className="w-12 h-12 rounded-lg object-cover border border-white/10 shrink-0"
-                    />
-                    <div className="min-w-0">
-                      <span className="text-[11px] text-stone-400 font-medium">Khuy Cúc Ngũ Thường</span>
-                      <div className="text-sm font-bold text-[#f5f2eb] truncate">{remixResult.selectedItems.button.name}</div>
-                      <p className="text-xs text-stone-300 leading-relaxed truncate">
-                        {remixResult.selectedItems.button.description}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Item 4: Thân Dưới */}
-                  <div className="p-3.5 rounded-lg bg-[#0e0e13] border border-[#202028] flex items-center gap-3">
-                    <img 
-                      src={getItemImageUrl(remixResult.selectedItems.bottom.id, remixResult.selectedItems.bottom.thumbnailUrl)}
-                      alt={remixResult.selectedItems.bottom.name}
-                      className="w-12 h-12 rounded-lg object-cover border border-white/10 shrink-0"
-                    />
-                    <div className="min-w-0">
-                      <span className="text-[11px] text-stone-400 font-medium">Thân Dưới Remix</span>
-                      <div className="text-sm font-bold text-[#f5f2eb] truncate">{remixResult.selectedItems.bottom.name}</div>
-                      <p className="text-xs text-stone-300 leading-relaxed truncate">
-                        {remixResult.selectedItems.bottom.description}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Item 5: Giày */}
-                  <div className="p-3.5 rounded-lg bg-[#0e0e13] border border-[#202028] flex items-center gap-3">
-                    <img 
-                      src={getItemImageUrl(remixResult.selectedItems.shoes.id, remixResult.selectedItems.shoes.thumbnailUrl)}
-                      alt={remixResult.selectedItems.shoes.name}
-                      className="w-12 h-12 rounded-lg object-cover border border-white/10 shrink-0"
-                    />
-                    <div className="min-w-0">
-                      <span className="text-[11px] text-stone-400 font-medium">Giày / Guốc</span>
-                      <div className="text-sm font-bold text-[#f5f2eb] truncate">{remixResult.selectedItems.shoes.name}</div>
-                      <p className="text-xs text-stone-300 leading-relaxed truncate">
-                        {remixResult.selectedItems.shoes.description}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Item 6: Phụ Kiện */}
-                  <div className="p-3.5 rounded-lg bg-[#0e0e13] border border-[#202028] flex items-center gap-3">
-                    <img 
-                      src={getItemImageUrl(remixResult.selectedItems.accessory.id, remixResult.selectedItems.accessory.thumbnailUrl)}
-                      alt={remixResult.selectedItems.accessory.name}
-                      className="w-12 h-12 rounded-lg object-cover border border-white/10 shrink-0"
-                    />
-                    <div className="min-w-0">
-                      <span className="text-[11px] text-stone-400 font-medium">Phụ Kiện Đi Kèm</span>
-                      <div className="text-sm font-bold text-[#f5f2eb] truncate">{remixResult.selectedItems.accessory.name}</div>
-                      <p className="text-xs text-stone-300 leading-relaxed truncate">
-                        {remixResult.selectedItems.accessory.description}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-
-            </div>
-
-          </div>
-
-        </div>
-      )}
 
       {/* Hidden file input for manual item image upload */}
       <input
@@ -2372,6 +2608,528 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
           }
         }}
       />
+
+      {/* ======================================================== */}
+      {/* 3. POP-UP TOÀN MÀN HÌNH: "HỒ SƠ Y PHỤC / TẠP CHÍ LOOKBOOK" (REWARDING) */}
+      {/* ======================================================== */}
+      {isLookbookModalOpen && remixResult && (
+        <div 
+          className="fixed inset-0 z-[100] overflow-y-auto bg-black/85 backdrop-blur-xl flex min-h-full items-center justify-center p-3 sm:p-6"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsLookbookModalOpen(false);
+          }}
+        >
+          <div className={`${
+            currentTier === 'modern'
+              ? 'bg-[#FAF8F5] border border-stone-300 ring-1 ring-stone-200/80 rounded-3xl max-w-4xl w-full px-5 py-4 sm:px-7 sm:py-5 shadow-[0_20px_60px_rgba(0,0,0,0.18)] text-stone-900'
+              : 'bg-[#141017] border-2 border-[#D4AF37] ring-1 ring-[#e5c365]/40 rounded-3xl max-w-4xl w-full px-5 py-4 sm:px-7 sm:py-5 shadow-[0_0_70px_rgba(212,175,55,0.4)] text-[#f5f2eb]'
+          } relative overflow-hidden text-left my-auto max-h-[88vh] flex flex-col min-h-0`}>
+            
+            {/* Texture nền chìm */}
+            <div 
+              className={`absolute inset-0 pointer-events-none ${
+                currentTier === 'modern' ? 'opacity-35 mix-blend-multiply' : 'opacity-25 mix-blend-overlay'
+              }`}
+              style={{
+                backgroundImage: currentTier === 'modern'
+                  ? `radial-gradient(#8BA888 0.6px, transparent 0.6px), radial-gradient(#d6d3cb 0.6px, #FAF8F5 0.6px)`
+                  : `radial-gradient(#D4AF37 0.75px, transparent 0.75px), radial-gradient(#C5A059 0.75px, #120f14 0.75px)`,
+                backgroundSize: '24px 24px',
+                backgroundPosition: '0 0, 12px 12px'
+              }}
+            />
+
+            {/* Nút Đóng Modal ở góc trên */}
+            <button
+              onClick={() => setIsLookbookModalOpen(false)}
+              className={`absolute top-4 right-4 p-2 rounded-full transition-colors cursor-pointer z-30 ${
+                currentTier === 'modern'
+                  ? 'bg-stone-200/80 hover:bg-stone-300 text-stone-600 hover:text-stone-900'
+                  : 'bg-white/10 hover:bg-white/20 text-stone-300 hover:text-white'
+              }`}
+              title="Đóng hồ sơ"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            {/* Header Modal (Pinned Top) */}
+            <div className={`relative z-10 text-center pb-3 shrink-0 pr-8 sm:pr-0 ${
+              currentTier === 'modern' ? 'border-b border-stone-200' : 'border-b border-[#D4AF37]/30'
+            }`}>
+              <div className={`inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-[10px] font-semibold tracking-widest uppercase mb-1 ${
+                currentTier === 'modern'
+                  ? 'bg-stone-100 border border-stone-300 text-stone-700'
+                  : 'bg-[#D4AF37]/15 border border-[#D4AF37]/40 text-[#f5e6c8]'
+              }`}>
+                {currentTier === 'modern' ? (
+                  <Sparkles className="w-3.5 h-3.5 text-[#8BA888]" />
+                ) : (
+                  <Crown className="w-3.5 h-3.5 text-[#e5c365]" />
+                )}
+                <span>
+                  {currentTier === 'modern'
+                    ? '✦ HERITSTYLE EDITORIAL · THANH LỊCH ĐỜI THƯỜNG ✦'
+                    : '✦ CHIẾU DỤ KHÂM ĐỊNH Y QUAN TRIỀU NGUYỄN ✦'}
+                </span>
+              </div>
+              <h2 className={`text-2xl sm:text-3xl font-serif font-black ${
+                currentTier === 'modern'
+                  ? 'text-stone-900 tracking-tight'
+                  : 'text-transparent bg-clip-text bg-gradient-to-r from-[#faedd0] via-[#e5c365] to-[#c5a059] drop-shadow'
+              }`}>
+                {currentTier === 'modern' ? 'Ấn Phẩm Lookbook & Bản Phối Thanh Lịch' : 'Hồ Sơ Y Phục & Lookbook Di Sản'}
+              </h2>
+              <p className={`text-xs font-serif italic mt-0.5 ${
+                currentTier === 'modern' ? 'text-stone-600' : 'text-stone-300/90'
+              }`}>
+                {currentTier === 'modern'
+                  ? `Phong cách ${remixResult.styleVibe} · Tinh thần Quiet Luxury & Cốt cách Cổ truyền`
+                  : `Đã thẩm duyệt quy chế y quan · Phong thái ${remixResult.styleVibe}`}
+              </p>
+            </div>
+
+            {/* Scrollable Content Body */}
+            <div className="relative z-10 overflow-y-auto min-h-0 space-y-6 flex-1 pr-1 sm:pr-2.5 py-3">
+
+              {/* TABOOS WARNING BANNER NẾU CÓ VI PHẠM */}
+              {remixResult.taboosTriggered.length > 0 && (
+                <div className={`p-4 rounded-2xl space-y-3 ${
+                  currentTier === 'modern'
+                    ? 'bg-[#FFF8F4] border border-[#D97746]/80 text-[#8C3413]'
+                    : 'bg-[#231215] border border-rose-500/50'
+                }`}>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="flex items-center gap-2.5">
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                        currentTier === 'modern'
+                          ? 'bg-[#D97746]/15 text-[#D97746] border border-[#D97746]/30'
+                          : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
+                      }`}>
+                        <AlertTriangle className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <h4 className={`text-sm font-bold ${
+                          currentTier === 'modern' ? 'text-[#8C3413]' : 'text-rose-200'
+                        }`}>
+                          {currentTier === 'modern' ? 'Nhắc Nhở Tinh Chỉnh' : 'Cảnh Báo Lệch Chuẩn Y Quan'} ({remixResult.taboosTriggered.length} điểm lưu ý)
+                        </h4>
+                        <p className={`text-xs ${
+                          currentTier === 'modern' ? 'text-[#A84A22]' : 'text-rose-300/80'
+                        }`}>
+                          {currentTier === 'modern'
+                            ? (remixResult.taboosTriggered.some(t => t.ruleCode === 'NO_CHINESE_BUTTON')
+                                ? 'Cúc Tàu không nằm trong từ điển thanh lịch của y quan nhà Nguyễn đâu nha!'
+                                : 'Trang phục cần tinh chỉnh nhẹ để đạt trọn vẹn điểm thanh lịch.')
+                            : 'Trang phục chưa chuẩn quy thức cung đình, cần khắc phục.'}
+                        </p>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => {
+                        handleAutoFixTaboos();
+                        setIsLookbookModalOpen(false);
+                      }}
+                      className={`px-3.5 py-1.5 font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer shrink-0 ${
+                        currentTier === 'modern'
+                          ? 'bg-[#8BA888] hover:bg-[#789675] text-white shadow-sm'
+                          : 'bg-[#c5a059] hover:bg-[#d8b566] text-[#0d0d10]'
+                      }`}
+                    >
+                      <Wand2 className="w-3.5 h-3.5" />
+                      <span>{currentTier === 'modern' ? 'Tinh Chỉnh Tự Động (1 Chạm)' : 'Sửa Lỗi Tự Động (1 Chạm)'}</span>
+                    </button>
+                  </div>
+
+                  <div className={`grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 ${
+                    currentTier === 'modern' ? 'border-t border-[#D97746]/20' : 'border-t border-rose-500/20'
+                  }`}>
+                    {remixResult.taboosTriggered.map(taboo => (
+                      <div key={taboo.id} className={`p-2.5 rounded-xl space-y-1 text-xs ${
+                        currentTier === 'modern'
+                          ? 'bg-white/70 border border-[#D97746]/30'
+                          : 'bg-black/40 border border-rose-500/30'
+                      }`}>
+                        <div className={`flex items-center justify-between font-bold ${
+                          currentTier === 'modern' ? 'text-[#8C3413]' : 'text-rose-200'
+                        }`}>
+                          <span>{taboo.title}</span>
+                          <span className={currentTier === 'modern' ? 'text-[#C2511F]' : 'text-rose-400'}>-{taboo.penaltyScore}đ</span>
+                        </div>
+                        <p className={`text-[11px] leading-relaxed ${
+                          currentTier === 'modern' ? 'text-[#7C361A]' : 'text-stone-300'
+                        }`}>{taboo.explanation}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* GRID TỔNG QUAN: SCORE CIRCLE + BẢNG MÀU + LỜI BÌNH STYLIST */}
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
+                
+                {/* Score Gauge & Metrics (4 Cols) */}
+                <div className={`md:col-span-5 rounded-2xl p-4 sm:p-5 flex flex-col justify-between space-y-4 border ${
+                  currentTier === 'modern'
+                    ? 'bg-white border-stone-200/90 shadow-xs'
+                    : 'bg-black/40 border-white/10'
+                }`}>
+                  <div>
+                    <div className={`text-xs uppercase tracking-wider font-semibold ${
+                      currentTier === 'modern' ? 'text-stone-500' : 'text-stone-400'
+                    }`}>
+                      {currentTier === 'modern' ? 'Điểm Đánh Giá Thanh Lịch' : 'Tổng Điểm Thẩm Định'}
+                    </div>
+                    <div className="flex items-center gap-4 mt-2">
+                      <div className={`w-20 h-20 rounded-2xl font-black font-mono text-3xl flex items-center justify-center shadow-lg border ${
+                        currentTier === 'modern'
+                          ? 'bg-gradient-to-br from-[#8BA888] to-[#587355] text-white border-white/40'
+                          : 'bg-gradient-to-br from-[#c5a059] to-[#e5c365] text-stone-950 border-white/20'
+                      }`}>
+                        {remixResult.matchScore}
+                      </div>
+                      <div>
+                        <div className={`font-serif font-bold text-base ${
+                          currentTier === 'modern' ? 'text-[#3E5B3C]' : 'text-[#e5c365]'
+                        }`}>
+                          {remixResult.matchScore >= 85
+                            ? (currentTier === 'modern' ? 'Xuất Sắc Thanh Lịch (Editorial)' : 'Xuất Sắc Chuẩn Cổ Phong')
+                            : remixResult.matchScore >= 70 ? 'Khá Ổn Cần Tinh Chỉnh' : 'Lệch Chuẩn Điển Lễ'}
+                        </div>
+                        <div className={`text-xs mt-0.5 ${
+                          currentTier === 'modern' ? 'text-stone-500' : 'text-stone-400'
+                        }`}>
+                          {remixResult.taboosTriggered.length === 0 ? '✓ Chuẩn 100% Triều Nguyễn' : '⚠️ Có điểm cần lưu ý'}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 text-xs">
+                    <div>
+                      <div className={`flex justify-between mb-1 text-[11px] ${
+                        currentTier === 'modern' ? 'text-stone-700' : 'text-stone-300'
+                      }`}>
+                        <span>{currentTier === 'modern' ? 'Tinh Thần Di Sản Y Quan' : 'Chuẩn Quy Chế Triều Nguyễn'}</span>
+                        <span className={`font-bold ${currentTier === 'modern' ? 'text-[#4A6448]' : 'text-[#c5a059]'}`}>
+                          {remixResult.scoreBreakdown.yQuanStandard}%
+                        </span>
+                      </div>
+                      <div className={`w-full h-1.5 rounded-full overflow-hidden ${
+                        currentTier === 'modern' ? 'bg-stone-200' : 'bg-[#22222e]'
+                      }`}>
+                        <div 
+                          className={`h-full rounded-full ${currentTier === 'modern' ? 'bg-[#8BA888]' : 'bg-[#c5a059]'}`} 
+                          style={{ width: `${remixResult.scoreBreakdown.yQuanStandard}%` }} 
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <div className={`flex justify-between mb-1 text-[11px] ${
+                        currentTier === 'modern' ? 'text-stone-700' : 'text-stone-300'
+                      }`}>
+                        <span>{currentTier === 'modern' ? 'Độ Thời Thượng & Chic' : 'Độ Slay & Phong Cách Gen Z'}</span>
+                        <span className={`font-bold ${currentTier === 'modern' ? 'text-[#4A6448]' : 'text-pink-400'}`}>
+                          {remixResult.scoreBreakdown.genZFashion}%
+                        </span>
+                      </div>
+                      <div className={`w-full h-1.5 rounded-full overflow-hidden ${
+                        currentTier === 'modern' ? 'bg-stone-200' : 'bg-[#22222e]'
+                      }`}>
+                        <div 
+                          className={`h-full rounded-full ${currentTier === 'modern' ? 'bg-[#6E8F6C]' : 'bg-pink-500'}`} 
+                          style={{ width: `${remixResult.scoreBreakdown.genZFashion}%` }} 
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Bảng Màu Phối Hợp */}
+                  <div className={`pt-2 ${currentTier === 'modern' ? 'border-t border-stone-200' : 'border-t border-white/10'}`}>
+                    <span className={`text-[10px] uppercase font-semibold block mb-1.5 ${
+                      currentTier === 'modern' ? 'text-stone-500' : 'text-stone-400'
+                    }`}>
+                      Bảng Màu Phối Sắc:
+                    </span>
+                    <div className="grid grid-cols-2 gap-1.5">
+                      {remixResult.paletteItems.map(p => (
+                        <div key={p.name} className={`p-1 rounded-lg border flex items-center gap-1.5 ${
+                          currentTier === 'modern' ? 'bg-stone-50 border-stone-200 text-stone-700' : 'bg-white/5 border-white/5 text-stone-200'
+                        }`}>
+                          <span className="w-3 h-3 rounded shrink-0 border border-black/10" style={{ backgroundColor: p.hex }} />
+                          <div className="min-w-0">
+                            <div className="text-[10px] truncate">{p.name}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Stylist Feedback (7 Cols) */}
+                <div className={`md:col-span-7 rounded-2xl p-4 sm:p-5 flex flex-col justify-between space-y-3 border ${
+                  currentTier === 'modern'
+                    ? 'bg-white border-stone-200/90 shadow-xs'
+                    : 'bg-black/40 border-white/10'
+                }`}>
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className={`w-6 h-6 rounded-full font-bold text-xs flex items-center justify-center ${
+                        currentTier === 'modern' ? 'bg-[#8BA888] text-white' : 'bg-[#c5a059] text-stone-950'
+                      }`}>
+                        AI
+                      </div>
+                      <span className={`font-bold text-xs ${
+                        currentTier === 'modern' ? 'text-[#3E5B3C]' : 'text-[#e5c365]'
+                      }`}>
+                        {currentTier === 'modern' ? 'Lời Bình Ban Biên Tập Thời Trang' : 'Lời Bình Stylist Cổ Phục Viễn Đông'}
+                      </span>
+                    </div>
+                    <div className={`text-xs sm:text-sm leading-relaxed font-serif p-3.5 rounded-xl border italic ${
+                      currentTier === 'modern'
+                        ? 'bg-stone-50 border-stone-200 text-stone-800'
+                        : 'bg-white/[0.02] border-white/5 text-stone-200'
+                    }`}>
+                      “{remixResult.stylistFeedback}”
+                    </div>
+                  </div>
+
+                  <div className={`p-3 rounded-xl border text-xs space-y-1 ${
+                    currentTier === 'modern'
+                      ? 'bg-[#F4F6F2] border-[#8BA888]/30 text-stone-800'
+                      : 'bg-[#1c1822] border-[#c5a059]/30 text-[#faedd0]'
+                  }`}>
+                    <div className={`font-bold flex items-center gap-1.5 ${
+                      currentTier === 'modern' ? 'text-[#3E5B3C]' : 'text-[#e5c365]'
+                    }`}>
+                      <Scroll className="w-3.5 h-3.5" />
+                      <span>{currentTier === 'modern' ? 'Cốt Cách Thanh Lịch Đời Thường:' : 'Cốt Cách Y Quan Đại Nam:'}</span>
+                    </div>
+                    <p className={`text-[11px] font-serif leading-relaxed ${
+                      currentTier === 'modern' ? 'text-stone-600' : 'text-stone-300'
+                    }`}>
+                      {currentTier === 'modern'
+                        ? 'Giữ trọn cổ Đơn y đoan chính, khuy rời đúc tinh xảo đại diện Ngũ Thường, phom dáng nhẹ nhàng phối sắc Earth-tone tối giản chuẩn phong cách Quiet Luxury.'
+                        : 'Lớp trong đoan chính với áo lót Đơn y trắng cổ cao, khuy cúc rời đúc đĩnh đạc tượng trưng Ngũ Thường, sắc phục hòa hợp ngũ hành tôn ti trật tự.'}
+                    </p>
+                  </div>
+                </div>
+
+              </div>
+
+              {/* CHI TIẾT 6 CẤU KIỆN Y QUAN */}
+              <div className="space-y-2.5">
+                <div className={`text-xs font-serif font-bold uppercase tracking-wider flex items-center gap-1.5 ${
+                  currentTier === 'modern' ? 'text-[#3E5B3C]' : 'text-[#D4AF37]'
+                }`}>
+                  <Sparkles className={`w-3.5 h-3.5 ${currentTier === 'modern' ? 'text-[#8BA888]' : 'text-[#e5c365]'}`} />
+                  <span>Danh Mục Cấu Kiện Diện Mạo Chi Tiết:</span>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-xs">
+                  {/* Item 1: Áo Cổ Phục */}
+                  <div className={`p-2.5 rounded-xl border space-y-1 ${
+                    currentTier === 'modern' ? 'bg-white border-stone-200 shadow-xs' : 'bg-black/40 border-white/10'
+                  }`}>
+                    <span className={`text-[9.5px] uppercase font-bold ${
+                      currentTier === 'modern' ? 'text-[#4A6448]' : 'text-[#c5a059]'
+                    }`}>1. Áo Cổ Phục Chính</span>
+                    <div className={`font-bold truncate ${currentTier === 'modern' ? 'text-stone-900' : 'text-[#f5f2eb]'}`}>
+                      {remixResult.garment.name}
+                    </div>
+                    <p className={`text-[10.5px] line-clamp-1 ${
+                      currentTier === 'modern' ? 'text-stone-500' : 'text-stone-400'
+                    }`}>{remixResult.garment.subName}</p>
+                  </div>
+
+                  {/* Item 2: Đơn Y */}
+                  <div className={`p-2.5 rounded-xl border space-y-1 ${
+                    currentTier === 'modern' ? 'bg-white border-stone-200 shadow-xs' : 'bg-black/40 border-white/10'
+                  }`}>
+                    <span className={`text-[9.5px] uppercase font-bold ${
+                      currentTier === 'modern' ? 'text-stone-500' : 'text-stone-400'
+                    }`}>2. Áo Lót Đơn Y</span>
+                    <div className={`font-bold truncate ${currentTier === 'modern' ? 'text-stone-900' : 'text-[#f5f2eb]'}`}>
+                      {remixResult.selectedItems.layer.name}
+                    </div>
+                    <p className="text-[10.5px] text-emerald-600 font-medium line-clamp-1">✓ Cổ cao hơn 2mm</p>
+                  </div>
+
+                  {/* Item 3: Khuy Cúc */}
+                  <div className={`p-2.5 rounded-xl border flex items-center gap-2 ${
+                    currentTier === 'modern' ? 'bg-white border-stone-200 shadow-xs' : 'bg-black/40 border-white/10'
+                  }`}>
+                    <img 
+                      src={getItemImageUrl(remixResult.selectedItems.button.id, remixResult.selectedItems.button.thumbnailUrl)}
+                      alt={remixResult.selectedItems.button.name}
+                      className="w-9 h-9 rounded-lg object-cover border border-black/10 shrink-0"
+                    />
+                    <div className="min-w-0">
+                      <span className={`text-[9.5px] uppercase font-bold block ${
+                        currentTier === 'modern' ? 'text-stone-500' : 'text-stone-400'
+                      }`}>3. Khuy Cúc</span>
+                      <div className={`font-bold truncate ${currentTier === 'modern' ? 'text-stone-900' : 'text-[#f5f2eb]'}`}>
+                        {remixResult.selectedItems.button.name}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Item 4: Thân Dưới */}
+                  <div className={`p-2.5 rounded-xl border flex items-center gap-2 ${
+                    currentTier === 'modern' ? 'bg-white border-stone-200 shadow-xs' : 'bg-black/40 border-white/10'
+                  }`}>
+                    <img 
+                      src={getItemImageUrl(remixResult.selectedItems.bottom.id, remixResult.selectedItems.bottom.thumbnailUrl)}
+                      alt={remixResult.selectedItems.bottom.name}
+                      className="w-9 h-9 rounded-lg object-cover border border-black/10 shrink-0"
+                    />
+                    <div className="min-w-0">
+                      <span className={`text-[9.5px] uppercase font-bold block ${
+                        currentTier === 'modern' ? 'text-stone-500' : 'text-stone-400'
+                      }`}>4. Thân Dưới</span>
+                      <div className={`font-bold truncate ${currentTier === 'modern' ? 'text-stone-900' : 'text-[#f5f2eb]'}`}>
+                        {remixResult.selectedItems.bottom.name}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Item 5: Giày */}
+                  <div className={`p-2.5 rounded-xl border flex items-center gap-2 ${
+                    currentTier === 'modern' ? 'bg-white border-stone-200 shadow-xs' : 'bg-black/40 border-white/10'
+                  }`}>
+                    <img 
+                      src={getItemImageUrl(remixResult.selectedItems.shoes.id, remixResult.selectedItems.shoes.thumbnailUrl)}
+                      alt={remixResult.selectedItems.shoes.name}
+                      className="w-9 h-9 rounded-lg object-cover border border-black/10 shrink-0"
+                    />
+                    <div className="min-w-0">
+                      <span className={`text-[9.5px] uppercase font-bold block ${
+                        currentTier === 'modern' ? 'text-stone-500' : 'text-stone-400'
+                      }`}>5. Giày / Guốc</span>
+                      <div className={`font-bold truncate ${currentTier === 'modern' ? 'text-stone-900' : 'text-[#f5f2eb]'}`}>
+                        {remixResult.selectedItems.shoes.name}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Item 6: Phụ Kiện */}
+                  <div className={`p-2.5 rounded-xl border flex items-center gap-2 ${
+                    currentTier === 'modern' ? 'bg-white border-stone-200 shadow-xs' : 'bg-black/40 border-white/10'
+                  }`}>
+                    <img 
+                      src={getItemImageUrl(remixResult.selectedItems.accessory.id, remixResult.selectedItems.accessory.thumbnailUrl)}
+                      alt={remixResult.selectedItems.accessory.name}
+                      className="w-9 h-9 rounded-lg object-cover border border-black/10 shrink-0"
+                    />
+                    <div className="min-w-0">
+                      <span className={`text-[9.5px] uppercase font-bold block ${
+                        currentTier === 'modern' ? 'text-stone-500' : 'text-stone-400'
+                      }`}>6. Phụ Kiện</span>
+                      <div className={`font-bold truncate ${currentTier === 'modern' ? 'text-stone-900' : 'text-[#f5f2eb]'}`}>
+                        {remixResult.selectedItems.accessory.name}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* FOOTER ACTIONS CỦA MODAL (Pinned Bottom) */}
+            <div className={`relative z-10 pt-3 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0 ${
+              currentTier === 'modern' ? 'border-t border-stone-200' : 'border-t border-[#D4AF37]/30'
+            }`}>
+              <button
+                type="button"
+                onClick={handleShareLookbook}
+                className={`w-full sm:w-auto px-5 py-2.5 text-xs font-semibold rounded-xl border transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-sm ${
+                  currentTier === 'modern'
+                    ? 'bg-stone-100 hover:bg-stone-200 text-stone-800 border-stone-300'
+                    : 'bg-[#1f1b24] hover:bg-[#2a2432] text-stone-200 border-[#c5a059]/40'
+                }`}
+              >
+                <Share2 className={`w-3.5 h-3.5 ${currentTier === 'modern' ? 'text-[#4A6448]' : 'text-[#e5c365]'}`} />
+                <span>{copiedLookbook ? '✓ Đã sao chép link lookbook!' : (currentTier === 'modern' ? 'Chia sẻ Bìa Tạp Chí' : 'Chia sẻ Lookbook Y Quan')}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setIsLookbookModalOpen(false)}
+                className={`w-full sm:w-auto px-6 py-2.5 rounded-xl font-bold text-xs hover:brightness-110 shadow-md transition-all cursor-pointer ${
+                  currentTier === 'modern'
+                    ? 'bg-gradient-to-r from-[#8BA888] to-[#6E8F6C] text-white'
+                    : 'bg-gradient-to-r from-[#c5a059] to-[#e5c365] text-stone-950'
+                }`}
+              >
+                {currentTier === 'modern' ? 'Đã Khảo Duyệt · Trở Lại Studio' : 'Đã Khảo Xét · Trở Lại Studio'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ======================================================== */}
+      {/* 4. MODAL GIÁO DỤC VĂN HÓA & GIẢI THÍCH KHI BẤM ĐỒ LỆCH CHUẨN */}
+      {/* ======================================================== */}
+      {unfitModalItem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
+          <div className="bg-[#141217] border-2 border-[#D4AF37]/60 rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-[0_0_50px_rgba(212,175,55,0.25)] relative overflow-hidden text-left">
+            <div 
+              className="absolute inset-0 pointer-events-none opacity-20 mix-blend-overlay"
+              style={{
+                backgroundImage: `radial-gradient(#D4AF37 0.75px, transparent 0.75px), radial-gradient(#C5A059 0.75px, #141217 0.75px)`,
+                backgroundSize: '20px 20px',
+                backgroundPosition: '0 0, 10px 10px'
+              }}
+            />
+
+            <button
+              onClick={() => setUnfitModalItem(null)}
+              className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 text-stone-300 hover:text-white transition-colors cursor-pointer"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            <div className="relative z-10">
+              <div className="flex items-center gap-2 text-rose-400 font-bold text-xs uppercase tracking-wider mb-2">
+                <ShieldAlert className="w-5 h-5 shrink-0" />
+                <span>Ranh Giới Văn Hóa · Chốn Tôn Nghiêm</span>
+              </div>
+
+              <h3 className="text-xl font-serif font-bold text-[#faedd0]">
+                {unfitModalItem.name}
+              </h3>
+
+              <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-500/15 border border-rose-500/35 text-rose-300 text-xs font-semibold">
+                <span>⚠️ Lệch chuẩn trang phục trong không gian Heritage Core</span>
+              </div>
+
+              <div className="mt-4 p-4 rounded-2xl bg-black/50 border border-white/10 space-y-2">
+                <div className="text-xs font-semibold text-[#D4AF37] flex items-center gap-1.5">
+                  <BookOpen className="w-3.5 h-3.5" />
+                  <span>Giải Thích Quy Chế Điển Lễ:</span>
+                </div>
+                <p className="text-xs sm:text-sm text-stone-300 leading-relaxed font-serif">
+                  {unfitModalItem.notice}
+                </p>
+              </div>
+
+              <p className="mt-3 text-[11px] text-stone-400 italic leading-relaxed">
+                ✦ Ghi chú: Chốn Tôn Nghiêm ưu tiên 100% sự thanh tịnh, tôn kính và mực thước y quan. Món đồ này đã bị khóa chọn để bảo toàn cấu trúc di sản. Bạn có thể tự do sáng tạo món đồ này ở bối cảnh <strong>"Thanh Lịch Đời Thường"</strong> hoặc <strong>"Đô Thị Phá Cách"</strong>.
+              </p>
+
+              <div className="mt-6 flex items-center justify-end gap-3 pt-3 border-t border-white/10">
+                <button
+                  type="button"
+                  onClick={() => setUnfitModalItem(null)}
+                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#c5a059] to-[#e5c365] text-stone-950 font-bold text-xs hover:brightness-110 shadow transition-all cursor-pointer"
+                >
+                  Đã hiểu quy chuẩn y quan
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

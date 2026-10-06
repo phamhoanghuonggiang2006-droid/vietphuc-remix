@@ -124,44 +124,6 @@ export const HERITAGE_GARMENTS: HeritageItem[] = [
     taboosRules: ['MUST_HAVE_DON_Y', 'NO_IMPERIAL_YELLOW', 'NO_CLASH_MODERN_SHOES'],
     svgType: 'nhat_binh',
     defaultColor: '#7a1f2b'
-  },
-  {
-    id: 'ao-giao-linh',
-    name: 'Áo Giao Lĩnh',
-    subName: 'Cổ phục vạt chéo giao duyên thời Lý - Trần - Lê',
-    dynasty: 'Thời Lý - Trần - Lê (TK 11 - 18)',
-    description: 'Chiếc áo cổ chéo vạt giao nhau thành chữ Y kinh điển của Đại Việt. Nẹp cổ to bản vắt chéo sang sườn phải thắt nơ dải lụa mềm buông rủ, tay áo thụng tha thướt hé lộ lớp lót đỏ rực rỡ bên trong cửa tay, tôn vinh nét đoan trang thuần khiết.',
-    gender: 'all',
-    formFeatures: [
-      'Cổ chéo vạt giao nhau chữ Y thanh thoát, nẹp to bản',
-      'Thắt nơ dải lụa bên sườn phải buông rủ tha thướt',
-      'Tay thụng bồng bềnh với lớp lót đỏ rực rỡ ở cửa tay',
-      'Chuỗi tràng hạt cổ phong trang nhã tôn vinh cổ áo'
-    ],
-    recommendedOccasions: ['Trình diễn di sản', 'Lễ hội văn hóa Thăng Long', 'Chụp ảnh nghệ thuật', 'Cưới hỏi cổ phong'],
-    historicalContext: 'Loại trang phục cổ truyền phổ biến bậc nhất suốt từ thời Lý, Trần sang thời Lê sơ và Lê Trung Hưng trước cải cách y quan thời chúa Nguyễn Phúc Khoát.',
-    taboosRules: ['MUST_HAVE_DON_Y', 'NO_IMPERIAL_YELLOW'],
-    svgType: 'giao_linh',
-    defaultColor: '#1D5C42'
-  },
-  {
-    id: 'ao-vien-linh',
-    name: 'Áo Viên Lĩnh',
-    subName: 'Cung phục cổ tròn vương giả hoàng triều Đại Việt',
-    dynasty: 'Thời Lý - Trần - Lê - Nguyễn',
-    description: 'Áo cổ tròn khép kín ôm sát chân cổ mang vẻ thanh quý, tôn nghiêm. Khuy cài kín đáo bên vai phải, dải lụa trắng thắt eo cao rủ dài hai dải tua rua thướt tha, tà áo suông rộng dệt gấm chìm buông rủ trên nền chân váy đen tao nhã.',
-    gender: 'all',
-    formFeatures: [
-      'Cổ tròn khép kín ôm chân cổ kèm lót Đơn Y trắng',
-      'Khuy cài lệch kín đáo thanh lịch bên vai phải',
-      'Dải lụa trắng thắt eo cao rủ 2 dải dài kèm tua rua',
-      'Tay thụng dài buông lơi quý phái kết hợp chân váy đen'
-    ],
-    recommendedOccasions: ['Đại lễ trang trọng', 'Sự kiện hoàng gia', 'Nghi lễ di sản', 'Lookbook nghệ thuật'],
-    historicalContext: 'Được quy chế hóa chặt chẽ trong điển lễ trang phục các triều đại Đại Việt làm quan phục và phẩm phục cung đình.',
-    taboosRules: ['MUST_HAVE_DON_Y', 'NO_IMPERIAL_YELLOW', 'NO_CLASH_MODERN_SHOES'],
-    svgType: 'vien_linh',
-    defaultColor: '#2B5B84'
   }
 ];
 
@@ -402,15 +364,65 @@ export const REMIX_ITEMS: ModernRemixItem[] = [
   {
     id: 'bottom-high-waist-jeans',
     category: 'bottom',
-    name: 'Quần Jeans Cạp Cao',
-    styleVibe: 'Gen Z Heritage Streetwear',
+    name: 'Quần Jeans Cạp Cao Wash Xám',
+    styleVibe: 'Heritage Streetwear',
     isCulturallyRespectful: true,
     description: 'Chất denim đứng phom cạp cao tôn dáng, giao thoa tuyệt vời giữa cổ phong và đường phố.',
     thumbnailUrl: LINK_ANH_QUAN_JEANS,
     canvas2dUrl: '/canvas/canvas-quan-jeans.png'
   },
+  {
+    id: 'bottom-court-long-skirt',
+    category: 'bottom',
+    name: 'Váy Lọng Dài Cung Đình',
+    styleVibe: 'Lễ Nghi Hoàng Cung',
+    isCulturallyRespectful: true,
+    description: 'Váy dài chấm đất may bằng lụa đọng hoặc gấm thêu viền, đi cùng lễ phục nữ hoàng triều.',
+    thumbnailUrl: '/6.png',
+    canvas2dUrl: '/canvas/canvas-vay-xep-ly.png'
+  },
+  {
+    id: 'bottom-tailored-wide-leg',
+    category: 'bottom',
+    name: 'Quần Tây Wide-Leg Be/Xám',
+    styleVibe: 'Quiet Luxury Acubi',
+    isCulturallyRespectful: true,
+    description: 'Phom quần âu ống rộng cạp cao tone be/xám than, xu hướng thời thượng thanh lịch.',
+    thumbnailUrl: '/5.png',
+    canvas2dUrl: '/canvas/canvas-quan-linen.png'
+  },
+  {
+    id: 'bottom-cargo-pants',
+    category: 'bottom',
+    name: 'Quần Cargo Túi Hộp Siêu Rộng',
+    styleVibe: 'Streetwear Phá Cách',
+    isCulturallyRespectful: false,
+    description: 'Phom cargo baggy túi hộp cá tính, tạo tương phản mạnh mẽ với tà áo cổ đứng.',
+    thumbnailUrl: '/7.png',
+    canvas2dUrl: '/canvas/canvas-quan-jeans.png'
+  },
+  {
+    id: 'bottom-jorts-denim',
+    category: 'bottom',
+    name: 'Jorts (Quần Short Denim Rộng Gen Z)',
+    styleVibe: 'Gen Z Subculture',
+    isCulturallyRespectful: false,
+    description: 'Quần ngố denim rộng phối phá cách cùng áo top cổ đứng và giày chunky sneaker.',
+    thumbnailUrl: '/7.png',
+    canvas2dUrl: '/canvas/canvas-quan-jeans.png'
+  },
+  {
+    id: 'bottom-y2k-pleated-skirt',
+    category: 'bottom',
+    name: 'Chân Váy Xếp Ly Ngắn Y2K',
+    styleVibe: 'Royal Y2K Core',
+    isCulturallyRespectful: false,
+    description: 'Chân váy ngắn xếp ly phối cùng áo crop top và Mary Jane đế thô.',
+    thumbnailUrl: '/6.png',
+    canvas2dUrl: '/canvas/canvas-vay-xep-ly.png'
+  },
 
-  // Shoes (Giày / Guốc: Guốc Mộc Truyền Thống, Hài Thêu Cung Đình, Sneakers Trắng, Chunky Loafers)
+  // Shoes (Giày / Guốc)
   {
     id: 'shoes-wooden-clogs',
     category: 'shoes',
@@ -432,9 +444,19 @@ export const REMIX_ITEMS: ModernRemixItem[] = [
     canvas2dUrl: '/canvas/canvas-hai-theu.png'
   },
   {
+    id: 'shoes-flat-straw-slippers',
+    category: 'shoes',
+    name: 'Dép Lát Đế Phẳng',
+    styleVibe: 'Mộc mạc dân tộc',
+    isCulturallyRespectful: true,
+    description: 'Dép bện sợi cói tự nhiên mộc mạc, nhẹ nhàng êm chân thanh tịnh.',
+    thumbnailUrl: '/8.png',
+    canvas2dUrl: '/canvas/canvas-guoc-moc.png'
+  },
+  {
     id: 'shoes-white-sneakers',
     category: 'shoes',
-    name: 'Sneakers Trắng',
+    name: 'Sneakers Trắng Tối Giản',
     styleVibe: 'Tối giản năng động',
     isCulturallyRespectful: true,
     tabooTrigger: 'NO_CLASH_MODERN_SHOES',
@@ -445,15 +467,57 @@ export const REMIX_ITEMS: ModernRemixItem[] = [
   {
     id: 'shoes-chunky-loafers',
     category: 'shoes',
-    name: 'Chunky Loafers',
+    name: 'Chunky Loafers Da',
     styleVibe: 'Modern Sartorial Chic',
     isCulturallyRespectful: true,
     description: 'Giày da đế bánh mì thời thượng, phối cùng Áo Ngũ Thân tạo chất lãng tử Indochine Dandy.',
     thumbnailUrl: LINK_ANH_CHUNKY_LOAFERS,
     canvas2dUrl: '/canvas/canvas-sneakers.png'
   },
+  {
+    id: 'shoes-mules-leather',
+    category: 'shoes',
+    name: 'Mules Da Đế Bệt',
+    styleVibe: 'Thanh nhã đời thường',
+    isCulturallyRespectful: true,
+    description: 'Dễ dàng xỏ chân, tạo cảm giác nhẹ nhõm, phù hợp dạo phố Tết.',
+    thumbnailUrl: '/9.png',
+    canvas2dUrl: '/canvas/canvas-hai-theu.png'
+  },
+  {
+    id: 'shoes-boots-dr-martens',
+    category: 'shoes',
+    name: 'Boots Dr. Martens 1460',
+    styleVibe: 'Đế thô cá tính',
+    isCulturallyRespectful: false,
+    tabooTrigger: 'NO_CLASH_MODERN_SHOES',
+    description: 'Tương phản giữa chất lụa/gấm mềm mại và da thuộc cứng cáp, cốt lõi Tet-Core.',
+    thumbnailUrl: '/10.png',
+    canvas2dUrl: '/canvas/canvas-sneakers.png'
+  },
+  {
+    id: 'shoes-skater-vans',
+    category: 'shoes',
+    name: 'Vans Old Skool / Sk8-Hi',
+    styleVibe: 'Skater đường phố',
+    isCulturallyRespectful: false,
+    tabooTrigger: 'NO_CLASH_MODERN_SHOES',
+    description: 'Cốt lõi streetwear đường phố Việt Nam, năng động và bụi bặm.',
+    thumbnailUrl: '/10.png',
+    canvas2dUrl: '/canvas/canvas-sneakers.png'
+  },
+  {
+    id: 'shoes-platform-mary-jane',
+    category: 'shoes',
+    name: 'Platform Mary Jane + Tất Trắng',
+    styleVibe: 'Y2K Princess Core',
+    isCulturallyRespectful: false,
+    description: 'Vibe tiểu thư hoàng tộc Y2K cá tính, nổi bật giữa đám đông.',
+    thumbnailUrl: '/10.png',
+    canvas2dUrl: '/canvas/canvas-sneakers.png'
+  },
 
-  // Accessories (Phụ Kiện: Khăn Đóng Chữ Nhân, Khăn Vành Dây, Quạt Giấy Trầm Hương, Bội Ngọc Bích, Kiềng Bạc, Đồng Hồ Thông Minh (Hiện Đại))
+  // Accessories (Phụ Kiện)
   {
     id: 'acc-khan-dong',
     category: 'accessory',
@@ -467,12 +531,32 @@ export const REMIX_ITEMS: ModernRemixItem[] = [
   {
     id: 'acc-khan-vanh-day',
     category: 'accessory',
-    name: 'Khăn Vành Dây',
+    name: 'Khăn Vành Dây Hoàng Cung',
     styleVibe: 'Hoàng cung lộng lẫy',
     isCulturallyRespectful: true,
     description: 'Khăn vành quấn nhiều vòng bằng gấm hoàng gia rực rỡ, phụ kiện đỉnh cao của mệnh phụ & đại lễ.',
     thumbnailUrl: LINK_ANH_KHAN_VANH_DAY,
     canvas2dUrl: '/canvas/canvas-khan-dong.png'
+  },
+  {
+    id: 'acc-tram-phuong',
+    category: 'accessory',
+    name: 'Trâm Phượng Hoàng Cung',
+    styleVibe: 'Mệnh phụ vương triều',
+    isCulturallyRespectful: true,
+    description: 'Trâm cài tóc phượng hoàng buông rũ, biểu tượng mệnh phụ quý tộc.',
+    thumbnailUrl: '/13.png',
+    canvas2dUrl: '/canvas/canvas-boi-ngoc.png'
+  },
+  {
+    id: 'acc-kim-uoc',
+    category: 'accessory',
+    name: 'Kim Ước / Kim Khánh',
+    styleVibe: 'Khánh cung đình',
+    isCulturallyRespectful: true,
+    description: 'Dây chuyền cung đình chạm khắc chữ Phúc, Thọ, hoa văn sóng nước thủy ba.',
+    thumbnailUrl: '/13.png',
+    canvas2dUrl: '/canvas/canvas-boi-ngoc.png'
   },
   {
     id: 'acc-paper-fan',
@@ -497,7 +581,7 @@ export const REMIX_ITEMS: ModernRemixItem[] = [
   {
     id: 'acc-kieng-bac',
     category: 'accessory',
-    name: 'Kiềng Bạc',
+    name: 'Kiềng Bạc Chạm Uốn Lượn',
     styleVibe: 'Cốt cách An Nam',
     isCulturallyRespectful: true,
     description: 'Vòng kiềng bạc chạm hoa lá uốn lượn ôm quanh cổ, tôn vinh nét đài các, dịu dàng của thiếu nữ Việt.',
@@ -505,9 +589,59 @@ export const REMIX_ITEMS: ModernRemixItem[] = [
     canvas2dUrl: '/canvas/canvas-boi-ngoc.png'
   },
   {
+    id: 'acc-leather-tote',
+    category: 'accessory',
+    name: 'Túi Tote Da Cấu Trúc',
+    styleVibe: 'Quiet Luxury Công Sở',
+    isCulturallyRespectful: true,
+    description: 'Thiết kế tối giản, tông màu be/nâu/đen, tiện dụng cho ngày làm việc văn phòng.',
+    thumbnailUrl: '/11.png',
+    canvas2dUrl: '/canvas/canvas-quat-giay.png'
+  },
+  {
+    id: 'acc-sunglasses-gold',
+    category: 'accessory',
+    name: 'Kính Râm Gọng Mảnh Vàng',
+    styleVibe: 'Hiện đại sành điệu',
+    isCulturallyRespectful: true,
+    description: 'Điểm nhấn sang trọng, tạo vẻ thời thượng khi dạo phố Hội An hay phố cổ.',
+    thumbnailUrl: '/14.png',
+    canvas2dUrl: '/canvas/canvas-dong-ho.png'
+  },
+  {
+    id: 'acc-silver-chain-cuban',
+    category: 'accessory',
+    name: 'Vòng Cổ Xích Bạc Cuban Link',
+    styleVibe: 'Hiphop Á Đông',
+    isCulturallyRespectful: false,
+    description: 'Layer dây chuyền kim loại hầm hố, phong cách hiphop Á Đông thời thượng.',
+    thumbnailUrl: '/13.png',
+    canvas2dUrl: '/canvas/canvas-boi-ngoc.png'
+  },
+  {
+    id: 'acc-bucket-hat',
+    category: 'accessory',
+    name: 'Bucket Hat / Snapback',
+    styleVibe: 'Streetwear bất hủ',
+    isCulturallyRespectful: false,
+    description: 'Phụ kiện streetwear bất hủ cho các bạn trẻ đi concert, trượt ván.',
+    thumbnailUrl: '/12.png',
+    canvas2dUrl: '/canvas/canvas-khan-dong.png'
+  },
+  {
+    id: 'acc-chest-bag',
+    category: 'accessory',
+    name: 'Túi Crossbody Chest Bag',
+    styleVibe: 'Techwear đường phố',
+    isCulturallyRespectful: false,
+    description: 'Tiện lợi, năng động, mang hơi thở thành thị hiện đại.',
+    thumbnailUrl: '/14.png',
+    canvas2dUrl: '/canvas/canvas-dong-ho.png'
+  },
+  {
     id: 'acc-smartwatch',
     category: 'accessory',
-    name: 'Đồng Hồ Thông Minh (Hiện Đại)',
+    name: 'Đồng Hồ Thông Minh (Smartwatch)',
     styleVibe: 'Lạc quẻ thời đại',
     isCulturallyRespectful: false,
     tabooTrigger: 'NO_CLASH_MODERN_SHOES',
