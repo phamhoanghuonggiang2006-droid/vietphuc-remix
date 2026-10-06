@@ -2840,7 +2840,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                     </span>
                   </div>
                   <p className={`leading-relaxed ${
-                    currentTier === 'fusion' ? 'font-black not-italic font-bold text-sm text-white uppercase' : currentTier === 'modern' ? 'font-semibold italic font-serif text-stone-800' : 'font-semibold italic font-serif text-stone-100'
+                    currentTier === 'fusion' ? 'font-medium italic text-sm text-white' : currentTier === 'modern' ? 'font-semibold italic font-serif text-stone-800' : 'font-semibold italic font-serif text-stone-100'
                   }`}>
                     {dualMetrics.stylistQuote}
                   </p>

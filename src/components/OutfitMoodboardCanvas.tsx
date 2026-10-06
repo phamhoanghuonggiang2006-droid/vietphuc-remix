@@ -279,21 +279,21 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
       badge: 'Brutalist Concrete'
     },
     cafe: {
-      src: '/backgrounds/led-glitch-billboard.jpg',
+      src: '/backgrounds/man-hinh-led-glitch.jpg',
       alt: 'Màn Hình LED Glitch - Cyberpunk Billboard',
       tint: 'from-[#080812]/50 via-transparent to-black/75',
       glow: 'rgba(255, 0, 127, 0.35)',
       badge: 'LED Glitch Screen'
     },
     museum: {
-      src: '/backgrounds/tuong-be-tong-xuoc.jpg',
+      src: '/backgrounds/skatepark-30-4.jpeg',
       alt: 'Skatepark 30/4 Underground',
       tint: 'from-[#0a1215]/60 via-transparent to-[#04080a]/80',
       glow: 'rgba(57, 255, 20, 0.25)',
       badge: 'Skate Underground'
     },
     street: {
-      src: '/backgrounds/led-glitch-billboard.jpg',
+      src: '/backgrounds/pho-dem-bui-vien.jpg',
       alt: 'Phố Đêm Bùi Viện Cyberpunk',
       tint: 'from-[#120514]/55 via-transparent to-[#060208]/80',
       glow: 'rgba(255, 0, 127, 0.35)',

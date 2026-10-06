@@ -85,7 +85,7 @@ export const DJ_DECK_TRACKS: DjDeckPreset[] = [
     accentNeon: '#FF007F',
     borderNeon: 'border-[#FF007F]',
     shadowNeon: 'shadow-[0_0_20px_rgba(255,0,127,0.35)]',
-    genre: 'HYPERPOP & FUTURE BASS',
+    genre: 'HYPERPOP',
     watermark: '👑',
     emblemUrl: '/presets/royal-y2k.png',
     emblemScale: 'scale-100',
@@ -432,12 +432,12 @@ export const TheDjDeckPresets: React.FC<TheDjDeckPresetsProps> = ({
       {/* 3. CAROUSEL KHUNG HIỂN THỊ TRỌN VẸN (GIỐNG FORMAT BẢNG MÀN HÌNH 1) */}
       {/* ======================================================== */}
       <div
-        className="relative overflow-hidden"
+        className="relative overflow-hidden py-2.5 px-1.5 -my-2 -mx-1"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
         <div
-          className="flex transition-transform duration-500 ease-out"
+          className="flex transition-transform duration-500 ease-out py-0.5"
           style={{ transform: `translateX(-${currentTrackIndex * 100}%)` }}
         >
           {DJ_DECK_TRACKS.map((track, index) => {
@@ -446,7 +446,7 @@ export const TheDjDeckPresets: React.FC<TheDjDeckPresetsProps> = ({
             return (
               <div
                 key={track.id}
-                className="w-full min-w-full flex-shrink-0 px-0.5"
+                className="w-full min-w-full flex-shrink-0 p-2"
               >
                 <div
                   onClick={() => triggerTrackSwitch(index)}
@@ -489,18 +489,18 @@ export const TheDjDeckPresets: React.FC<TheDjDeckPresetsProps> = ({
                     <div className="flex items-center justify-between gap-2 mb-3">
                       {/* Box TRẠM... glowing màu neon riêng của từng Trạm, chữ trắng */}
                       <div
-                        className="px-3 py-1 rounded-lg flex items-center gap-1.5 shrink-0 transition-all"
+                        className="px-2.5 sm:px-3 py-1 rounded-lg flex items-center gap-1.5 shrink min-w-0 transition-all truncate"
                         style={{
                           backgroundColor: `${track.accentNeon}18`,
                           border: `1px solid ${track.accentNeon}`,
                           boxShadow: `0 0 15px ${track.accentNeon}66, inset 0 0 10px ${track.accentNeon}22`
                         }}
                       >
-                        <span className="text-xs sm:text-[13px] font-black text-white uppercase tracking-wider font-mono drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]">
+                        <span className="text-xs sm:text-[13px] font-black text-white uppercase tracking-wider font-mono drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)] shrink-0">
                           {track.tag.split('·')[0].trim()}
                         </span>
-                        <span className="text-xs font-bold" style={{ color: track.accentNeon }}>·</span>
-                        <span className="text-xs sm:text-[13px] font-bold text-white uppercase tracking-wide drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]">
+                        <span className="text-xs font-bold shrink-0" style={{ color: track.accentNeon }}>·</span>
+                        <span className="text-xs sm:text-[13px] font-bold text-white uppercase tracking-wide drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)] truncate">
                           {track.tag.split('·')[1]?.trim()}
                         </span>
                       </div>
@@ -558,7 +558,7 @@ export const TheDjDeckPresets: React.FC<TheDjDeckPresetsProps> = ({
                     </h3>
 
                     {/* Description */}
-                    <p className="text-xs sm:text-[13px] text-stone-300 leading-relaxed font-sans mt-2.5">
+                    <p className="text-xs sm:text-[13px] text-stone-300 leading-relaxed font-sans mt-2.5 italic">
                       {track.description}
                     </p>
                   </div>
