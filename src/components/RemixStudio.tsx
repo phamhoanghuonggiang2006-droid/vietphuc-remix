@@ -48,7 +48,8 @@ import {
   BookOpen,
   ArrowLeft,
   Scroll,
-  Crown
+  Crown,
+  Zap
 } from 'lucide-react';
 
 interface ExtractedColorChip {
@@ -95,7 +96,7 @@ interface RemixResult {
 export interface DualMetricEvaluation {
   slayScore: number;
   heritageScore: number;
-  scenario: 'taboo' | 'anachronism' | 'heritage' | 'modern_polite';
+  scenario: 'taboo' | 'anachronism' | 'heritage' | 'modern_polite' | 'fusion';
   badgeTitle: string;
   stylistQuote: string;
   subAdvice: string;
