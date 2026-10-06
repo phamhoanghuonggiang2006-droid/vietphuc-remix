@@ -730,3 +730,60 @@ export function playThangLongUkuleleSound(): void {
   osc2.stop(t2 + 0.29);
 }
 
+/**
+ * 15. TIẾNG "XOẠT" LẬT TRANG SÁCH / TẠP CHÍ THỜI TRANG (Magazine Page Turn)
+ * Mô phỏng ma sát bề mặt giấy mỹ thuật / giấy lụa tạp chí thời trang lật giòn tan
+ */
+export function playPageFlipSound(): void {
+  if (isMutedState) return;
+  const ctx = getAudioContext();
+  if (!ctx) return;
+
+  const now = ctx.currentTime;
+  const duration = 0.22;
+  const buffer = createNoiseBuffer(ctx, duration);
+
+  const noiseSource = ctx.createBufferSource();
+  noiseSource.buffer = buffer;
+
+  // Lọc dải thông băng tần (Bandpass filter) quét lướt tiếng cọ xát của trang giấy
+  const filter = ctx.createBiquadFilter();
+  filter.type = 'bandpass';
+  filter.Q.setValueAtTime(1.9, now);
+  filter.frequency.setValueAtTime(1100, now);
+  filter.frequency.exponentialRampToValueAtTime(3200, now + 0.07);
+  filter.frequency.exponentialRampToValueAtTime(800, now + duration);
+
+  // Âm lượng phong bì kép (Attack - Swish - Release)
+  const gain = ctx.createGain();
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.linearRampToValueAtTime(0.18, now + 0.025);
+  gain.gain.linearRampToValueAtTime(0.08, now + 0.09);
+  gain.gain.linearRampToValueAtTime(0.14, now + 0.13);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+  noiseSource.connect(filter);
+  filter.connect(gain);
+  gain.connect(ctx.destination);
+
+  noiseSource.start(now);
+  noiseSource.stop(now + duration + 0.02);
+
+  // Âm vỗ nhẹ của trang giấy áp xuống (Thump của gáy sách)
+  const thumpOsc = ctx.createOscillator();
+  thumpOsc.type = 'sine';
+  thumpOsc.frequency.setValueAtTime(160, now + 0.08);
+  thumpOsc.frequency.exponentialRampToValueAtTime(60, now + 0.18);
+
+  const thumpGain = ctx.createGain();
+  thumpGain.gain.setValueAtTime(0.0001, now + 0.08);
+  thumpGain.gain.linearRampToValueAtTime(0.06, now + 0.095);
+  thumpGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.19);
+
+  thumpOsc.connect(thumpGain);
+  thumpGain.connect(ctx.destination);
+
+  thumpOsc.start(now + 0.08);
+  thumpOsc.stop(now + 0.2);
+}
+
