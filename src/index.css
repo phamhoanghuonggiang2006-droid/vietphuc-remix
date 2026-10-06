@@ -82,10 +82,10 @@
 }
 
 @keyframes stampSlam {
-  0% { transform: scale(2.8) rotate(-16deg); opacity: 0; filter: blur(4px); }
-  60% { transform: scale(0.92) rotate(-3.5deg); opacity: 1; filter: blur(0); }
-  80% { transform: scale(1.04) rotate(-4.5deg); }
-  100% { transform: scale(1) rotate(-4deg); opacity: 1; }
+  0% { transform: scale(2.4) rotate(-22deg); opacity: 0; filter: blur(4px); }
+  60% { transform: scale(0.95) rotate(-9deg); opacity: 1; filter: blur(0); }
+  80% { transform: scale(1.02) rotate(-10.5deg); }
+  100% { transform: scale(1) rotate(-10deg); opacity: 1; }
 }
 
 .animate-stamp-slam {
@@ -106,17 +106,24 @@
   animation: neonGlitchBlink 3.5s infinite ease-in-out;
 }
 
+/* Texture lưới điện tử mờ 5-7% tạo chiều sâu công nghệ tinh tế */
 .cyber-grid-pattern {
   background-image: 
-    linear-gradient(to right, rgba(0, 240, 255, 0.08) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 0, 127, 0.08) 1px, transparent 1px);
-  background-size: 28px 28px;
+    linear-gradient(to right, rgba(0, 243, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 243, 255, 0.04) 1px, transparent 1px);
+  background-size: 32px 32px;
 }
 
 .concrete-texture-pattern {
-  background-image: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.05) 1px, transparent 1px),
-                    radial-gradient(circle at 20% 80%, rgba(255,255,255,0.03) 2px, transparent 2px);
+  background-image: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.03) 1px, transparent 1px),
+                    radial-gradient(circle at 20% 80%, rgba(255,255,255,0.02) 2px, transparent 2px);
   background-size: 32px 32px, 48px 48px;
+}
+
+.cyber-panel-subtle {
+  background-color: #121212;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 30px rgba(0, 243, 255, 0.05);
 }
 
 

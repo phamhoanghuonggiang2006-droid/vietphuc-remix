@@ -1027,7 +1027,7 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
       currentTier === 'modern'
         ? 'rounded-2xl bg-white/85 border border-stone-200/90 shadow-xl backdrop-blur-xl text-stone-800'
         : currentTier === 'fusion'
-        ? 'font-streetwear rounded-none bg-[#08080C] border-2 border-[#00F0FF] shadow-[6px_6px_0px_#FF007F] text-white'
+        ? 'font-streetwear rounded-none bg-[#121212]/95 border border-white/10 shadow-[0_0_30px_rgba(0,243,255,0.06)] text-white'
         : 'rounded-2xl bg-[#141419] border border-[#23232c] shadow-2xl text-[#f5f2eb]'
     }`}>
       {/* HEADER: TITLE & CONTROLS */}
@@ -1035,7 +1035,7 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
         currentTier === 'modern'
           ? 'border-stone-200/80 bg-white/70'
           : currentTier === 'fusion'
-          ? 'border-b-2 border-white/20 bg-[#0d0d14]'
+          ? 'border-b border-white/10 bg-[#0d0d12]/80'
           : 'border-[#22222c] bg-gradient-to-r from-[#171720] to-[#121217]'
       }`}>
         <div className="flex items-center gap-2">
@@ -1043,7 +1043,7 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
             currentTier === 'modern'
               ? 'rounded-lg bg-[#8BA888]/15 border border-[#8BA888]/30 text-[#436240]'
               : currentTier === 'fusion'
-              ? 'rounded-none bg-[#FF007F]/20 border-2 border-[#FF007F] text-[#FF007F]'
+              ? 'rounded-none bg-[#00f3ff]/15 border border-[#00f3ff]/40 text-[#00f3ff]'
               : 'rounded-lg bg-[#c5a059]/15 border border-[#c5a059]/30 text-[#c5a059]'
           }`}>
             <Sparkles className="w-4 h-4" />
@@ -1054,7 +1054,7 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
                 currentTier === 'modern'
                   ? 'text-[#3E5C3B]'
                   : currentTier === 'fusion'
-                  ? 'font-black italic text-white tracking-widest'
+                  ? 'font-black italic text-white tracking-widest font-streetwear'
                   : 'text-[#c5a059]'
               }`}>
                 {currentTier === 'modern'
@@ -1064,8 +1064,8 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
                   : 'CANVAS PREVIEW OUTFIT TỔNG THỂ'}
               </span>
               {currentTier === 'fusion' ? (
-                <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-none bg-[#FF007F]/20 text-[#FF007F] border border-[#FF007F] font-black uppercase">
-                  FUSION SUB-CULTURE
+                <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-none bg-[#00f3ff]/15 text-[#00f3ff] border border-[#00f3ff]/40 font-mono font-bold uppercase">
+                  FUSION STREETWEAR
                 </span>
               ) : hasActiveTaboo ? (
                 <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-800 border border-amber-500/30 font-medium">
@@ -1370,16 +1370,19 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
           >
             {/* GATEKEEPER RUBBER STAMP: "FUSION - LẤY CẢM HỨNG" (MÀN 3) */}
             {currentTier === 'fusion' && (
-              <div className="absolute top-2 right-2 sm:top-4 sm:right-4 z-40 pointer-events-none animate-stamp-slam select-none">
-                <div className="border-[3px] border-double border-[#FF007F] px-3.5 py-1.5 sm:px-4 sm:py-2 bg-black/90 backdrop-blur-xs text-[#FF007F] font-black tracking-widest uppercase -rotate-6 shadow-[0_0_20px_rgba(255,0,127,0.7)] flex flex-col items-center justify-center">
-                  <span className="text-[7.5px] sm:text-[8.5px] tracking-widest border-b border-[#FF007F]/60 pb-0.5 mb-0.5 w-full text-center">
-                    HERITSTYLE · GATEKEEPER
+              <div 
+                className="absolute top-3 right-3 sm:top-5 sm:right-5 z-40 pointer-events-none select-none animate-stamp-slam"
+                style={{ transform: 'rotate(-10deg)' }}
+              >
+                <div className="relative px-3 py-1.5 sm:px-3.5 sm:py-1.5 bg-black/90 backdrop-blur-md border border-[#FF007F]/80 text-[#FF007F] font-black tracking-widest uppercase shadow-[0_0_15px_rgba(255,0,127,0.35)] flex flex-col items-center justify-center font-streetwear">
+                  <span className="text-[7.5px] font-mono tracking-widest border-b border-[#FF007F]/40 pb-0.5 mb-0.5 w-full text-center">
+                    // GATEKEEPER STAMP //
                   </span>
-                  <span className="text-xs sm:text-sm font-black italic tracking-wider drop-shadow-[0_0_8px_#FF007F]">
-                    FUSION - LẤY CẢM HỨNG
+                  <span className="text-xs sm:text-[13px] font-black italic tracking-widest drop-shadow-[0_0_8px_#FF007F]">
+                    FUSION · LẤY CẢM HỨNG
                   </span>
-                  <span className="text-[7px] sm:text-[8px] font-mono text-[#00F0FF] tracking-tighter mt-0.5">
-                    ★ SUB-CULTURE VERIFIED ★
+                  <span className="text-[7.5px] font-mono text-stone-300 tracking-wider mt-0.5">
+                    🚫 CẤM CỬA Ở ĐỀN CHÙA
                   </span>
                 </div>
               </div>

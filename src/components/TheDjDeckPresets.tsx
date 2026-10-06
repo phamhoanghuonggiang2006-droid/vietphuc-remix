@@ -43,9 +43,9 @@ export const DJ_DECK_TRACKS: DjDeckPreset[] = [
     tag: 'TRẠM 1 · SKATEPARK 30/4',
     location: 'Công viên 30/4 · Phố Bùi Viện',
     description: 'Phối sẵn Áo cổ đứng in graphic Tứ Quý + Quần Cargo túi hộp + Sneaker Dunk. Dành cho những buổi trượt ván ở công viên 30/4 hay dạo phố Bùi Viện.',
-    accentNeon: '#00F0FF',
-    borderNeon: 'border-[#00F0FF]',
-    shadowNeon: 'shadow-[4px_4px_0px_#00F0FF]',
+    accentNeon: '#00f3ff',
+    borderNeon: 'border-[#00f3ff]',
+    shadowNeon: 'shadow-[0_0_15px_rgba(0,243,255,0.25)]',
     bpm: 130,
     highlights: ['Áo ngũ thân tay chẽn Graphic', 'Quần Cargo túi hộp', 'Sneaker Dunk Skate', 'Túi Chest Bag', 'Mũ Bucket'],
     outfit: {
@@ -74,9 +74,9 @@ export const DJ_DECK_TRACKS: DjDeckPreset[] = [
     tag: 'TRẠM 2 · NEON PRINCESS',
     location: 'Saigon Concert · Phố Đi Bộ',
     description: 'Phối sẵn Áo cổ vuông (lấy cảm hứng Nhật Bình) form crop-top + Váy xếp ly + Giày Mary Jane. Tone màu bẻ sang Hồng Neon cá tính.',
-    accentNeon: '#FF007F',
-    borderNeon: 'border-[#FF007F]',
-    shadowNeon: 'shadow-[4px_4px_0px_#FF007F]',
+    accentNeon: '#00f3ff',
+    borderNeon: 'border-[#00f3ff]',
+    shadowNeon: 'shadow-[0_0_15px_rgba(0,243,255,0.25)]',
     bpm: 138,
     highlights: ['Áo Nhật Bình form Crop-top', 'Hồng Hot Pink Neon', 'Chân váy xếp ly Y2K', 'Mary Jane đế bánh mì', 'Kính râm gọng dày'],
     outfit: {
@@ -105,9 +105,9 @@ export const DJ_DECK_TRACKS: DjDeckPreset[] = [
     tag: 'TRẠM 3 · GOTHIC CỔ PHONG',
     location: 'Underground Vault · Rock Club',
     description: 'Áo khoác tay thụng nhung đen + Quần jean rách + Boots Dr. Martens + Xích bạc layer. Một chút bí ẩn, sắc lạnh, đúng chất Gothic cổ phong.',
-    accentNeon: '#39FF14',
-    borderNeon: 'border-[#39FF14]',
-    shadowNeon: 'shadow-[4px_4px_0px_#39FF14]',
+    accentNeon: '#39ff14',
+    borderNeon: 'border-[#39ff14]',
+    shadowNeon: 'shadow-[0_0_15px_rgba(57,255,20,0.25)]',
     bpm: 142,
     highlights: ['Áo tay thụng nhung đen', 'Quần jeans rách wash xám', 'Boots Dr. Martens 1460', 'Xích bạc Cuban layer', 'Gothic cổ phong'],
     outfit: {
@@ -184,33 +184,33 @@ export const TheDjDeckPresets: React.FC<TheDjDeckPresetsProps> = ({
 
   return (
     <div
-      className={`font-streetwear relative bg-[#08080C] text-stone-100 border-2 border-[#00F0FF] p-4 sm:p-5 transition-all duration-300 shadow-[6px_6px_0px_#FF007F] ${
+      className={`font-streetwear relative bg-[#121212]/95 text-stone-100 border border-white/10 p-4 sm:p-5 transition-all duration-300 shadow-[0_0_30px_rgba(0,243,255,0.06)] rounded-none ${
         isBassShaking ? 'animate-bass-shake' : ''
       }`}
       style={{
         backgroundImage: `
-          linear-gradient(to right, rgba(0, 240, 255, 0.05) 1px, transparent 1px),
-          linear-gradient(to bottom, rgba(255, 0, 127, 0.05) 1px, transparent 1px)
+          linear-gradient(to right, rgba(0, 243, 255, 0.03) 1px, transparent 1px),
+          linear-gradient(to bottom, rgba(0, 243, 255, 0.03) 1px, transparent 1px)
         `,
-        backgroundSize: '24px 24px'
+        backgroundSize: '32px 32px'
       }}
     >
-      {/* GLITCH & CORNER ACCENTS (BRUTALISM) */}
-      <div className="absolute -top-2.5 -left-2.5 bg-[#FF007F] text-black font-black text-[9px] px-2 py-0.5 tracking-widest uppercase border border-white">
+      {/* CORNER TAGS (SUBTLE CYBER ACCENTS) */}
+      <div className="absolute -top-2.5 -left-2 bg-black/90 text-[#00f3ff] font-mono font-bold text-[9px] px-2 py-0.5 tracking-widest uppercase border border-[#00f3ff]/40">
         DECK // MK-303
       </div>
-      <div className="absolute -top-2.5 -right-2.5 bg-[#00F0FF] text-black font-black text-[9px] px-2 py-0.5 tracking-widest uppercase border border-white">
+      <div className="absolute -top-2.5 -right-2 bg-black/90 text-[#39ff14] font-mono font-bold text-[9px] px-2 py-0.5 tracking-widest uppercase border border-[#39ff14]/40">
         BASS BOOST 808
       </div>
 
       {/* TOP HEADER: DECK STATUS & BPM & ON-AIR */}
-      <div className="flex flex-wrap items-center justify-between gap-2.5 border-b-2 border-white/10 pb-3 mb-4">
+      <div className="flex flex-wrap items-center justify-between gap-2.5 border-b border-white/10 pb-3 mb-4">
         <div className="flex items-center gap-2">
           <div className="relative">
-            <div className={`w-8 h-8 rounded-none border-2 border-white/80 bg-black flex items-center justify-center ${
+            <div className={`w-8 h-8 rounded-none border border-white/40 bg-black flex items-center justify-center ${
               isScratching ? 'animate-spin' : ''
             }`}>
-              <Disc3 className="w-5 h-5 text-[#00F0FF]" />
+              <Disc3 className="w-5 h-5 text-[#00f3ff]" />
             </div>
             <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[#39FF14] animate-ping" />
           </div>
@@ -218,7 +218,7 @@ export const TheDjDeckPresets: React.FC<TheDjDeckPresetsProps> = ({
             <div className="flex items-center gap-1.5">
               <h2 className="font-black italic uppercase tracking-wider text-base text-white flex items-center gap-1.5">
                 <span>TRẠM TRỘN MIXSET</span>
-                <span className="text-[#00F0FF] text-xs font-mono not-italic">[THE DJ DECK]</span>
+                <span className="text-[#00f3ff] text-xs font-mono not-italic">[THE DJ DECK]</span>
               </h2>
             </div>
             <p className="text-[10px] text-stone-400 font-mono tracking-tight">
@@ -230,24 +230,24 @@ export const TheDjDeckPresets: React.FC<TheDjDeckPresetsProps> = ({
         {/* LED STATUS & VU METERS */}
         <div className="flex items-center gap-3">
           {/* VU METER BARS */}
-          <div className="hidden sm:flex items-end gap-1 h-5 px-2 py-0.5 bg-black/80 border border-white/20">
+          <div className="hidden sm:flex items-end gap-1 h-5 px-2 py-0.5 bg-black/80 border border-white/10">
             {vuLevels.map((lvl, i) => (
               <div
                 key={i}
                 className="w-1 transition-all duration-150"
                 style={{
                   height: `${lvl}%`,
-                  backgroundColor: lvl > 85 ? '#FF007F' : lvl > 65 ? '#00F0FF' : '#39FF14'
+                  backgroundColor: lvl > 85 ? '#FF007F' : lvl > 65 ? '#00f3ff' : '#39FF14'
                 }}
               />
             ))}
           </div>
 
-          <div className="flex items-center gap-1.5 bg-black border border-white/30 px-2.5 py-1">
-            <Radio className="w-3 h-3 text-[#FF007F] animate-pulse" />
-            <span className="font-mono font-black text-xs text-[#FF007F]">ON AIR</span>
+          <div className="flex items-center gap-1.5 bg-black/90 border border-white/15 px-2.5 py-1">
+            <Radio className="w-3 h-3 text-[#39FF14] animate-pulse" />
+            <span className="font-mono font-bold text-xs text-[#00f3ff]">ON AIR</span>
             <span className="text-stone-500 font-mono">|</span>
-            <span className="font-mono text-xs text-[#00F0FF]">{activeTrack.bpm} BPM</span>
+            <span className="font-mono text-xs text-stone-300">{activeTrack.bpm} BPM</span>
           </div>
         </div>
       </div>
@@ -255,13 +255,13 @@ export const TheDjDeckPresets: React.FC<TheDjDeckPresetsProps> = ({
       {/* ======================================================== */}
       {/* 1. HORIZONTAL CROSSFADER SLIDER (THANH TRƯỢT LỚN) */}
       {/* ======================================================== */}
-      <div className="bg-[#0f0f16] border-2 border-white/20 p-3 sm:p-4 mb-4 relative">
+      <div className="bg-[#0d0d12] border border-white/10 p-3 sm:p-4 mb-4 relative shadow-inner">
         <div className="flex items-center justify-between text-xs font-mono mb-2">
-          <span className="text-stone-400 flex items-center gap-1 font-bold">
-            <Sliders className="w-3.5 h-3.5 text-[#00F0FF]" />
+          <span className="text-stone-300 flex items-center gap-1.5 font-bold">
+            <Sliders className="w-3.5 h-3.5 text-[#00f3ff]" />
             CROSSFADER TRACK SLIDER
           </span>
-          <span className="text-[10px] text-[#39FF14] font-mono uppercase bg-black px-1.5 py-0.5 border border-[#39FF14]/40">
+          <span className="text-[10px] text-[#39FF14] font-mono uppercase bg-black px-1.5 py-0.5 border border-[#39FF14]/30">
             KÉO ĐỔI TRẠM · RUNG BASS 808
           </span>
         </div>
@@ -269,12 +269,12 @@ export const TheDjDeckPresets: React.FC<TheDjDeckPresetsProps> = ({
         {/* Range Slider */}
         <div className="relative py-2">
           {/* Track Bar Background with 3 Notch Points */}
-          <div className="h-4 bg-black border border-white/40 flex items-center justify-between px-3 relative">
-            <div className="absolute inset-0 bg-gradient-to-r from-[#00F0FF]/20 via-[#FF007F]/20 to-[#39FF14]/20" />
+          <div className="h-3.5 bg-black border border-white/20 flex items-center justify-between px-3 relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-[#00f3ff]/20 via-[#39ff14]/20 to-[#00f3ff]/20" />
             {/* 3 Notch Markers */}
-            <div className="relative z-10 w-2 h-2 bg-[#00F0FF] border border-white" />
-            <div className="relative z-10 w-2 h-2 bg-[#FF007F] border border-white" />
-            <div className="relative z-10 w-2 h-2 bg-[#39FF14] border border-white" />
+            <div className="relative z-10 w-2 h-2 bg-[#00f3ff] border border-black" />
+            <div className="relative z-10 w-2 h-2 bg-[#39ff14] border border-black" />
+            <div className="relative z-10 w-2 h-2 bg-[#00f3ff] border border-black" />
           </div>
 
           <input
@@ -290,14 +290,14 @@ export const TheDjDeckPresets: React.FC<TheDjDeckPresetsProps> = ({
 
           {/* Visual Fader Knob Thumb */}
           <div
-            className="absolute top-1/2 -translate-y-1/2 w-8 h-8 bg-black border-2 border-white shadow-[0_0_12px_#00F0FF] flex items-center justify-center pointer-events-none transition-all duration-200 z-10"
+            className="absolute top-1/2 -translate-y-1/2 w-7 h-7 bg-black border border-[#00f3ff] shadow-[0_0_12px_rgba(0,243,255,0.5)] flex items-center justify-center pointer-events-none transition-all duration-200 z-10"
             style={{
-              left: currentTrackIndex === 0 ? '0%' : currentTrackIndex === 1 ? 'calc(50% - 16px)' : 'calc(100% - 32px)',
+              left: currentTrackIndex === 0 ? '0%' : currentTrackIndex === 1 ? 'calc(50% - 14px)' : 'calc(100% - 28px)',
               borderColor: activeTrack.accentNeon
             }}
           >
             <div
-              className="w-1.5 h-4"
+              className="w-1.5 h-3.5"
               style={{ backgroundColor: activeTrack.accentNeon }}
             />
           </div>
@@ -314,8 +314,8 @@ export const TheDjDeckPresets: React.FC<TheDjDeckPresetsProps> = ({
                 onClick={() => triggerTrackSwitch(idx)}
                 className={`text-[10px] sm:text-[11px] font-black uppercase tracking-tight py-1 px-1 border transition-all cursor-pointer ${
                   isCur
-                    ? `bg-white text-black font-extrabold border-white ${t.shadowNeon}`
-                    : 'bg-black/60 text-stone-400 border-white/10 hover:border-white/30 hover:text-white'
+                    ? 'bg-[#00f3ff]/15 text-[#00f3ff] font-extrabold border-[#00f3ff] shadow-[0_0_12px_rgba(0,243,255,0.2)]'
+                    : 'bg-black/40 text-stone-400 border-white/10 hover:border-white/20 hover:text-white'
                 }`}
               >
                 {t.tag.split('·')[0].trim()}
@@ -337,18 +337,18 @@ export const TheDjDeckPresets: React.FC<TheDjDeckPresetsProps> = ({
               key={track.id}
               type="button"
               onClick={() => triggerTrackSwitch(idx)}
-              className={`relative text-left p-3 border-2 transition-all duration-200 cursor-pointer flex flex-col justify-between ${
+              className={`relative text-left p-3 border transition-all duration-200 cursor-pointer flex flex-col justify-between ${
                 isSelected
-                  ? `bg-black ${track.borderNeon} ${track.shadowNeon} scale-[1.02] ring-1 ring-white`
-                  : 'bg-[#121219] border-white/15 hover:border-white/50 hover:bg-[#181824]'
+                  ? 'bg-black border-[#00f3ff] shadow-[0_0_20px_rgba(0,243,255,0.25)] ring-1 ring-[#00f3ff]/30'
+                  : 'bg-white/[0.02] border-white/10 hover:border-[#00f3ff]/40 hover:bg-[#181822] hover:shadow-[0_0_15px_rgba(0,243,255,0.1)]'
               }`}
             >
               {/* LED Pad Indicator */}
               <div className="flex items-center justify-between mb-2">
                 <span className={`text-[9px] font-mono font-black px-1.5 py-0.5 border ${
                   isSelected 
-                    ? 'bg-white text-black border-white' 
-                    : 'bg-black text-stone-400 border-white/20'
+                    ? 'bg-[#00f3ff] text-black border-[#00f3ff]' 
+                    : 'bg-black text-stone-400 border-white/15'
                 }`}>
                   PAD 0{idx + 1}
                 </span>
@@ -380,8 +380,8 @@ export const TheDjDeckPresets: React.FC<TheDjDeckPresetsProps> = ({
                   📍 {track.location.split('·')[0].trim()}
                 </span>
                 {isSelected && (
-                  <span className="text-[9px] font-black uppercase text-[#00F0FF] flex items-center gap-0.5">
-                    <Flame className="w-2.5 h-2.5 text-[#FF007F]" />
+                  <span className="text-[9px] font-black uppercase text-[#00f3ff] flex items-center gap-0.5">
+                    <Flame className="w-2.5 h-2.5 text-[#39FF14]" />
                     ACTIVE
                   </span>
                 )}
@@ -394,18 +394,18 @@ export const TheDjDeckPresets: React.FC<TheDjDeckPresetsProps> = ({
       {/* ======================================================== */}
       {/* 3. ACTIVE TRACK PLAYOUT BANNER & HIGHLIGHT TAGS */}
       {/* ======================================================== */}
-      <div className="bg-black/90 border-2 border-white/20 p-3 sm:p-3.5 space-y-2.5">
+      <div className="bg-[#0d0d12] border border-white/10 p-3 sm:p-3.5 space-y-2.5">
         <div className="flex items-start justify-between gap-2">
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-mono font-black px-2 py-0.5 bg-[#FF007F] text-black uppercase">
+              <span className="text-[10px] font-mono font-black px-2 py-0.5 bg-[#00f3ff]/15 text-[#00f3ff] border border-[#00f3ff]/40 uppercase">
                 {activeTrack.tag}
               </span>
               <span className="text-xs text-stone-300 font-mono">
                 📍 {activeTrack.location}
               </span>
             </div>
-            <p className="text-xs text-stone-200 mt-1.5 leading-relaxed font-sans">
+            <p className="text-xs text-stone-300 mt-1.5 leading-relaxed font-sans">
               {activeTrack.description}
             </p>
           </div>
@@ -419,10 +419,10 @@ export const TheDjDeckPresets: React.FC<TheDjDeckPresetsProps> = ({
               setIsBassShaking(true);
               setTimeout(() => setIsBassShaking(false), 450);
             }}
-            className="shrink-0 px-2.5 py-1.5 bg-[#161622] hover:bg-[#202030] text-[#00F0FF] border border-[#00F0FF]/50 text-[10px] font-mono font-black flex items-center gap-1 cursor-pointer transition-all active:scale-95"
+            className="shrink-0 px-2.5 py-1.5 bg-[#00f3ff]/10 hover:bg-[#00f3ff]/20 text-[#00f3ff] border border-[#00f3ff]/40 text-[10px] font-mono font-black flex items-center gap-1 cursor-pointer transition-all active:scale-95"
             title="Nhấn để kích hoạt hiệu ứng scratch và bass drop"
           >
-            <Zap className="w-3 h-3 text-[#FF007F]" />
+            <Zap className="w-3 h-3 text-[#39FF14]" />
             <span>DROP BASS</span>
           </button>
         </div>
@@ -433,7 +433,7 @@ export const TheDjDeckPresets: React.FC<TheDjDeckPresetsProps> = ({
           {activeTrack.highlights.map((h, i) => (
             <span
               key={i}
-              className="text-[10px] font-sans font-bold px-2 py-0.5 bg-[#12121c] border border-white/20 text-stone-200"
+              className="text-[10px] font-sans font-bold px-2 py-0.5 bg-black/40 border border-white/10 text-stone-300"
             >
               #{h}
             </span>

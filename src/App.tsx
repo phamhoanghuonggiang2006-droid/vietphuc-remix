@@ -34,15 +34,18 @@ export default function App() {
   }
 
   const isModern = selectedContext === 'modern';
+  const isFusion = selectedContext === 'fusion';
 
   return (
     <div className={`min-h-screen flex flex-col font-sans relative transition-colors duration-500 ${
       isModern
         ? 'bg-[#FAF8F5] text-[#2A2A2E] selection:bg-[#8BA888]/30 selection:text-[#1F331D]'
+        : isFusion
+        ? 'bg-[#0A0A0A] text-stone-100 selection:bg-[#00f3ff]/20 selection:text-[#00f3ff]'
         : 'bg-[#0e0e12] text-[#f5f2eb] selection:bg-[#c5a059]/30 selection:text-[#faedd0]'
     }`}>
       {/* ======================================================== */}
-      {/* HỆ THỐNG NỀN THÍCH ỨNG THEO BỐI CẢNH (CỔ PHONG VS ACUBI QUIET LUXURY) */}
+      {/* HỆ THỐNG NỀN THÍCH ỨNG THEO 3 BỐI CẢNH Y QUAN */}
       {/* ======================================================== */}
       {isModern ? (
         <>
@@ -65,6 +68,29 @@ export default function App() {
           {/* Lớp 3: Ánh sáng Studio Tự Nhiên (Natural Soft Key Lighting) */}
           <div 
             className="fixed inset-0 pointer-events-none z-0 bg-[radial-gradient(circle_at_50%_15%,rgba(255,255,255,0.95)_0%,rgba(244,241,235,0.5)_50%,rgba(224,218,208,0.45)_100%)]"
+          />
+        </>
+      ) : isFusion ? (
+        <>
+          {/* MÀN HÌNH 3: PHỐ THỊ PHÁ CÁCH (FUSION STREETWEAR) */}
+          {/* Lớp 1: Nền Solid Dark Charcoal (#0A0A0A) - Không vân mây truyền thống */}
+          <div className="fixed inset-0 pointer-events-none z-0 bg-[#0A0A0A]" />
+
+          {/* Lớp 2: Texture lưới điện tử (Digital Grid) cực mảnh với Opacity thấp (6%) */}
+          <div 
+            className="fixed inset-0 pointer-events-none z-0 opacity-[0.06]"
+            style={{
+              backgroundImage: `
+                linear-gradient(to right, rgba(0, 243, 255, 0.35) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 243, 255, 0.35) 1px, transparent 1px)
+              `,
+              backgroundSize: '36px 36px'
+            }}
+          />
+
+          {/* Lớp 3: Chiều sâu công nghệ mờ ảo (Soft cyber vignette) */}
+          <div 
+            className="fixed inset-0 pointer-events-none z-0 bg-[radial-gradient(circle_at_50%_25%,rgba(18,18,22,0.4)_0%,rgba(10,10,10,0.95)_100%)]"
           />
         </>
       ) : (
@@ -131,21 +157,23 @@ export default function App() {
       <footer className={`w-full border-t py-10 mt-16 text-xs relative z-10 transition-colors ${
         isModern
           ? 'border-stone-200/90 bg-white/70 text-stone-500'
+          : isFusion
+          ? 'border-white/10 bg-[#0A0A0A] text-stone-400'
           : 'border-[#1f1f28] bg-[#09090d] text-stone-500'
       }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2 text-stone-600">
-            <span className={`font-royal font-bold ${isModern ? 'text-stone-900' : 'text-stone-300'}`}>
+            <span className={`font-royal font-bold ${isModern ? 'text-stone-900' : isFusion ? 'text-white' : 'text-stone-300'}`}>
               Việt Phục Remix
             </span>
             <span>·</span>
-            <span className={isModern ? 'text-stone-600' : 'text-stone-400'}>
+            <span className={isModern ? 'text-stone-600' : isFusion ? 'text-stone-400' : 'text-stone-400'}>
               Stylist Cổ Phục Viễn Đông &copy; 2026
             </span>
           </div>
 
           <div className="text-center sm:text-right text-[11px] leading-relaxed">
-            Dựa trên tư liệu <em className={isModern ? 'text-stone-800' : 'text-stone-400'}>Khâm Định Đại Nam Hội Điển Sự Lệ</em> & Di sản Y quan Triều Nguyễn.
+            Dựa trên tư liệu <em className={isModern ? 'text-stone-800' : isFusion ? 'text-stone-300' : 'text-stone-400'}>Khâm Định Đại Nam Hội Điển Sự Lệ</em> & Di sản Y quan Triều Nguyễn.
           </div>
         </div>
       </footer>

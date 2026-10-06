@@ -1179,7 +1179,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
             currentTier === 'modern'
               ? 'rounded-2xl bg-white/85 border border-stone-200/90 shadow-sm backdrop-blur-xl text-stone-800'
               : currentTier === 'fusion'
-              ? 'font-streetwear rounded-none bg-[#09090f] border-2 border-[#00F0FF] shadow-[5px_5px_0px_#FF007F] cyber-grid-pattern text-white'
+              ? 'font-streetwear rounded-none bg-[#121212]/95 border border-white/10 shadow-[0_0_30px_rgba(0,243,255,0.06)] text-white'
               : 'rounded-2xl bg-[#141419] border border-[#23232c] shadow-xl text-[#f5f2eb]'
           }`}>
             
@@ -1188,7 +1188,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
               currentTier === 'modern'
                 ? 'border-stone-200/80'
                 : currentTier === 'fusion'
-                ? 'border-b-2 border-white/20'
+                ? 'border-b border-white/10'
                 : 'border-white/5'
             }`}>
               <div>
@@ -1202,7 +1202,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                     currentTier === 'modern'
                       ? 'rounded-full bg-[#8BA888]/15 text-[#355232] border-[#8BA888]/30 font-sans font-medium'
                       : currentTier === 'fusion'
-                      ? 'rounded-none bg-[#FF007F]/20 text-[#FF007F] border-[#FF007F] font-mono font-black'
+                      ? 'rounded-none bg-[#00f3ff]/15 text-[#00f3ff] border border-[#00f3ff]/40 font-mono font-bold'
                       : 'rounded-full bg-[#c5a059]/15 text-[#e5c365] border-[#c5a059]/30 font-serif'
                   }`}>
                     {currentTier === 'modern' ? 'Acubi / Quiet Luxury' : currentTier === 'fusion' ? 'FUSION STREETWEAR' : 'Triều Nguyễn'}
@@ -1221,8 +1221,8 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                 className={`inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold transition-all cursor-pointer ${
                   currentTier === 'fusion'
                     ? hideUnfitItems
-                      ? 'rounded-none bg-white text-black font-black border-2 border-white shadow-[2px_2px_0px_#00F0FF]'
-                      : 'rounded-none bg-black text-stone-300 border border-white/20 hover:border-[#00F0FF]'
+                      ? 'rounded-none bg-[#00f3ff] text-black font-black border border-[#00f3ff] shadow-[0_0_12px_rgba(0,243,255,0.35)]'
+                      : 'rounded-none bg-black/70 text-stone-300 border border-white/15 hover:border-[#00f3ff]/50'
                     : hideUnfitItems
                     ? (currentTier === 'modern' ? 'rounded-lg bg-[#8BA888] text-white font-bold shadow-sm' : 'rounded-lg bg-[#c5a059] text-stone-950 font-bold shadow-md')
                     : (currentTier === 'modern' ? 'rounded-lg bg-stone-100 text-stone-700 hover:bg-stone-200 border border-stone-200' : 'rounded-lg bg-stone-800/80 text-stone-300 hover:text-stone-100 border border-white/10 hover:border-[#c5a059]/40')
@@ -1236,7 +1236,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                   </>
                 ) : (
                   <>
-                    <Filter className={`w-3 h-3 ${currentTier === 'modern' ? 'text-[#8BA888]' : currentTier === 'fusion' ? 'text-[#00F0FF]' : 'text-[#c5a059]'}`} />
+                    <Filter className={`w-3 h-3 ${currentTier === 'modern' ? 'text-[#8BA888]' : currentTier === 'fusion' ? 'text-[#00f3ff]' : 'text-[#c5a059]'}`} />
                     <span>Hiện mờ 85%</span>
                   </>
                 )}
@@ -1248,7 +1248,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
               currentTier === 'modern'
                 ? 'border-b border-stone-200/80 pb-2.5'
                 : currentTier === 'fusion'
-                ? 'border-b-2 border-white/15 pb-2.5'
+                ? 'border-b border-white/10 pb-2.5'
                 : 'scrollbar-thumb-stone-700'
             }`}>
               {WARDROBE_TABS.map((tab) => {
@@ -1261,10 +1261,10 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                         setActiveWardrobeTab(tab.id);
                         playDjScratchSound();
                       }}
-                      className={`px-3 py-1.5 text-xs font-black italic uppercase tracking-wider whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 shrink-0 border-2 ${
+                      className={`px-3 py-1.5 text-xs font-black italic uppercase tracking-wider whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 shrink-0 ${
                         isActive
-                          ? 'bg-white text-black border-white shadow-[3px_3px_0px_#FF007F]'
-                          : 'bg-black/80 text-stone-300 border-white/20 hover:border-[#00F0FF] hover:text-white'
+                          ? 'bg-[#00f3ff]/15 text-[#00f3ff] border border-[#00f3ff] shadow-[0_0_12px_rgba(0,243,255,0.2)]'
+                          : 'bg-transparent text-stone-400 border border-transparent hover:border-white/15 hover:text-white hover:bg-white/[0.02]'
                       }`}
                     >
                       <span>{tab.icon}</span>
@@ -1333,8 +1333,8 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                         className={`p-3 border text-left transition-all relative cursor-pointer group flex flex-col justify-between ${
                           currentTier === 'fusion'
                             ? isSelected
-                              ? 'rounded-none bg-black border-2 border-[#00F0FF] shadow-[4px_4px_0px_#FF007F] text-white'
-                              : 'rounded-none bg-[#09090f] border-2 border-white/20 hover:border-[#00F0FF] text-white'
+                              ? 'rounded-none bg-[#121216] border border-[#00f3ff] shadow-[0_0_20px_rgba(0,243,255,0.25)] text-white'
+                              : 'rounded-none bg-white/[0.02] border border-transparent hover:border-[#00f3ff]/40 hover:bg-white/[0.05] hover:shadow-[0_0_18px_rgba(0,243,255,0.12)] text-stone-200'
                             : isSelected
                             ? currentTier === 'modern'
                               ? 'rounded-xl bg-white border-[#8BA888] shadow-sm ring-2 ring-[#8BA888] text-stone-900'
@@ -1347,7 +1347,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                         <div className="flex items-start justify-between gap-1">
                           <span className={`text-[10px] ${
                             currentTier === 'fusion'
-                              ? 'font-mono font-bold text-[#FF007F]'
+                              ? 'font-mono font-bold text-[#00f3ff]'
                               : currentTier === 'modern'
                               ? 'font-medium font-serif text-[#5C7E5A]'
                               : 'font-medium font-serif text-[#c5a059]'
@@ -1358,7 +1358,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                             {isSelected && (
                               <span className={`w-2 h-2 ${
                                 currentTier === 'fusion'
-                                  ? 'rounded-none bg-[#00F0FF] ring-1 ring-white'
+                                  ? 'rounded-none bg-[#00f3ff] ring-1 ring-[#00f3ff]/50'
                                   : currentTier === 'modern'
                                   ? 'rounded-full bg-[#8BA888]'
                                   : 'rounded-full bg-[#c5a059]'
@@ -1553,12 +1553,12 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                             ? col.isImperialRestricted
                               ? 'bg-rose-950/60 border-rose-500 shadow-md ring-1 ring-rose-500'
                               : currentTier === 'fusion'
-                              ? 'rounded-none bg-black border-2 border-[#00F0FF] shadow-[4px_4px_0px_#FF007F] text-white'
+                              ? 'rounded-none bg-[#121216] border border-[#00f3ff] shadow-[0_0_20px_rgba(0,243,255,0.25)] text-white'
                               : currentTier === 'modern'
                               ? 'rounded-xl bg-white border-[#8BA888] shadow-sm ring-2 ring-[#8BA888] text-stone-900'
                               : 'rounded-xl bg-[#1b1b24] border-[#c5a059] shadow-sm ring-1 ring-[#c5a059]'
                             : currentTier === 'fusion'
-                            ? 'rounded-none bg-[#09090f] border-2 border-white/20 hover:border-[#00F0FF] text-white'
+                            ? 'rounded-none bg-white/[0.02] border border-transparent hover:border-[#00f3ff]/40 hover:bg-white/[0.05] hover:shadow-[0_0_18px_rgba(0,243,255,0.12)] text-stone-200'
                             : currentTier === 'modern'
                             ? 'rounded-xl bg-[#FAF8F5] border-stone-200 hover:border-stone-400 text-stone-800'
                             : 'rounded-xl bg-[#0f0f14] border-[#22222d] hover:border-[#383848]'
@@ -1566,7 +1566,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                       >
                         <span 
                           className={`w-5 h-5 shrink-0 border border-black/20 mt-0.5 ${
-                            currentTier === 'fusion' ? 'rounded-none shadow-[2px_2px_0px_#ffffff]' : 'rounded-lg shadow-xs'
+                            currentTier === 'fusion' ? 'rounded-none border-white/20' : 'rounded-lg shadow-xs'
                           }`} 
                           style={{ backgroundColor: col.hex }} 
                         />
@@ -1689,12 +1689,12 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                                 ? 'bg-[#FFF8F4] border-[#D97746] text-[#8C3413] shadow-sm ring-1 ring-[#D97746]'
                                 : 'bg-rose-950/60 border-rose-500 text-rose-200 shadow-md ring-1 ring-rose-500'
                               : currentTier === 'fusion'
-                              ? 'rounded-none bg-black border-2 border-[#00F0FF] shadow-[4px_4px_0px_#FF007F] text-white'
+                              ? 'rounded-none bg-[#121216] border border-[#00f3ff] shadow-[0_0_20px_rgba(0,243,255,0.25)] text-white'
                               : currentTier === 'modern'
                               ? 'rounded-xl bg-white border-[#8BA888] text-stone-900 ring-2 ring-[#8BA888] shadow-sm'
                               : 'rounded-xl bg-[#1b1b24] border-[#c5a059] text-[#f5f2eb] ring-1 ring-[#c5a059]'
                             : currentTier === 'fusion'
-                            ? 'rounded-none bg-[#09090f] border-2 border-white/20 hover:border-[#00F0FF] text-white'
+                            ? 'rounded-none bg-white/[0.02] border border-transparent hover:border-[#00f3ff]/40 hover:bg-white/[0.05] hover:shadow-[0_0_18px_rgba(0,243,255,0.12)] text-stone-200'
                             : currentTier === 'modern'
                             ? 'rounded-xl bg-[#FAF8F5] border-stone-200 text-stone-800 hover:border-stone-400'
                             : 'rounded-xl bg-[#0f0f14] border-[#22222d] text-stone-300 hover:border-[#383847]'
@@ -1710,7 +1710,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                         <div className="w-full">
                           <div className={`aspect-square w-full overflow-hidden relative border mb-2 ${
                             currentTier === 'fusion'
-                              ? 'rounded-none border-2 border-white/20 bg-black'
+                              ? 'rounded-none border border-white/10 bg-black/60'
                               : currentTier === 'modern'
                               ? 'rounded-lg border-stone-200 bg-stone-100'
                               : 'rounded-lg border-white/10 bg-black/40'
@@ -1727,7 +1727,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                                 if (item.id === 'btn-chinese-cloth') e.currentTarget.src = '/4.png';
                               }}
                               className={`w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 ${
-                                currentTier === 'fusion' ? 'contrast-125 brightness-110 saturate-125 drop-shadow-[0_4px_10px_rgba(255,0,127,0.35)]' : ''
+                                currentTier === 'fusion' ? 'contrast-125 brightness-110 saturate-125 drop-shadow-[0_4px_10px_rgba(0,243,255,0.2)]' : ''
                               }`} 
                             />
                             {isSelected && (
@@ -1898,12 +1898,12 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                               : 'opacity-25 grayscale-[0.6] hover:opacity-50 border-dashed border-rose-500/60 bg-[#160c0e]'
                             : isSelected
                             ? currentTier === 'fusion'
-                              ? 'rounded-none bg-black border-2 border-[#00F0FF] shadow-[4px_4px_0px_#FF007F] text-white'
+                              ? 'rounded-none bg-[#121216] border border-[#00f3ff] shadow-[0_0_20px_rgba(0,243,255,0.25)] text-white'
                               : currentTier === 'modern'
                               ? 'rounded-xl bg-white border-[#8BA888] text-stone-900 ring-2 ring-[#8BA888] shadow-sm'
                               : 'rounded-xl bg-[#1b1b24] border-[#c5a059] text-[#f5f2eb] ring-1 ring-[#c5a059]'
                             : currentTier === 'fusion'
-                            ? 'rounded-none bg-[#09090f] border-2 border-white/20 hover:border-[#00F0FF] text-white'
+                            ? 'rounded-none bg-white/[0.02] border border-transparent hover:border-[#00f3ff]/40 hover:bg-white/[0.05] hover:shadow-[0_0_18px_rgba(0,243,255,0.12)] text-stone-200'
                             : currentTier === 'modern'
                             ? 'rounded-xl bg-[#FAF8F5] border-stone-200 text-stone-800 hover:border-stone-400'
                             : 'rounded-xl bg-[#0f0f14] border-[#22222d] text-stone-300 hover:border-[#383847]'
@@ -1923,7 +1923,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                         <div className="w-full">
                           <div className={`aspect-square w-full overflow-hidden relative mb-2 ${
                             currentTier === 'fusion'
-                              ? 'rounded-none border-2 border-white/20 bg-black'
+                              ? 'rounded-none border border-white/10 bg-black/60'
                               : currentTier === 'modern'
                               ? 'rounded-lg border border-stone-200 bg-stone-100'
                               : 'rounded-lg border border-white/10 bg-black/40'
@@ -1937,7 +1937,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                                 if (item.id === 'bottom-high-waist-jeans') e.currentTarget.src = '/7.png';
                               }}
                               className={`w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 ${
-                                currentTier === 'fusion' ? 'contrast-125 brightness-110 saturate-125 drop-shadow-[0_4px_10px_rgba(255,0,127,0.35)]' : ''
+                                currentTier === 'fusion' ? 'contrast-125 brightness-110 saturate-125 drop-shadow-[0_4px_10px_rgba(0,243,255,0.2)]' : ''
                               }`} 
                             />
                             {isSelected && (
@@ -2068,15 +2068,17 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                           !isCompliant
                             ? currentTier === 'modern'
                               ? 'opacity-35 grayscale-[0.6] hover:opacity-60 border-dashed border-rose-300 bg-rose-50/50'
+                              : currentTier === 'fusion'
+                              ? 'opacity-30 grayscale-[0.7] hover:opacity-50 border border-dashed border-[#FF007F]/40 bg-[#160c0e]/60 rounded-none'
                               : 'opacity-25 grayscale-[0.6] hover:opacity-50 border-dashed border-rose-500/60 bg-[#160c0e]'
                             : isSelected
                             ? currentTier === 'fusion'
-                              ? 'rounded-none bg-black border-2 border-[#00F0FF] shadow-[4px_4px_0px_#FF007F] text-white'
+                              ? 'rounded-none bg-[#121216] border border-[#00f3ff] shadow-[0_0_20px_rgba(0,243,255,0.25)] text-white'
                               : currentTier === 'modern'
                               ? 'rounded-xl bg-white border-[#8BA888] text-stone-900 ring-2 ring-[#8BA888] shadow-sm'
                               : 'rounded-xl bg-[#1b1b24] border-[#c5a059] text-[#f5f2eb] ring-1 ring-[#c5a059]'
                             : currentTier === 'fusion'
-                            ? 'rounded-none bg-[#09090f] border-2 border-white/20 hover:border-[#00F0FF] text-white'
+                            ? 'rounded-none bg-white/[0.02] border border-transparent hover:border-[#00f3ff]/40 hover:bg-white/[0.04] text-white'
                             : currentTier === 'modern'
                             ? 'rounded-xl bg-[#FAF8F5] border-stone-200 text-stone-800 hover:border-stone-400'
                             : 'rounded-xl bg-[#0f0f14] border-[#22222d] text-stone-300 hover:border-[#383847]'
@@ -2096,7 +2098,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                         <div className="w-full">
                           <div className={`aspect-square w-full overflow-hidden relative mb-2 ${
                             currentTier === 'fusion'
-                              ? 'rounded-none border-2 border-white/20 bg-black'
+                              ? 'rounded-none border border-white/10 bg-black/60'
                               : currentTier === 'modern'
                               ? 'rounded-lg border border-stone-200 bg-stone-100'
                               : 'rounded-lg border border-white/10 bg-black/40'
@@ -2110,13 +2112,13 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                                 if (item.id === 'shoes-white-sneakers' || item.id === 'shoes-chunky-loafers') e.currentTarget.src = '/10.png';
                               }}
                               className={`w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 ${
-                                currentTier === 'fusion' ? 'contrast-125 brightness-110 saturate-125 drop-shadow-[0_4px_10px_rgba(255,0,127,0.35)]' : ''
+                                currentTier === 'fusion' ? 'contrast-125 brightness-110 saturate-125 drop-shadow-[0_4px_10px_rgba(0,243,255,0.25)]' : ''
                               }`} 
                             />
                             {isSelected && (
                               <div className={`absolute top-1.5 right-1.5 w-4 h-4 flex items-center justify-center font-bold text-[10px] shadow ${
                                 currentTier === 'fusion'
-                                  ? 'rounded-none bg-[#00F0FF] text-black font-black font-mono'
+                                  ? 'rounded-none bg-[#00f3ff] text-black font-black font-mono shadow-[0_0_10px_rgba(0,243,255,0.6)]'
                                   : currentTier === 'modern'
                                   ? 'rounded-full bg-[#8BA888] text-white'
                                   : 'rounded-full bg-[#c5a059] text-stone-950'
@@ -2241,15 +2243,17 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                           !isCompliant
                             ? currentTier === 'modern'
                               ? 'opacity-35 grayscale-[0.6] hover:opacity-60 border-dashed border-rose-300 bg-rose-50/50'
+                              : currentTier === 'fusion'
+                              ? 'opacity-30 grayscale-[0.7] hover:opacity-50 border border-dashed border-[#FF007F]/40 bg-[#160c0e]/60 rounded-none'
                               : 'opacity-25 grayscale-[0.6] hover:opacity-50 border-dashed border-rose-500/60 bg-[#160c0e]'
                             : isSelected
                             ? currentTier === 'fusion'
-                              ? 'rounded-none bg-black border-2 border-[#00F0FF] shadow-[4px_4px_0px_#FF007F] text-white'
+                              ? 'rounded-none bg-[#121216] border border-[#00f3ff] shadow-[0_0_20px_rgba(0,243,255,0.25)] text-white'
                               : currentTier === 'modern'
                               ? 'rounded-xl bg-white border-[#8BA888] text-stone-900 ring-2 ring-[#8BA888] shadow-sm'
                               : 'rounded-xl bg-[#1b1b24] border-[#c5a059] text-[#f5f2eb] ring-1 ring-[#c5a059]'
                             : currentTier === 'fusion'
-                            ? 'rounded-none bg-[#09090f] border-2 border-white/20 hover:border-[#00F0FF] text-white'
+                            ? 'rounded-none bg-white/[0.02] border border-transparent hover:border-[#00f3ff]/40 hover:bg-white/[0.04] text-white'
                             : currentTier === 'modern'
                             ? 'rounded-xl bg-[#FAF8F5] border-stone-200 text-stone-800 hover:border-stone-400'
                             : 'rounded-xl bg-[#0f0f14] border-[#22222d] text-stone-300 hover:border-[#383847]'
@@ -2269,7 +2273,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                         <div className="w-full">
                           <div className={`aspect-square w-full overflow-hidden relative mb-2 ${
                             currentTier === 'fusion'
-                              ? 'rounded-none border-2 border-white/20 bg-black'
+                              ? 'rounded-none border border-white/10 bg-black/60'
                               : currentTier === 'modern'
                               ? 'rounded-lg border border-stone-200 bg-stone-100'
                               : 'rounded-lg border border-white/10 bg-black/40'
@@ -2284,13 +2288,13 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                                 if (item.id === 'acc-smartwatch') e.currentTarget.src = '/14.png';
                               }}
                               className={`w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 ${
-                                currentTier === 'fusion' ? 'contrast-125 brightness-110 saturate-125 drop-shadow-[0_4px_10px_rgba(255,0,127,0.35)]' : ''
+                                currentTier === 'fusion' ? 'contrast-125 brightness-110 saturate-125 drop-shadow-[0_4px_10px_rgba(0,243,255,0.25)]' : ''
                               }`} 
                             />
                             {isSelected && (
                               <div className={`absolute top-1.5 right-1.5 w-4 h-4 flex items-center justify-center font-bold text-[10px] shadow ${
                                 currentTier === 'fusion'
-                                  ? 'rounded-none bg-[#00F0FF] text-black font-black font-mono'
+                                  ? 'rounded-none bg-[#00f3ff] text-black font-black font-mono shadow-[0_0_10px_rgba(0,243,255,0.6)]'
                                   : currentTier === 'modern'
                                   ? 'rounded-full bg-[#8BA888] text-white'
                                   : 'rounded-full bg-[#c5a059] text-stone-950'
@@ -2417,15 +2421,17 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                           !isCompliant
                             ? currentTier === 'modern'
                               ? 'opacity-35 grayscale-[0.6] hover:opacity-60 border-dashed border-rose-300 bg-rose-50/50'
+                              : currentTier === 'fusion'
+                              ? 'opacity-30 grayscale-[0.7] hover:opacity-50 border border-dashed border-[#FF007F]/40 bg-[#160c0e]/60 rounded-none'
                               : 'opacity-25 grayscale-[0.6] hover:opacity-50 border-dashed border-rose-500/60 bg-[#160c0e]'
                             : isSelected
                             ? currentTier === 'fusion'
-                              ? 'rounded-none bg-black border-2 border-[#00F0FF] shadow-[4px_4px_0px_#FF007F] text-white'
+                              ? 'rounded-none bg-[#121216] border border-[#00f3ff] shadow-[0_0_20px_rgba(0,243,255,0.25)] text-white'
                               : currentTier === 'modern'
                               ? 'rounded-xl bg-white border-[#8BA888] text-stone-900 ring-2 ring-[#8BA888] shadow-sm'
                               : 'rounded-xl bg-[#1b1b24] border-[#c5a059] text-[#f5f2eb] ring-1 ring-[#c5a059]'
                             : currentTier === 'fusion'
-                            ? 'rounded-none bg-[#09090f] border-2 border-white/20 hover:border-[#00F0FF] text-white'
+                            ? 'rounded-none bg-white/[0.02] border border-transparent hover:border-[#00f3ff]/40 hover:bg-white/[0.04] text-white'
                             : currentTier === 'modern'
                             ? 'rounded-xl bg-[#FAF8F5] border-stone-200 text-stone-800 hover:border-stone-400'
                             : 'rounded-xl bg-[#0f0f14] border-[#22222a] text-stone-300 hover:border-[#383847]'
@@ -2525,7 +2531,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
           {/* ======================================================== */}
           <div className={`p-4 sm:p-5 border transition-all duration-500 relative overflow-hidden backdrop-blur-xl ${
             currentTier === 'fusion'
-              ? 'font-streetwear rounded-none bg-[#08080d] border-2 border-[#00F0FF] shadow-[6px_6px_0px_#FF007F] text-white cyber-grid-pattern'
+              ? 'font-streetwear rounded-none bg-[#121212]/95 border border-white/10 shadow-[0_0_30px_rgba(0,243,255,0.06)] text-white cyber-grid-pattern'
               : currentTier === 'modern'
               ? 'rounded-2xl bg-white/85 border-stone-200/90 shadow-[0_10px_35px_rgba(0,0,0,0.06)] text-stone-800'
               : dualMetrics.scenario === 'taboo'
@@ -2537,24 +2543,27 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
               : 'rounded-2xl bg-gradient-to-br from-[#1e1028]/95 via-[#130d1d]/95 to-[#0e0c16]/95 border-purple-500/70 shadow-[0_0_30px_rgba(168,85,247,0.2)]'
           }`}>
             {currentTier === 'fusion' && (
-              <div className="absolute top-2 right-3 font-mono text-[9px] text-[#00F0FF] tracking-widest flex items-center gap-1.5 opacity-90 z-20">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#39FF14] animate-ping" />
+              <div className="absolute top-2 right-3 font-mono text-[9px] text-[#00f3ff] tracking-widest flex items-center gap-1.5 opacity-90 z-20">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#39ff14] animate-ping" />
                 <span>CIRCUIT-03 // AI VIBE CHECK</span>
               </div>
             )}
 
             <div className="relative z-10 space-y-4">
               
-              {/* GATEKEEPER ALERT: MÀN HÌNH 3 - DẬP NGAY NHÃN DÁN "FUSION - LẤY CẢM HỨNG" TO ĐÙNG */}
+              {/* GATEKEEPER ALERT: MÀN HÌNH 3 - TEM CẢNH BÁO FUSION GATEKEEPER TINH TẾ */}
               {currentTier === 'fusion' && (
-                <div className="relative p-3.5 bg-black/95 border-2 border-[#FF007F] shadow-[3px_3px_0px_#00F0FF] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 animate-fadeIn">
+                <div className="relative p-2.5 sm:p-3 bg-white/[0.02] border border-white/10 shadow-[0_0_20px_rgba(255,0,127,0.06)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 animate-fadeIn">
                   <div className="flex items-center gap-3">
-                    <div className="px-3.5 py-1.5 border-4 border-dashed border-[#FF007F] text-[#FF007F] font-black italic -rotate-2 text-sm sm:text-base tracking-widest uppercase bg-black/90 shadow-[2px_2px_0px_#FF007F] animate-stamp-slam shrink-0">
-                      ★ FUSION - LẤY CẢM HỨNG ★
+                    <div 
+                      className="px-2.5 py-1 border border-dashed border-[#FF007F] text-[#FF007F] font-black italic text-xs tracking-widest uppercase bg-black/80 shadow-[0_0_10px_rgba(255,0,127,0.3)] animate-stamp-slam shrink-0"
+                      style={{ transform: 'rotate(-6deg)' }}
+                    >
+                      ★ FUSION · LẤY CẢM HỨNG ★
                     </div>
                     <div className="text-xs">
-                      <div className="text-[10px] font-mono font-black text-[#00F0FF] uppercase tracking-wider flex items-center gap-1.5">
-                        <span className="w-2 h-2 rounded-full bg-[#39FF14] animate-ping" />
+                      <div className="text-[10px] font-mono font-bold text-[#00f3ff] uppercase tracking-wider flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#39ff14] animate-ping" />
                         <span>AI GATEKEEPER BADGE · DIỆN ĐƯỜNG PHỐ CÓ Ý THỨC</span>
                       </div>
                       <div className="text-[11px] text-stone-300 font-medium mt-0.5">
@@ -2562,7 +2571,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                       </div>
                     </div>
                   </div>
-                  <div className="text-[10px] font-mono px-2 py-1 bg-[#FF007F]/20 text-[#FF007F] border border-[#FF007F] uppercase font-bold shrink-0 self-end sm:self-auto">
+                  <div className="text-[9px] font-mono px-2 py-0.5 bg-[#FF007F]/10 text-[#FF007F] border border-[#FF007F]/40 uppercase font-bold shrink-0 self-end sm:self-auto">
                     🚫 CẤM CỬA Ở ĐỀN CHÙA
                   </div>
                 </div>
@@ -2598,7 +2607,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
               {/* BADGE TIÊU ĐỀ & NÚT KHẮC PHỤC 1 CHẠM */}
               <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-3 ${
                 currentTier === 'fusion'
-                  ? 'border-b-2 border-white/20'
+                  ? 'border-b border-white/10'
                   : currentTier === 'modern'
                   ? 'border-b border-stone-200/80'
                   : 'border-b border-white/10'
@@ -2606,7 +2615,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                 <div className="flex items-center gap-2">
                   <span className={`px-2.5 py-1 text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-sm ${
                     currentTier === 'fusion'
-                      ? 'rounded-none bg-gradient-to-r from-[#FF007F] to-[#00F0FF] text-black font-black shadow-[2px_2px_0px_#ffffff]'
+                      ? 'rounded-none bg-[#00f3ff] text-black font-black uppercase text-xs shadow-[0_0_12px_rgba(0,243,255,0.3)]'
                       : currentTier === 'modern'
                       ? isChineseButtonSelected
                         ? 'rounded-full bg-[#D97746]/15 text-[#9C3810] border border-[#D97746]/30'
@@ -2638,7 +2647,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                     <span>{dualMetrics.badgeTitle}</span>
                   </span>
                   <span className={`text-[10px] font-mono hidden sm:inline ${
-                    currentTier === 'fusion' ? 'text-[#00F0FF] font-bold' : currentTier === 'modern' ? 'text-stone-500' : 'text-stone-400'
+                    currentTier === 'fusion' ? 'text-[#00f3ff] font-bold' : currentTier === 'modern' ? 'text-stone-500' : 'text-stone-400'
                   }`}>
                     · {currentTier === 'fusion' ? 'Sub-Bass Circuit Check' : currentTier === 'modern' ? 'Editorial Evaluation' : 'Realtime AI Evaluation'}
                   </span>
@@ -2666,7 +2675,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                 {/* 1. SLAY SCORE */}
                 <div className={`p-3 space-y-1.5 transition-all ${
                   currentTier === 'fusion'
-                    ? 'rounded-none bg-black/85 border-2 border-[#FF007F] shadow-[3px_3px_0px_#00F0FF]'
+                    ? 'rounded-none bg-white/[0.02] border border-white/10 shadow-[0_0_20px_rgba(0,243,255,0.04)]'
                     : currentTier === 'modern'
                     ? 'rounded-xl bg-stone-50/90 border-stone-200/80 border'
                     : 'rounded-xl bg-black/40 border-white/10 border'
@@ -2674,21 +2683,21 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                   <div className="flex items-center justify-between">
                     <div>
                       <span className={`text-xs uppercase tracking-wider font-bold flex items-center gap-1 ${
-                        currentTier === 'fusion' ? 'text-[#FF007F] font-black' : currentTier === 'modern' ? 'text-[#4A6448]' : 'text-pink-400'
+                        currentTier === 'fusion' ? 'text-[#00f3ff] font-black italic' : currentTier === 'modern' ? 'text-[#4A6448]' : 'text-pink-400'
                       }`}>
-                        <span>{currentTier === 'fusion' ? '⚡ Slay Score (Bùng Nổ)' : currentTier === 'modern' ? '💅 Slay & Chic' : '💅 Slay Score'}</span>
-                        <span className={`px-1.5 py-0.2 rounded text-[9px] font-semibold ${
+                        <span>{currentTier === 'fusion' ? '⚡ SLAY SCORE (BÙNG NỔ)' : currentTier === 'modern' ? '💅 Slay & Chic' : '💅 Slay Score'}</span>
+                        <span className={`px-1.5 py-0.2 text-[9px] font-semibold ${
                           currentTier === 'fusion'
-                            ? 'bg-[#FF007F] text-black font-black rounded-none'
+                            ? 'bg-[#00f3ff]/20 text-[#00f3ff] border border-[#00f3ff]/40 font-black rounded-none'
                             : currentTier === 'modern'
-                            ? 'bg-[#8BA888]/20 text-[#304E2E]'
-                            : 'bg-pink-500/20 text-pink-300'
+                            ? 'rounded bg-[#8BA888]/20 text-[#304E2E]'
+                            : 'rounded bg-pink-500/20 text-pink-300'
                         }`}>
                           {currentTier === 'fusion' ? 'MAX 100%' : currentTier === 'modern' ? 'Acubi' : 'Gen Z'}
                         </span>
                       </span>
                       <div className={`text-[10px] ${
-                        currentTier === 'fusion' ? 'text-[#00F0FF] font-mono' : currentTier === 'modern' ? 'text-stone-500' : 'text-stone-400'
+                        currentTier === 'fusion' ? 'text-stone-400 font-mono' : currentTier === 'modern' ? 'text-stone-500' : 'text-stone-400'
                       }`}>
                         {currentTier === 'fusion' ? 'Càng phá cách điểm càng vọt lên' : currentTier === 'modern' ? 'Độ thanh lịch & hài hòa' : 'Độ bắt mắt & phối sắc'}
                       </div>
@@ -2696,7 +2705,9 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                     <div className="flex items-baseline gap-1">
                       <span className={`text-2xl sm:text-3xl font-black font-mono ${
                         currentTier === 'fusion'
-                          ? 'text-transparent bg-clip-text bg-gradient-to-r from-[#00F0FF] via-[#FF007F] to-[#39FF14] animate-pulse'
+                          ? dualMetrics.slayScore >= 95
+                            ? 'text-[#FF007F] drop-shadow-[0_0_12px_rgba(255,0,127,0.7)] animate-pulse'
+                            : 'text-[#00f3ff]'
                           : currentTier === 'modern'
                           ? 'text-[#3E5B3C]'
                           : 'text-pink-400'
@@ -2708,7 +2719,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                   </div>
                   <div className={`w-full overflow-hidden p-0.5 border ${
                     currentTier === 'fusion'
-                      ? 'h-3 rounded-none bg-black border-2 border-white/30'
+                      ? 'h-2 rounded-none bg-black/80 border border-white/10'
                       : currentTier === 'modern'
                       ? 'h-2 rounded-full bg-stone-200/80 border-stone-200'
                       : 'h-2 rounded-full bg-black/60 border-white/10'
@@ -2716,7 +2727,9 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                     <div
                       className={`h-full transition-all duration-700 ${
                         currentTier === 'fusion'
-                          ? 'rounded-none bg-gradient-to-r from-[#00F0FF] via-[#FF007F] to-[#39FF14] shadow-[0_0_15px_#FF007F] animate-pulse'
+                          ? dualMetrics.slayScore >= 95
+                            ? 'rounded-none bg-gradient-to-r from-[#00f3ff] via-[#39ff14] to-[#FF007F] shadow-[0_0_15px_#FF007F] animate-pulse'
+                            : 'rounded-none bg-gradient-to-r from-[#00f3ff] to-[#39ff14] shadow-[0_0_10px_rgba(0,243,255,0.3)]'
                           : currentTier === 'modern'
                           ? 'rounded-full bg-gradient-to-r from-[#8BA888] to-[#CBD5E1]'
                           : 'rounded-full bg-gradient-to-r from-pink-500 via-rose-500 to-purple-500 shadow-[0_0_10px_rgba(236,72,153,0.5)]'
@@ -2727,7 +2740,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                   {currentTier === 'fusion' && (
                     <div className="flex items-center justify-between text-[9px] font-mono text-stone-400 pt-0.5">
                       <span>TRẦM LẮNG 0%</span>
-                      <span className="text-[#39FF14] font-bold">NEON SPARK OVERDRIVE ⚡</span>
+                      <span className="text-[#39ff14] font-bold">NEON SPARK OVERDRIVE ⚡</span>
                       <span>BÙNG NỔ 100%</span>
                     </div>
                   )}
@@ -2736,7 +2749,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                 {/* 2. ĐỘ CHUẨN DI SẢN / TINH THẦN FUSION */}
                 <div className={`p-3 space-y-1.5 transition-all ${
                   currentTier === 'fusion'
-                    ? 'rounded-none bg-black/85 border-2 border-[#00F0FF] shadow-[3px_3px_0px_#FF007F]'
+                    ? 'rounded-none bg-white/[0.02] border border-white/10 shadow-[0_0_20px_rgba(0,243,255,0.04)]'
                     : currentTier === 'modern'
                     ? 'rounded-xl bg-stone-50/90 border-stone-200/80 border'
                     : 'rounded-xl bg-black/40 border-white/10 border'
@@ -2744,15 +2757,15 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                   <div className="flex items-center justify-between">
                     <div>
                       <span className={`text-xs uppercase tracking-wider font-bold flex items-center gap-1 ${
-                        currentTier === 'fusion' ? 'text-[#00F0FF] font-black' : currentTier === 'modern' ? 'text-[#4A6448]' : 'text-[#e5c365]'
+                        currentTier === 'fusion' ? 'text-[#39ff14] font-black italic' : currentTier === 'modern' ? 'text-[#4A6448]' : 'text-[#e5c365]'
                       }`}>
-                        <span>{currentTier === 'fusion' ? '⚡ Tinh Thần Fusion' : currentTier === 'modern' ? '🌿 Tinh Thần Di Sản' : '👑 Chuẩn Di Sản'}</span>
-                        <span className={`px-1.5 py-0.2 rounded text-[9px] font-semibold ${
+                        <span>{currentTier === 'fusion' ? '⚡ TINH THẦN FUSION' : currentTier === 'modern' ? '🌿 Tinh Thần Di Sản' : '👑 Chuẩn Di Sản'}</span>
+                        <span className={`px-1.5 py-0.2 text-[9px] font-semibold ${
                           currentTier === 'fusion'
-                            ? 'bg-[#00F0FF] text-black font-black rounded-none'
+                            ? 'bg-[#39ff14]/20 text-[#39ff14] border border-[#39ff14]/40 font-black rounded-none'
                             : currentTier === 'modern'
-                            ? 'bg-[#8BA888]/20 text-[#304E2E]'
-                            : 'bg-[#c5a059]/20 text-[#e5c365]'
+                            ? 'rounded bg-[#8BA888]/20 text-[#304E2E]'
+                            : 'rounded bg-[#c5a059]/20 text-[#e5c365]'
                         }`}>
                           {currentTier === 'fusion' ? 'Streetwear' : currentTier === 'modern' ? 'Acubi' : 'Triều Nguyễn'}
                         </span>
@@ -2765,7 +2778,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                     </div>
                     <span className={`text-2xl font-black font-mono ${
                       currentTier === 'fusion'
-                        ? 'text-[#00F0FF]'
+                        ? 'text-[#39ff14]'
                         : currentTier === 'modern'
                         ? 'text-[#3E5B3C]'
                         : dualMetrics.heritageScore >= 90 ? 'text-[#e5c365]' :
@@ -2776,7 +2789,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                   </div>
                   <div className={`w-full overflow-hidden p-0.5 border ${
                     currentTier === 'fusion'
-                      ? 'h-3 rounded-none bg-black border-2 border-white/30'
+                      ? 'h-2 rounded-none bg-black/80 border border-white/10'
                       : currentTier === 'modern'
                       ? 'h-2 rounded-full bg-stone-200/80 border-stone-200'
                       : 'h-2 rounded-full bg-black/60 border-white/10'
@@ -2784,7 +2797,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                     <div
                       className={`h-full transition-all duration-700 ${
                         currentTier === 'fusion'
-                          ? 'rounded-none bg-gradient-to-r from-[#00F0FF] to-[#39FF14] shadow-[0_0_10px_#00F0FF]'
+                          ? 'rounded-none bg-gradient-to-r from-[#00f3ff] to-[#39ff14] shadow-[0_0_10px_rgba(57,255,20,0.3)]'
                           : currentTier === 'modern'
                           ? 'rounded-full bg-gradient-to-r from-[#8BA888] to-[#587355]'
                           : dualMetrics.heritageScore >= 90
@@ -2799,7 +2812,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                   {currentTier === 'fusion' && (
                     <div className="flex items-center justify-between text-[9px] font-mono text-stone-400 pt-0.5">
                       <span>LẤY CẢM HỨNG TỪ NGUỒN CỘI</span>
-                      <span className="text-[#00F0FF]">DẠO PHỐ / CONCERT</span>
+                      <span className="text-[#00f3ff]">DẠO PHỐ / CONCERT</span>
                     </div>
                   )}
                 </div>
@@ -2809,14 +2822,14 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
               {/* LỜI BÌNH AI STYLIST */}
               <div className={`p-3.5 sm:p-4 border flex items-start gap-3.5 ${
                 currentTier === 'fusion'
-                  ? 'rounded-none bg-[#090912] border-2 border-[#FF007F] shadow-[3px_3px_0px_#00F0FF] text-white'
+                  ? 'rounded-none bg-white/[0.02] border border-white/10 shadow-[0_0_20px_rgba(0,243,255,0.04)] text-white'
                   : currentTier === 'modern'
                   ? 'rounded-xl bg-stone-50/90 border-stone-200/80 text-stone-800'
                   : 'rounded-xl bg-black/55 border-white/10 text-stone-100'
               }`}>
                 <div className={`w-10 h-10 font-black text-xs sm:text-sm flex items-center justify-center shrink-0 border ${
                   currentTier === 'fusion'
-                    ? 'rounded-none bg-[#FF007F] text-black border-2 border-white shadow-[2px_2px_0px_#00F0FF]'
+                    ? 'rounded-none bg-[#00f3ff] text-black border border-white/20 shadow-[0_0_15px_rgba(0,243,255,0.3)]'
                     : currentTier === 'modern'
                     ? 'rounded-xl bg-[#8BA888] text-white border-white/40'
                     : 'rounded-xl bg-gradient-to-br from-[#c5a059] to-rose-500 text-stone-950 border-white/20'
@@ -2826,13 +2839,13 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                 <div className="min-w-0 flex-1 space-y-1 text-xs">
                   <div className="flex items-center gap-1.5">
                     <span className={`font-black uppercase tracking-wider ${
-                      currentTier === 'fusion' ? 'text-[#00F0FF]' : currentTier === 'modern' ? 'text-[#3E5B3C]' : 'text-[#e5c365]'
+                      currentTier === 'fusion' ? 'text-[#00f3ff] italic' : currentTier === 'modern' ? 'text-[#3E5B3C]' : 'text-[#e5c365]'
                     }`}>
                       {currentTier === 'fusion' ? 'AI DJ STYLIST // VIBE CHECK VERDICT' : currentTier === 'modern' ? 'AI Stylist Thanh Lịch (Editorial Lookbook)' : 'AI Stylist Cổ Phục Viễn Đông'}
                     </span>
                   </div>
                   <p className={`leading-relaxed ${
-                    currentTier === 'fusion' ? 'font-bold italic text-sm text-white' : currentTier === 'modern' ? 'font-semibold italic font-serif text-stone-800' : 'font-semibold italic font-serif text-stone-100'
+                    currentTier === 'fusion' ? 'font-black italic text-sm text-white uppercase' : currentTier === 'modern' ? 'font-semibold italic font-serif text-stone-800' : 'font-semibold italic font-serif text-stone-100'
                   }`}>
                     {dualMetrics.stylistQuote}
                   </p>
@@ -2844,24 +2857,24 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                 </div>
               </div>
 
-              {/* CHI TIẾT NGŨ THƯỜNG & NGŨ HÀNH GIAI TẦNG */}
+              {/* CHI TIẾT NGŨ THƯỜNG & NGŨ HÀNH GIAI TẦNG (LÀM MỜ OPACITY 60%, FONT NHỎ HƠN ĐỂ TẬP TRUNG VERDICT) */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
                 <div className={`p-2.5 border flex items-start gap-2 ${
                   currentTier === 'fusion'
-                    ? 'rounded-none bg-black/80 border-2 border-white/20 text-stone-200'
+                    ? 'rounded-none bg-white/[0.015] border border-white/10 opacity-60 hover:opacity-100 transition-opacity text-stone-300'
                     : currentTier === 'modern'
                     ? 'rounded-xl bg-stone-50/80 border-stone-200/80'
                     : 'rounded-xl bg-white/[0.03] border-[#c5a059]/20'
                 }`}>
                   <span className="text-sm shrink-0">🔘</span>
                   <div className="min-w-0">
-                    <span className={`font-bold block uppercase text-[9.5px] tracking-wider ${
-                      currentTier === 'fusion' ? 'text-[#00F0FF] font-black' : currentTier === 'modern' ? 'text-[#4A6448]' : 'text-[#e5c365]'
+                    <span className={`font-bold block uppercase text-[9px] tracking-wider ${
+                      currentTier === 'fusion' ? 'text-[#00f3ff] font-mono' : currentTier === 'modern' ? 'text-[#4A6448]' : 'text-[#e5c365]'
                     }`}>
                       Đạo Ngũ Thường (Khuy Cúc)
                     </span>
-                    <span className={`leading-snug block mt-0.5 text-[10.5px] ${
-                      currentTier === 'fusion' ? 'text-stone-300' : currentTier === 'modern' ? 'text-stone-600' : 'text-stone-300'
+                    <span className={`leading-snug block mt-0.5 text-[10px] ${
+                      currentTier === 'fusion' ? 'text-stone-400 font-mono' : currentTier === 'modern' ? 'text-stone-600' : 'text-stone-300'
                     }`}>
                       {dualMetrics.nguThuongAnalysis}
                     </span>
@@ -2869,20 +2882,20 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                 </div>
                 <div className={`p-2.5 border flex items-start gap-2 ${
                   currentTier === 'fusion'
-                    ? 'rounded-none bg-black/80 border-2 border-white/20 text-stone-200'
+                    ? 'rounded-none bg-white/[0.015] border border-white/10 opacity-60 hover:opacity-100 transition-opacity text-stone-300'
                     : currentTier === 'modern'
                     ? 'rounded-xl bg-stone-50/80 border-stone-200/80'
                     : 'rounded-xl bg-white/[0.03] border-[#c5a059]/20'
                 }`}>
                   <span className="text-sm shrink-0">🎨</span>
                   <div className="min-w-0">
-                    <span className={`font-bold block uppercase text-[9.5px] tracking-wider ${
-                      currentTier === 'fusion' ? 'text-[#FF007F] font-black' : currentTier === 'modern' ? 'text-[#4A6448]' : 'text-[#e5c365]'
+                    <span className={`font-bold block uppercase text-[9px] tracking-wider ${
+                      currentTier === 'fusion' ? 'text-[#39ff14] font-mono' : currentTier === 'modern' ? 'text-[#4A6448]' : 'text-[#e5c365]'
                     }`}>
                       Ngũ Hành & Giai Tầng (Sắc Phục)
                     </span>
-                    <span className={`leading-snug block mt-0.5 text-[10.5px] ${
-                      currentTier === 'fusion' ? 'text-stone-300' : currentTier === 'modern' ? 'text-stone-600' : 'text-stone-300'
+                    <span className={`leading-snug block mt-0.5 text-[10px] ${
+                      currentTier === 'fusion' ? 'text-stone-400 font-mono' : currentTier === 'modern' ? 'text-stone-600' : 'text-stone-300'
                     }`}>
                       {dualMetrics.nguHanhAnalysis}
                     </span>
@@ -2902,9 +2915,9 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                   generateRemixOutfit();
                 }}
                 disabled={isGenerating}
-                className={`w-full py-4 px-4 font-black tracking-wide transition-all flex items-center justify-center gap-2.5 disabled:opacity-50 cursor-pointer active:scale-[0.99] border-2 ${
+                className={`w-full py-4 px-4 font-black tracking-wide transition-all flex items-center justify-center gap-2.5 disabled:opacity-50 cursor-pointer active:scale-[0.99] border ${
                   currentTier === 'fusion'
-                    ? 'rounded-none bg-gradient-to-r from-[#00F0FF] via-[#FF007F] to-[#39FF14] text-black italic uppercase text-base shadow-[5px_5px_0px_#ffffff] hover:shadow-[7px_7px_0px_#00F0FF] border-white'
+                    ? 'rounded-none bg-[#00f3ff] hover:bg-[#39ff14] text-black italic uppercase text-sm sm:text-base tracking-wider shadow-[0_0_25px_rgba(0,243,255,0.35)] hover:shadow-[0_0_30px_rgba(57,255,20,0.45)] border border-transparent'
                     : currentTier === 'modern'
                     ? 'rounded-xl font-serif text-sm sm:text-base bg-gradient-to-r from-[#8BA888] via-[#759472] to-[#8BA888] hover:brightness-105 text-white shadow-[0_8px_25px_rgba(139,168,136,0.35)] border-white/40'
                     : 'rounded-xl font-serif text-sm sm:text-base bg-gradient-to-r from-[#c5a059] via-[#e5c365] to-[#c5a059] hover:brightness-110 text-stone-950 shadow-[0_8px_25px_rgba(212,175,55,0.35)] border-[#fff5db]/50'
@@ -2976,7 +2989,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
         >
           <div className={`${
             currentTier === 'fusion'
-              ? 'font-streetwear bg-[#08080f] border-2 border-[#00F0FF] shadow-[8px_8px_0px_#FF007F] rounded-none max-w-4xl w-full px-5 py-4 sm:px-7 sm:py-5 text-white cyber-grid-pattern'
+              ? 'font-streetwear bg-[#0c0c10] border border-white/10 shadow-[0_0_50px_rgba(0,243,255,0.12)] rounded-none max-w-4xl w-full px-5 py-4 sm:px-7 sm:py-5 text-white cyber-grid-pattern'
               : currentTier === 'modern'
               ? 'bg-[#FAF8F5] border border-stone-300 ring-1 ring-stone-200/80 rounded-3xl max-w-4xl w-full px-5 py-4 sm:px-7 sm:py-5 shadow-[0_20px_60px_rgba(0,0,0,0.18)] text-stone-900'
               : 'bg-[#141017] border-2 border-[#D4AF37] ring-1 ring-[#e5c365]/40 rounded-3xl max-w-4xl w-full px-5 py-4 sm:px-7 sm:py-5 shadow-[0_0_70px_rgba(212,175,55,0.4)] text-[#f5f2eb]'
@@ -3016,12 +3029,12 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
             {/* Header Modal (Pinned Top) */}
             <div className={`relative z-10 text-center pb-3 shrink-0 pr-8 sm:pr-0 ${
               currentTier === 'fusion'
-                ? 'border-b-2 border-white/20'
+                ? 'border-b border-white/10'
                 : currentTier === 'modern' ? 'border-b border-stone-200' : 'border-b border-[#D4AF37]/30'
             }`}>
               <div className={`inline-flex items-center gap-1.5 px-3 py-0.5 text-[10px] font-semibold tracking-widest uppercase mb-1 ${
                 currentTier === 'fusion'
-                  ? 'rounded-none bg-[#FF007F] text-black font-black'
+                  ? 'rounded-none bg-[#00f3ff] text-black font-black font-mono'
                   : currentTier === 'modern'
                   ? 'rounded-full bg-stone-100 border border-stone-300 text-stone-700'
                   : 'rounded-full bg-[#D4AF37]/15 border border-[#D4AF37]/40 text-[#f5e6c8]'
@@ -3043,7 +3056,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
               </div>
               <h2 className={`text-2xl sm:text-3xl ${
                 currentTier === 'fusion'
-                  ? 'font-black italic uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-[#00F0FF] via-[#FF007F] to-[#39FF14]'
+                  ? 'font-black italic uppercase tracking-wider text-white'
                   : currentTier === 'modern'
                   ? 'font-serif font-black text-stone-900 tracking-tight'
                   : 'font-serif font-black text-transparent bg-clip-text bg-gradient-to-r from-[#faedd0] via-[#e5c365] to-[#c5a059] drop-shadow'
@@ -3051,7 +3064,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                 {currentTier === 'fusion' ? 'Ấn Phẩm Phố Thị Phá Cách & Mixset Lookbook' : currentTier === 'modern' ? 'Ấn Phẩm Lookbook & Bản Phối Thanh Lịch' : 'Hồ Sơ Y Phục & Lookbook Di Sản'}
               </h2>
               <p className={`text-xs mt-0.5 ${
-                currentTier === 'fusion' ? 'text-stone-300 font-mono' : currentTier === 'modern' ? 'font-serif italic text-stone-600' : 'font-serif italic text-stone-300/90'
+                currentTier === 'fusion' ? 'text-stone-400 font-mono' : currentTier === 'modern' ? 'font-serif italic text-stone-600' : 'font-serif italic text-stone-300/90'
               }`}>
                 {currentTier === 'fusion'
                   ? `Mixset ${remixResult.styleVibe} · Giao thoa Cổ phục & Văn hóa Đường phố`
@@ -3066,16 +3079,19 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
 
               {/* MÀN HÌNH 3: RUBBER STAMP BẢN PHỐI FUSION TRONG MODAL */}
               {currentTier === 'fusion' && (
-                <div className="p-3 bg-black/90 border-2 border-[#FF007F] shadow-[3px_3px_0px_#00F0FF] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div className="p-3 bg-white/[0.02] border border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
-                    <div className="px-3 py-1 border-4 border-dashed border-[#FF007F] text-[#FF007F] font-black italic -rotate-2 text-xs sm:text-sm tracking-widest uppercase animate-stamp-slam">
-                      ★ FUSION - LẤY CẢM HỨNG ★
+                    <div 
+                      className="px-2.5 py-1 border border-dashed border-[#FF007F] text-[#FF007F] font-black italic text-xs tracking-widest uppercase bg-black/80 shadow-[0_0_10px_rgba(255,0,127,0.3)] animate-stamp-slam shrink-0"
+                      style={{ transform: 'rotate(-6deg)' }}
+                    >
+                      ★ FUSION · LẤY CẢM HỨNG ★
                     </div>
-                    <div className="text-[11px] font-mono text-[#00F0FF]">
+                    <div className="text-[11px] font-mono text-[#00f3ff]">
                       ĐƯỜNG PHỐ · DẠO PHỐ ĐÊM · CONCERT QUẨY SÁNG ĐÊM
                     </div>
                   </div>
-                  <div className="text-[10px] font-mono text-stone-300">
+                  <div className="text-[9px] font-mono px-2 py-0.5 bg-[#FF007F]/10 text-[#FF007F] border border-[#FF007F]/40 font-bold">
                     🚫 CẤM CỬA Ở ĐỀN CHÙA
                   </div>
                 </div>
@@ -3426,31 +3442,37 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
 
             {/* FOOTER ACTIONS CỦA MODAL (Pinned Bottom) */}
             <div className={`relative z-10 pt-3 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0 ${
-              currentTier === 'modern' ? 'border-t border-stone-200' : 'border-t border-[#D4AF37]/30'
+              currentTier === 'fusion'
+                ? 'border-t border-white/10'
+                : currentTier === 'modern' ? 'border-t border-stone-200' : 'border-t border-[#D4AF37]/30'
             }`}>
               <button
                 type="button"
                 onClick={handleShareLookbook}
-                className={`w-full sm:w-auto px-5 py-2.5 text-xs font-semibold rounded-xl border transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-sm ${
-                  currentTier === 'modern'
-                    ? 'bg-stone-100 hover:bg-stone-200 text-stone-800 border-stone-300'
-                    : 'bg-[#1f1b24] hover:bg-[#2a2432] text-stone-200 border-[#c5a059]/40'
+                className={`w-full sm:w-auto px-5 py-2.5 text-xs font-semibold border transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm ${
+                  currentTier === 'fusion'
+                    ? 'rounded-none bg-black/60 hover:bg-black/90 text-white border-white/10 hover:border-[#00f3ff] font-mono'
+                    : currentTier === 'modern'
+                    ? 'rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-800 border-stone-300'
+                    : 'rounded-xl bg-[#1f1b24] hover:bg-[#2a2432] text-stone-200 border-[#c5a059]/40'
                 }`}
               >
-                <Share2 className={`w-3.5 h-3.5 ${currentTier === 'modern' ? 'text-[#4A6448]' : 'text-[#e5c365]'}`} />
-                <span>{copiedLookbook ? '✓ Đã sao chép link lookbook!' : (currentTier === 'modern' ? 'Chia sẻ Bìa Tạp Chí' : 'Chia sẻ Lookbook Y Quan')}</span>
+                <Share2 className={`w-3.5 h-3.5 ${currentTier === 'fusion' ? 'text-[#00f3ff]' : currentTier === 'modern' ? 'text-[#4A6448]' : 'text-[#e5c365]'}`} />
+                <span>{copiedLookbook ? '✓ Đã sao chép link lookbook!' : (currentTier === 'fusion' ? 'Chia Sẻ Mixset Lookbook' : currentTier === 'modern' ? 'Chia sẻ Bìa Tạp Chí' : 'Chia sẻ Lookbook Y Quan')}</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setIsLookbookModalOpen(false)}
-                className={`w-full sm:w-auto px-6 py-2.5 rounded-xl font-bold text-xs hover:brightness-110 shadow-md transition-all cursor-pointer ${
-                  currentTier === 'modern'
-                    ? 'bg-gradient-to-r from-[#8BA888] to-[#6E8F6C] text-white'
-                    : 'bg-gradient-to-r from-[#c5a059] to-[#e5c365] text-stone-950'
+                className={`w-full sm:w-auto px-6 py-2.5 font-bold text-xs hover:brightness-110 shadow-md transition-all cursor-pointer ${
+                  currentTier === 'fusion'
+                    ? 'rounded-none bg-[#00f3ff] hover:bg-[#39ff14] text-black font-black uppercase italic shadow-[0_0_20px_rgba(0,243,255,0.35)]'
+                    : currentTier === 'modern'
+                    ? 'rounded-xl bg-gradient-to-r from-[#8BA888] to-[#6E8F6C] text-white'
+                    : 'rounded-xl bg-gradient-to-r from-[#c5a059] to-[#e5c365] text-stone-950'
                 }`}
               >
-                {currentTier === 'modern' ? 'Đã Khảo Duyệt · Trở Lại Studio' : 'Đã Khảo Xét · Trở Lại Studio'}
+                {currentTier === 'fusion' ? 'XÁC NHẬN MIXSET · TRỞ LẠI STUDIO ⚡' : currentTier === 'modern' ? 'Đã Khảo Duyệt · Trở Lại Studio' : 'Đã Khảo Xét · Trở Lại Studio'}
               </button>
             </div>
           </div>

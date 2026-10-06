@@ -43,9 +43,9 @@ export const TierContextSwitcher: React.FC<TierContextSwitcherProps> = ({
       subName: 'Fusion Streetwear · The DJ Deck',
       badge: 'FUSION LẤY CẢM HỨNG',
       desc: 'Giao thoa cá tính: Tet-Core Skater, Royal Y2K, Dark Heritage, Cargo, Sneaker Dunk, xích Cuban.',
-      activeBorder: 'border-[#FF007F]',
-      activeBg: 'bg-gradient-to-r from-[#1a0012] via-[#090014] to-[#001018]',
-      glowColor: 'rgba(255, 0, 127, 0.5)'
+      activeBorder: 'border-[#00f3ff]',
+      activeBg: 'bg-gradient-to-r from-[#0d161a] via-[#090e12] to-[#0a0a0a]',
+      glowColor: 'rgba(0, 243, 255, 0.35)'
     }
   ];
 
@@ -111,14 +111,26 @@ export const TierContextSwitcher: React.FC<TierContextSwitcherProps> = ({
                   </h4>
                   <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider shrink-0 border ${
                     isActive
-                      ? 'bg-white/15 text-[#e5c365] border-white/30'
+                      ? tier.id === 'fusion'
+                        ? 'bg-[#00f3ff]/20 text-[#00f3ff] border-[#00f3ff]/40'
+                        : tier.id === 'modern'
+                        ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                        : 'bg-white/15 text-[#e5c365] border-white/30'
                       : 'bg-white/5 text-stone-400 border-white/10'
                   }`}>
                     {tier.badge}
                   </span>
                 </div>
 
-                <div className="text-[11px] text-[#D4AF37] font-medium mt-0.5 truncate">
+                <div className={`text-[11px] font-medium mt-0.5 truncate ${
+                  isActive
+                    ? tier.id === 'fusion'
+                      ? 'text-[#00f3ff]'
+                      : tier.id === 'modern'
+                      ? 'text-emerald-400'
+                      : 'text-[#D4AF37]'
+                    : 'text-[#D4AF37]'
+                }`}>
                   {tier.subName}
                 </div>
 
@@ -128,7 +140,9 @@ export const TierContextSwitcher: React.FC<TierContextSwitcherProps> = ({
               </div>
 
               {isActive && (
-                <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#e5c365] animate-ping" />
+                <div className={`absolute top-2 right-2 w-2 h-2 rounded-full animate-ping ${
+                  tier.id === 'fusion' ? 'bg-[#00f3ff]' : tier.id === 'modern' ? 'bg-emerald-400' : 'bg-[#e5c365]'
+                }`} />
               )}
             </button>
           );
