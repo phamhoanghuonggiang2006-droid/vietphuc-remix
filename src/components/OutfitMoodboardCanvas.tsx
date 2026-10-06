@@ -1162,7 +1162,11 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
                   {/* Button Detail Badge Floating on Upper Robe */}
                   {showLabels && (
                     <div 
-                      className={`absolute top-28 right-4 bg-black/85 backdrop-blur-md border px-2 py-1 rounded-xl flex items-center gap-1.5 shadow-xl text-[10px] ${
+                      className={`absolute top-28 ${
+                        (activeGarment.svgType === 'ao_tac' || activeGarment.svgType === 'ngu_than')
+                          ? 'left-4'
+                          : 'right-4'
+                      } bg-black/85 backdrop-blur-md border px-2 py-1 rounded-xl flex items-center gap-1.5 shadow-xl text-[10px] ${
                         isChineseButtonSelected 
                           ? 'border-rose-500/80 text-rose-300' 
                           : 'border-[#c5a059]/50 text-stone-200'

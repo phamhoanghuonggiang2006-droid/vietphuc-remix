@@ -499,9 +499,9 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
               strokeDasharray="4 3"
             />
 
-            {/* Vạt Hò Khép Chéo Uốn Lượn Hình Chữ S Sang Nách Phải */}
+            {/* Vạt Hò Khép Chéo Uốn Lượn Hình Chữ S Sang Nách Phải (Chuẩn Quy Tắc Hữu Nhậm) */}
             <path
-              d="M 194 112 C 215 125, 230 145, 235 185 C 238 230, 242 350, 246 476"
+              d="M 206 112 C 185 125, 170 145, 165 185 C 162 230, 158 350, 154 476"
               stroke="rgba(255,255,255,0.32)"
               strokeWidth="1.4"
               fill="none"
@@ -575,9 +575,20 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
               fill="none"
             />
 
-            {/* Nẹp Vạt Chéo Hữu Khép Chữ S */}
+            {/* Đường Can Sống Áo Chính Giữa Thân Trước (Đường Trung Phẫu) */}
+            <line
+              x1="200"
+              y1="165"
+              x2="200"
+              y2="478"
+              stroke="rgba(255,255,255,0.24)"
+              strokeWidth="1.2"
+              strokeDasharray="4 3"
+            />
+
+            {/* Nẹp Vạt Chéo Hữu Khép Chữ S (Chuẩn Quy Tắc Hữu Nhậm Cài Bên Phải) */}
             <path
-              d="M 194 112 C 215 125, 232 148, 236 195 C 240 245, 244 360, 248 478"
+              d="M 206 112 C 185 125, 168 148, 164 195 C 160 245, 156 360, 152 478"
               stroke="rgba(255,255,255,0.3)"
               strokeWidth="1.4"
               fill="none"
@@ -1400,16 +1411,16 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
         )}
 
         {/* ======================================================== */}
-        {/* 5 CÚC NGŨ THƯỜNG DỌC VẠT HÒ CÀI CHÉO SANG NÁCH PHẢI       */}
+        {/* 5 CÚC NGŨ THƯỜNG DỌC VẠT HÒ CÀI SANG NÁCH PHẢI (HỮU NHẬM) */}
         {/* ======================================================== */}
         {(type === 'ngu_than' || type === 'ao_tac') && (
           <g id="buttons-group">
             {[
-              { id: 1, cx: 222, cy: 104 },
-              { id: 2, cx: 228, cy: 144 },
-              { id: 3, cx: 235, cy: 188 },
-              { id: 4, cx: 238, cy: 234 },
-              { id: 5, cx: 240, cy: 284 }
+              { id: 1, cx: 178, cy: 104 },
+              { id: 2, cx: 172, cy: 144 },
+              { id: 3, cx: 165, cy: 188 },
+              { id: 4, cx: 162, cy: 234 },
+              { id: 5, cx: 160, cy: 284 }
             ].map(btn => renderAuthenticButton(btn.cx, btn.cy, 5.8, true))}
           </g>
         )}
@@ -1428,14 +1439,14 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
               <circle cx="200" cy="90" r="6" fill="#d4af37" stroke="#111" strokeWidth="1.5" />
             </g>
 
-            {/* Hotspot 2: 5 Cúc Ngũ Thường */}
+            {/* Hotspot 2: 5 Cúc Ngũ Thường (Nách phải người mặc / bên trái tranh) */}
             {type !== 'nhat_binh' && (
               <g
                 className="cursor-pointer transition-transform hover:scale-110"
                 onClick={() => onSelectHotspot && onSelectHotspot('buttons')}
               >
-                <circle cx="235" cy="188" r="14" fill="#d4af37" fillOpacity="0.25" className="animate-pulse" />
-                <circle cx="235" cy="188" r="6" fill="#d4af37" stroke="#111" strokeWidth="1.5" />
+                <circle cx="165" cy="188" r="14" fill="#d4af37" fillOpacity="0.25" className="animate-pulse" />
+                <circle cx="165" cy="188" r="6" fill="#d4af37" stroke="#111" strokeWidth="1.5" />
               </g>
             )}
 
@@ -1444,8 +1455,8 @@ export const RobeVisualizer: React.FC<RobeVisualizerProps> = ({
               className="cursor-pointer transition-transform hover:scale-110"
               onClick={() => onSelectHotspot && onSelectHotspot('panels')}
             >
-              <circle cx="160" cy="270" r="14" fill="#d4af37" fillOpacity="0.25" className="animate-pulse" />
-              <circle cx="160" cy="270" r="6" fill="#d4af37" stroke="#111" strokeWidth="1.5" />
+              <circle cx="230" cy="270" r="14" fill="#d4af37" fillOpacity="0.25" className="animate-pulse" />
+              <circle cx="230" cy="270" r="6" fill="#d4af37" stroke="#111" strokeWidth="1.5" />
             </g>
 
             {/* Hotspot 4: Nhật Bình Pattern (Thủy Ba Tam Sơn / Phượng Ổ) */}
