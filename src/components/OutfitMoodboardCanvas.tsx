@@ -77,6 +77,7 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
 }) => {
   const [viewMode, setViewMode] = useState<CanvasViewMode>('mannequin');
   const [selectedBg, setSelectedBg] = useState<CanvasBackgroundId>('studio');
+  const [bgBlurPercent, setBgBlurPercent] = useState<number>(50);
   const [showLabels, setShowLabels] = useState<boolean>(true);
   const [activeHotspot, setActiveHotspot] = useState<string | null>(null);
   const [isZoomModalOpen, setIsZoomModalOpen] = useState<boolean>(false);
@@ -284,7 +285,7 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
 
         // Atmospheric overlay to keep outfit in clear spotlight
         if (currentTier === 'modern') {
-          ctx.fillStyle = 'rgba(250, 248, 245, 0.78)';
+          ctx.fillStyle = 'rgba(12, 12, 18, 0.28)';
         } else {
           ctx.fillStyle = 'rgba(10, 10, 15, 0.72)';
         }
@@ -809,58 +810,36 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
     if (currentTier === 'modern') {
       const modernBgKey = (selectedBg in MODERN_BACKGROUND_IMAGES ? selectedBg : 'studio') as ModernBackground;
       const currentModernBg = MODERN_BACKGROUND_IMAGES[modernBgKey] || MODERN_BACKGROUND_IMAGES.studio;
+      // 50% blur tương ứng 5px gaussian blur (có thể tinh chỉnh nhanh qua bgBlurPercent)
+      const blurPx = (bgBlurPercent / 100) * 10;
 
       return (
         <div className="absolute inset-0 pointer-events-none overflow-hidden transition-all duration-700 select-none">
-          {/* Base Neutral Studio Foundation */}
-          <div className="absolute inset-0 bg-[#FAF8F5]" />
+          {/* Base Neutral Foundation */}
+          <div className="absolute inset-0 bg-[#0e0e13]" />
 
-          {/* Real Photo Background - Blur nhẹ nhàng (2.5px) để tạo không gian nghệ thuật mà không chiếm spotlight của ma nơ canh */}
+          {/* Real Photo Background - Màu sắc đậm đà, sống động, độ mờ 50% (~5px) chuẩn không bị nhạt */}
           <img
             key={`modern_${modernBgKey}`}
             src={currentModernBg.src}
             alt={currentModernBg.alt}
-            className="absolute inset-0 w-full h-full object-cover object-center scale-105 pointer-events-none transition-all duration-700"
+            className="absolute inset-0 w-full h-full object-cover object-center scale-110 pointer-events-none transition-all duration-500 brightness-95 contrast-105"
             style={{
-              filter: `blur(${currentModernBg.blurAmount})`,
-              opacity: currentModernBg.opacity,
+              filter: `blur(${blurPx}px)`,
+              opacity: 0.94,
             }}
           />
 
-          {/* Ambient Tone Overlay tailored for modern editorial aesthetic */}
-          <div className={`absolute inset-0 bg-gradient-to-b ${currentModernBg.tint} transition-all duration-700 pointer-events-none`} />
-
-          {/* Center Editorial Keylight: Giữ cho ma nơ canh và cổ phục luôn sáng rõ, tinh tế ở trung tâm */}
+          {/* Soft Center Spotlight + Dark Edge Vignette: Giữ ma nơ canh nổi bật sắc nét mà màu sắc bối cảnh vẫn đậm đà, không bị mờ nhạt */}
           <div 
             className="absolute inset-0 pointer-events-none"
             style={{
-              background: 'radial-gradient(circle at 50% 46%, rgba(255,255,255,0.88) 0%, rgba(250,248,245,0.6) 48%, rgba(230,224,214,0.85) 100%)'
+              background: 'radial-gradient(circle at 50% 48%, rgba(255,255,255,0.12) 0%, rgba(0,0,0,0.02) 50%, rgba(0,0,0,0.36) 100%)'
             }}
           />
-
-          {/* Soft Edge Vignette for depth */}
-          <div 
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              boxShadow: 'inset 0 0 70px rgba(0,0,0,0.05)'
-            }}
-          />
-
-          {/* Editorial Rice Paper / Linen Grain Texture */}
-          <div 
-            className="absolute inset-0 opacity-[0.035] mix-blend-multiply pointer-events-none"
-            style={{
-              backgroundImage: 'radial-gradient(#2b2b2f 1px, transparent 1px)',
-              backgroundSize: '16px 16px'
-            }}
-          />
-
-          {/* Subtle floating ambient light particles for lively editorial depth */}
-          <div className="absolute top-16 left-1/4 w-1.5 h-1.5 rounded-full bg-white/70 blur-[0.5px] animate-pulse" />
-          <div className="absolute top-40 right-1/4 w-2 h-2 rounded-full bg-amber-100/60 blur-[0.5px] animate-pulse" style={{ animationDelay: '0.8s' }} />
 
           {/* Soft Contact Shadow under mannequin's feet */}
-          <div className="absolute bottom-5 left-1/2 -translate-x-1/2 w-48 sm:w-56 h-5 rounded-[50%] bg-stone-900/15 blur-sm pointer-events-none" />
+          <div className="absolute bottom-5 left-1/2 -translate-x-1/2 w-48 sm:w-56 h-5 rounded-[50%] bg-stone-950/40 blur-sm pointer-events-none" />
         </div>
       );
     }
@@ -1070,6 +1049,35 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
               <span>{bg.name}</span>
             </button>
           ))}
+
+          {/* Quick blur level selector in modern tier (mặc định 50% theo yêu cầu) */}
+          {currentTier === 'modern' && (
+            <div className="flex items-center gap-1.5 ml-2 pl-2 border-l border-stone-200/80">
+              <span className="text-[10px] uppercase font-bold text-stone-400 tracking-wider">
+                Độ Mờ:
+              </span>
+              <div className="flex items-center gap-1 bg-white/80 rounded-lg p-0.5 border border-stone-200 shadow-2xs">
+                {[
+                  { label: '30%', value: 30 },
+                  { label: '50% (Chuẩn)', value: 50 },
+                  { label: '70%', value: 70 },
+                ].map((item) => (
+                  <button
+                    key={item.value}
+                    type="button"
+                    onClick={() => setBgBlurPercent(item.value)}
+                    className={`px-2 py-0.5 rounded text-[10px] font-medium transition-all cursor-pointer ${
+                      bgBlurPercent === item.value
+                        ? 'bg-[#8BA888]/20 border border-[#8BA888]/60 text-[#2C4A28] font-bold shadow-2xs'
+                        : 'text-stone-500 hover:text-stone-900 border border-transparent'
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="flex items-center gap-2">
