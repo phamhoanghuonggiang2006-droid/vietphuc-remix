@@ -5,16 +5,25 @@ import { HeritageStory } from './components/HeritageStory';
 import { HeritageMap } from './components/HeritageMap';
 import { TaboosGuideModal } from './components/TaboosGuideModal';
 import { CourtQuizModal } from './components/CourtQuizModal';
+import { GeminiApiKeyModal } from './components/GeminiApiKeyModal';
 import { SoundToggle } from './components/SoundToggle';
 import { OnboardingScreen } from './components/OnboardingScreen';
 import { ErrorBoundary } from './components/ErrorBoundary';
 
 export default function App() {
   const [isOnboarding, setIsOnboarding] = useState<boolean>(true);
-  const [selectedContext, setSelectedContext] = useState<string>('heritage');
+  const [selectedContext, setSelectedContext] = useState<'heritage' | 'modern' | 'fusion'>('heritage');
   const [activeTab, setActiveTab] = useState<'remix' | 'story' | 'map'>('remix');
   const [isTaboosModalOpen, setIsTaboosModalOpen] = useState<boolean>(false);
   const [isQuizModalOpen, setIsQuizModalOpen] = useState<boolean>(false);
+  const [isGeminiModalOpen, setIsGeminiModalOpen] = useState<boolean>(false);
+  const [matchedOutfitFilter, setMatchedOutfitFilter] = useState<{
+    tier: 'heritage' | 'modern' | 'fusion';
+    garmentId: string;
+    garmentName: string;
+    hasSneakers?: boolean;
+    styleTitle?: string;
+  } | null>(null);
 
   // Màn hình mở đầu Onboarding (Chọn bối cảnh)
   if (isOnboarding) {
@@ -23,7 +32,7 @@ export default function App() {
         <OnboardingScreen
           initialContext={selectedContext}
           onNext={(contextId) => {
-            setSelectedContext(contextId);
+            setSelectedContext(contextId as 'heritage' | 'modern' | 'fusion');
             setIsOnboarding(false);
           }}
         />
@@ -162,6 +171,7 @@ export default function App() {
           }}
           onOpenTaboosModal={() => setIsTaboosModalOpen(true)}
           onOpenQuizModal={() => setIsQuizModalOpen(true)}
+          onOpenGeminiModal={() => setIsGeminiModalOpen(true)}
           currentContext={selectedContext}
           onChangeContext={() => setIsOnboarding(true)}
         />
@@ -174,12 +184,28 @@ export default function App() {
             <RemixStudio 
               initialContext={selectedContext}
               onChangeContext={() => setIsOnboarding(true)}
-              onContextSwitch={(newCtx) => setSelectedContext(newCtx)}
+              onContextSwitch={(newCtx) => setSelectedContext(newCtx as 'heritage' | 'modern' | 'fusion')}
+              onOpenGeminiModal={() => setIsGeminiModalOpen(true)}
+              onFindRentalForOutfit={(outfit) => {
+                setMatchedOutfitFilter(outfit);
+                setActiveTab('map');
+              }}
             />
           </ErrorBoundary>
         )}
-        {activeTab === 'story' && <HeritageStory currentContext={selectedContext} />}
-        {activeTab === 'map' && <HeritageMap currentContext={selectedContext} />}
+        {activeTab === 'story' && (
+          <HeritageStory 
+            currentContext={selectedContext}
+            onGoToRemix={() => setActiveTab('remix')}
+          />
+        )}
+        {activeTab === 'map' && (
+          <HeritageMap 
+            currentContext={selectedContext}
+            matchedOutfit={matchedOutfitFilter}
+            onClearOutfitFilter={() => setMatchedOutfitFilter(null)}
+          />
+        )}
       </main>
 
       {/* Heritage Citation Footer */}
@@ -217,6 +243,12 @@ export default function App() {
       <CourtQuizModal
         isOpen={isQuizModalOpen}
         onClose={() => setIsQuizModalOpen(false)}
+      />
+
+      {/* Google AI Studio API Key Manager Modal */}
+      <GeminiApiKeyModal
+        isOpen={isGeminiModalOpen}
+        onClose={() => setIsGeminiModalOpen(false)}
       />
 
       {/* Floating Sound Toggle Button (Web Audio API) */}

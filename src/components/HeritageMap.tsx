@@ -1,6 +1,12 @@
 import React, { useState } from 'react';
 import { RENTAL_LOCATIONS, RentalLocation } from '../data/heritageData';
 import { 
+  playDanTranhTabSound, 
+  playButtonClinkSound, 
+  playGarmentSelectSound, 
+  playFanFlutterSound 
+} from '../utils/soundEffects';
+import { 
   MapPin, 
   Search, 
   Filter, 
@@ -14,23 +20,102 @@ import {
   Camera, 
   Sparkles,
   Compass,
-  Check
+  Check,
+  ShieldCheck,
+  AlertCircle
 } from 'lucide-react';
+
+export interface MatchedOutfitInfo {
+  tier: 'heritage' | 'modern' | 'fusion';
+  garmentId: string;
+  garmentName: string;
+  hasSneakers?: boolean;
+  styleTitle?: string;
+}
 
 export interface HeritageMapProps {
   currentContext?: 'heritage' | 'modern' | 'fusion';
+  matchedOutfit?: MatchedOutfitInfo | null;
+  onClearOutfitFilter?: () => void;
 }
 
-export const HeritageMap: React.FC<HeritageMapProps> = ({ currentContext = 'heritage' }) => {
+export const HeritageMap: React.FC<HeritageMapProps> = ({ 
+  currentContext = 'heritage',
+  matchedOutfit = null,
+  onClearOutfitFilter
+}) => {
   const isModern = currentContext === 'modern';
   const [selectedCity, setSelectedCity] = useState<string>('all');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [activeLocationId, setActiveLocationId] = useState<string>(RENTAL_LOCATIONS[0].id);
+  const [hoveredLocationId, setHoveredLocationId] = useState<string | null>(null);
   const [showDirectionsModal, setShowDirectionsModal] = useState<boolean>(false);
   const [bookingSuccess, setBookingSuccess] = useState<string | null>(null);
 
-  // Filter locations
+  // Helper to calculate match rating with user's active outfit
+  const getOutfitMatchInfo = (loc: RentalLocation) => {
+    if (!matchedOutfit) return null;
+
+    const isFusionOrStreet = matchedOutfit.tier === 'fusion' || matchedOutfit.hasSneakers;
+    
+    if (isFusionOrStreet) {
+      if (loc.styleVibes.includes('fusion') || loc.styleVibes.includes('streetwear') || loc.styleVibes.includes('concept')) {
+        return {
+          percentage: 98,
+          isHighMatch: true,
+          label: '✨ 98% Hoàn Hảo Cho Outfit Fusion',
+          isDimmed: false,
+          mismatchReason: null
+        };
+      }
+      if (loc.category === 'museum') {
+        return {
+          percentage: 75,
+          isHighMatch: false,
+          label: '🏛️ 75% Không Gian Triển Lãm & Check-in',
+          isDimmed: false,
+          mismatchReason: null
+        };
+      }
+      return {
+        percentage: 60,
+        isHighMatch: false,
+        label: '⚠️ 60% May Đo Nghi Lễ Truyền Thống',
+        isDimmed: true,
+        mismatchReason: loc.mismatchNotice || 'Tiệm chuyên lễ phục trang trọng, hạn chế nhận phối cùng sneaker/phụ kiện phá cách.'
+      };
+    } else {
+      // Heritage or Modern refined
+      if (loc.isAiVerified && (loc.styleVibes.includes('heritage') || loc.styleVibes.includes('ceremonial'))) {
+        return {
+          percentage: 99,
+          isHighMatch: true,
+          label: '✨ 99% Chuẩn Y Quan Hoàng Triều',
+          isDimmed: false,
+          mismatchReason: null
+        };
+      }
+      if (loc.styleVibes.includes('fusion') || loc.styleVibes.includes('streetwear')) {
+        return {
+          percentage: 65,
+          isHighMatch: false,
+          label: '⚠️ 65% Tiệm Concept Phố Thị',
+          isDimmed: true,
+          mismatchReason: loc.mismatchNotice || 'Tiệm chuyên concept trẻ trung đường phố, ít sẵn lễ phục trang trọng.'
+        };
+      }
+      return {
+        percentage: 88,
+        isHighMatch: true,
+        label: '88% Phù Hợp Phong Cách',
+        isDimmed: false,
+        mismatchReason: null
+      };
+    }
+  };
+
+  // Filter & sort locations
   const filteredLocations = RENTAL_LOCATIONS.filter((loc) => {
     const matchesCity = selectedCity === 'all' || loc.city === selectedCity;
     const matchesCategory = selectedCategory === 'all' || loc.category === selectedCategory;
@@ -39,11 +124,19 @@ export const HeritageMap: React.FC<HeritageMapProps> = ({ currentContext = 'heri
       loc.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
       loc.services.some(s => s.toLowerCase().includes(searchQuery.toLowerCase()));
     return matchesCity && matchesCategory && matchesSearch;
+  }).sort((a, b) => {
+    if (matchedOutfit) {
+      const matchA = getOutfitMatchInfo(a)?.percentage || 50;
+      const matchB = getOutfitMatchInfo(b)?.percentage || 50;
+      return matchB - matchA;
+    }
+    return 0;
   });
 
   const activeLocation = RENTAL_LOCATIONS.find(l => l.id === activeLocationId) || RENTAL_LOCATIONS[0];
 
   const handleBookStylist = (locName: string) => {
+    playGarmentSelectSound();
     setBookingSuccess(locName);
     setTimeout(() => {
       setBookingSuccess(null);
@@ -84,6 +177,41 @@ export const HeritageMap: React.FC<HeritageMapProps> = ({ currentContext = 'heri
         </div>
       </div>
 
+      {/* AI AUTO-SYNC FROM LOOKBOOK BANNER (IF MATCHED OUTFIT EXISTS) */}
+      {matchedOutfit && (
+        <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-[#c5a059]/20 via-[#c5a059]/10 to-transparent border border-[#c5a059]/40 shadow-lg flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-fadeIn">
+          <div className="flex items-start sm:items-center gap-3.5">
+            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#c5a059] to-[#e5c365] text-[#0d0d10] flex items-center justify-center font-bold text-xl shrink-0 shadow-md">
+              📍
+            </div>
+            <div>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-xs font-bold text-[#e5c365] tracking-wide uppercase">
+                  AI Auto-Filter · Đồng Bộ Từ Studio Lookbook
+                </span>
+                <span className="text-[10px] px-2.5 py-0.5 rounded-full font-semibold bg-[#c5a059]/25 text-[#faedd0] border border-[#c5a059]/40">
+                  {matchedOutfit.tier.toUpperCase()} {matchedOutfit.hasSneakers ? '+ SNEAKERS' : ''}
+                </span>
+              </div>
+              <p className="text-xs text-stone-200 mt-1 leading-relaxed">
+                Đang đề xuất các tiệm thuê & may đo tối ưu nhất cho bộ outfit <strong className="text-white">{matchedOutfit.garmentName}</strong>. Các studio chuyên biệt được ưu tiên lên đầu, tiệm không phù hợp đã được làm mờ nhẹ và gắn ghi chú.
+              </p>
+            </div>
+          </div>
+          {onClearOutfitFilter && (
+            <button
+              onClick={() => {
+                playDanTranhTabSound();
+                onClearOutfitFilter();
+              }}
+              className="px-3.5 py-2 rounded-xl border border-white/20 text-stone-300 hover:text-white hover:bg-white/10 text-xs shrink-0 cursor-pointer transition-colors font-medium self-end sm:self-center"
+            >
+              ✕ Bỏ lọc / Hiện tất cả ({RENTAL_LOCATIONS.length})
+            </button>
+          )}
+        </div>
+      )}
+
       {/* FILTER & SEARCH BAR */}
       <div className={`rounded-xl p-4 sm:p-5 space-y-3 border ${
         isModern ? 'bg-white/85 border-stone-200/90 shadow-sm' : 'bg-[#141418] border-[#23232c]'
@@ -110,7 +238,10 @@ export const HeritageMap: React.FC<HeritageMapProps> = ({ currentContext = 'heri
           <div className="md:col-span-3">
             <select
               value={selectedCity}
-              onChange={(e) => setSelectedCity(e.target.value)}
+              onChange={(e) => {
+                playDanTranhTabSound();
+                setSelectedCity(e.target.value);
+              }}
               className={`w-full text-xs rounded-xl px-3 py-2.5 focus:outline-none border ${
                 isModern
                   ? 'bg-stone-50/80 border-stone-200 text-stone-900 focus:border-[#8a6825]'
@@ -129,7 +260,10 @@ export const HeritageMap: React.FC<HeritageMapProps> = ({ currentContext = 'heri
           <div className="md:col-span-3">
             <select
               value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
+              onChange={(e) => {
+                playDanTranhTabSound();
+                setSelectedCategory(e.target.value);
+              }}
               className={`w-full text-xs rounded-xl px-3 py-2.5 focus:outline-none border ${
                 isModern
                   ? 'bg-stone-50/80 border-stone-200 text-stone-900 focus:border-[#8a6825]'
@@ -157,7 +291,7 @@ export const HeritageMap: React.FC<HeritageMapProps> = ({ currentContext = 'heri
             <div className="flex items-center gap-2">
               <Compass className={`w-4 h-4 ${isModern ? 'text-[#8a6825]' : 'text-[#c5a059]'}`} />
               <span className={`text-xs uppercase tracking-wider font-semibold ${isModern ? 'text-[#8a6825]' : 'text-[#c5a059]'}`}>
-                BẢN ĐỒ GIẢ LẬP ĐỊA ĐIỂM
+                BẢN ĐỒ TƯƠNG TÁC ĐỊA ĐIỂM
               </span>
             </div>
             <span className={`text-xs ${isModern ? 'text-stone-500' : 'text-stone-400'}`}>
@@ -166,7 +300,7 @@ export const HeritageMap: React.FC<HeritageMapProps> = ({ currentContext = 'heri
           </div>
 
           {/* Interactive SVG Radar Map */}
-          <div className="relative w-full aspect-[4/3] bg-[#0c0c11] rounded-2xl border border-[#232332] overflow-hidden select-none">
+          <div className="relative w-full aspect-[4/3] bg-[#0c0c11] rounded-2xl border border-[#232332] overflow-hidden select-none shadow-inner">
             {/* Topographic Map Grid Pattern */}
             <div 
               className="absolute inset-0 opacity-15"
@@ -216,32 +350,57 @@ export const HeritageMap: React.FC<HeritageMapProps> = ({ currentContext = 'heri
             {/* Interactive Pins */}
             {filteredLocations.map((loc) => {
               const isActive = loc.id === activeLocationId;
+              const isHovered = loc.id === hoveredLocationId;
+              const matchInfo = getOutfitMatchInfo(loc);
+
               return (
                 <button
                   key={loc.id}
-                  onClick={() => setActiveLocationId(loc.id)}
+                  onClick={() => {
+                    playButtonClinkSound();
+                    setActiveLocationId(loc.id);
+                    document.getElementById(`loc-card-${loc.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                  }}
+                  onMouseEnter={() => setHoveredLocationId(loc.id)}
+                  onMouseLeave={() => setHoveredLocationId(null)}
                   style={{ left: `${loc.coordinates.x}%`, top: `${loc.coordinates.y}%` }}
-                  className={`absolute -translate-x-1/2 -translate-y-1/2 transition-all transform cursor-pointer group ${
-                    isActive ? 'scale-125 z-20' : 'hover:scale-110 z-10'
+                  className={`absolute -translate-x-1/2 -translate-y-1/2 transition-all duration-300 transform cursor-pointer group ${
+                    isActive || isHovered ? 'scale-125 z-30' : 'hover:scale-115 z-10'
                   }`}
+                  aria-label={loc.name}
                 >
                   <div className="relative">
-                    {/* Pulsing ring for active pin */}
-                    {isActive && (
-                      <span className="absolute -inset-2 rounded-full bg-[#c5a059]/30 animate-ping" />
+                    {/* Glowing / Pulsing ring for active or hovered pin */}
+                    {(isActive || isHovered) && (
+                      <span className="absolute -inset-2.5 rounded-full bg-[#c5a059]/40 animate-ping" />
                     )}
                     
-                    <div className={`p-2 rounded-full border shadow-lg flex items-center justify-center ${
-                      isActive
-                        ? 'bg-[#c5a059] border-white text-[#0d0d10]'
+                    <div className={`p-2 rounded-full border shadow-xl flex items-center justify-center transition-all ${
+                      isActive || isHovered
+                        ? 'bg-gradient-to-br from-[#c5a059] to-[#e5c365] border-white text-[#0d0d10] ring-4 ring-[#c5a059]/30'
+                        : matchInfo?.isDimmed
+                        ? 'bg-[#14141c] border-[#2c2c3a] text-stone-500'
                         : 'bg-[#181824] border-[#383848] text-[#e5c365]'
                     }`}>
                       <MapPin className="w-3.5 h-3.5" />
                     </div>
 
-                    {/* Hover Name Tooltip */}
-                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block whitespace-nowrap bg-black/90 text-stone-200 text-[10px] px-2 py-1 rounded border border-white/10 pointer-events-none shadow-md">
-                      {loc.name}
+                    {/* Rich Hover Tooltip */}
+                    <div className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-2 ${
+                      isHovered || isActive ? 'opacity-100 scale-100 pointer-events-none' : 'opacity-0 scale-95 pointer-events-none group-hover:opacity-100 group-hover:scale-100'
+                    } transition-all duration-200 z-40 whitespace-nowrap bg-stone-900/95 text-stone-100 text-[10px] px-2.5 py-1.5 rounded-lg border border-[#c5a059]/40 shadow-2xl space-y-0.5`}>
+                      <div className="font-bold flex items-center gap-1">
+                        <span>{loc.name}</span>
+                        {loc.isAiVerified && <span className="text-emerald-400">🛡️</span>}
+                      </div>
+                      {matchInfo && (
+                        <div className={`text-[9px] font-semibold ${matchInfo.isHighMatch ? 'text-emerald-300' : 'text-amber-300'}`}>
+                          {matchInfo.label}
+                        </div>
+                      )}
+                      <div className="text-[9px] text-stone-400">
+                        {loc.city} · {loc.priceRange}
+                      </div>
                     </div>
                   </div>
                 </button>
@@ -265,7 +424,10 @@ export const HeritageMap: React.FC<HeritageMapProps> = ({ currentContext = 'heri
             </p>
             <div className="pt-2 flex items-center gap-2">
               <button
-                onClick={() => setShowDirectionsModal(true)}
+                onClick={() => {
+                  playFanFlutterSound();
+                  setShowDirectionsModal(true);
+                }}
                 className="px-3 py-1.5 bg-[#c5a059] text-[#0d0d10] text-xs font-semibold rounded-lg hover:brightness-110 transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
               >
                 <Navigation className="w-3.5 h-3.5" />
@@ -289,8 +451,8 @@ export const HeritageMap: React.FC<HeritageMapProps> = ({ currentContext = 'heri
         <div className="lg:col-span-6 space-y-4">
           
           {bookingSuccess && (
-            <div className="p-4 rounded-xl bg-emerald-950/80 border border-emerald-500/50 text-emerald-200 text-xs flex items-center gap-2 animate-fadeIn">
-              <Check className="w-4 h-4 text-emerald-400" />
+            <div className="p-4 rounded-xl bg-emerald-950/80 border border-emerald-500/50 text-emerald-200 text-xs flex items-center gap-2 animate-fadeIn shadow-lg">
+              <Check className="w-4 h-4 text-emerald-400 shrink-0" />
               <span>Đã kết nối yêu cầu tư vấn stylist tới: <strong>{bookingSuccess}</strong>! Tư vấn viên sẽ liên hệ trong 5 phút.</span>
             </div>
           )}
@@ -306,6 +468,7 @@ export const HeritageMap: React.FC<HeritageMapProps> = ({ currentContext = 'heri
                   setSelectedCity('all');
                   setSelectedCategory('all');
                   setSearchQuery('');
+                  onClearOutfitFilter?.();
                 }}
                 className={`text-xs hover:underline ${isModern ? 'text-[#8a6825]' : 'text-[#c5a059]'}`}
               >
@@ -315,29 +478,57 @@ export const HeritageMap: React.FC<HeritageMapProps> = ({ currentContext = 'heri
           ) : (
             filteredLocations.map((loc) => {
               const isSelected = loc.id === activeLocationId;
+              const isHovered = loc.id === hoveredLocationId;
+              const matchInfo = getOutfitMatchInfo(loc);
+
               return (
                 <div
                   key={loc.id}
-                  onClick={() => setActiveLocationId(loc.id)}
-                  className={`p-6 rounded-2xl border transition-all cursor-pointer space-y-4 ${
-                    isSelected
+                  id={`loc-card-${loc.id}`}
+                  onClick={() => {
+                    playDanTranhTabSound();
+                    setActiveLocationId(loc.id);
+                  }}
+                  onMouseEnter={() => setHoveredLocationId(loc.id)}
+                  onMouseLeave={() => setHoveredLocationId(null)}
+                  className={`p-6 rounded-2xl border transition-all duration-300 cursor-pointer space-y-4 scroll-mt-28 ${
+                    matchInfo?.isDimmed ? 'opacity-70 hover:opacity-100' : 'opacity-100'
+                  } ${
+                    isSelected || isHovered
                       ? isModern
-                        ? 'bg-white border-[#8a6825] ring-2 ring-[#8a6825]/30 shadow-md'
-                        : 'bg-[#1a1a23] border-[#c5a059] shadow-[0_4px_25px_rgba(197,160,89,0.12)] ring-1 ring-[#c5a059]'
+                        ? 'bg-white border-[#8a6825] ring-2 ring-[#8a6825]/30 shadow-lg scale-[1.01]'
+                        : 'bg-[#1a1a23] border-[#c5a059] shadow-[0_4px_25px_rgba(197,160,89,0.18)] ring-1 ring-[#c5a059] scale-[1.01]'
                       : isModern
                       ? 'bg-white/80 border-stone-200/90 hover:border-stone-400 hover:bg-white shadow-xs'
                       : 'bg-[#141419] border-[#23232c] hover:border-[#383849] hover:bg-[#171720]'
                   }`}
                 >
-                  {/* Top Row: Category & Rating */}
-                  <div className="flex items-center justify-between">
-                    <span className={`text-[10px] uppercase tracking-wider font-semibold px-2.5 py-0.5 rounded border ${
-                      isModern 
-                        ? 'bg-[#8a6825]/10 text-[#8a6825] border-[#8a6825]/25' 
-                        : 'bg-[#c5a059]/15 text-[#e5c365] border-[#c5a059]/30'
-                    }`}>
-                      {loc.category === 'rental' ? 'THUÊ CỔ PHỤC' : loc.category === 'tailor' ? 'MAY ĐO BESPOKE' : 'BẢO TÀNG DI SẢN'}
-                    </span>
+                  {/* Top Row: Category, Rating & AI Badges */}
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className={`text-[10px] uppercase tracking-wider font-semibold px-2.5 py-0.5 rounded border ${
+                        isModern 
+                          ? 'bg-[#8a6825]/10 text-[#8a6825] border-[#8a6825]/25' 
+                          : 'bg-[#c5a059]/15 text-[#e5c365] border-[#c5a059]/30'
+                      }`}>
+                        {loc.category === 'rental' ? 'THUÊ CỔ PHỤC' : loc.category === 'tailor' ? 'MAY ĐO BESPOKE' : 'BẢO TÀNG DI SẢN'}
+                      </span>
+
+                      {/* AI VERIFIED HERITAGE BADGE */}
+                      {loc.isAiVerified && (
+                        <div className="relative group/verified inline-flex items-center">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-950/90 text-emerald-300 border border-emerald-500/50 shadow-xs cursor-help">
+                            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                            <span>AI Verified Heritage</span>
+                          </span>
+                          {/* Tooltip on Hover */}
+                          <div className="absolute left-0 bottom-full mb-1.5 hidden group-hover/verified:block z-30 w-64 p-2.5 rounded-xl bg-stone-900 text-stone-200 text-[11px] leading-relaxed border border-emerald-500/40 shadow-2xl pointer-events-none">
+                            <span className="font-bold text-emerald-400 block mb-0.5">Xác thực bởi HeritStyle AI:</span>
+                            {loc.aiVerifiedReason || 'Chuẩn quy cách Y quan triều Nguyễn, phom dáng 5 thân truyền thống, không lai căng cúc vải/sườn xám.'}
+                          </div>
+                        </div>
+                      )}
+                    </div>
                     
                     <div className={`flex items-center gap-1 text-xs ${isModern ? 'text-[#8a6825]' : 'text-[#c5a059]'}`}>
                       <Star className="w-3.5 h-3.5 fill-current" />
@@ -345,6 +536,21 @@ export const HeritageMap: React.FC<HeritageMapProps> = ({ currentContext = 'heri
                       <span className={isModern ? 'text-stone-500' : 'text-stone-500'}>({loc.reviewCount})</span>
                     </div>
                   </div>
+
+                  {/* AI Outfit Match Pill (When matchedOutfit is active) */}
+                  {matchInfo && (
+                    <div className={`px-3 py-1 rounded-xl text-xs flex items-center justify-between border ${
+                      matchInfo.isHighMatch
+                        ? 'bg-emerald-950/40 border-emerald-500/40 text-emerald-200'
+                        : 'bg-amber-950/30 border-amber-500/30 text-amber-200'
+                    }`}>
+                      <span className="font-bold flex items-center gap-1.5">
+                        <Sparkles className="w-3.5 h-3.5" />
+                        <span>{matchInfo.label}</span>
+                      </span>
+                      <span className="text-[10px] font-mono opacity-80">{matchInfo.percentage}% Match</span>
+                    </div>
+                  )}
 
                   {/* Name & City */}
                   <div>
@@ -392,6 +598,14 @@ export const HeritageMap: React.FC<HeritageMapProps> = ({ currentContext = 'heri
                     "{loc.highlight}"
                   </p>
 
+                  {/* Mismatch Warning (if any) */}
+                  {matchInfo?.mismatchReason && (
+                    <div className="p-2.5 rounded-lg bg-amber-950/40 border border-amber-500/30 text-amber-200 text-[11px] flex items-start gap-2">
+                      <AlertCircle className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
+                      <span>{matchInfo.mismatchReason}</span>
+                    </div>
+                  )}
+
                   {/* Bottom Action buttons */}
                   <div className="pt-2 flex items-center justify-between">
                     <a
@@ -422,7 +636,6 @@ export const HeritageMap: React.FC<HeritageMapProps> = ({ currentContext = 'heri
               );
             })
           )}
-
         </div>
 
       </div>
@@ -439,8 +652,11 @@ export const HeritageMap: React.FC<HeritageMapProps> = ({ currentContext = 'heri
                 </h4>
               </div>
               <button
-                onClick={() => setShowDirectionsModal(false)}
-                className="text-stone-400 hover:text-white text-xs px-2 py-1"
+                onClick={() => {
+                  playDanTranhTabSound();
+                  setShowDirectionsModal(false);
+                }}
+                className="text-stone-400 hover:text-white text-xs px-2 py-1 cursor-pointer"
               >
                 ✕
               </button>
@@ -464,7 +680,10 @@ export const HeritageMap: React.FC<HeritageMapProps> = ({ currentContext = 'heri
             </div>
 
             <button
-              onClick={() => setShowDirectionsModal(false)}
+              onClick={() => {
+                playDanTranhTabSound();
+                setShowDirectionsModal(false);
+              }}
               className="w-full py-2.5 rounded-xl bg-[#c5a059] text-[#0d0d10] font-semibold text-xs font-royal hover:brightness-110 transition-all cursor-pointer"
             >
               ĐÃ XÁC NHẬN LỘ TRÌNH

@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { 
   HeritageItem, 
   ColorOption, 
-  ModernRemixItem 
+  ModernRemixItem,
+  getAccessorySlot 
 } from '../data/heritageData';
 import { RobeVisualizer } from './RobeVisualizer';
 import {
@@ -52,11 +53,13 @@ interface OutfitMoodboardCanvasProps {
   activeBottomItem: ModernRemixItem;
   activeShoesItem: ModernRemixItem;
   activeAccessoryItem: ModernRemixItem;
+  activeAccessoryItems?: ModernRemixItem[];
   hasDonY: boolean;
   uploadedImage: string | null;
   isChineseButtonSelected: boolean;
   isImperialYellowSelected: boolean;
   isTabooClashSelected: boolean;
+  isNhatBinhWithKhanDongSelected?: boolean;
   isLayeringActive?: boolean;
   layeringStep?: number;
   currentTier?: 'heritage' | 'modern' | 'fusion';
@@ -70,11 +73,13 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
   activeBottomItem,
   activeShoesItem,
   activeAccessoryItem,
+  activeAccessoryItems,
   hasDonY,
   uploadedImage,
   isChineseButtonSelected,
   isImperialYellowSelected,
   isTabooClashSelected,
+  isNhatBinhWithKhanDongSelected,
   isLayeringActive = false,
   layeringStep = 0,
   currentTier = 'heritage',
@@ -95,23 +100,109 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
   }, [currentTier]);
 
   // Check if any taboo is currently active
-  const hasActiveTaboo = isChineseButtonSelected || isImperialYellowSelected || isTabooClashSelected || !hasDonY;
+  const isNhatBinhWithKhanDong = isNhatBinhWithKhanDongSelected || (activeGarment.id === 'ao-nhat-binh' && (activeAccessoryItems?.some(a => a.id === 'acc-khan-dong') || activeAccessoryItem?.id === 'acc-khan-dong'));
+  const hasActiveTaboo = isChineseButtonSelected || isImperialYellowSelected || isTabooClashSelected || isNhatBinhWithKhanDong || !hasDonY;
+
+  // Danh sách toàn bộ phụ kiện đang trang bị (Hỗ trợ chọn nhiều phụ kiện trên Màn hình 1, 2 & 3)
+  const activeAccessories = activeAccessoryItems !== undefined
+    ? activeAccessoryItems
+    : (activeAccessoryItem ? [activeAccessoryItem] : []);
+
+  const headAccessory = activeAccessories.find(a => getAccessorySlot(a.id) === 'head');
+  const nonHeadAccessories = activeAccessories.filter(a => getAccessorySlot(a.id) !== 'head');
 
   // 2D image URLs
   const bottomCanvasImg = activeBottomItem.canvas2dUrl || activeBottomItem.thumbnailUrl || '';
   const shoesCanvasImg = activeShoesItem.canvas2dUrl || activeShoesItem.thumbnailUrl || '';
-  const accessoryCanvasImg = activeAccessoryItem.canvas2dUrl || activeAccessoryItem.thumbnailUrl || '';
-  const isHeadAccessory = 
-    activeAccessoryItem.id === 'acc-khan-dong' || 
-    activeAccessoryItem.id === 'acc-khan-vanh-day' ||
-    activeAccessoryItem.id === 'acc-bucket-hat' ||
-    activeAccessoryItem.id === 'acc-tram-phuong' ||
-    activeAccessoryItem.id === 'acc-kim-uoc' ||
-    activeAccessoryItem.id === 'acc-turban';
+  const accessoryCanvasImg = headAccessory 
+    ? (headAccessory.canvas2dUrl || headAccessory.thumbnailUrl || '')
+    : (activeAccessoryItems === undefined && activeAccessoryItem ? (activeAccessoryItem.canvas2dUrl || activeAccessoryItem.thumbnailUrl || '') : '');
+  const isHeadAccessory = !!headAccessory;
   const isKhanDongSelected = isHeadAccessory;
 
+  // Định vị kích thước và độ cao chuẩn cho phụ kiện đội đầu (ngự trên đỉnh đầu, hoàn toàn không che mặt ma nơ canh)
+  const getHeadAccessoryStyle = (id: string) => {
+    if (id === 'acc-khan-vanh-day') {
+      // Khăn Vành Dây Hoàng Cung: Quấn thành vòng cung hào quang trên đỉnh đầu, viền quanh búi tóc và trán
+      return {
+        containerClass: '-mb-6 sm:-mb-7',
+        imgClass: 'w-32 h-22 sm:w-36 sm:h-26'
+      };
+    }
+    if (id === 'acc-tram-phuong') {
+      // Trâm Cài Phượng Hoàng: Cài trên búi tóc đỉnh đầu
+      return {
+        containerClass: '-mb-4 sm:-mb-5',
+        imgClass: 'w-22 h-16 sm:w-26 sm:h-18'
+      };
+    }
+    if (id === 'acc-bucket-hat') {
+      // Mũ Bucket / Mũ Snapback: Đội trên đỉnh đầu trên hàng lông mày
+      return {
+        containerClass: '-mb-5 sm:-mb-6',
+        imgClass: 'w-28 h-18 sm:w-32 sm:h-20'
+      };
+    }
+    // Mặc định: Khăn Đóng Chữ Nhân (acc-khan-dong) & Khăn Turban
+    return {
+      containerClass: '-mb-5 sm:-mb-6',
+      imgClass: 'w-28 h-16 sm:w-32 sm:h-18'
+    };
+  };
+
+  // Định vị vị trí chuẩn cho từng loại phụ kiện trên ma nơ canh (Tách biệt các vùng, không bị trùng/chồng lấn)
+  const getAccessoryPositionStyle = (id: string) => {
+    // 1. Cầm tay bên phải (Right Hand)
+    if (id === 'acc-paper-fan') {
+      return 'bottom-12 -right-6 sm:-right-10 w-28 h-28 sm:w-32 sm:h-32 -rotate-12 hover:rotate-0 z-30';
+    }
+    // 2. Vòng cổ / Kiềng bạc: Ôm vừa vặn cổ áo, dưới cằm, trên hàng cúc áo
+    if (id === 'acc-kieng-bac' || id === 'acc-silver-chain-cuban') {
+      return 'top-10 sm:top-11 left-1/2 -translate-x-1/2 w-20 h-20 sm:w-22 sm:h-22 hover:scale-105 z-35';
+    }
+    // 3. Kính râm: To lên 20%, di chuyển lên trên 2-3cm để khớp chuẩn ngang tầm mắt ma nơ canh
+    if (id === 'acc-sunglasses-gold' || id === 'acc-chunky-sunglasses') {
+      return 'top-0.5 sm:top-1 left-1/2 -translate-x-1/2 w-[105px] h-[58px] sm:w-[116px] sm:h-[64px] hover:scale-105 z-40';
+    }
+    // 4. Khuyên tai: To lên 30%, cách xa mặt ma nơ canh 1-2cm (dời thêm sang bên trái tai)
+    if (id === 'acc-metal-earrings') {
+      return 'top-[6.5%] sm:top-[7%] left-[34%] sm:left-[35%] -translate-x-1/2 w-[52px] h-[52px] sm:w-[58px] sm:h-[58px] hover:scale-110 z-35';
+    }
+    // 5. Túi đeo chéo ngực: Ngang ngực
+    if (id === 'acc-chest-bag') {
+      return 'top-26 sm:top-28 left-1/2 -translate-x-1/2 w-28 h-28 sm:w-30 sm:h-30 hover:scale-105 z-30';
+    }
+    // 6. Túi xách / Tote da: To lên 30%, cầm ở tay bên trái thấp (cách xa đồng hồ thông minh)
+    if (id === 'acc-leather-tote') {
+      return 'bottom-0 -left-14 sm:-left-18 w-[125px] h-[166px] sm:w-[136px] sm:h-[188px] hover:scale-105 z-30';
+    }
+    // 7. Bội ngọc / Ngọc bội:
+    // - Áo Nhật Bình: Nằm ở vạt bên trái (viewer's left side)
+    // - Áo Tấc & Áo Ngũ Thân Tay Chẽn: Treo chuẩn ở cúc thứ 2 trên áo (cx: 172, cy: 144)
+    if (id === 'acc-jade-pendant' || id === 'acc-boi-ngoc') {
+      if (activeGarment.id === 'ao-nhat-binh') {
+        return 'top-[36%] sm:top-[38%] left-[22%] sm:left-[24%] w-14 h-22 sm:w-16 sm:h-26 hover:scale-105 z-30';
+      }
+      if (
+        activeGarment.id === 'ao-tac' ||
+        activeGarment.id === 'ngu-than-tay-chen' ||
+        activeGarment.svgType === 'ao_tac' ||
+        activeGarment.svgType === 'ngu_than'
+      ) {
+        return 'top-[28.5%] sm:top-[29%] left-[43%] -translate-x-1/2 w-12 h-20 sm:w-14 sm:h-22 hover:scale-105 z-30';
+      }
+      return 'top-[44%] left-[28%] sm:left-[30%] w-14 h-22 sm:w-16 sm:h-26 hover:scale-105 z-30';
+    }
+    // 8. Cổ tay bên trái: Đồng hồ thông minh / Kim Ước
+    // Được nhấc lên cao ở cổ tay / cẳng tay áo (cách xa túi tote da bên dưới, hoàn toàn không chạm hay chồng lên túi)
+    if (id === 'acc-smartwatch' || id === 'acc-kim-uoc') {
+      return 'top-[44%] sm:top-[46%] -left-5 sm:-left-7 w-15 h-15 sm:w-17 sm:h-17 hover:scale-105 z-35';
+    }
+    return 'bottom-16 -left-3 sm:-left-5 w-20 h-20 sm:w-24 sm:h-24 hover:scale-105 z-30';
+  };
+
   // Dynamic transition key for micro-interactions (Fade-in + Scale up 1.02x on outfit changes)
-  const previewTransitionKey = `${activeGarment.id}_${selectedColorHex}_${activeAccessoryItem.id}_${activeButtonItem.id}_${activeBottomItem.id}_${activeShoesItem.id}_${hasDonY}_${uploadedImage ? 'upload' : 'robe'}`;
+  const previewTransitionKey = `${activeGarment.id}_${selectedColorHex}_${activeAccessories.map(a => a.id).join('-')}_${activeButtonItem.id}_${activeBottomItem.id}_${activeShoesItem.id}_${hasDonY}_${uploadedImage ? 'upload' : 'robe'}`;
 
   // 4 Heritage Background Presets (Màn 1: Chốn Tôn Nghiêm)
   const HERITAGE_BACKGROUND_THEMES = [
@@ -534,9 +625,13 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
       };
 
       // Load all images in parallel
+      const primaryAccImg = headAccessory
+        ? (headAccessory.canvas2dUrl || headAccessory.thumbnailUrl || '')
+        : (activeAccessories[0]?.canvas2dUrl || activeAccessories[0]?.thumbnailUrl || '');
+
       const [robeImg, accImg, botImg, shoeImg] = await Promise.all([
         loadRobeImage(),
-        loadImage(accessoryCanvasImg),
+        loadImage(primaryAccImg),
         loadImage(bottomCanvasImg),
         loadImage(shoesCanvasImg)
       ]);
@@ -593,8 +688,8 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
       if (robeImg) {
         drawContainedImage(ctx, robeImg, robeZoneX, robeZoneY, robeZoneW, robeZoneH);
 
-        // If Khăn Đóng is selected, crown the mannequin head in the poster
-        if (isKhanDongSelected && accImg) {
+        // If Head Accessory is selected, crown the mannequin head in the poster
+        if (headAccessory && accImg) {
           const turbanW = 165;
           const turbanH = 105;
           const turbanX = leftCardX + leftCardW / 2 - turbanW / 2;
@@ -676,11 +771,11 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
 
       const rightItems = [
         {
-          badge: '01 • PHỤ KIỆN ĐI KÈM',
-          name: activeAccessoryItem.name,
-          vibe: activeAccessoryItem.styleVibe,
-          note: activeAccessoryItem.isCulturallyRespectful ? '✓ Tôn vinh vẻ tôn nghiêm cung đình' : '⚠️ Chi tiết phối phá cách hiện đại',
-          noteColor: activeAccessoryItem.isCulturallyRespectful ? '#34D399' : '#FBBF24',
+          badge: `01 • PHỤ KIỆN (${activeAccessories.length})`,
+          name: activeAccessories.map(a => a.name.split('(')[0].trim()).join(' · '),
+          vibe: activeAccessories.map(a => a.styleVibe).slice(0, 2).join(' · '),
+          note: activeAccessories.every(a => a.isCulturallyRespectful) ? '✓ Tôn vinh vẻ tôn nghiêm cung đình' : '⚠️ Chi tiết phối phá cách hiện đại',
+          noteColor: activeAccessories.every(a => a.isCulturallyRespectful) ? '#34D399' : '#FBBF24',
           sub: 'Chế tác thủ công tinh xảo',
           img: accImg
         },
@@ -1426,11 +1521,6 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
               {/* Slender Leg Lines guiding into Shoes */}
               <line x1="178" y1="360" x2="178" y2="520" stroke="url(#mannequinStroke)" strokeWidth="1" strokeDasharray="4 3" />
               <line x1="222" y1="360" x2="222" y2="520" stroke="url(#mannequinStroke)" strokeWidth="1" strokeDasharray="4 3" />
-
-              {/* Royal Exhibition Pedestal Base (Bệ Trưng Bày Haute Couture) */}
-              <ellipse cx="200" cy="548" rx="100" ry="16" fill="url(#standGlow)" />
-              <ellipse cx="200" cy="548" rx="85" ry="12" fill="#0C0C12" stroke="url(#mannequinStroke)" strokeWidth="1.2" />
-              <ellipse cx="200" cy="546" rx="80" ry="10" fill="none" stroke="#E5C365" strokeWidth="0.6" strokeOpacity="0.4" />
             </svg>
 
             {/* LAYER STATUS FLOATING BADGE (DÀNH CHO AUTO-FILL LAYERING) */}
@@ -1445,28 +1535,31 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
               </div>
             )}
 
-            {/* 1. HEAD ZONE: KHĂN ĐÓNG (ĐỘI LÊN ĐẦU MA NƠ CANH) */}
-            {isKhanDongSelected && (
-              <div className={`relative z-30 flex flex-col items-center -mb-4 sm:-mb-5 transition-all duration-500 ${
-                isLayeringActive && layeringStep < 3 ? 'opacity-0 scale-90 -translate-y-4' : 'opacity-100 scale-100 translate-y-0'
-              }`}>
-                <div 
-                  className="relative group cursor-pointer"
-                  onClick={() => setActiveHotspot(activeHotspot === 'head' ? null : 'head')}
-                >
-                  <img
-                    src={accessoryCanvasImg}
-                    alt={activeAccessoryItem.name}
-                    className="w-36 h-24 sm:w-42 sm:h-28 object-contain drop-shadow-[0_12px_24px_rgba(0,0,0,0.85)] hover:scale-105 transition-transform"
-                  />
-                  {showLabels && (
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap bg-black/85 backdrop-blur-md border border-[#c5a059]/60 px-2 py-0.5 rounded-full text-[10px] text-[#c5a059] font-bold shadow-lg pointer-events-none">
-                      {activeAccessoryItem.name}
-                    </div>
-                  )}
+            {/* 1. HEAD ZONE: KHĂN ĐÓNG / KHĂN VÀNH DÂY / MŨ BUCKET (ĐỘI CHUẨN TRÊN ĐỈNH ĐẦU MA NƠ CANH) */}
+            {headAccessory && (() => {
+              const headStyle = getHeadAccessoryStyle(headAccessory.id);
+              return (
+                <div className={`relative z-30 flex flex-col items-center ${headStyle.containerClass} transition-all duration-500 ${
+                  isLayeringActive && layeringStep < 3 ? 'opacity-0 scale-90 -translate-y-4' : 'opacity-100 scale-100 translate-y-0'
+                }`}>
+                  <div 
+                    className="relative group cursor-pointer"
+                    onClick={() => setActiveHotspot(activeHotspot === headAccessory.id ? null : headAccessory.id)}
+                  >
+                    <img
+                      src={headAccessory.canvas2dUrl || headAccessory.thumbnailUrl || ''}
+                      alt={headAccessory.name}
+                      className={`${headStyle.imgClass} object-contain drop-shadow-[0_12px_24px_rgba(0,0,0,0.85)] hover:scale-105 transition-transform`}
+                    />
+                    {showLabels && (
+                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap bg-black/85 backdrop-blur-md border border-[#c5a059]/60 px-2 py-0.5 rounded-full text-[10px] text-[#c5a059] font-bold shadow-lg pointer-events-none">
+                        {headAccessory.name}
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            )}
+              );
+            })()}
 
             {/* 2. UPPER BODY ZONE: ÁO CỔ PHỤC (ROBE VISUALIZER HOẶC ẢNH UPLOAD) */}
             <div className={`relative z-20 w-full max-w-[320px] sm:max-w-[350px] transition-all duration-700 ${
@@ -1520,43 +1613,32 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
                     </div>
                   )}
 
-                  {/* SIDE ACCESSORY (QUẠT GIẤY / BỘI NGỌC / ĐỒNG HỒ) */}
-                  {!isKhanDongSelected && accessoryCanvasImg && (
-                    <div 
-                      className={`absolute z-30 transition-all duration-500 cursor-pointer group ${
-                        activeAccessoryItem.id === 'acc-paper-fan'
-                          ? 'bottom-12 -right-4 sm:-right-8 w-28 h-28 sm:w-32 sm:h-32 -rotate-12 hover:rotate-0'
-                          : activeAccessoryItem.id === 'acc-kieng-bac' || activeAccessoryItem.id === 'acc-silver-chain-cuban'
-                          ? 'top-14 sm:top-16 left-1/2 -translate-x-1/2 w-28 h-28 hover:scale-105'
-                          : activeAccessoryItem.id === 'acc-sunglasses-gold' || activeAccessoryItem.id === 'acc-chunky-sunglasses'
-                          ? '-top-5 left-1/2 -translate-x-1/2 w-24 h-16 hover:scale-105'
-                          : activeAccessoryItem.id === 'acc-metal-earrings'
-                          ? '-top-2 left-6 w-16 h-16 hover:scale-105'
-                          : activeAccessoryItem.id === 'acc-chest-bag'
-                          ? 'top-20 left-1/2 -translate-x-1/2 w-32 h-32 hover:scale-105'
-                          : activeAccessoryItem.id === 'acc-leather-tote'
-                          ? 'bottom-4 -right-4 sm:-right-8 w-28 h-36 hover:scale-105'
-                          : activeAccessoryItem.id === 'acc-jade-pendant' || activeAccessoryItem.id === 'acc-boi-ngoc'
-                          ? 'bottom-8 -left-3 sm:-left-6 w-20 h-28 sm:w-24 sm:h-32 hover:scale-105'
-                          : activeAccessoryItem.id === 'acc-smartwatch'
-                          ? 'bottom-12 -left-4 sm:-left-6 w-16 h-16 hover:scale-105'
-                          : 'bottom-16 -left-3 sm:-left-5 w-20 h-20 sm:w-24 sm:h-24 hover:scale-105'
-                      }`}
-                      onClick={() => setActiveHotspot(activeHotspot === 'acc' ? null : 'acc')}
-                      title={activeAccessoryItem.name}
-                    >
-                      <img
-                        src={accessoryCanvasImg}
-                        alt={activeAccessoryItem.name}
-                        className="w-full h-full object-contain drop-shadow-[0_12px_24px_rgba(0,0,0,0.85)]"
-                      />
-                      {showLabels && (
-                        <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 whitespace-nowrap bg-black/85 backdrop-blur-md border border-[#c5a059]/60 px-2 py-0.5 rounded-full text-[9px] text-[#c5a059] font-bold shadow-lg pointer-events-none">
-                          {activeAccessoryItem.name.split('(')[0]}
-                        </div>
-                      )}
-                    </div>
-                  )}
+                  {/* MULTI-ACCESSORY OVERLAY (VÒNG CỔ, KÍNH RÂM, KHUYÊN TAI, TÚI, QUẠT, BỘI NGỌC, ĐỒNG HỒ...) */}
+                  {nonHeadAccessories.map(acc => {
+                    const accCanvasImg = acc.canvas2dUrl || acc.thumbnailUrl || '';
+                    if (!accCanvasImg) return null;
+                    const posClass = getAccessoryPositionStyle(acc.id);
+
+                    return (
+                      <div 
+                        key={acc.id}
+                        className={`absolute transition-all duration-500 cursor-pointer group ${posClass}`}
+                        onClick={() => setActiveHotspot(activeHotspot === acc.id ? null : acc.id)}
+                        title={acc.name}
+                      >
+                        <img
+                          src={accCanvasImg}
+                          alt={acc.name}
+                          className="w-full h-full object-contain drop-shadow-[0_12px_24px_rgba(0,0,0,0.85)]"
+                        />
+                        {showLabels && (
+                          <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 whitespace-nowrap bg-black/85 backdrop-blur-md border border-[#c5a059]/60 px-2 py-0.5 rounded-full text-[9px] text-[#c5a059] font-bold shadow-lg pointer-events-none">
+                            {acc.name.split('(')[0]}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -1593,9 +1675,6 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
             <div className={`relative z-20 w-full max-w-[260px] -mt-10 sm:-mt-12 flex flex-col items-center transition-all duration-500 ${
               isLayeringActive && layeringStep < 3 ? 'opacity-0 scale-90 translate-y-4' : 'opacity-100 scale-100 translate-y-0'
             }`}>
-              {/* Ground contact shadow ellipse */}
-              <div className="absolute bottom-2 w-48 h-5 bg-black/70 blur-md rounded-full pointer-events-none" />
-
               {shoesCanvasImg ? (
                 <div 
                   className="relative group cursor-pointer w-full flex justify-center"
@@ -1686,28 +1765,42 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
                 <div className="col-span-12 sm:col-span-5 flex flex-col gap-3">
                   
                   {/* Card 1: Phụ Kiện Đi Kèm */}
-                  <div className="bg-[#0e0e14] border border-[#242433] rounded-xl p-2.5 flex items-center gap-2.5 hover:border-[#c5a059]/40 transition-all">
-                    <div className="w-14 h-14 rounded-lg bg-black/60 border border-white/10 p-1 flex items-center justify-center shrink-0 overflow-hidden">
-                      {accessoryCanvasImg ? (
-                        <img 
-                          src={accessoryCanvasImg} 
-                          alt={activeAccessoryItem.name} 
-                          className="w-full h-full object-contain"
-                        />
-                      ) : (
-                        <span className="text-[9px] text-stone-500">2D</span>
-                      )}
+                  <div className="bg-[#0e0e14] border border-[#242433] rounded-xl p-2.5 flex flex-col gap-2 hover:border-[#c5a059]/40 transition-all">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[9px] uppercase tracking-wider text-[#c5a059] font-bold">
+                        Phụ Kiện ({activeAccessories.length})
+                      </span>
+                      <span className="text-[9px] text-stone-400 font-mono">
+                        {activeAccessories.length > 1 ? 'Đa phụ kiện' : 'Đơn'}
+                      </span>
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <span className="text-[9px] uppercase tracking-wider text-[#c5a059] font-bold block">
-                        Phụ Kiện
-                      </span>
-                      <span className="text-xs font-bold text-stone-200 block truncate">
-                        {activeAccessoryItem.name}
-                      </span>
-                      <span className="text-[10px] text-stone-400 block truncate">
-                        {activeAccessoryItem.styleVibe}
-                      </span>
+                    <div className="flex flex-col gap-1.5">
+                      {activeAccessories.map(acc => {
+                        const accImg = acc.canvas2dUrl || acc.thumbnailUrl || '';
+                        return (
+                          <div key={acc.id} className="flex items-center gap-2">
+                            <div className="w-9 h-9 rounded-lg bg-black/60 border border-white/10 p-1 flex items-center justify-center shrink-0 overflow-hidden">
+                              {accImg ? (
+                                <img 
+                                  src={accImg} 
+                                  alt={acc.name} 
+                                  className="w-full h-full object-contain"
+                                />
+                              ) : (
+                                <span className="text-[8px] text-stone-500">2D</span>
+                              )}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <span className="text-xs font-bold text-stone-200 block truncate">
+                                {acc.name}
+                              </span>
+                              <span className="text-[9.5px] text-stone-400 block truncate">
+                                {acc.styleVibe}
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
 
@@ -1894,37 +1987,46 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
                 </div>
               </div>
 
-              {/* Item 2: Phụ Kiện Đi Kèm */}
-              <div className="bg-[#161622]/95 backdrop-blur-xl border border-[#c5a059]/40 rounded-2xl p-4 sm:p-5 shadow-2xl flex flex-col sm:flex-row items-center sm:items-start gap-4 hover:border-[#c5a059] transition-all">
-                <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-xl bg-black/80 border border-[#c5a059]/50 p-2 shrink-0 flex items-center justify-center overflow-hidden">
-                  <img
-                    src={accessoryCanvasImg}
-                    alt={activeAccessoryItem.name}
-                    className="w-full h-full object-contain drop-shadow"
-                  />
-                </div>
-                <div className="min-w-0 flex-1 text-center sm:text-left">
-                  <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-1">
-                    <span className="text-[10px] text-[#e5c365] font-bold uppercase tracking-wider bg-[#c5a059]/20 px-2 py-0.5 rounded-full border border-[#c5a059]/30">
-                      Phụ Kiện
-                    </span>
-                    <span className="text-[11px] text-[#c5a059] font-medium">
-                      {activeAccessoryItem.styleVibe}
-                    </span>
+              {/* Item 2: Danh sách Phụ Kiện Đi Kèm */}
+              {activeAccessories.map(acc => {
+                const accImg = acc.canvas2dUrl || acc.thumbnailUrl || '';
+                return (
+                  <div key={acc.id} className="bg-[#161622]/95 backdrop-blur-xl border border-[#c5a059]/40 rounded-2xl p-4 sm:p-5 shadow-2xl flex flex-col sm:flex-row items-center sm:items-start gap-4 hover:border-[#c5a059] transition-all">
+                    <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-xl bg-black/80 border border-[#c5a059]/50 p-2 shrink-0 flex items-center justify-center overflow-hidden">
+                      {accImg ? (
+                        <img
+                          src={accImg}
+                          alt={acc.name}
+                          className="w-full h-full object-contain drop-shadow"
+                        />
+                      ) : (
+                        <span className="text-[10px] text-stone-500">2D</span>
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1 text-center sm:text-left">
+                      <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-1">
+                        <span className="text-[10px] text-[#e5c365] font-bold uppercase tracking-wider bg-[#c5a059]/20 px-2 py-0.5 rounded-full border border-[#c5a059]/30">
+                          Phụ Kiện
+                        </span>
+                        <span className="text-[11px] text-[#c5a059] font-medium">
+                          {acc.styleVibe}
+                        </span>
+                      </div>
+                      <h4 className="text-base font-bold text-white">
+                        {acc.name}
+                      </h4>
+                      <p className="text-xs text-stone-200 leading-relaxed mt-1">
+                        {acc.description}
+                      </p>
+                      <div className="mt-2.5 pt-2 border-t border-white/10 flex items-center justify-center sm:justify-start gap-2 text-xs">
+                        <span className={acc.isCulturallyRespectful ? 'text-emerald-400 font-medium' : 'text-amber-400 font-medium'}>
+                          {acc.isCulturallyRespectful ? '✓ Phụ kiện tôn vinh bản sắc truyền thống' : '⚠️ Chi tiết hiện đại (Phối tiết chế)'}
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                  <h4 className="text-base font-bold text-white">
-                    {activeAccessoryItem.name}
-                  </h4>
-                  <p className="text-xs text-stone-200 leading-relaxed mt-1">
-                    {activeAccessoryItem.description}
-                  </p>
-                  <div className="mt-2.5 pt-2 border-t border-white/10 flex items-center justify-center sm:justify-start gap-2 text-xs">
-                    <span className={activeAccessoryItem.isCulturallyRespectful ? 'text-emerald-400 font-medium' : 'text-amber-400 font-medium'}>
-                      {activeAccessoryItem.isCulturallyRespectful ? '✓ Phụ kiện tôn vinh bản sắc truyền thống' : '⚠️ Chi tiết hiện đại (Phối tiết chế)'}
-                    </span>
-                  </div>
-                </div>
-              </div>
+                );
+              })}
 
               {/* Item 3: Thân Dưới */}
               <div className="bg-[#161622]/95 backdrop-blur-xl border border-[#c5a059]/40 rounded-2xl p-4 sm:p-5 shadow-2xl flex flex-col sm:flex-row items-center sm:items-start gap-4 hover:border-[#c5a059] transition-all">
@@ -2092,13 +2194,16 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
             
             <div className="w-full max-w-[380px] py-4 flex flex-col items-center">
               {/* Head */}
-              {isKhanDongSelected && (
-                <img
-                  src={accessoryCanvasImg}
-                  alt={activeAccessoryItem.name}
-                  className="w-44 h-30 object-contain -mb-4 relative z-30"
-                />
-              )}
+              {headAccessory && (() => {
+                const headStyle = getHeadAccessoryStyle(headAccessory.id);
+                return (
+                  <img
+                    src={headAccessory.canvas2dUrl || headAccessory.thumbnailUrl || ''}
+                    alt={headAccessory.name}
+                    className={`${headStyle.imgClass} ${headStyle.containerClass} object-contain relative z-30 drop-shadow`}
+                  />
+                );
+              })()}
               {/* Robe */}
               <div className="w-full relative z-20">
                 <RobeVisualizer
@@ -2109,6 +2214,17 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
                   interactive={false}
                   borderless={true}
                 />
+                {/* Non-head accessories in zoom view */}
+                {nonHeadAccessories.map(acc => {
+                  const accImg = acc.canvas2dUrl || acc.thumbnailUrl || '';
+                  if (!accImg) return null;
+                  const posClass = getAccessoryPositionStyle(acc.id);
+                  return (
+                    <div key={acc.id} className={`absolute ${posClass}`}>
+                      <img src={accImg} alt={acc.name} className="w-full h-full object-contain drop-shadow" />
+                    </div>
+                  );
+                })}
               </div>
               {/* Bottom */}
               {bottomCanvasImg && (

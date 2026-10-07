@@ -1295,12 +1295,23 @@ export const TIER_CONFIGS = {
  * Kiểm tra tính hợp chuẩn của sản phẩm đối với Tier / Bối cảnh hiện tại.
  * @param {Object|string} itemOrId - Sản phẩm hoặc ID sản phẩm
  * @param {'heritage'|'modern'|'fusion'} currentTier - Tier hiện tại
+ * @param {string|null} [selectedGarmentId=null] - ID của áo ngoài hiện tại
  * @returns {{ isCompliant: boolean, notice: string, badgeText: string }}
  */
-export function checkItemTierCompliance(itemOrId, currentTier = 'heritage') {
+export function checkItemTierCompliance(itemOrId, currentTier = 'heritage', selectedGarmentId = null) {
   const item = typeof itemOrId === 'string' ? getItemById(itemOrId) : itemOrId;
   if (!item) {
     return { isCompliant: true, notice: '', badgeText: '' };
+  }
+
+  // Quy chuẩn đặc biệt: Áo Nhật Bình bắt buộc đi cùng Khăn Vành Dây hoặc Trâm Phượng; Khăn Đóng Chữ Nhân là nam phục -> Lệch chuẩn
+  const isKhanDong = item.id === 'acc-khan-dong' || itemOrId === 'acc-khan-dong';
+  if (selectedGarmentId === 'ao-nhat-binh' && isKhanDong) {
+    return {
+      isCompliant: false,
+      notice: 'Áo Nhật Bình là trang phục hoàng tộc nữ giới triều Nguyễn, quy chuẩn đi kèm Khăn Vành Dây hoặc Trâm Phượng. Đội Khăn Đóng Chữ Nhân (nam phục) là sai lệch điển lễ triều đình!',
+      badgeText: 'Lệch chuẩn Nhật Bình'
+    };
   }
 
   // Nếu là item cấm kỵ tuyệt đối (allowedTiers rỗng)

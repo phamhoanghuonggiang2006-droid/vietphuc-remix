@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { playDanTranhTabSound } from '../utils/soundEffects';
 import { SoundToggle } from './SoundToggle';
+import { hasGeminiApiKey } from '../services/geminiService';
 
 interface NavbarProps {
   activeTab: 'remix' | 'story' | 'map';
   onSelectTab: (tab: 'remix' | 'story' | 'map') => void;
   onOpenTaboosModal: () => void;
   onOpenQuizModal?: () => void;
+  onOpenGeminiModal?: () => void;
   currentContext?: string;
   onChangeContext?: () => void;
 }
@@ -16,9 +18,24 @@ export const Navbar: React.FC<NavbarProps> = ({
   onSelectTab,
   onOpenTaboosModal,
   onOpenQuizModal,
+  onOpenGeminiModal,
   currentContext,
   onChangeContext
 }) => {
+  const [hasAiKey, setHasAiKey] = useState<boolean>(() => hasGeminiApiKey());
+
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setHasAiKey(hasGeminiApiKey());
+    };
+    window.addEventListener('storage', handleStorageChange);
+    // Kiểm tra định kỳ nhẹ nhàng 1s một lần để cập nhật ngay khi vừa lưu key
+    const interval = setInterval(handleStorageChange, 1500);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(interval);
+    };
+  }, []);
   const handleTabChange = (tab: 'remix' | 'story' | 'map') => {
     if (tab !== activeTab) {
       playDanTranhTabSound();
@@ -155,6 +172,8 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             <span>Quy Chuẩn Taboos</span>
           </button>
+
+{/* Nút Kết Nối Google AI Studio: Đã ẩn theo mong muốn của Giang để giao diện tối giản, thẩm định tự động tích hợp */}
 
           <button
             onClick={() => handleTabChange('remix')}

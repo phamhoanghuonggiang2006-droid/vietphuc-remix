@@ -368,10 +368,10 @@ export const MainWorkspace: React.FC<MainWorkspaceProps> = ({
               <button
                 type="button"
                 onClick={onBackToOnboarding}
-                className="text-xs font-medium text-stone-500 hover:text-[#1A1A1A] flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-gray-200 hover:border-gray-400 transition-all cursor-pointer"
+                className="px-4 py-2 text-[13.5px] rounded-xl bg-black/85 text-[#FFF9A6] border-2 border-[#FFEE00] animate-neon-glow-yellow hover:brightness-110 active:scale-95 font-bold flex items-center gap-2 transition-all cursor-pointer shadow-lg"
               >
-                <ArrowLeft className="w-3.5 h-3.5" />
-                <span>Đổi bối cảnh</span>
+                <ArrowLeft className="w-4 h-4 text-[#FFEE00] animate-pulse" />
+                <span className="tracking-wide uppercase font-bold text-xs sm:text-[13px] text-[#FFEE00]">Đổi bối cảnh</span>
               </button>
             )}
           </div>

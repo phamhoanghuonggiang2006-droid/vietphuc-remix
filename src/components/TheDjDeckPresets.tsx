@@ -226,7 +226,7 @@ export const TheDjDeckPresets: React.FC<TheDjDeckPresetsProps> = ({
 
   return (
     <div
-      className={`font-streetwear relative bg-[#121212]/95 text-stone-100 border border-white/10 p-4 sm:p-5 transition-all duration-300 shadow-[0_0_30px_rgba(0,243,255,0.06)] rounded-none ${
+      className={`font-streetwear relative mt-4 bg-[#121212]/95 text-stone-100 border border-white/10 p-4 sm:p-5 transition-all duration-300 shadow-[0_0_30px_rgba(0,243,255,0.06)] rounded-none ${
         isBassShaking ? 'animate-bass-shake' : ''
       }`}
       style={{
@@ -237,11 +237,11 @@ export const TheDjDeckPresets: React.FC<TheDjDeckPresetsProps> = ({
         backgroundSize: '32px 32px'
       }}
     >
-      {/* CORNER TAGS (SUBTLE CYBER ACCENTS) */}
-      <div className="absolute -top-2.5 -left-2 bg-black/90 text-[#00f3ff] font-mono font-bold text-[9px] px-2 py-0.5 tracking-widest uppercase border border-[#00f3ff]/40">
+      {/* CORNER TAGS (SUBTLE CYBER ACCENTS WITH SAFE HEADROOM) */}
+      <div className="absolute -top-2.5 left-2 bg-black/95 text-[#00f3ff] font-mono font-bold text-[9px] px-2.5 py-0.5 tracking-widest uppercase border border-[#00f3ff]/50 shadow-[0_0_8px_rgba(0,243,255,0.3)] z-10">
         DECK // MK-303
       </div>
-      <div className="absolute -top-2.5 -right-2 bg-black/90 text-[#39ff14] font-mono font-bold text-[9px] px-2 py-0.5 tracking-widest uppercase border border-[#39ff14]/40">
+      <div className="absolute -top-2.5 right-2 bg-black/95 text-[#39ff14] font-mono font-bold text-[9px] px-2.5 py-0.5 tracking-widest uppercase border border-[#39ff14]/50 shadow-[0_0_8px_rgba(57,255,20,0.3)] z-10">
         BASS BOOST 808
       </div>
 

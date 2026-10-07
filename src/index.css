@@ -146,4 +146,33 @@
   box-shadow: 0 0 30px rgba(0, 243, 255, 0.05);
 }
 
+/* Hiệu ứng nhấp nháy glowing vàng neon cho nút Đổi Bối Cảnh */
+@keyframes neonYellowGlowPulse {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(255, 235, 59, 0.6), 0 0 20px rgba(255, 215, 0, 0.45), inset 0 0 6px rgba(255, 235, 59, 0.25);
+    border-color: rgba(255, 235, 59, 0.85);
+    color: #FFF9A6;
+    transform: scale(1.05);
+  }
+  50% {
+    box-shadow: 0 0 22px rgba(255, 238, 0, 0.95), 0 0 36px rgba(255, 215, 0, 0.75), inset 0 0 10px rgba(255, 238, 0, 0.4);
+    border-color: #FFEE00;
+    color: #FFFFFF;
+    transform: scale(1.08);
+  }
+}
+
+.animate-neon-glow-yellow {
+  animation: neonYellowGlowPulse 1.6s infinite ease-in-out;
+}
+
+/* Ẩn hoàn toàn thanh cuộn (không còn vệt đen) */
+.no-scrollbar::-webkit-scrollbar {
+  display: none !important;
+}
+.no-scrollbar {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+
 

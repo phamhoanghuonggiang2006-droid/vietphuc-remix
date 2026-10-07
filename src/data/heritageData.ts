@@ -239,6 +239,75 @@ export const TRADITIONAL_COLORS: ColorOption[] = [
   }
 ];
 
+/**
+ * Lọc danh sách sắc phục theo bối cảnh:
+ * - Màn hình 1 (Chốn Tôn Nghiêm) & Màn hình 2 (Thanh Lịch Đời Thường): 
+ *   Loại bỏ "Xanh Cyber Blue" và "Xanh Acid Green"
+ * - Màn hình 3 (Phố Thị Phá Cách / Fusion): Giữ trọn bộ đầy đủ
+ */
+export const getAvailableColors = (tier: 'heritage' | 'modern' | 'fusion' | string): ColorOption[] => {
+  if (tier === 'heritage' || tier === 'modern') {
+    return TRADITIONAL_COLORS.filter(
+      (c) => c.name !== 'Xanh Cyber Blue' && c.name !== 'Xanh Acid Green' && c.hex !== '#00F0FF' && c.hex !== '#39FF14'
+    );
+  }
+  return TRADITIONAL_COLORS;
+};
+
+/**
+ * Phân loại vị trí / slot của từng phụ kiện nhằm hỗ trợ phối nhiều phụ kiện cùng lúc:
+ * - Các phụ kiện khác slot có thể phối chung (Mũ + Kính + Vòng + Túi + Quạt...)
+ * - Các phụ kiện cùng slot sẽ tự động thay thế nhau (không đội 2 mũ, không đeo 2 kính...)
+ */
+export type AccessorySlot = 'head' | 'face' | 'ear' | 'neck' | 'bag' | 'wrist' | 'hand' | 'waist';
+
+export const getAccessorySlot = (itemId: string): AccessorySlot => {
+  if (
+    itemId === 'acc-khan-dong' || 
+    itemId === 'acc-khan-vanh-day' || 
+    itemId === 'acc-bucket-hat' || 
+    itemId === 'acc-tram-phuong' || 
+    itemId === 'acc-turban'
+  ) {
+    return 'head';
+  }
+  if (itemId === 'acc-sunglasses-gold' || itemId === 'acc-chunky-sunglasses') {
+    return 'face';
+  }
+  if (itemId === 'acc-metal-earrings') {
+    return 'ear';
+  }
+  if (itemId === 'acc-kieng-bac' || itemId === 'acc-silver-chain-cuban') {
+    return 'neck';
+  }
+  if (itemId === 'acc-leather-tote' || itemId === 'acc-chest-bag') {
+    return 'bag';
+  }
+  if (itemId === 'acc-smartwatch' || itemId === 'acc-kim-uoc') {
+    return 'wrist';
+  }
+  if (itemId === 'acc-paper-fan') {
+    return 'hand';
+  }
+  if (itemId === 'acc-jade-pendant' || itemId === 'acc-boi-ngoc') {
+    return 'waist';
+  }
+  return 'hand';
+};
+
+export const getAccessorySlotLabel = (slot: AccessorySlot): string => {
+  switch (slot) {
+    case 'head': return 'Mũ Nón';
+    case 'face': return 'Kính Mắt';
+    case 'ear': return 'Khuyên Tai';
+    case 'neck': return 'Vòng Cổ';
+    case 'bag': return 'Túi Xách';
+    case 'wrist': return 'Cổ Tay';
+    case 'hand': return 'Cầm Tay';
+    case 'waist': return 'Thắt Lưng';
+  }
+};
+
 // ========================================================
 // CÁC BIẾN LINK ẢNH CỐ ĐỊNH CHUẨN QUY CHẾ (THEO YÊU CẦU CỦA NGƯỜI DÙNG)
 // ========================================================
@@ -562,7 +631,7 @@ export const REMIX_ITEMS: ModernRemixItem[] = [
     isCulturallyRespectful: true,
     description: 'Khăn vành quấn nhiều vòng bằng gấm hoàng gia rực rỡ, phụ kiện đỉnh cao của mệnh phụ & đại lễ.',
     thumbnailUrl: LINK_ANH_KHAN_VANH_DAY,
-    canvas2dUrl: '/canvas/canvas-khan-dong.png'
+    canvas2dUrl: '/canvas/canvas-acc-khan-vanh-day.png'
   },
   {
     id: 'acc-tram-phuong',
@@ -953,6 +1022,10 @@ export interface RentalLocation {
   services: string[];
   highlight: string;
   coordinates: { x: number; y: number }; // Percentage on simulated map canvas
+  isAiVerified?: boolean;
+  aiVerifiedReason?: string;
+  styleVibes: ('heritage' | 'ceremonial' | 'modern' | 'fusion' | 'streetwear' | 'concept')[];
+  mismatchNotice?: string;
 }
 
 export const RENTAL_LOCATIONS: RentalLocation[] = [
@@ -970,7 +1043,11 @@ export const RENTAL_LOCATIONS: RentalLocation[] = [
     priceRange: '250.000đ - 650.000đ / ngày',
     services: ['Thuê Áo Ngũ Thân & Nhật Bình', 'Makeup Cổ Phong', 'Chụp ảnh Hồ Gươm', 'Phụ kiện hài thêu & quạt trầm'],
     highlight: 'Hơn 200 bộ cổ phục may đo lụa tơ tằm Vạn Phúc đúng quy chuẩn triều Nguyễn.',
-    coordinates: { x: 48, y: 18 }
+    coordinates: { x: 48, y: 18 },
+    isAiVerified: true,
+    aiVerifiedReason: 'Chuẩn 100% quy chế Ngũ Thân & Nhật Bình triều Nguyễn, may lụa tơ tằm Vạn Phúc truyền thống.',
+    styleVibes: ['heritage', 'modern', 'ceremonial'],
+    mismatchNotice: 'Phù hợp nhất với phong cách truyền thống & thanh lịch công sở.'
   },
   {
     id: 'loc-2',
@@ -986,7 +1063,11 @@ export const RENTAL_LOCATIONS: RentalLocation[] = [
     priceRange: 'May đo: 3.500.000đ - 18.000.000đ',
     services: ['May đo bespoke chuẩn y quan', 'Dệt lụa tơ tằm theo hoa văn hoàng gia', 'Cúc ngọc chạm thủ công', 'Tư vấn phom dáng'],
     highlight: 'Đơn vị tiên phong phục dựng cổ phục triều Nguyễn cho các phim điện ảnh và nghiên cứu sinh.',
-    coordinates: { x: 52, y: 22 }
+    coordinates: { x: 52, y: 22 },
+    isAiVerified: true,
+    aiVerifiedReason: 'Viện nghiên cứu phục dựng chuẩn điển lễ triều đình hàng đầu Việt Nam, khuy đúc rời thủ công.',
+    styleVibes: ['heritage', 'ceremonial'],
+    mismatchNotice: 'Chuyên may đo bespoke nghi lễ triều đình, không cung cấp đồ concept phá cách đường phố.'
   },
   {
     id: 'loc-3',
@@ -1002,7 +1083,11 @@ export const RENTAL_LOCATIONS: RentalLocation[] = [
     priceRange: '200.000đ - 550.000đ / ngày',
     services: ['Thuê Nhật Bình & Áo Tấc hoàng cung', 'Chụp ảnh Đại Nội & Lăng Tẩm', 'Hướng dẫn viên phong thái', 'Khăn vành dây cổ truyền'],
     highlight: 'Nằm ngay trung tâm bờ nam sông Hương, chuyên cho thuê cổ phục phục vụ dạo Đại Nội.',
-    coordinates: { x: 56, y: 52 }
+    coordinates: { x: 56, y: 52 },
+    isAiVerified: true,
+    aiVerifiedReason: 'Cổ phục Cố Đô may đúng phom dáng cung đình, khuy đúc rời, khăn vành dây chuẩn thức.',
+    styleVibes: ['heritage', 'ceremonial'],
+    mismatchNotice: 'Chuyên phục vụ dạo Đại Nội & lăng tẩm trang trọng, ít phụ kiện streetwear.'
   },
   {
     id: 'loc-4',
@@ -1018,7 +1103,10 @@ export const RENTAL_LOCATIONS: RentalLocation[] = [
     priceRange: 'Vé tham quan: 50.000đ / người',
     services: ['Trưng bày bảo vật y quan triều Nguyễn', 'Áo bào hoàng đế & hoàng hậu thực tế', 'Tư liệu lịch sử Hội Điển', 'Thuyết minh di sản'],
     highlight: 'Nơi lưu giữ hiện vật long bào, hoàng bào, áo Nhật Bình nguyên bản quý giá nhất Việt Nam.',
-    coordinates: { x: 60, y: 48 }
+    coordinates: { x: 60, y: 48 },
+    isAiVerified: true,
+    aiVerifiedReason: 'Kho tàng hiện vật hoàng triều nguyên bản và thư tịch Hội Điển Sự Lệ gốc.',
+    styleVibes: ['heritage', 'ceremonial']
   },
   {
     id: 'loc-5',
@@ -1034,7 +1122,10 @@ export const RENTAL_LOCATIONS: RentalLocation[] = [
     priceRange: '300.000đ - 700.000đ / ngày',
     services: ['Cổ phục chụp studio & concept Gen Z', 'Remix phụ kiện hiện đại', 'Makeup tone cổ phong Sài Gòn xưa', 'Cho thuê theo nhóm'],
     highlight: 'Địa chỉ quen thuộc của giới trẻ Sài Thành yêu thích remix cổ phục với gu thời trang cá tính.',
-    coordinates: { x: 42, y: 82 }
+    coordinates: { x: 42, y: 82 },
+    isAiVerified: false,
+    styleVibes: ['fusion', 'modern', 'streetwear', 'concept'],
+    mismatchNotice: 'Tập trung vào chụp ảnh concept Gen Z phá cách, không chuyên may đo đại lễ cung đình.'
   },
   {
     id: 'loc-6',
@@ -1050,7 +1141,10 @@ export const RENTAL_LOCATIONS: RentalLocation[] = [
     priceRange: 'Vé vào cửa: 30.000đ / người',
     services: ['Chuyên đề Trang Phục Việt Qua Các Thời Kỳ', 'Giao lưu văn hóa y quan', 'Không gian chụp ảnh kiến trúc Đông Dương'],
     highlight: 'Không gian kiến trúc Indochine giao hòa với các phòng trưng bày trang phục cổ truyền đặc sắc.',
-    coordinates: { x: 46, y: 86 }
+    coordinates: { x: 46, y: 86 },
+    isAiVerified: true,
+    aiVerifiedReason: 'Bảo tàng quốc gia lưu giữ bộ sưu tập hiện vật trang phục đa thời kỳ chuẩn xác.',
+    styleVibes: ['heritage', 'ceremonial']
   },
   {
     id: 'loc-7',
@@ -1066,6 +1160,49 @@ export const RENTAL_LOCATIONS: RentalLocation[] = [
     priceRange: '250.000đ - 600.000đ / ngày',
     services: ['Thuê cổ phục dạo phố lồng đèn', 'Chụp thuyền hoa đăng', 'Guốc mộc & quạt trầm Hội An', 'Hài thêu thủ công'],
     highlight: 'Tọa lạc giữa lòng phố cổ Hội An, cho thuê Áo Tấc & Ngũ Thân lộng lẫy dưới ánh đèn lồng.',
-    coordinates: { x: 62, y: 58 }
+    coordinates: { x: 62, y: 58 },
+    isAiVerified: true,
+    aiVerifiedReason: 'Cổ phục lụa Hội An may đúng phom, phụ kiện guốc mộc và quạt trầm mộc mạc thanh nhã.',
+    styleVibes: ['heritage', 'modern'],
+    mismatchNotice: 'Phù hợp dạo phố Hội An & hoài cổ, không chuyên đồ hiphop phá cách.'
+  },
+  {
+    id: 'loc-8',
+    name: 'Đông Phong Cổ Phục - Xưởng May Nghi Lễ',
+    category: 'tailor',
+    city: 'Hà Nội',
+    address: 'Số 88 Mai Hắc Đế, Hai Bà Trưng, Hà Nội',
+    distanceKm: 2.8,
+    rating: 4.9,
+    reviewCount: 290,
+    phone: '0966 333 222',
+    openHours: '09:00 - 20:00',
+    priceRange: 'May đo: 2.800.000đ - 12.000.000đ',
+    services: ['May đo Áo Tấc & Nhật Bình', 'Thêu tay họa tiết Thủy Ba & Phượng Ổ', 'Khuy bạc đúc thủ công', 'Tư vấn hôn lễ cổ truyền'],
+    highlight: 'Chuyên nghiên cứu họa tiết triều Nguyễn, may đo cổ phục lễ phục cưới hỏi uy nghi.',
+    coordinates: { x: 44, y: 24 },
+    isAiVerified: true,
+    aiVerifiedReason: 'Chuẩn 100% thức đo triều đình, hoa văn thêu tay thủ công không lai tạp.',
+    styleVibes: ['heritage', 'ceremonial'],
+    mismatchNotice: 'Chuyên lễ phục cưới hỏi & đại lễ, không phục vụ concept streetwear.'
+  },
+  {
+    id: 'loc-9',
+    name: 'The Retro GenZ - Cổ Phục Remix Studio',
+    category: 'rental',
+    city: 'TP. Hồ Chí Minh',
+    address: 'Số 42 Chung Cư Nguyễn Huệ, Quận 1, TP.HCM',
+    distanceKm: 1.5,
+    rating: 4.9,
+    reviewCount: 540,
+    phone: '0909 888 777',
+    openHours: '10:00 - 22:00',
+    priceRange: '280.000đ - 650.000đ / ngày',
+    services: ['Áo Ngũ Thân mix Sneaker & Cargo', 'Cho thuê xích Cuban & kính râm', 'Studio Cyberpunk cổ phong', 'Photographer phong cách Tet-Core'],
+    highlight: 'Tiên phong phong cách Tet-Core & Fusion Streetwear, nơi hội tụ các bản phối cổ phục đậm chất đường phố.',
+    coordinates: { x: 44, y: 78 },
+    isAiVerified: false,
+    styleVibes: ['fusion', 'streetwear', 'concept'],
+    mismatchNotice: 'Chuyên trị bản phối Fusion đường phố, không phù hợp nghi lễ cung đình trang nghiêm.'
   }
 ];

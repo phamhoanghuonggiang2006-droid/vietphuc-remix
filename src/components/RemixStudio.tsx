@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { 
   HERITAGE_GARMENTS, 
   TRADITIONAL_COLORS, 
@@ -7,7 +7,10 @@ import {
   HeritageItem,
   ColorOption,
   ModernRemixItem,
-  TabooRule
+  TabooRule,
+  getAvailableColors,
+  getAccessorySlot,
+  getAccessorySlotLabel
 } from '../data/heritageData';
 import { OutfitMoodboardCanvas } from './OutfitMoodboardCanvas';
 import { CustomImageManagerModal } from './CustomImageManagerModal';
@@ -54,15 +57,25 @@ import {
   EyeOff, 
   X, 
   Info, 
-  BookOpen,
-  ArrowLeft,
-  Scroll,
-  Crown,
-  Zap,
-  Lock,
-  Unlock,
-  FolderOpen
+  BookOpen, 
+  ArrowLeft, 
+  Scroll, 
+  Crown, 
+  Zap, 
+  Lock, 
+  Unlock, 
+  FolderOpen,
+  MapPin,
+  Loader2,
+  Cpu
 } from 'lucide-react';
+import { HeritageHotspotDrawer } from './HeritageHotspotDrawer';
+import { 
+  hasGeminiApiKey, 
+  evaluateOutfitWithGemini, 
+  GeminiEvaluationResult,
+  OutfitEvaluationPayload
+} from '../services/geminiService';
 
 interface ExtractedColorChip {
   name: string;
@@ -290,7 +303,7 @@ export const computeRealtimeDualMetrics = (
   buttonId: string,
   bottomId: string,
   shoesId: string,
-  accessoryId: string,
+  accessoryId: string | string[],
   contextId: string = 'heritage'
 ): DualMetricEvaluation => {
   const hasDonY = layerId === 'layer-don-y-white';
@@ -298,10 +311,14 @@ export const computeRealtimeDualMetrics = (
   const isImperialYellow = !!color.isImperialRestricted;
   
   const isCeremonialRobe = garment.id === 'ao-tac' || garment.id === 'ao-nhat-binh' || garment.id === 'ao-vien-linh';
-  const isTabooAlert = isChineseButton || isImperialYellow;
   
-  const isAnachronism = (isCeremonialRobe && (shoesId === 'shoes-white-sneakers' || accessoryId === 'acc-smartwatch')) ||
-                        (!isCeremonialRobe && accessoryId === 'acc-smartwatch');
+  const accIds = Array.isArray(accessoryId) ? accessoryId : (accessoryId ? [accessoryId] : []);
+  const isNhatBinhWithKhanDong = garment.id === 'ao-nhat-binh' && accIds.includes('acc-khan-dong');
+  const isTabooAlert = isChineseButton || isImperialYellow || isNhatBinhWithKhanDong;
+  const hasSmartwatch = accIds.includes('acc-smartwatch');
+
+  const isAnachronism = (isCeremonialRobe && (shoesId === 'shoes-white-sneakers' || hasSmartwatch)) ||
+                        (!isCeremonialRobe && hasSmartwatch);
 
   const buttonInfo = getButtonHeritageInfo(buttonId);
   const colorInfo = getColorHeritageInfo(color);
@@ -313,14 +330,15 @@ export const computeRealtimeDualMetrics = (
   if (!hasDonY) heritage -= 25;
   if (isChineseButton) heritage -= 35;
   if (isImperialYellow) heritage -= 40;
+  if (isNhatBinhWithKhanDong) heritage -= 35;
   if (isCeremonialRobe && shoesId === 'shoes-white-sneakers') heritage -= 20;
-  if (accessoryId === 'acc-smartwatch') heritage -= 15;
+  if (hasSmartwatch) heritage -= 15;
   if (isCeremonialRobe && shoesId === 'shoes-chunky-loafers') heritage -= 8;
   if (isCeremonialRobe && bottomId === 'bottom-high-waist-jeans') heritage -= 10;
   if (!isCeremonialRobe && bottomId === 'bottom-high-waist-jeans') heritage -= 3;
 
   if (contextId === 'heritage') {
-    if (shoesId === 'shoes-white-sneakers' || bottomId === 'bottom-high-waist-jeans' || accessoryId === 'acc-smartwatch') {
+    if (shoesId === 'shoes-white-sneakers' || bottomId === 'bottom-high-waist-jeans' || hasSmartwatch) {
       heritage = Math.max(15, heritage - 10);
     }
   }
@@ -348,9 +366,10 @@ export const computeRealtimeDualMetrics = (
   } else if (shoesId === 'shoes-chunky-loafers') {
     slay += (contextId === 'fusion' ? 10 : 8);
   }
-  if (accessoryId === 'acc-khan-dong' || accessoryId === 'acc-khan-vanh-day' || accessoryId === 'acc-kieng-bac') {
+  if (accIds.some(id => id === 'acc-khan-dong' || id === 'acc-khan-vanh-day' || id === 'acc-kieng-bac')) {
     slay += 6;
-  } else if (accessoryId === 'acc-paper-fan' || accessoryId === 'acc-jade-pendant') {
+  }
+  if (accIds.some(id => id === 'acc-paper-fan' || id === 'acc-jade-pendant')) {
     slay += 5;
   }
 
@@ -364,15 +383,16 @@ export const computeRealtimeDualMetrics = (
     if (shoesId === 'shoes-skater-vans' || shoesId === 'shoes-boots-dr-martens' || shoesId === 'shoes-platform-mary-jane' || shoesId === 'shoes-white-sneakers' || shoesId === 'shoes-chunky-loafers') {
       fusionSlay += 9;
     }
-    if (
-      accessoryId === 'acc-silver-chain-cuban' ||
-      accessoryId === 'acc-chest-bag' ||
-      accessoryId === 'acc-bucket-hat' ||
-      accessoryId === 'acc-sunglasses-gold' ||
-      accessoryId === 'acc-chunky-sunglasses' ||
-      accessoryId === 'acc-metal-earrings'
-    ) {
-      fusionSlay += 9;
+    const fusionAccCount = accIds.filter(id => 
+      id === 'acc-silver-chain-cuban' ||
+      id === 'acc-chest-bag' ||
+      id === 'acc-bucket-hat' ||
+      id === 'acc-sunglasses-gold' ||
+      id === 'acc-chunky-sunglasses' ||
+      id === 'acc-metal-earrings'
+    ).length;
+    if (fusionAccCount > 0) {
+      fusionSlay += Math.min(14, fusionAccCount * 6);
     }
     if (color.hex === '#FF007F' || color.hex === '#1A1A1E' || color.hex === '#00F0FF' || color.hex === '#39FF14') {
       fusionSlay += 6;
@@ -416,7 +436,9 @@ export const computeRealtimeDualMetrics = (
   slay = Math.max(45, Math.min(99, slay));
 
   if (isTabooAlert) {
-    const quote = isChineseButton 
+    const quote = isNhatBinhWithKhanDong
+      ? `“Ủa alo bạn hiền! Áo Nhật Bình là trang phục cao quý của nữ giới quý tộc (Hoàng hậu, Công chúa), quy chuẩn bắt buộc đi cùng Khăn Vành Dây hoặc Trâm Phượng. Đội Khăn Đóng Chữ Nhân (nam phục) là phạm quy thức triều đình nha!”`
+      : isChineseButton 
       ? (contextId === 'modern'
           ? `“Cúc Tàu không nằm trong từ điển thanh lịch của y quan nhà Nguyễn đâu nha! Đổi sang Cúc Xà Cừ Ánh Trăng hoặc Cúc Gỗ Trầm để giữ trọn nét tinh tế Quiet Luxury nhé!”`
           : contextId === 'heritage'
@@ -424,7 +446,9 @@ export const computeRealtimeDualMetrics = (
           : `“Cảnh báo hú hồn: ${buttonInfo.genzQuote} Cụ Nguồn gật đầu khen cá tính nhưng Triều Đình hơi rén nhé! Đổi sang Cúc Bạc Hoa Sen hoặc Cúc Đồng Đúc Bát Bửu cho chuẩn gu nào!”`)
       : `“Ủa alo bạn hiền! Sắc ${colorInfo.title} (${colorInfo.nguHanh}) là đại cấm kỵ hoàng triều: ${colorInfo.genzQuote} Đổi ngay sang Xanh Thanh Thiên hay Tím Chính Sắc cho vừa slay vừa an toàn nào!”`;
 
-    const advice = isChineseButton 
+    const advice = isNhatBinhWithKhanDong
+      ? `Áo Nhật Bình là lễ phục cung đình cao quý dành riêng cho nữ giới thời Nguyễn. Theo điển lễ, Áo Nhật Bình bắt buộc kết hợp Khăn Vành Dây hoặc Trâm Phượng; Khăn Đóng Chữ Nhân là nếp khăn của nam giới, tuyệt đối cấm phối cùng Áo Nhật Bình.`
+      : isChineseButton 
       ? (contextId === 'modern'
           ? `Quy chuẩn Y quan nước Nam triều Nguyễn dùng khuy rời đúc bằng kim loại, ngọc hoặc xà cừ đại diện Ngũ Thường. Cúc vải bện kiểu Tàu không nằm trong từ điển thanh lịch của y quan nước Nam!`
           : `Quy chuẩn Y quan nước Nam luôn là khuy rời đúc kim loại/gỗ/ngọc (đại diện Ngũ Thường Nhân-Nghĩa-Lễ-Trí-Tín), tuyệt đối cấm cúc vải bện kiểu Tàu lai căng!`)
@@ -525,13 +549,25 @@ export interface RemixStudioProps {
   onChangeContext?: () => void;
   onContextSwitch?: (tierId: string) => void;
   onToggleWorkspace?: () => void;
+  onOpenGeminiModal?: () => void;
+  onFindRentalForOutfit?: (outfit: {
+    tier: 'heritage' | 'modern' | 'fusion';
+    garmentId: string;
+    garmentName: string;
+    hasSneakers?: boolean;
+    styleTitle?: string;
+  }) => void;
 }
 
 export type WardrobeTab = 'garment' | 'color' | 'button' | 'bottom' | 'shoes' | 'accessory' | 'layer';
 
 export const RemixStudio: React.FC<RemixStudioProps> = ({
   initialContext = 'heritage',
-  onChangeContext
+  onChangeContext,
+  onContextSwitch,
+  onToggleWorkspace,
+  onOpenGeminiModal,
+  onFindRentalForOutfit
 }) => {
   const [currentTier, setCurrentTier] = useState<'heritage' | 'modern' | 'fusion'>(
     (initialContext as 'heritage' | 'modern' | 'fusion') || 'heritage'
@@ -548,6 +584,22 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
 
   // Modal Hồ Sơ Y Phục Lookbook Toàn Màn Hình
   const [isLookbookModalOpen, setIsLookbookModalOpen] = useState<boolean>(false);
+
+  // Drawer Triết lý 5 thân & Y quan
+  const [isHotspotDrawerOpen, setIsHotspotDrawerOpen] = useState<boolean>(false);
+
+  // Gamified Buff: +10% Slay Boost khi đã vượt qua Khảo Thí Hoàng Triều
+  const [hasSlayBoost, setHasSlayBoost] = useState<boolean>(() => {
+    return typeof window !== 'undefined' && localStorage.getItem('heritstyle_slay_boost') === 'true';
+  });
+
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setHasSlayBoost(typeof window !== 'undefined' && localStorage.getItem('heritstyle_slay_boost') === 'true');
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   // Micro-interactions: Auto-fill Layering xếp lớp tuần tự (~1.2s tổng)
   const [isLayeringActive, setIsLayeringActive] = useState<boolean>(false);
@@ -581,7 +633,8 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
   const [selectedButtonId, setSelectedButtonId] = useState<string>('btn-metal-copper');
   const [selectedBottomId, setSelectedBottomId] = useState<string>('bottom-silk-wide-pants');
   const [selectedShoesId, setSelectedShoesId] = useState<string>('shoes-wooden-clogs');
-  const [selectedAccessoryId, setSelectedAccessoryId] = useState<string>('acc-khan-dong');
+  const [selectedAccessoryIds, setSelectedAccessoryIds] = useState<string[]>(['acc-khan-dong']);
+  const selectedAccessoryId = selectedAccessoryIds[0] || 'acc-khan-dong';
 
   // Generator State
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
@@ -614,7 +667,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
     setTimeout(() => {
       setLayeringStep(3);
       setSelectedShoesId(preset.outfit.shoesId);
-      setSelectedAccessoryId(preset.outfit.accessoryId);
+      setSelectedAccessoryIds([preset.outfit.accessoryId]);
     }, 640);
 
     setTimeout(() => {
@@ -643,7 +696,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
     setTimeout(() => {
       setLayeringStep(3);
       setSelectedShoesId(preset.outfit.shoesId);
-      setSelectedAccessoryId(preset.outfit.accessoryId);
+      setSelectedAccessoryIds([preset.outfit.accessoryId]);
     }, 600);
 
     setTimeout(() => {
@@ -672,7 +725,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
     setTimeout(() => {
       setLayeringStep(3);
       setSelectedShoesId(preset.outfit.shoesId);
-      setSelectedAccessoryId(preset.outfit.accessoryId);
+      setSelectedAccessoryIds([preset.outfit.accessoryId]);
     }, 560);
 
     setTimeout(() => {
@@ -683,7 +736,13 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
 
   // Available options
   const activeGarment = HERITAGE_GARMENTS.find(g => g.id === selectedGarmentId) || HERITAGE_GARMENTS[0];
-  const activeColor = TRADITIONAL_COLORS.find(c => c.hex === selectedColorHex) || TRADITIONAL_COLORS[0];
+  
+  // Lọc sắc phục theo bối cảnh: Màn 1 & Màn 2 loại bỏ "Xanh Cyber Blue" và "Xanh Acid Green"
+  const availableColors = useMemo(() => {
+    return getAvailableColors(currentTier);
+  }, [currentTier]);
+
+  const activeColor = availableColors.find(c => c.hex === selectedColorHex) || availableColors[0];
   
   const layerOptions = REMIX_ITEMS.filter(i => i.category === 'layer');
   const buttonOptions = REMIX_ITEMS.filter(i => i.category === 'button');
@@ -694,7 +753,15 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
   const activeButtonItem = buttonOptions.find(b => b.id === selectedButtonId) || buttonOptions[0];
   const activeBottomItem = bottomOptions.find(b => b.id === selectedBottomId) || bottomOptions[0];
   const activeShoesItem = shoesOptions.find(s => s.id === selectedShoesId) || shoesOptions[0];
-  const activeAccessoryItem = accessoryOptions.find(a => a.id === selectedAccessoryId) || accessoryOptions[0];
+  
+  // Danh sách các phụ kiện đang được chọn cùng lúc
+  const activeAccessoryItems = useMemo(() => {
+    return selectedAccessoryIds
+      .map(id => accessoryOptions.find(a => a.id === id))
+      .filter((a): a is ModernRemixItem => Boolean(a));
+  }, [selectedAccessoryIds, accessoryOptions]);
+
+  const activeAccessoryItem = activeAccessoryItems[0] || accessoryOptions[0];
 
   useEffect(() => {
     if (initialContext === 'heritage') {
@@ -704,7 +771,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
       setSelectedBottomId('bottom-silk-wide-pants');
       setSelectedShoesId('shoes-wooden-clogs');
       setSelectedButtonId('btn-metal-copper');
-      setSelectedAccessoryId('acc-khan-dong');
+      setSelectedAccessoryIds(['acc-khan-dong']);
     } else if (initialContext === 'modern') {
       setSelectedGarmentId('ngu-than-tay-chen');
       setSelectedColorHex('#F2EAD8');
@@ -712,7 +779,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
       setSelectedBottomId('bottom-tailored-wide-leg');
       setSelectedShoesId('shoes-chunky-loafers');
       setSelectedButtonId('btn-mother-of-pearl');
-      setSelectedAccessoryId('acc-sunglasses-gold');
+      setSelectedAccessoryIds(['acc-sunglasses-gold', 'acc-kieng-bac']);
       setSelectedLayerId('layer-don-y-white');
     } else if (initialContext === 'fusion') {
       setSelectedGarmentId('ao-giao-linh');
@@ -721,20 +788,109 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
       setSelectedBottomId('bottom-high-waist-jeans');
       setSelectedShoesId('shoes-chunky-loafers');
       setSelectedButtonId('btn-mother-of-pearl');
-      setSelectedAccessoryId('acc-kieng-bac');
+      setSelectedAccessoryIds(['acc-bucket-hat', 'acc-silver-chain-cuban']);
     }
   }, [initialContext]);
 
-  const dualMetrics = computeRealtimeDualMetrics(
+  // Tự động kiểm tra màu khi chuyển tier
+  useEffect(() => {
+    if (currentTier === 'heritage' || currentTier === 'modern') {
+      if (selectedColorHex === '#00F0FF' || selectedColorHex === '#39FF14') {
+        setSelectedColorHex(currentTier === 'heritage' ? '#2B5B84' : '#334D3C');
+      }
+    }
+  }, [currentTier]);
+
+  const rawDualMetrics = computeRealtimeDualMetrics(
     activeGarment,
     activeColor,
     selectedLayerId,
     selectedButtonId,
     selectedBottomId,
     selectedShoesId,
-    selectedAccessoryId,
+    selectedAccessoryIds,
     currentTier
   );
+
+  const dualMetrics = useMemo(() => {
+    if (!hasSlayBoost) return rawDualMetrics;
+    return {
+      ...rawDualMetrics,
+      slayScore: Math.min(100, rawDualMetrics.slayScore + 10),
+      heritageScore: Math.min(100, rawDualMetrics.heritageScore + 10)
+    };
+  }, [rawDualMetrics, hasSlayBoost]);
+
+  const isChineseButtonSelected = selectedButtonId === 'btn-chinese-cloth';
+  const isImperialYellowSelected = !!activeColor.isImperialRestricted;
+  const isTabooClashSelected = selectedAccessoryIds.includes('acc-smartwatch') || (!activeShoesItem.isCulturallyRespectful) || (selectedGarmentId === 'ao-nhat-binh' && selectedAccessoryIds.includes('acc-khan-dong'));
+
+  const [geminiResult, setGeminiResult] = useState<GeminiEvaluationResult | null>(null);
+  const [isEvaluatingGemini, setIsEvaluatingGemini] = useState<boolean>(false);
+  const [geminiError, setGeminiError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (geminiResult) {
+      setGeminiResult(null);
+    }
+    setGeminiError(null);
+  }, [selectedGarmentId, selectedColorHex, selectedButtonId, selectedBottomId, selectedShoesId, selectedAccessoryIds, selectedLayerId, currentTier]);
+
+  const effectiveMetrics = useMemo(() => {
+    if (geminiResult) {
+      return {
+        ...dualMetrics,
+        slayScore: geminiResult.slayScore,
+        heritageScore: geminiResult.heritageScore,
+        badgeTitle: geminiResult.verdictTitle,
+        stylistQuote: geminiResult.stylistQuote,
+        subAdvice: `${geminiResult.culturalCritique} ✦ Gợi ý: ${geminiResult.actionableAdvice}`,
+        isTaboo: geminiResult.isTaboo || dualMetrics.isTaboo
+      };
+    }
+    return dualMetrics;
+  }, [dualMetrics, geminiResult]);
+
+  const handleTriggerGeminiEvaluation = async () => {
+    if (!hasGeminiApiKey()) {
+      if (onOpenGeminiModal) {
+        onOpenGeminiModal();
+      }
+      return;
+    }
+
+    setIsEvaluatingGemini(true);
+    setGeminiError(null);
+    playGarmentSelectSound();
+
+    try {
+      const payload = {
+        garmentName: activeGarment.name,
+        garmentType: activeGarment.svgType,
+        colorName: activeColor.name,
+        colorHex: activeColor.hex,
+        nguHanh: activeColor.element || 'Thổ',
+        buttonName: activeButtonItem.name,
+        isChineseButton: isChineseButtonSelected,
+        bottomName: activeBottomItem.name,
+        shoesName: activeShoesItem.name,
+        accessories: activeAccessoryItems.map(a => a.name),
+        hasDonY: selectedLayerId !== 'layer-no-don-y',
+        contextTier: currentTier,
+        contextName: currentTier === 'heritage' ? 'Chốn Tôn Nghiêm (Lễ Gia Tiên)' : currentTier === 'modern' ? 'Thanh Lịch Đời Thường (Công sở, Dạo phố)' : 'Phố Thị Phá Cách (Concert, Streetwear)',
+        isImperialYellow: isImperialYellowSelected,
+        isNhatBinhWithKhanDong: selectedGarmentId === 'ao-nhat-binh' && selectedAccessoryIds.includes('acc-khan-dong')
+      };
+
+      const result = await evaluateOutfitWithGemini(payload);
+      setGeminiResult(result);
+      playCourtBrassSound();
+    } catch (err: any) {
+      setGeminiError(err.message || 'Không thể kết nối đến Google AI Studio.');
+    } finally {
+      setIsEvaluatingGemini(false);
+    }
+  };
 
   const [customItemImages, setCustomItemImages] = useState<{ [itemId: string]: string }>(() => {
     return { ...DEFAULT_PRODUCT_IMAGES };
@@ -918,7 +1074,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
             setSelectedGarmentId(suggestedGarment);
             setSelectedBottomId(suggestedBottom);
             setSelectedShoesId(suggestedShoes);
-            setSelectedAccessoryId('acc-paper-fan');
+            setSelectedAccessoryIds(['acc-paper-fan']);
             setSelectedLayerId('layer-don-y-white');
             setSelectedButtonId('btn-metal-copper');
           }
@@ -934,7 +1090,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
       setSelectedColorHex(aiOutfitSuggestion.colorHex);
       setSelectedBottomId(aiOutfitSuggestion.bottomId);
       setSelectedShoesId(aiOutfitSuggestion.shoesId);
-      setSelectedAccessoryId(aiOutfitSuggestion.accessoryId);
+      setSelectedAccessoryIds([aiOutfitSuggestion.accessoryId]);
       setSelectedButtonId(aiOutfitSuggestion.buttonId);
       setSelectedLayerId('layer-don-y-white');
       playGarmentSelectSound();
@@ -952,15 +1108,18 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
     if (selectedShoesId === 'shoes-white-sneakers' && (activeGarment.id === 'ao-tac' || activeGarment.id === 'ao-nhat-binh' || activeGarment.id === 'ao-vien-linh')) {
       setSelectedShoesId('shoes-wooden-clogs');
     }
-    if (selectedAccessoryId === 'acc-smartwatch') {
-      setSelectedAccessoryId('acc-paper-fan');
+    if (selectedAccessoryIds.includes('acc-smartwatch')) {
+      setSelectedAccessoryIds(prev => prev.map(id => id === 'acc-smartwatch' ? 'acc-paper-fan' : id));
+    }
+    if (selectedGarmentId === 'ao-nhat-binh' && selectedAccessoryIds.includes('acc-khan-dong')) {
+      setSelectedAccessoryIds(prev => prev.map(id => id === 'acc-khan-dong' ? 'acc-khan-vanh-day' : id));
     }
     playDanTranhTabSound();
     
     setTimeout(() => {
       generateRemixOutfit(
         activeGarment, 
-        TRADITIONAL_COLORS.find(c => c.hex === '#2B5B84') || TRADITIONAL_COLORS[0],
+        availableColors.find(c => c.hex === '#2B5B84') || availableColors[0],
         'layer-don-y-white',
         'btn-metal-copper',
         selectedBottomId,
@@ -971,7 +1130,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
     }, 150);
   };
 
-  const generateRemixOutfit = (
+  const generateRemixOutfit = async (
     garment = activeGarment,
     color = activeColor,
     layerId = selectedLayerId,
@@ -1050,32 +1209,64 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
       { name: 'Trầm Mặc Đen Khói', hex: '#1C1917', role: 'Phom Quần / Phụ Kiện' }
     ];
 
-    setTimeout(() => {
-      setRemixResult({
-        garment,
-        color,
-        selectedItems: {
-          layer: layerItem,
-          button: buttonItem,
-          bottom: bottomItem,
-          shoes: shoesItem,
-          accessory: accessoryItem
-        },
-        styleVibe,
-        matchScore: totalScore,
-        scoreBreakdown: {
-          yQuanStandard: yQuanScore,
-          genZFashion: genZScore,
-          eleganceVibe: eleganceScore
-        },
-        taboosTriggered: triggered,
-        stylistFeedback: feedback,
-        paletteItems: palette
-      });
-      setIsGenerating(false);
-      setIsLookbookModalOpen(true); // Bung Pop-up Toàn Màn Hình Sang Trọng!
-      playCourtBrassSound();
-    }, 600);
+    // 🌟 KÍCH HOẠT BỘ NÃO CUSTOM GEM NẾU CÓ KHÓA API
+    let geminiVerdict: GeminiEvaluationResult | null = null;
+    if (hasGeminiApiKey()) {
+      setIsEvaluatingGemini(true);
+      try {
+        const payload: OutfitEvaluationPayload = {
+          garmentName: garment.name,
+          garmentType: garment.svgType,
+          colorName: color.name,
+          colorHex: color.hex,
+          nguHanh: color.element || 'Thổ',
+          buttonName: buttonItem.name,
+          isChineseButton: buttonItem.id === 'btn-chinese-cloth',
+          bottomName: bottomItem.name,
+          shoesName: shoesItem.name,
+          accessories: [accessoryItem.name],
+          hasDonY: layerItem.id !== 'layer-no-don-y',
+          contextTier: currentTier,
+          contextName: currentTier === 'heritage' ? 'Chốn Tôn Nghiêm (Lễ Gia Tiên)' : currentTier === 'modern' ? 'Thanh Lịch Đời Thường (Công sở, Dạo phố)' : 'Phố Thị Phá Cách (Concert, Streetwear)',
+          isImperialYellow: Boolean(color.isImperialRestricted),
+          isNhatBinhWithKhanDong: garment.id === 'ao-nhat-binh' && accessoryItem.id === 'acc-khan-dong'
+        };
+        geminiVerdict = await evaluateOutfitWithGemini(payload);
+        setGeminiResult(geminiVerdict);
+      } catch (err: any) {
+        console.warn('Custom Gem evaluation fallback:', err);
+      } finally {
+        setIsEvaluatingGemini(false);
+      }
+    }
+
+    const finalMatchScore = geminiVerdict ? geminiVerdict.heritageScore : totalScore;
+    const finalFeedback = geminiVerdict ? geminiVerdict.stylistQuote : feedback;
+
+    setRemixResult({
+      garment,
+      color,
+      selectedItems: {
+        layer: layerItem,
+        button: buttonItem,
+        bottom: bottomItem,
+        shoes: shoesItem,
+        accessory: accessoryItem
+      },
+      styleVibe,
+      matchScore: finalMatchScore,
+      scoreBreakdown: {
+        yQuanStandard: geminiVerdict ? geminiVerdict.heritageScore : yQuanScore,
+        genZFashion: geminiVerdict ? geminiVerdict.slayScore : genZScore,
+        eleganceVibe: eleganceScore
+      },
+      taboosTriggered: triggered,
+      stylistFeedback: finalFeedback,
+      paletteItems: palette
+    });
+    setIsGenerating(false);
+    setIsLookbookModalOpen(true);
+    playCourtBrassSound();
   };
 
   const handleShareLookbook = () => {
@@ -1083,13 +1274,9 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
     setTimeout(() => setCopiedLookbook(false), 2500);
   };
 
-  const isChineseButtonSelected = selectedButtonId === 'btn-chinese-cloth';
-  const isImperialYellowSelected = !!activeColor.isImperialRestricted;
-  const isTabooClashSelected = activeAccessoryItem.id === 'acc-smartwatch' || (!activeShoesItem.isCulturallyRespectful);
-
   const WARDROBE_TABS: { id: WardrobeTab; label: string; icon: string; count?: number }[] = [
     { id: 'garment', label: 'Áo Ngoài', icon: '👘', count: HERITAGE_GARMENTS.length },
-    { id: 'color', label: 'Sắc Phục', icon: '🎨', count: TRADITIONAL_COLORS.length },
+    { id: 'color', label: 'Sắc Phục', icon: '🎨', count: availableColors.length },
     { id: 'button', label: 'Khuy Cúc', icon: '🔘', count: buttonOptions.length },
     { id: 'bottom', label: 'Thân Dưới', icon: '👖', count: bottomOptions.length },
     { id: 'shoes', label: 'Giày / Guốc', icon: '👞', count: shoesOptions.length },
@@ -1100,7 +1287,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
   return (
     <div className={`space-y-6 ${currentTier === 'fusion' ? 'font-streetwear' : ''}`}>
       {/* ======================================================== */}
-      {/* 1. TOP BAR TINH GỌN: ĐỔI BỐI CẢNH + RESET MẪU + KHO ẢNH */}
+      {/* 1. TOP BAR TINH GỌN: ĐỔI BỐI CẢNH + RESET MẪU */}
       {/* ======================================================== */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#121217] border border-[#23232c] rounded-2xl px-4 py-3 shadow-md">
         <div className="flex items-center gap-2.5">
@@ -1110,11 +1297,11 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                 playDanTranhTabSound();
                 onChangeContext();
               }}
-              className="px-3 py-1.5 rounded-xl bg-white/[0.05] hover:bg-[#c5a059]/20 text-stone-300 hover:text-[#e5c365] border border-white/10 hover:border-[#c5a059]/40 text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer group"
-              title="Quay lại chọn bối cảnh khác"
+              className="px-4 py-2 text-[13.5px] rounded-xl bg-black/85 text-[#FFF9A6] border-2 border-[#FFEE00] animate-neon-glow-yellow hover:brightness-110 active:scale-95 font-bold flex items-center gap-2 transition-all cursor-pointer group shadow-lg"
+              title="Quay lại chọn bối cảnh khác (Chốn Tôn Nghiêm / Thanh Lịch Đời Thường / Phố Thị Phá Cách)"
             >
-              <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
-              <span>Đổi Bối Cảnh</span>
+              <ArrowLeft className="w-4 h-4 text-[#FFEE00] group-hover:-translate-x-1 transition-transform animate-pulse" />
+              <span className="tracking-wide uppercase font-bold text-xs sm:text-[13px] text-[#FFEE00]">Đổi Bối Cảnh</span>
             </button>
           )}
 
@@ -1141,7 +1328,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
               setSelectedButtonId('btn-metal-copper');
               setSelectedBottomId('bottom-silk-wide-pants');
               setSelectedShoesId('shoes-wooden-clogs');
-              setSelectedAccessoryId('acc-khan-dong');
+              setSelectedAccessoryIds(['acc-khan-dong']);
               setExtractedPalette(null);
               setAiOutfitSuggestion(null);
               playDanTranhTabSound();
@@ -1150,29 +1337,6 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
           >
             <RotateCcw className="w-3.5 h-3.5" />
             <span>Mẫu chuẩn</span>
-          </button>
-
-          <button
-            onClick={() => setIsCustomImageModalOpen(true)}
-            className="px-3 py-1.5 text-xs text-[#f5f2eb] hover:text-[#e5c365] border border-[#c5a059]/40 hover:border-[#c5a059] rounded-xl transition-all flex items-center gap-1.5 bg-[#1b1b26] hover:bg-[#222230] cursor-pointer shadow-sm"
-            title="Quản lý ảnh cá nhân tải lên"
-          >
-            {isUploadLocked ? (
-              <Lock className="w-3.5 h-3.5 text-emerald-400" />
-            ) : (
-              <Upload className="w-3.5 h-3.5 text-[#e5c365]" />
-            )}
-            <span>Kho ảnh</span>
-            {isUploadLocked ? (
-              <span className="text-[9px] font-bold text-emerald-300 bg-emerald-500/20 px-1 rounded">
-                Khóa
-              </span>
-            ) : null}
-            {Object.keys(customItemImages).length > 0 && (
-              <span className="w-4 h-4 rounded-full bg-[#c5a059] text-stone-950 text-[10px] font-bold flex items-center justify-center">
-                {Object.keys(customItemImages).length}
-              </span>
-            )}
           </button>
         </div>
       </div>
@@ -1183,9 +1347,9 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
         
         {/* ======================================================== */}
-        {/* CỘT TRÁI (40% - lg:col-span-5): ĐIỀU HƯỚNG & CHỌN ĐỒ */}
+        {/* CỘT TRÁI (40% - lg:col-span-5): ĐIỀU HƯỚNG & CHỌN ĐỒ (CUỘN ĐỘC LẬP) */}
         {/* ======================================================== */}
-        <div className="lg:col-span-5 space-y-5">
+        <div className="lg:col-span-5 space-y-5 lg:sticky lg:top-20 lg:max-h-[calc(100vh-5.5rem)] lg:overflow-y-auto lg:pr-2 custom-scrollbar">
           
           {/* A. PRESET GỢI Ý BỐI CẢNH */}
           {currentTier === 'heritage' && (
@@ -1203,107 +1367,11 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
           )}
 
           {currentTier === 'fusion' && (
-            <TheDjDeckPresets
-              activePresetId={activeDjPresetId || undefined}
-              onSelectPreset={handleSelectDjPreset}
-            />
-          )}
-
-          {/* MỤC UPLOAD ẢNH SẢN PHẨM THỦ CÔNG (CHUYÊN BIỆT CHO MÀN HÌNH 1 THEO YÊU CẦU CỦA GIANG) */}
-          {currentTier === 'heritage' && (
-            <div className={`rounded-2xl border transition-all duration-300 overflow-hidden shadow-lg ${
-              isUploadLocked
-                ? 'bg-gradient-to-r from-[#14141c] to-[#121217] border-emerald-500/30'
-                : 'bg-gradient-to-br from-[#1c1822] via-[#14121a] to-[#100e16] border-[#c5a059]/50 shadow-[0_4px_25px_rgba(197,160,89,0.15)]'
-            }`}>
-              {/* Header bar */}
-              <div className="p-3.5 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/5">
-                <div className="flex items-center gap-2.5">
-                  <div className={`p-2 rounded-xl border ${
-                    isUploadLocked
-                      ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-400'
-                      : 'bg-[#c5a059]/20 border-[#c5a059]/40 text-[#e5c365]'
-                  }`}>
-                    {isUploadLocked ? <Lock className="w-4 h-4" /> : <Upload className="w-4 h-4" />}
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-xs sm:text-sm font-royal font-bold text-[#faedd0]">
-                        Mục Upload Ảnh Sản Phẩm Thủ Công
-                      </span>
-                      {isUploadLocked ? (
-                        <span className="px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center gap-1 shadow-xs">
-                          <CheckCircle2 className="w-2.5 h-2.5 text-emerald-400" />
-                          ĐÃ KHÓA · TỰ ĐỘNG ĐỒNG BỘ 3 MÀN HÌNH
-                        </span>
-                      ) : (
-                        <span className="px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center gap-1 animate-pulse shadow-xs">
-                          <Unlock className="w-2.5 h-2.5 text-amber-400" />
-                          ĐANG MỞ KHÓA UPLOAD
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-[11px] text-stone-400 mt-0.5">
-                      {isUploadLocked
-                        ? `Đã khóa cố định ${Object.keys(customItemImages).length} ảnh sản phẩm. Tự động đồng bộ sang Màn hình 2 & Màn hình 3.`
-                        : 'Tải ảnh đại diện cho các sản phẩm. Sau khi hoàn thành, nhấn "Khóa Lại & Đồng Bộ" để cố định sang Màn 2 & 3.'}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
-                  <button
-                    type="button"
-                    onClick={toggleUploadLock}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-sm ${
-                      isUploadLocked
-                        ? 'bg-white/10 hover:bg-white/20 text-stone-200 border border-white/20'
-                        : 'bg-gradient-to-r from-[#c5a059] to-[#e5c365] text-stone-950 font-bold hover:brightness-110 shadow-md'
-                    }`}
-                  >
-                    {isUploadLocked ? (
-                      <>
-                        <Unlock className="w-3.5 h-3.5 text-amber-400" />
-                        <span>Mở Khóa Chỉnh Sửa</span>
-                      </>
-                    ) : (
-                      <>
-                        <Lock className="w-3.5 h-3.5" />
-                        <span>Khóa Lại & Đồng Bộ</span>
-                      </>
-                    )}
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setIsCustomImageModalOpen(true)}
-                    className="px-3 py-1.5 rounded-xl bg-[#1f1d2b] hover:bg-[#282638] text-[#e5c365] border border-[#c5a059]/40 text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-colors shadow-2xs"
-                    title="Mở bảng quản lý ảnh toàn bộ các danh mục"
-                  >
-                    <FolderOpen className="w-3.5 h-3.5" />
-                    <span>Kho Ảnh ({Object.keys(customItemImages).length})</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Status info details */}
-              <div className={`px-4 py-2.5 text-[11px] flex items-center justify-between gap-2 ${
-                isUploadLocked ? 'bg-emerald-950/25 text-emerald-200/90' : 'bg-[#c5a059]/10 text-amber-200/90'
-              }`}>
-                <div className="flex items-center gap-1.5">
-                  <Sparkles className="w-3 h-3 text-[#e5c365] shrink-0" />
-                  <span>
-                    {isUploadLocked
-                      ? '🔒 Đã khóa an toàn: Ảnh đại diện sản phẩm đang được tự động đồng bộ hóa trên Màn hình 1, 2 và 3.'
-                      : '💡 Mẹo: Giang có thể bấm nút "Tải ảnh" trực tiếp trên từng thẻ sản phẩm bên dưới hoặc bấm nút "Kho Ảnh" để xem tất cả.'}
-                  </span>
-                </div>
-                {Object.keys(customItemImages).length > 0 && (
-                  <span className="font-mono text-[10px] text-stone-400 shrink-0">
-                    {Object.keys(customItemImages).length} ảnh đã lưu
-                  </span>
-                )}
-              </div>
+            <div className="pt-3">
+              <TheDjDeckPresets
+                activePresetId={activeDjPresetId || undefined}
+                onSelectPreset={handleSelectDjPreset}
+              />
             </div>
           )}
 
@@ -1461,6 +1529,10 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                         onClick={() => {
                           setSelectedGarmentId(item.id);
                           setSelectedColorHex(item.defaultColor);
+                          // Nếu chọn Áo Nhật Bình mà đang đội Khăn Đóng Chữ Nhân, tự động chuyển sang Khăn Vành Dây chuẩn cung đình!
+                          if (item.id === 'ao-nhat-binh' && selectedAccessoryIds.includes('acc-khan-dong')) {
+                            setSelectedAccessoryIds(prev => prev.map(id => id === 'acc-khan-dong' ? 'acc-khan-vanh-day' : id));
+                          }
                           playGarmentSelectSound();
                         }}
                         className={`p-3 border text-left transition-all relative cursor-pointer group flex flex-col justify-between ${
@@ -1710,7 +1782,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
             {activeWardrobeTab === 'color' && (
               <div className="space-y-3 animate-fadeIn">
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-                  {TRADITIONAL_COLORS.map((col) => {
+                  {availableColors.map((col) => {
                     const isSelected = selectedColorHex === col.hex;
                     const isTooltipOpen = activeTooltipItemId === `color-${col.hex}`;
                     const colorInfo = getColorHeritageInfo(col);
@@ -2392,11 +2464,13 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
               <div className="space-y-3 animate-fadeIn">
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
                   {accessoryOptions.map(item => {
-                    const compliance = checkItemTierCompliance(item.id, currentTier);
+                    const compliance = checkItemTierCompliance(item.id, currentTier, selectedGarmentId);
                     const isCompliant = compliance.isCompliant;
                     if (hideUnfitItems && !isCompliant) return null;
 
-                    const isSelected = selectedAccessoryId === item.id;
+                    const isSelected = selectedAccessoryIds.includes(item.id);
+                    const slot = getAccessorySlot(item.id);
+                    const slotLabel = getAccessorySlotLabel(slot);
                     const imgSrc = getItemImageUrl(item.id, item.thumbnailUrl);
                     const isTooltipOpen = activeTooltipItemId === item.id;
 
@@ -2412,9 +2486,20 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                               tier: currentTier,
                               itemId: item.id
                             });
+                            return;
+                          }
+
+                          playFanFlutterSound();
+
+                          // Cho phép chọn nhiều phụ kiện trên cả 3 màn hình (thay thế phụ kiện cùng slot, toggle tắt nếu bấm lại)
+                          const isAlreadySelected = selectedAccessoryIds.includes(item.id);
+                          if (isAlreadySelected) {
+                            const nextIds = selectedAccessoryIds.filter(id => id !== item.id);
+                            setSelectedAccessoryIds(nextIds);
                           } else {
-                            setSelectedAccessoryId(item.id);
-                            playFanFlutterSound();
+                            const otherSlotIds = selectedAccessoryIds.filter(id => getAccessorySlot(id) !== slot);
+                            const nextIds = [...otherSlotIds, item.id];
+                            setSelectedAccessoryIds(nextIds);
                           }
                         }}
                         className={`p-2.5 border text-left transition-all cursor-pointer flex flex-col justify-between relative group ${
@@ -2492,6 +2577,9 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                             }`}>
                               {item.name}
                             </div>
+                            <span className="text-[9px] px-1 py-0.2 rounded bg-white/10 text-stone-400 font-mono shrink-0 mr-1">
+                              {slotLabel}
+                            </span>
                             <button
                               type="button"
                               onClick={(e) => {
@@ -2665,10 +2753,59 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
         </div>
 
         {/* ======================================================== */}
-        {/* CỘT PHẢI (60% - lg:col-span-7): THỊ GIÁC CANVAS & BẢNG ĐIỂM AI */}
+        {/* CỘT PHẢI (60% - lg:col-span-7): THỊ GIÁC CANVAS & BẢNG ĐIỂM AI (CỐ ĐỊNH TẦM MẮT) */}
         {/* ======================================================== */}
-        <div className="lg:col-span-7 space-y-5 lg:sticky lg:top-6">
+        <div className="lg:col-span-7 space-y-4 lg:sticky lg:top-20 lg:max-h-[calc(100vh-5.5rem)] lg:overflow-y-auto lg:pr-1 custom-scrollbar">
           
+          {/* Quick Actions Toolbar */}
+          <div className="flex flex-wrap items-center justify-between gap-2 px-1">
+            <div className="flex flex-wrap items-center gap-2">
+              {/* Button: Triết lý 5 thân */}
+              <button
+                type="button"
+                onClick={() => setIsHotspotDrawerOpen(true)}
+                className={`px-3 py-1.5 text-xs font-semibold rounded-xl border flex items-center gap-1.5 transition-all cursor-pointer shadow-xs ${
+                  currentTier === 'modern'
+                    ? 'bg-white hover:bg-stone-100 text-stone-800 border-stone-200'
+                    : currentTier === 'fusion'
+                    ? 'bg-[#181822] hover:bg-[#20202e] text-[#00f3ff] border-white/10'
+                    : 'bg-[#181822] hover:bg-[#222230] text-[#e5c365] border-[#c5a059]/30 hover:border-[#c5a059]/60'
+                }`}
+                title="Khám phá cấu tạo 5 thân, cúc Ngũ Thường và ý nghĩa văn hóa trực tiếp trong Studio"
+              >
+                <BookOpen className="w-3.5 h-3.5 text-[#c5a059]" />
+                <span>ℹ️ Triết Lý 5 Thân & Y Quan</span>
+              </button>
+
+              {/* Button: Tìm tiệm thuê outfit này */}
+              {onFindRentalForOutfit && (
+                <button
+                  type="button"
+                  onClick={() => onFindRentalForOutfit({
+                    tier: currentTier,
+                    garmentId: selectedGarmentId,
+                    garmentName: activeGarment.name,
+                    hasSneakers: selectedShoesId === 'shoes-white-sneakers' || selectedShoesId === 'shoes-platform-mary-jane',
+                    styleTitle: selectedStyleVibe
+                  })}
+                  className="px-3 py-1.5 text-xs font-semibold rounded-xl bg-gradient-to-r from-[#c5a059] to-[#e5c365] text-[#0d0d10] hover:brightness-110 shadow-xs flex items-center gap-1.5 transition-all cursor-pointer"
+                  title="Chuyển sang Bản Đồ và tự động lọc tiệm phù hợp với bộ đồ này"
+                >
+                  <MapPin className="w-3.5 h-3.5" />
+                  <span>Tìm Tiệm Thuê 📍</span>
+                </button>
+              )}
+            </div>
+
+            {/* Slay Boost status badge */}
+            {hasSlayBoost && (
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-amber-500/20 text-[#faedd0] border border-amber-500/40 shadow-xs animate-pulse">
+                <span>👑</span>
+                <span>+10% Trạng Nguyên Buff Kích Hoạt</span>
+              </div>
+            )}
+          </div>
+
           {/* 1. KHUNG CANVAS MOODBOARD 2D (BÚP BÊ XẾP LỚP TUẦN TỰ) */}
           <OutfitMoodboardCanvas
             activeGarment={activeGarment}
@@ -2694,11 +2831,17 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
               thumbnailUrl: getItemImageUrl(activeAccessoryItem.id, activeAccessoryItem.thumbnailUrl),
               canvas2dUrl: getItemCanvas2dUrl(activeAccessoryItem.id, activeAccessoryItem.canvas2dUrl || activeAccessoryItem.thumbnailUrl)
             }}
+            activeAccessoryItems={activeAccessoryItems.map(item => ({
+              ...item,
+              thumbnailUrl: getItemImageUrl(item.id, item.thumbnailUrl),
+              canvas2dUrl: getItemCanvas2dUrl(item.id, item.canvas2dUrl || item.thumbnailUrl)
+            }))}
             hasDonY={selectedLayerId === 'layer-don-y-white'}
             uploadedImage={uploadedImage}
             isChineseButtonSelected={isChineseButtonSelected}
             isImperialYellowSelected={isImperialYellowSelected}
             isTabooClashSelected={isTabooClashSelected}
+            isNhatBinhWithKhanDongSelected={selectedGarmentId === 'ao-nhat-binh' && selectedAccessoryIds.includes('acc-khan-dong')}
             isLayeringActive={isLayeringActive}
             layeringStep={layeringStep}
             currentTier={currentTier}
@@ -2712,11 +2855,11 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
               ? 'font-streetwear rounded-none bg-[#121212]/95 border border-white/10 shadow-[0_0_30px_rgba(0,243,255,0.06)] text-white cyber-grid-pattern'
               : currentTier === 'modern'
               ? 'rounded-2xl bg-white/85 border-stone-200/90 shadow-[0_10px_35px_rgba(0,0,0,0.06)] text-stone-800'
-              : dualMetrics.scenario === 'taboo'
+              : effectiveMetrics.scenario === 'taboo'
               ? 'rounded-2xl bg-gradient-to-br from-[#2a0e14]/95 via-[#19080c]/95 to-[#120508]/95 border-rose-500 shadow-[0_0_35px_rgba(244,63,94,0.35)] animate-pulse'
-              : dualMetrics.scenario === 'anachronism'
+              : effectiveMetrics.scenario === 'anachronism'
               ? 'rounded-2xl bg-gradient-to-br from-[#2a1b0a]/95 via-[#1a1106]/95 to-[#120c04]/95 border-amber-500/80 shadow-[0_0_30px_rgba(245,158,11,0.25)]'
-              : dualMetrics.scenario === 'heritage'
+              : effectiveMetrics.scenario === 'heritage'
               ? 'rounded-2xl bg-gradient-to-br from-[#12231b]/95 via-[#0e171f]/95 to-[#1c170e]/95 border-[#e5c365] shadow-[0_0_35px_rgba(229,195,101,0.25)]'
               : 'rounded-2xl bg-gradient-to-br from-[#1e1028]/95 via-[#130d1d]/95 to-[#0e0c16]/95 border-purple-500/70 shadow-[0_0_30px_rgba(168,85,247,0.2)]'
           }`}>
@@ -2798,11 +2941,11 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                       ? isChineseButtonSelected
                         ? 'rounded-full bg-[#D97746]/15 text-[#9C3810] border border-[#D97746]/30'
                         : 'rounded-full bg-[#8BA888]/20 text-[#304E2E] border border-[#8BA888]/40'
-                      : dualMetrics.scenario === 'taboo'
+                      : effectiveMetrics.scenario === 'taboo'
                       ? 'rounded-full bg-rose-600 text-white animate-bounce'
-                      : dualMetrics.scenario === 'anachronism'
+                      : effectiveMetrics.scenario === 'anachronism'
                       ? 'rounded-full bg-amber-500 text-stone-950 font-black'
-                      : dualMetrics.scenario === 'heritage'
+                      : effectiveMetrics.scenario === 'heritage'
                       ? 'rounded-full bg-gradient-to-r from-[#c5a059] to-[#e5c365] text-stone-950 font-black'
                       : 'rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white'
                   }`}>
@@ -2816,13 +2959,13 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                       )
                     ) : (
                       <>
-                        {dualMetrics.scenario === 'taboo' && <AlertTriangle className="w-3.5 h-3.5" />}
-                        {dualMetrics.scenario === 'anachronism' && <AlertTriangle className="w-3.5 h-3.5" />}
-                        {dualMetrics.scenario === 'heritage' && <Sparkles className="w-3.5 h-3.5" />}
-                        {dualMetrics.scenario === 'modern_polite' && <CheckCircle2 className="w-3.5 h-3.5" />}
+                        {effectiveMetrics.scenario === 'taboo' && <AlertTriangle className="w-3.5 h-3.5" />}
+                        {effectiveMetrics.scenario === 'anachronism' && <AlertTriangle className="w-3.5 h-3.5" />}
+                        {effectiveMetrics.scenario === 'heritage' && <Sparkles className="w-3.5 h-3.5" />}
+                        {effectiveMetrics.scenario === 'modern_polite' && <CheckCircle2 className="w-3.5 h-3.5" />}
                       </>
                     )}
-                    <span>{dualMetrics.badgeTitle}</span>
+                    <span>{effectiveMetrics.badgeTitle}</span>
                   </span>
                   <span className={`text-[10px] font-mono hidden sm:inline ${
                     currentTier === 'fusion' ? 'text-[#00f3ff] font-bold' : currentTier === 'modern' ? 'text-stone-500' : 'text-stone-400'
@@ -2831,7 +2974,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                   </span>
                 </div>
 
-                {dualMetrics.canAutoFix && (
+                {effectiveMetrics.canAutoFix && (
                   <button
                     type="button"
                     onClick={handleAutoFixTaboos}
@@ -2846,6 +2989,24 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                   </button>
                 )}
               </div>
+
+
+
+              {/* Alert nếu lỗi kết nối */}
+              {geminiError && (
+                <div className="p-3 rounded-xl bg-rose-950/40 border border-rose-500/40 text-rose-200 text-xs flex items-center justify-between gap-3 animate-in fade-in">
+                  <span>⚠️ {geminiError}</span>
+                  {onOpenGeminiModal && (
+                    <button
+                      type="button"
+                      onClick={onOpenGeminiModal}
+                      className="px-2.5 py-1 rounded-lg bg-rose-900/60 hover:bg-rose-800 text-white font-bold text-[11px] underline cursor-pointer shrink-0"
+                    >
+                      Cài Đặt API Key
+                    </button>
+                  )}
+                </div>
+              )}
 
               {/* HAI THANH ĐIỂM SỐ TIẾN TRÌNH (SLAY & DI SẢN) */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -2883,14 +3044,14 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                     <div className="flex items-baseline gap-1">
                       <span className={`text-2xl sm:text-3xl font-black font-mono ${
                         currentTier === 'fusion'
-                          ? dualMetrics.slayScore >= 95
+                          ? effectiveMetrics.slayScore >= 95
                             ? 'text-[#FF007F] drop-shadow-[0_0_12px_rgba(255,0,127,0.7)] animate-pulse'
                             : 'text-[#00f3ff]'
                           : currentTier === 'modern'
                           ? 'text-[#3E5B3C]'
                           : 'text-pink-400'
                       }`}>
-                        {dualMetrics.slayScore}%
+                        {effectiveMetrics.slayScore}%
                       </span>
                       {currentTier === 'fusion' && <span className="text-sm">🔥</span>}
                     </div>
@@ -2905,14 +3066,14 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                     <div
                       className={`h-full transition-all duration-700 ${
                         currentTier === 'fusion'
-                          ? dualMetrics.slayScore >= 95
+                          ? effectiveMetrics.slayScore >= 95
                             ? 'rounded-none bg-gradient-to-r from-[#00f3ff] via-[#39ff14] to-[#FF007F] shadow-[0_0_15px_#FF007F] animate-pulse'
                             : 'rounded-none bg-gradient-to-r from-[#00f3ff] to-[#39ff14] shadow-[0_0_10px_rgba(0,243,255,0.3)]'
                           : currentTier === 'modern'
                           ? 'rounded-full bg-gradient-to-r from-[#8BA888] to-[#CBD5E1]'
                           : 'rounded-full bg-gradient-to-r from-pink-500 via-rose-500 to-purple-500 shadow-[0_0_10px_rgba(236,72,153,0.5)]'
                       }`}
-                      style={{ width: `${dualMetrics.slayScore}%` }}
+                      style={{ width: `${effectiveMetrics.slayScore}%` }}
                     />
                   </div>
                   {currentTier === 'fusion' && (
@@ -2959,10 +3120,10 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                         ? 'text-[#39ff14]'
                         : currentTier === 'modern'
                         ? 'text-[#3E5B3C]'
-                        : dualMetrics.heritageScore >= 90 ? 'text-[#e5c365]' :
-                          dualMetrics.heritageScore >= 70 ? 'text-amber-400' : 'text-rose-400'
+                        : effectiveMetrics.heritageScore >= 90 ? 'text-[#e5c365]' :
+                          effectiveMetrics.heritageScore >= 70 ? 'text-amber-400' : 'text-rose-400'
                     }`}>
-                      {dualMetrics.heritageScore}%
+                      {effectiveMetrics.heritageScore}%
                     </span>
                   </div>
                   <div className={`w-full overflow-hidden p-0.5 border ${
@@ -2978,13 +3139,13 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                           ? 'rounded-none bg-gradient-to-r from-[#00f3ff] to-[#39ff14] shadow-[0_0_10px_rgba(57,255,20,0.3)]'
                           : currentTier === 'modern'
                           ? 'rounded-full bg-gradient-to-r from-[#8BA888] to-[#587355]'
-                          : dualMetrics.heritageScore >= 90
+                          : effectiveMetrics.heritageScore >= 90
                           ? 'rounded-full bg-gradient-to-r from-amber-400 to-emerald-400 shadow-[0_0_10px_rgba(229,195,101,0.5)]'
-                          : dualMetrics.heritageScore >= 70
+                          : effectiveMetrics.heritageScore >= 70
                           ? 'rounded-full bg-gradient-to-r from-amber-500 to-yellow-400'
                           : 'rounded-full bg-gradient-to-r from-rose-600 to-red-500'
                       }`}
-                      style={{ width: `${dualMetrics.heritageScore}%` }}
+                      style={{ width: `${effectiveMetrics.heritageScore}%` }}
                     />
                   </div>
                   {currentTier === 'fusion' && (
@@ -2999,38 +3160,50 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
 
               {/* LỜI BÌNH AI STYLIST */}
               <div className={`p-3.5 sm:p-4 border flex items-start gap-3.5 ${
-                currentTier === 'fusion'
+                geminiResult
+                  ? 'rounded-xl bg-gradient-to-r from-[#241910] via-[#1a1215] to-[#121c18] border-[#e5c365]/50 shadow-[0_0_20px_rgba(229,195,101,0.18)] text-white'
+                  : currentTier === 'fusion'
                   ? 'rounded-none bg-white/[0.02] border border-white/10 shadow-[0_0_20px_rgba(0,243,255,0.04)] text-white'
                   : currentTier === 'modern'
                   ? 'rounded-xl bg-stone-50/90 border-stone-200/80 text-stone-800'
                   : 'rounded-xl bg-black/55 border-white/10 text-stone-100'
               }`}>
                 <div className={`w-10 h-10 font-black text-xs sm:text-sm flex items-center justify-center shrink-0 border ${
-                  currentTier === 'fusion'
+                  geminiResult
+                    ? 'rounded-xl bg-gradient-to-br from-[#faedd0] via-[#e5c365] to-[#c5a059] text-stone-950 border-[#f5e6c8] shadow-md'
+                    : currentTier === 'fusion'
                     ? 'rounded-none bg-[#00f3ff] text-black border border-white/20 shadow-[0_0_15px_rgba(0,243,255,0.3)]'
                     : currentTier === 'modern'
                     ? 'rounded-xl bg-[#8BA888] text-white border-white/40'
                     : 'rounded-xl bg-gradient-to-br from-[#c5a059] to-rose-500 text-stone-950 border-white/20'
                 }`}>
-                  {currentTier === 'fusion' ? 'DJ ⚡' : 'AI 💅'}
+                  {geminiResult ? '🧠 ✦' : currentTier === 'fusion' ? 'DJ ⚡' : 'AI 💅'}
                 </div>
-                <div className="min-w-0 flex-1 space-y-1 text-xs">
-                  <div className="flex items-center gap-1.5">
+                <div className="min-w-0 flex-1 space-y-1.5 text-xs">
+                  <div className="flex items-center gap-1.5 flex-wrap">
                     <span className={`font-black uppercase tracking-wider ${
-                      currentTier === 'fusion' ? 'text-[#00f3ff] italic' : currentTier === 'modern' ? 'text-[#3E5B3C]' : 'text-[#e5c365]'
+                      geminiResult
+                        ? 'text-[#faedd0] font-serif font-bold text-xs'
+                        : currentTier === 'fusion' ? 'text-[#00f3ff] italic' : currentTier === 'modern' ? 'text-[#3E5B3C]' : 'text-[#e5c365]'
                     }`}>
-                      {currentTier === 'fusion' ? 'AI DJ STYLIST // VIBE CHECK VERDICT' : currentTier === 'modern' ? 'AI Stylist Thanh Lịch (Editorial Lookbook)' : 'AI Stylist Cổ Phục Viễn Đông'}
+                      {geminiResult 
+                        ? '✦ HỘI ĐỒNG GIÁM TUYỂN DI SẢN · HERITSTYLE VERDICT'
+                        : currentTier === 'fusion' ? 'AI DJ STYLIST // VIBE CHECK VERDICT' : currentTier === 'modern' ? 'AI Stylist Thanh Lịch (Editorial Lookbook)' : 'AI Stylist Cổ Phục Viễn Đông'}
                     </span>
                   </div>
-                  <p className={`leading-relaxed ${
-                    currentTier === 'fusion' ? 'font-medium italic text-sm text-white' : currentTier === 'modern' ? 'font-semibold italic font-serif text-stone-800' : 'font-semibold italic font-serif text-stone-100'
+                  <p className={`leading-relaxed text-sm ${
+                    geminiResult
+                      ? 'font-medium font-serif text-[#faedd0] italic'
+                      : currentTier === 'fusion' ? 'font-medium italic text-white' : currentTier === 'modern' ? 'font-semibold italic font-serif text-stone-800' : 'font-semibold italic font-serif text-stone-100'
                   }`}>
-                    {dualMetrics.stylistQuote}
+                    {effectiveMetrics.stylistQuote}
                   </p>
                   <p className={`text-[11px] leading-relaxed ${
-                    currentTier === 'fusion' ? 'text-stone-300 font-mono' : currentTier === 'modern' ? 'text-stone-600' : 'text-stone-300/90'
+                    geminiResult
+                      ? 'text-[#faedd0]/80 font-sans'
+                      : currentTier === 'fusion' ? 'text-stone-300 font-mono' : currentTier === 'modern' ? 'text-stone-600' : 'text-stone-300/90'
                   }`}>
-                    {dualMetrics.subAdvice}
+                    {effectiveMetrics.subAdvice}
                   </p>
                 </div>
               </div>
@@ -3054,7 +3227,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                     <span className={`leading-snug block mt-0.5 text-[10px] ${
                       currentTier === 'fusion' ? 'text-stone-400 font-mono' : currentTier === 'modern' ? 'text-stone-600' : 'text-stone-300'
                     }`}>
-                      {dualMetrics.nguThuongAnalysis}
+                      {effectiveMetrics.nguThuongAnalysis}
                     </span>
                   </div>
                 </div>
@@ -3075,7 +3248,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                     <span className={`leading-snug block mt-0.5 text-[10px] ${
                       currentTier === 'fusion' ? 'text-stone-400 font-mono' : currentTier === 'modern' ? 'text-stone-600' : 'text-stone-300'
                     }`}>
-                      {dualMetrics.nguHanhAnalysis}
+                      {effectiveMetrics.nguHanhAnalysis}
                     </span>
                   </div>
                 </div>
@@ -3092,7 +3265,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                   }
                   generateRemixOutfit();
                 }}
-                disabled={isGenerating}
+                disabled={isGenerating || isEvaluatingGemini}
                 className={`w-full py-4 px-4 font-black tracking-wide transition-all flex items-center justify-center gap-2.5 disabled:opacity-50 cursor-pointer active:scale-[0.99] border ${
                   currentTier === 'fusion'
                     ? 'rounded-none bg-[#00f3ff] hover:bg-[#39ff14] text-black not-italic font-bold uppercase text-sm sm:text-base tracking-wider shadow-[0_0_25px_rgba(0,243,255,0.35)] hover:shadow-[0_0_30px_rgba(57,255,20,0.45)] border border-transparent'
@@ -3101,10 +3274,10 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                     : 'rounded-xl font-serif text-sm sm:text-base bg-gradient-to-r from-[#c5a059] via-[#e5c365] to-[#c5a059] hover:brightness-110 text-stone-950 shadow-[0_8px_25px_rgba(212,175,55,0.35)] border-[#fff5db]/50'
                 }`}
               >
-                {isGenerating ? (
+                {isGenerating || isEvaluatingGemini ? (
                   <>
                     <Wand2 className={`w-5 h-5 animate-spin ${currentTier === 'fusion' ? 'text-black' : currentTier === 'modern' ? 'text-white' : 'text-stone-950'}`} />
-                    <span>{currentTier === 'fusion' ? 'Đang Xử Lý Mixset DJ Track...' : currentTier === 'modern' ? 'Đang Biên Tập Ấn Phẩm Tạp Chí Lookbook...' : 'Đang Khâm Định Y Quan & Thẩm Duyệt Điển Lễ...'}</span>
+                    <span>{isEvaluatingGemini ? 'Đang Khâm Định & Thẩm Duyệt Điển Lễ...' : currentTier === 'fusion' ? 'Đang Xử Lý Mixset DJ Track...' : currentTier === 'modern' ? 'Đang Biên Tập Ấn Phẩm Tạp Chí Lookbook...' : 'Đang Khâm Định Y Quan & Thẩm Duyệt Điển Lễ...'}</span>
                   </>
                 ) : (
                   <>
@@ -3113,6 +3286,30 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                   </>
                 )}
               </button>
+
+              {/* Secondary action: Tìm tiệm thuê outfit này trực tiếp */}
+              {onFindRentalForOutfit && (
+                <button
+                  type="button"
+                  onClick={() => onFindRentalForOutfit({
+                    tier: currentTier,
+                    garmentId: selectedGarmentId,
+                    garmentName: activeGarment.name,
+                    hasSneakers: selectedShoesId === 'shoes-white-sneakers' || selectedShoesId === 'shoes-platform-mary-jane',
+                    styleTitle: selectedStyleVibe
+                  })}
+                  className={`w-full py-2.5 px-3 rounded-xl text-xs font-semibold border flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs ${
+                    currentTier === 'modern'
+                      ? 'bg-white hover:bg-stone-100 text-stone-800 border-stone-300'
+                      : currentTier === 'fusion'
+                      ? 'bg-[#181824] hover:bg-[#222232] text-stone-100 border-white/10'
+                      : 'bg-[#181822] hover:bg-[#232332] text-[#e5c365] border-[#c5a059]/30 hover:border-[#c5a059]'
+                  }`}
+                >
+                  <MapPin className="w-3.5 h-3.5 text-[#c5a059]" />
+                  <span>📍 Tìm Tiệm Thuê & May Đo Cho Outfit Này</span>
+                </button>
+              )}
 
             </div>
           </div>
@@ -3613,11 +3810,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
             </div>
 
             {/* FOOTER ACTIONS CỦA MODAL (Pinned Bottom) */}
-            <div className={`relative z-10 pt-3 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0 ${
-              currentTier === 'fusion'
-                ? 'border-t border-white/10'
-                : currentTier === 'modern' ? 'border-t border-stone-200' : 'border-t border-[#D4AF37]/30'
-            }`}>
+            <div className="relative z-10 pt-3 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0 border-t border-white/10">
               <button
                 type="button"
                 onClick={handleShareLookbook}
@@ -3633,19 +3826,41 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                 <span>{copiedLookbook ? '✓ Đã sao chép link lookbook!' : (currentTier === 'fusion' ? 'Chia Sẻ Mixset Lookbook' : currentTier === 'modern' ? 'Chia sẻ Bìa Tạp Chí' : 'Chia sẻ Lookbook Y Quan')}</span>
               </button>
 
-              <button
-                type="button"
-                onClick={() => setIsLookbookModalOpen(false)}
-                className={`w-full sm:w-auto px-6 py-2.5 font-bold text-xs hover:brightness-110 shadow-md transition-all cursor-pointer ${
-                  currentTier === 'fusion'
-                    ? 'rounded-none bg-[#00f3ff] hover:bg-[#39ff14] text-black font-black uppercase not-italic font-bold shadow-[0_0_20px_rgba(0,243,255,0.35)]'
-                    : currentTier === 'modern'
-                    ? 'rounded-xl bg-gradient-to-r from-[#8BA888] to-[#6E8F6C] text-white'
-                    : 'rounded-xl bg-gradient-to-r from-[#c5a059] to-[#e5c365] text-stone-950'
-                }`}
-              >
-                {currentTier === 'fusion' ? 'XÁC NHẬN MIXSET · TRỞ LẠI STUDIO ⚡' : currentTier === 'modern' ? 'Đã Khảo Duyệt · Trở Lại Studio' : 'Đã Khảo Xét · Trở Lại Studio'}
-              </button>
+              <div className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
+                {onFindRentalForOutfit && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsLookbookModalOpen(false);
+                      onFindRentalForOutfit({
+                        tier: currentTier,
+                        garmentId: selectedGarmentId,
+                        garmentName: activeGarment.name,
+                        hasSneakers: selectedShoesId === 'shoes-white-sneakers' || selectedShoesId === 'shoes-platform-mary-jane',
+                        styleTitle: selectedStyleVibe
+                      });
+                    }}
+                    className="w-full sm:w-auto px-5 py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-[#c5a059] to-[#e5c365] text-[#0d0d10] hover:brightness-110 shadow-lg flex items-center justify-center gap-1.5 cursor-pointer transition-all"
+                  >
+                    <MapPin className="w-3.5 h-3.5" />
+                    <span>Tìm Tiệm Thuê Outfit Này 📍</span>
+                  </button>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => setIsLookbookModalOpen(false)}
+                  className={`w-full sm:w-auto px-6 py-2.5 font-bold text-xs hover:brightness-110 shadow-md transition-all cursor-pointer ${
+                    currentTier === 'fusion'
+                      ? 'rounded-none bg-[#00f3ff] hover:bg-[#39ff14] text-black font-black uppercase not-italic font-bold shadow-[0_0_20px_rgba(0,243,255,0.35)]'
+                      : currentTier === 'modern'
+                      ? 'rounded-xl bg-gradient-to-r from-[#8BA888] to-[#6E8F6C] text-white'
+                      : 'rounded-xl bg-gradient-to-r from-[#c5a059] to-[#e5c365] text-stone-950'
+                  }`}
+                >
+                  {currentTier === 'fusion' ? 'XÁC NHẬN MIXSET · TRỞ LẠI STUDIO ⚡' : currentTier === 'modern' ? 'Đã Khảo Duyệt · Trở Lại Studio' : 'Đã Khảo Xét · Trở Lại Studio'}
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -3714,6 +3929,16 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
           </div>
         </div>
       )}
+
+      {/* ======================================================== */}
+      {/* 5. SLIDE-OVER DRAWER: TRIẾT LÝ 5 THÂN & Y QUAN HOÀNG TRIỀU */}
+      {/* ======================================================== */}
+      <HeritageHotspotDrawer
+        isOpen={isHotspotDrawerOpen}
+        onClose={() => setIsHotspotDrawerOpen(false)}
+        currentGarmentId={selectedGarmentId}
+        currentTier={currentTier}
+      />
 
     </div>
   );

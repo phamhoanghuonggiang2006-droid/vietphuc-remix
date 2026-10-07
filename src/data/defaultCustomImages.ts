@@ -45,7 +45,7 @@ export const DEFAULT_PRODUCT_IMAGES: Record<string, string> = {
 
   // 6. Phụ Kiện (Accessories)
   'acc-khan-dong': '/products/acc-khan-dong.jpg',
-  'acc-khan-vanh-day': '/products/acc-khan-vanh-day.jpeg',
+  'acc-khan-vanh-day': '/products/acc-khan-vanh-day.png',
   'acc-tram-phuong': '/products/acc-tram-phuong.jpg',
   'acc-kim-uoc': '/products/acc-kim-uoc.jpg',
   'acc-kieng-bac': '/products/acc-kieng-bac.jpeg',
@@ -91,7 +91,7 @@ export const DEFAULT_2D_CANVAS_IMAGES: Record<string, string> = {
 
   // 3. Phụ Kiện (Accessories)
   'acc-khan-dong': '/canvas/canvas-acc-khan-dong.png',
-  'acc-khan-vanh-day': '/products/acc-khan-vanh-day.jpeg',
+  'acc-khan-vanh-day': '/canvas/canvas-acc-khan-vanh-day.png',
   'acc-tram-phuong': '/canvas/canvas-acc-tram-phuong.png',
   'acc-kim-uoc': '/canvas/canvas-acc-kim-uoc.png',
   'acc-kieng-bac': '/canvas/canvas-acc-kieng-bac.png',
