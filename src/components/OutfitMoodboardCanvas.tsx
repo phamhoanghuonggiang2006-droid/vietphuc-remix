@@ -101,7 +101,14 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
   const bottomCanvasImg = activeBottomItem.canvas2dUrl || activeBottomItem.thumbnailUrl || '';
   const shoesCanvasImg = activeShoesItem.canvas2dUrl || activeShoesItem.thumbnailUrl || '';
   const accessoryCanvasImg = activeAccessoryItem.canvas2dUrl || activeAccessoryItem.thumbnailUrl || '';
-  const isKhanDongSelected = activeAccessoryItem.id === 'acc-khan-dong' || activeAccessoryItem.id === 'acc-khan-vanh-day';
+  const isHeadAccessory = 
+    activeAccessoryItem.id === 'acc-khan-dong' || 
+    activeAccessoryItem.id === 'acc-khan-vanh-day' ||
+    activeAccessoryItem.id === 'acc-bucket-hat' ||
+    activeAccessoryItem.id === 'acc-tram-phuong' ||
+    activeAccessoryItem.id === 'acc-kim-uoc' ||
+    activeAccessoryItem.id === 'acc-turban';
+  const isKhanDongSelected = isHeadAccessory;
 
   // Dynamic transition key for micro-interactions (Fade-in + Scale up 1.02x on outfit changes)
   const previewTransitionKey = `${activeGarment.id}_${selectedColorHex}_${activeAccessoryItem.id}_${activeButtonItem.id}_${activeBottomItem.id}_${activeShoesItem.id}_${hasDonY}_${uploadedImage ? 'upload' : 'robe'}`;
@@ -1519,10 +1526,20 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
                       className={`absolute z-30 transition-all duration-500 cursor-pointer group ${
                         activeAccessoryItem.id === 'acc-paper-fan'
                           ? 'bottom-12 -right-4 sm:-right-8 w-28 h-28 sm:w-32 sm:h-32 -rotate-12 hover:rotate-0'
-                          : activeAccessoryItem.id === 'acc-kieng-bac'
-                          ? 'top-20 left-1/2 -translate-x-1/2 w-28 h-28 hover:scale-105'
+                          : activeAccessoryItem.id === 'acc-kieng-bac' || activeAccessoryItem.id === 'acc-silver-chain-cuban'
+                          ? 'top-14 sm:top-16 left-1/2 -translate-x-1/2 w-28 h-28 hover:scale-105'
+                          : activeAccessoryItem.id === 'acc-sunglasses-gold' || activeAccessoryItem.id === 'acc-chunky-sunglasses'
+                          ? '-top-5 left-1/2 -translate-x-1/2 w-24 h-16 hover:scale-105'
+                          : activeAccessoryItem.id === 'acc-metal-earrings'
+                          ? '-top-2 left-6 w-16 h-16 hover:scale-105'
+                          : activeAccessoryItem.id === 'acc-chest-bag'
+                          ? 'top-20 left-1/2 -translate-x-1/2 w-32 h-32 hover:scale-105'
+                          : activeAccessoryItem.id === 'acc-leather-tote'
+                          ? 'bottom-4 -right-4 sm:-right-8 w-28 h-36 hover:scale-105'
                           : activeAccessoryItem.id === 'acc-jade-pendant' || activeAccessoryItem.id === 'acc-boi-ngoc'
                           ? 'bottom-8 -left-3 sm:-left-6 w-20 h-28 sm:w-24 sm:h-32 hover:scale-105'
+                          : activeAccessoryItem.id === 'acc-smartwatch'
+                          ? 'bottom-12 -left-4 sm:-left-6 w-16 h-16 hover:scale-105'
                           : 'bottom-16 -left-3 sm:-left-5 w-20 h-20 sm:w-24 sm:h-24 hover:scale-105'
                       }`}
                       onClick={() => setActiveHotspot(activeHotspot === 'acc' ? null : 'acc')}

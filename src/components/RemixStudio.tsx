@@ -29,7 +29,7 @@ import {
   play808BassDropSound,
   playNeonStampSound
 } from '../utils/soundEffects';
-import { DEFAULT_PRODUCT_IMAGES } from '../data/defaultCustomImages';
+import { DEFAULT_PRODUCT_IMAGES, DEFAULT_2D_CANVAS_IMAGES } from '../data/defaultCustomImages';
 import { 
   loadCustomImages, 
   saveCustomImages, 
@@ -819,6 +819,10 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
 
   const getItemImageUrl = (itemId: string, defaultThumbnail?: string): string => {
     return customItemImages[itemId] || DEFAULT_PRODUCT_IMAGES[itemId] || defaultThumbnail || '';
+  };
+
+  const getItemCanvas2dUrl = (itemId: string, defaultCanvas?: string): string => {
+    return DEFAULT_2D_CANVAS_IMAGES[itemId] || defaultCanvas || customItemImages[itemId] || DEFAULT_PRODUCT_IMAGES[itemId] || '';
   };
 
   const SAMPLE_AI_PALETTES: { [key: number]: ExtractedColorChip[] } = {
@@ -2673,22 +2677,22 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
             activeButtonItem={{
               ...activeButtonItem,
               thumbnailUrl: getItemImageUrl(activeButtonItem.id, activeButtonItem.thumbnailUrl),
-              canvas2dUrl: getItemImageUrl(activeButtonItem.id, activeButtonItem.canvas2dUrl || activeButtonItem.thumbnailUrl)
+              canvas2dUrl: getItemCanvas2dUrl(activeButtonItem.id, activeButtonItem.canvas2dUrl || activeButtonItem.thumbnailUrl)
             }}
             activeBottomItem={{
               ...activeBottomItem,
               thumbnailUrl: getItemImageUrl(activeBottomItem.id, activeBottomItem.thumbnailUrl),
-              canvas2dUrl: getItemImageUrl(activeBottomItem.id, activeBottomItem.canvas2dUrl || activeBottomItem.thumbnailUrl)
+              canvas2dUrl: getItemCanvas2dUrl(activeBottomItem.id, activeBottomItem.canvas2dUrl || activeBottomItem.thumbnailUrl)
             }}
             activeShoesItem={{
               ...activeShoesItem,
               thumbnailUrl: getItemImageUrl(activeShoesItem.id, activeShoesItem.thumbnailUrl),
-              canvas2dUrl: getItemImageUrl(activeShoesItem.id, activeShoesItem.canvas2dUrl || activeShoesItem.thumbnailUrl)
+              canvas2dUrl: getItemCanvas2dUrl(activeShoesItem.id, activeShoesItem.canvas2dUrl || activeShoesItem.thumbnailUrl)
             }}
             activeAccessoryItem={{
               ...activeAccessoryItem,
               thumbnailUrl: getItemImageUrl(activeAccessoryItem.id, activeAccessoryItem.thumbnailUrl),
-              canvas2dUrl: getItemImageUrl(activeAccessoryItem.id, activeAccessoryItem.canvas2dUrl || activeAccessoryItem.thumbnailUrl)
+              canvas2dUrl: getItemCanvas2dUrl(activeAccessoryItem.id, activeAccessoryItem.canvas2dUrl || activeAccessoryItem.thumbnailUrl)
             }}
             hasDonY={selectedLayerId === 'layer-don-y-white'}
             uploadedImage={uploadedImage}

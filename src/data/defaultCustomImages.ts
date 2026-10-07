@@ -62,4 +62,50 @@ export const DEFAULT_PRODUCT_IMAGES: Record<string, string> = {
   'acc-turban': '/products/acc-turban.jpg'
 };
 
+/**
+ * BỘ ẢNH MA NƠ CANH 2D TÁCH NỀN (CANVAS 2D LAYER)
+ * Được nạp trực tiếp từ thư mục 2D chuyên biệt của Giang (/Users/dannie/Downloads/ẢNH 2D MANOCANH/)
+ * Giữ nguyên định dạng PNG trong suốt, xếp lớp chuẩn form cơ thể ma-nơ-canh.
+ */
+export const DEFAULT_2D_CANVAS_IMAGES: Record<string, string> = {
+  // 1. Thân Dưới (Bottoms)
+  'bottom-silk-wide-pants': '/canvas/canvas-bottom-silk-wide-pants.png',
+  'bottom-linen-wide-pants': '/canvas/canvas-quan-linen.png',
+  'bottom-pleated-midi-skirt': '/canvas/canvas-vay-xep-ly.png',
+  'bottom-high-waist-jeans': '/canvas/canvas-quan-jeans.png',
+  'bottom-tailored-wide-leg': '/canvas/canvas-bottom-tailored-wide-leg.png',
+  'bottom-cargo-pants': '/canvas/canvas-bottom-cargo-pants.png',
+  'bottom-jorts-denim': '/canvas/canvas-bottom-jorts-denim.png',
+  'bottom-y2k-pleated-skirt': '/canvas/canvas-bottom-y2k-pleated-skirt.png',
+
+  // 2. Giày / Guốc (Shoes)
+  'shoes-wooden-clogs': '/canvas/canvas-guoc-moc.png',
+  'shoes-embroidered-slippers': '/canvas/canvas-hai-theu.png',
+  'shoes-flat-straw-slippers': '/canvas/canvas-shoes-flat-straw-slippers.png',
+  'shoes-white-sneakers': '/canvas/canvas-sneakers.png',
+  'shoes-chunky-loafers': '/canvas/canvas-shoes-chunky-loafers.png',
+  'shoes-mules-leather': '/canvas/canvas-shoes-mules-leather.png',
+  'shoes-boots-dr-martens': '/canvas/canvas-shoes-boots-dr-martens.png',
+  'shoes-skater-vans': '/canvas/canvas-shoes-skater-vans.png',
+  'shoes-platform-mary-jane': '/canvas/canvas-shoes-platform-mary-jane.png',
+
+  // 3. Phụ Kiện (Accessories)
+  'acc-khan-dong': '/canvas/canvas-acc-khan-dong.png',
+  'acc-khan-vanh-day': '/products/acc-khan-vanh-day.jpeg',
+  'acc-tram-phuong': '/canvas/canvas-acc-tram-phuong.png',
+  'acc-kim-uoc': '/canvas/canvas-acc-kim-uoc.png',
+  'acc-kieng-bac': '/canvas/canvas-acc-kieng-bac.png',
+  'acc-leather-tote': '/canvas/canvas-acc-leather-tote.png',
+  'acc-sunglasses-gold': '/canvas/canvas-acc-sunglasses-gold.png',
+  'acc-silver-chain-cuban': '/canvas/canvas-acc-silver-chain-cuban.png',
+  'acc-bucket-hat': '/canvas/canvas-acc-bucket-hat.png',
+  'acc-chest-bag': '/canvas/canvas-acc-chest-bag.png',
+  'acc-chunky-sunglasses': '/canvas/canvas-acc-chunky-sunglasses.png',
+  'acc-metal-earrings': '/canvas/canvas-acc-metal-earrings.png',
+  'acc-smartwatch': '/canvas/canvas-dong-ho.png',
+  'acc-paper-fan': '/canvas/canvas-quat-giay.png',
+  'acc-jade-pendant': '/canvas/canvas-boi-ngoc.png',
+  'acc-turban': '/products/acc-turban.jpg'
+};
+
 export default DEFAULT_PRODUCT_IMAGES;
