@@ -413,12 +413,10 @@ export const INNER_LAYERS = [
     name: 'Áo Đơn Y Trắng Cổ Đứng (Chuẩn mực y quan)',
     category: 'lot',
     styleLine: 'heritage_core',
-    allowedTiers: ['heritage', 'modern'],
-    unfitNotice: {
-      fusion: 'Layer Đơn Y cổ đứng có thể quá trang nghiêm nếu bạn đang phối croptop hay áo khoác streetwear.'
-    },
+    allowedTiers: ['heritage', 'modern', 'fusion'],
+    unfitNotice: {},
     sub: 'Lớp lót trắng cao hơn áo ngoài 2-3mm, giữ sạch lụa đắt tiền và thể hiện sự đoan chính.',
-    isTaboo: false,
+    isCulturallyRespectful: true,
     penalty: 0,
     img: '🥼',
     realImg: '/1.png'
@@ -457,14 +455,14 @@ export const INNER_LAYERS = [
   {
     id: 'layer-none',
     aliasId: 'lot-none',
-    name: 'Không Mặc Áo Lót Đơn Y (Taboo Alert)',
+    name: 'Không Mặc Áo Lót Đơn Y (Lệch chuẩn trang phục)',
     category: 'lot',
     styleLine: 'heritage_core',
-    allowedTiers: ['fusion'], // Cho phép ở Fusion Streetwear phá cách (càng phá cách điểm slay càng tăng)
+    allowedTiers: [], // Lệch chuẩn trên mọi màn hình theo quy định văn hóa
     unfitNotice: {
       heritage: 'CẢNH BÁO PHẠM QUY: Chốn tôn nghiêm bắt buộc phải có Áo Đơn Y trắng lót trong! Lộ da thịt là điểm trừ cực nặng.',
       modern: 'Thiếu áo lót bên trong làm mất nếp áo và giảm độ trang nhã.',
-      fusion: 'Phá cách không mặc đơn y theo vibe streetwear hiện đại.'
+      fusion: 'CẢNH BÁO LỆCH CHUẨN: Không mặc áo lót Đơn Y là lệch chuẩn trang phục cổ phong, làm mất đi nét đẹp viền cổ trắng đoan chính của Việt Phục!'
     },
     sub: 'Cảnh báo phạm quy: Thiếu Đơn Y làm lộ da thịt, vi phạm cốt cách trang phục truyền thống.',
     isTaboo: true,

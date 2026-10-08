@@ -67,7 +67,11 @@ import {
   FolderOpen,
   MapPin,
   Loader2,
-  Cpu
+  Cpu,
+  ChevronDown,
+  ChevronUp,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { HeritageHotspotDrawer } from './HeritageHotspotDrawer';
 import { 
@@ -76,6 +80,7 @@ import {
   GeminiEvaluationResult,
   OutfitEvaluationPayload
 } from '../services/geminiService';
+import { evaluateWithNativeCustomGemBrain } from '../services/customGemBrain';
 
 interface ExtractedColorChip {
   name: string;
@@ -116,6 +121,7 @@ interface RemixResult {
   taboosTriggered: TabooRule[];
   stylistFeedback: string;
   paletteItems: { name: string; hex: string; role: string }[];
+  geminiVerdict?: GeminiEvaluationResult | null;
 }
 
 export interface DualMetricEvaluation {
@@ -306,241 +312,67 @@ export const computeRealtimeDualMetrics = (
   accessoryId: string | string[],
   contextId: string = 'heritage'
 ): DualMetricEvaluation => {
-  const hasDonY = layerId === 'layer-don-y-white';
-  const isChineseButton = buttonId === 'btn-chinese-cloth';
-  const isImperialYellow = !!color.isImperialRestricted;
-  
-  const isCeremonialRobe = garment.id === 'ao-tac' || garment.id === 'ao-nhat-binh' || garment.id === 'ao-vien-linh';
-  
   const accIds = Array.isArray(accessoryId) ? accessoryId : (accessoryId ? [accessoryId] : []);
-  const isNhatBinhWithKhanDong = garment.id === 'ao-nhat-binh' && accIds.includes('acc-khan-dong');
-  const isTabooAlert = isChineseButton || isImperialYellow || isNhatBinhWithKhanDong;
-  const hasSmartwatch = accIds.includes('acc-smartwatch');
+  const buttonItem = REMIX_ITEMS.find(i => i.id === buttonId);
+  const bottomItem = REMIX_ITEMS.find(i => i.id === bottomId);
+  const shoesItem = REMIX_ITEMS.find(i => i.id === shoesId);
+  const accItems = REMIX_ITEMS.filter(i => accIds.includes(i.id));
 
-  const isAnachronism = (isCeremonialRobe && (shoesId === 'shoes-white-sneakers' || hasSmartwatch)) ||
-                        (!isCeremonialRobe && hasSmartwatch);
+  const nativeBrain = evaluateWithNativeCustomGemBrain({
+    garmentName: garment.name,
+    garmentType: garment.svgType,
+    garmentId: garment.id,
+    colorName: color.name,
+    colorHex: color.hex,
+    nguHanh: color.element || 'Thổ',
+    buttonName: buttonItem?.name || 'Khuy Cúc',
+    buttonId: buttonId,
+    isChineseButton: buttonId === 'btn-chinese-cloth',
+    bottomName: bottomItem?.name || 'Thân dưới',
+    bottomId: bottomId,
+    shoesName: shoesItem?.name || 'Giày dép',
+    shoesId: shoesId,
+    accessories: accItems.map(a => a.name),
+    accessoryIds: accIds,
+    hasDonY: layerId !== 'layer-no-don-y',
+    contextTier: contextId,
+    contextName: contextId === 'heritage' ? 'Chốn Tôn Nghiêm (Lễ Gia Tiên)' : contextId === 'modern' ? 'Thanh Lịch Đời Thường (Công sở, Dạo phố)' : 'Phố Thị Phá Cách (Concert, Streetwear)',
+    isImperialYellow: Boolean(color.isImperialRestricted),
+    isNhatBinhWithKhanDong: garment.id === 'ao-nhat-binh' && accIds.includes('acc-khan-dong')
+  });
 
   const buttonInfo = getButtonHeritageInfo(buttonId);
   const colorInfo = getColorHeritageInfo(color);
-
   const nguThuongAnalysis = `${buttonInfo.title} [${buttonInfo.nguThuong}]: ${buttonInfo.moral}`;
   const nguHanhAnalysis = `${colorInfo.title} [${colorInfo.nguHanh} - ${colorInfo.giaiTang}]: ${colorInfo.meaning}`;
 
-  let heritage = 100;
-  if (!hasDonY) heritage -= 25;
-  if (isChineseButton) heritage -= 35;
-  if (isImperialYellow) heritage -= 40;
-  if (isNhatBinhWithKhanDong) heritage -= 35;
-  if (isCeremonialRobe && shoesId === 'shoes-white-sneakers') heritage -= 20;
-  if (hasSmartwatch) heritage -= 15;
-  if (isCeremonialRobe && shoesId === 'shoes-chunky-loafers') heritage -= 8;
-  if (isCeremonialRobe && bottomId === 'bottom-high-waist-jeans') heritage -= 10;
-  if (!isCeremonialRobe && bottomId === 'bottom-high-waist-jeans') heritage -= 3;
+  const isAnachronism = (garment.id === 'ao-tac' || garment.id === 'ao-nhat-binh') && (shoesId === 'shoes-white-sneakers' || accIds.includes('acc-smartwatch'));
 
-  if (contextId === 'heritage') {
-    if (shoesId === 'shoes-white-sneakers' || bottomId === 'bottom-high-waist-jeans' || hasSmartwatch) {
-      heritage = Math.max(15, heritage - 10);
-    }
+  let scenario: DualMetricEvaluation['scenario'] = 'heritage';
+  if (nativeBrain.isTaboo) {
+    scenario = 'taboo';
+  } else if (isAnachronism) {
+    scenario = 'anachronism';
+  } else if (contextId === 'fusion') {
+    scenario = 'fusion';
+  } else if (contextId === 'modern') {
+    scenario = 'modern_polite';
+  } else {
+    scenario = nativeBrain.heritageScore >= 90 ? 'heritage' : 'modern_polite';
   }
-
-  heritage = Math.max(15, Math.min(100, heritage));
-
-  let slay = 78;
-  if (color.hex === '#2B5B84' || color.hex === '#7A222C' || color.hex === '#334D3C' || color.hex === '#5E3A58') {
-    slay += 10;
-  } else if (color.hex === '#F2EAD8' || color.hex === '#4A3525') {
-    slay += 8;
-  }
-  if (buttonId === 'btn-silver-lotus' || buttonId === 'btn-mother-of-pearl') {
-    slay += 10;
-  } else if (buttonId === 'btn-jade-green' || buttonId === 'btn-metal-copper' || buttonId === 'btn-wood-agarwood') {
-    slay += 7;
-  }
-  if (bottomId === 'bottom-pleated-midi-skirt' || bottomId === 'bottom-silk-wide-pants' || bottomId === 'bottom-linen-wide-pants') {
-    slay += 8;
-  } else if (bottomId === 'bottom-high-waist-jeans') {
-    slay += (contextId === 'fusion' ? 10 : 7);
-  }
-  if (shoesId === 'shoes-wooden-clogs' || shoesId === 'shoes-embroidered-slippers') {
-    slay += (contextId === 'heritage' ? 9 : 6);
-  } else if (shoesId === 'shoes-chunky-loafers') {
-    slay += (contextId === 'fusion' ? 10 : 8);
-  }
-  if (accIds.some(id => id === 'acc-khan-dong' || id === 'acc-khan-vanh-day' || id === 'acc-kieng-bac')) {
-    slay += 6;
-  }
-  if (accIds.some(id => id === 'acc-paper-fan' || id === 'acc-jade-pendant')) {
-    slay += 5;
-  }
-
-  if (contextId === 'fusion') {
-    let fusionSlay = 75;
-    // Càng gắn nhiều đồ phá cách, điểm càng tăng bùng nổ:
-    if (!hasDonY) fusionSlay += 8; // Không mặc đơn y
-    if (bottomId === 'bottom-cargo-pants' || bottomId === 'bottom-y2k-pleated-skirt' || bottomId === 'bottom-jorts-denim' || bottomId === 'bottom-high-waist-jeans') {
-      fusionSlay += 9;
-    }
-    if (shoesId === 'shoes-skater-vans' || shoesId === 'shoes-boots-dr-martens' || shoesId === 'shoes-platform-mary-jane' || shoesId === 'shoes-white-sneakers' || shoesId === 'shoes-chunky-loafers') {
-      fusionSlay += 9;
-    }
-    const fusionAccCount = accIds.filter(id => 
-      id === 'acc-silver-chain-cuban' ||
-      id === 'acc-chest-bag' ||
-      id === 'acc-bucket-hat' ||
-      id === 'acc-sunglasses-gold' ||
-      id === 'acc-chunky-sunglasses' ||
-      id === 'acc-metal-earrings'
-    ).length;
-    if (fusionAccCount > 0) {
-      fusionSlay += Math.min(14, fusionAccCount * 6);
-    }
-    if (color.hex === '#FF007F' || color.hex === '#1A1A1E' || color.hex === '#00F0FF' || color.hex === '#39FF14') {
-      fusionSlay += 6;
-    }
-    if (isChineseButton) fusionSlay += 5;
-
-    // Slay Score có thể vọt lên 100%
-    const finalSlayScore = Math.min(100, Math.max(80, fusionSlay));
-
-    let fusionHeritage = 80;
-    if (!hasDonY) fusionHeritage -= 15;
-    if (isChineseButton) fusionHeritage -= 15;
-    if (isImperialYellow) fusionHeritage -= 20;
-
-    // AI Review quote cực "slay" theo đúng yêu cầu người dùng
-    const fusionQuote = (garment.id === 'ao-tac' && bottomId === 'bottom-cargo-pants') || bottomId === 'bottom-cargo-pants'
-      ? `“Keo lỳ! Quả áo khoác tay thụng mix cùng Cargo này đi quẩy concert thì cứ gọi là sáng nhất đêm. Nhưng nhớ là outfit này cấm cửa ở đền chùa nha!”`
-      : (garment.id === 'ao-nhat-binh' && bottomId === 'bottom-y2k-pleated-skirt')
-      ? `“Keo lỳ! Quả áo cổ vuông Nhật Bình crop-top mix cùng Váy xếp ly Y2K này đi quẩy concert thì cứ gọi là sáng nhất đêm. Nhưng nhớ là outfit này cấm cửa ở đền chùa nha!”`
-      : (garment.id === 'ao-tac' && (shoesId === 'shoes-boots-dr-martens' || accessoryId === 'acc-silver-chain-cuban'))
-      ? `“Keo lỳ! Quả áo khoác tay thụng nhung đen mix cùng Boots Dr. Martens & xích bạc này đi quẩy concert thì cứ gọi là sáng nhất đêm. Nhưng nhớ là outfit này cấm cửa ở đền chùa nha!”`
-      : `“Keo lỳ! Quả áo cổ đứng mix cùng Cargo và Sneaker này đi quẩy concert thì cứ gọi là sáng nhất đêm. Nhưng nhớ là outfit này cấm cửa ở đền chùa nha!”`;
-
-    return {
-      slayScore: finalSlayScore,
-      heritageScore: Math.max(25, Math.min(85, fusionHeritage)),
-      scenario: 'fusion',
-      badgeTitle: 'FUSION - LẤY CẢM HỨNG',
-      stylistQuote: fusionQuote,
-      subAdvice: 'Bản phối Fusion Streetwear: Bùng nổ tương phản giữa cổ phục và văn hóa đường phố (Skater, Y2K, Gothic). Phù hợp đi quẩy concert, dạo phố, chụp lookbook nhưng cấm kỵ nơi tôn nghiêm.',
-      nguThuongAnalysis,
-      nguHanhAnalysis,
-      isTaboo: false,
-      isAnachronism: false,
-      canAutoFix: false
-    };
-  }
-
-  if (isTabooAlert) slay -= 16;
-  if (isAnachronism) slay -= 8;
-  slay = Math.max(45, Math.min(99, slay));
-
-  if (isTabooAlert) {
-    const quote = isNhatBinhWithKhanDong
-      ? `“Ủa alo bạn hiền! Áo Nhật Bình là trang phục cao quý của nữ giới quý tộc (Hoàng hậu, Công chúa), quy chuẩn bắt buộc đi cùng Khăn Vành Dây hoặc Trâm Phượng. Đội Khăn Đóng Chữ Nhân (nam phục) là phạm quy thức triều đình nha!”`
-      : isChineseButton 
-      ? (contextId === 'modern'
-          ? `“Cúc Tàu không nằm trong từ điển thanh lịch của y quan nhà Nguyễn đâu nha! Đổi sang Cúc Xà Cừ Ánh Trăng hoặc Cúc Gỗ Trầm để giữ trọn nét tinh tế Quiet Luxury nhé!”`
-          : contextId === 'heritage'
-          ? `“Cảnh báo Chốn Tôn Nghiêm: Đi đền chùa, lễ nghi mà dùng cúc vải Tàu là phạm húy nghiêm trọng! Đổi sang Cúc Bạc Hoa Sen hoặc Cúc Đồng Đúc Bát Bửu cho chuẩn mực nhé!”`
-          : `“Cảnh báo hú hồn: ${buttonInfo.genzQuote} Cụ Nguồn gật đầu khen cá tính nhưng Triều Đình hơi rén nhé! Đổi sang Cúc Bạc Hoa Sen hoặc Cúc Đồng Đúc Bát Bửu cho chuẩn gu nào!”`)
-      : `“Ủa alo bạn hiền! Sắc ${colorInfo.title} (${colorInfo.nguHanh}) là đại cấm kỵ hoàng triều: ${colorInfo.genzQuote} Đổi ngay sang Xanh Thanh Thiên hay Tím Chính Sắc cho vừa slay vừa an toàn nào!”`;
-
-    const advice = isNhatBinhWithKhanDong
-      ? `Áo Nhật Bình là lễ phục cung đình cao quý dành riêng cho nữ giới thời Nguyễn. Theo điển lễ, Áo Nhật Bình bắt buộc kết hợp Khăn Vành Dây hoặc Trâm Phượng; Khăn Đóng Chữ Nhân là nếp khăn của nam giới, tuyệt đối cấm phối cùng Áo Nhật Bình.`
-      : isChineseButton 
-      ? (contextId === 'modern'
-          ? `Quy chuẩn Y quan nước Nam triều Nguyễn dùng khuy rời đúc bằng kim loại, ngọc hoặc xà cừ đại diện Ngũ Thường. Cúc vải bện kiểu Tàu không nằm trong từ điển thanh lịch của y quan nước Nam!`
-          : `Quy chuẩn Y quan nước Nam luôn là khuy rời đúc kim loại/gỗ/ngọc (đại diện Ngũ Thường Nhân-Nghĩa-Lễ-Trí-Tín), tuyệt đối cấm cúc vải bện kiểu Tàu lai căng!`)
-      : `Sắc Vàng Minh Hoàng là đặc quyền tối thượng của bậc Thiên Tử Triều Nguyễn. Thứ dân mặc sẽ vi phạm quy chế y quan triều đình!`;
-
-    return {
-      slayScore: slay,
-      heritageScore: heritage,
-      scenario: 'taboo',
-      badgeTitle: contextId === 'modern' ? 'Nhắc Nhở Nhã Nhặn (Quiet Reminder)' : 'Cảnh Báo Cấm Kỵ (Taboo Alert)',
-      stylistQuote: quote,
-      subAdvice: advice,
-      nguThuongAnalysis,
-      nguHanhAnalysis,
-      isTaboo: true,
-      isAnachronism: false,
-      canAutoFix: true
-    };
-  }
-
-  if (isAnachronism) {
-    const anachQuote = contextId === 'heritage'
-      ? `“Ủa alo bạn hiền! Chốn Tôn Nghiêm đền chùa lễ hội cần sự tề chỉnh tuyệt đối, áo lễ ${garment.name} mà đi cùng Sneakers hay Smartwatch trông hơi cấn cấn đó! Đổi sang Guốc Mộc hoặc Hài Thêu để vừa thanh tịnh vừa trọn vẹn điểm chuẩn mực nhé!”`
-      : contextId === 'modern'
-      ? `“Set đồ đang rất chuẩn phong cách Quiet Luxury, nhưng chiếc Smartwatch thể thao phối cùng ${garment.name} hơi phá vỡ độ trầm mặc thanh nhã! Đổi sang Kính Râm Gọng Vàng hoặc Túi Da Đeo Chéo để đạt trọn điểm visual nhé!”`
-      : `“Ủa alo bạn hiền! Áo lễ ${garment.name} phối cùng ${buttonInfo.title} và sắc ${colorInfo.title} (${colorInfo.nguHanh}) đang rất đỉnh chóp, mà 'cưỡi' đôi Sneakers quẹt Smartwatch trông hơi cấn cấn đó nha! Đổi sang Guốc Mộc hoặc Hài Thêu Cung Đình để vừa chuẩn di sản vừa slay hết nấc nào!”`;
-
-    return {
-      slayScore: slay,
-      heritageScore: heritage,
-      scenario: 'anachronism',
-      badgeTitle: 'Lỗi Lạc Quẻ (Anachronism)',
-      stylistQuote: anachQuote,
-      subAdvice: `${garment.name} là y phục thanh lịch, sự kết hợp với phụ kiện thể thao công nghệ tạo ra sự cọc cạch thị giác đối với phong cách Quiet Luxury.`,
-      nguThuongAnalysis,
-      nguHanhAnalysis,
-      isTaboo: false,
-      isAnachronism: true,
-      canAutoFix: true
-    };
-  }
-
-  if (heritage >= 90) {
-    const heritageQuote = contextId === 'modern'
-      ? `“Set đồ phối rất tinh tế, gọn gàng, chuẩn phong cách Quiet Luxury. Điểm thanh lịch: 8.8/10. Phù hợp diện đi làm, ghé Phê La hay ăn tối tại Pizza 4P's.”`
-      : contextId === 'heritage'
-      ? `“Tuyệt phẩm Chốn Tôn Nghiêm! Bộ này diện đến đền chùa hay lễ hội truyền thống là chuẩn mực 10/10, đoan trang thanh tịnh, tôn vinh đạo Ngũ Thường (${buttonInfo.nguThuong}) và sắc ${colorInfo.title} vương giả!”`
-      : contextId === 'fusion'
-      ? `“Outfit Phố Thị Phá Cách đỉnh nóc kịch trần! Vừa chuẩn di sản Ngũ Thường vừa đậm chất Slay đương đại, diện đi Concert hay Cafe check-in là visual chiếm trọn spotlight!”`
-      : `“Úi chà! Bộ này diện đi dạo phố hay du xuân là hết nước chấm, vừa chuẩn Ngũ Thường vừa đậm chất Slay! Sắc ${colorInfo.title} (${colorInfo.nguHanh}) quyện cùng ${buttonInfo.title} (${buttonInfo.nguThuong}) - ${buttonInfo.genzQuote}”`;
-
-    return {
-      slayScore: slay,
-      heritageScore: heritage,
-      scenario: 'heritage',
-      badgeTitle: contextId === 'modern' ? 'Thanh Lịch Đời Thường (Quiet Luxury)' : 'Chuẩn Cổ Phong (Match > 90%)',
-      stylistQuote: heritageQuote,
-      subAdvice: contextId === 'modern'
-        ? `Bản phối Quiet Luxury kết hợp hài hòa giữa nét thanh tao của Áo ngũ thân tay chẽn và phom dáng thời thượng đương đại.`
-        : `Bản phối đạt tỷ lệ vàng cổ phong: Phù hợp ${colorInfo.giaiTang}, tôn vinh đạo Ngũ Thường và cốt cách đoan chính của cổ nhân.`,
-      nguThuongAnalysis,
-      nguHanhAnalysis,
-      isTaboo: false,
-      isAnachronism: false,
-      canAutoFix: false
-    };
-  }
-
-  const modernQuote = contextId === 'modern'
-    ? `“Set đồ phối rất tinh tế, gọn gàng, chuẩn phong cách Quiet Luxury. Điểm thanh lịch: 8.8/10. Phù hợp diện đi làm, ghé Phê La hay ăn tối tại Pizza 4P's.”`
-    : contextId === 'fusion'
-    ? `“Bản phối Phố Thị Phá Cách cực chiến! Sắc ${colorInfo.title} hòa nhịp cùng ${buttonInfo.title} tạo nên tuyên ngôn thời trang Á Đông hiện đại không thể trộn lẫn!”`
-    : !hasDonY 
-      ? `“Gu phối đồ bén ngót với sắc ${colorInfo.title} và ${buttonInfo.title}! Cách tân rất có duyên, nhưng nhớ mặc đủ Áo Đơn Y lót trong để 10/10 không có nhưng nhé!”`
-      : `“Bản phối giao thoa cổ kim cực slay! Sắc ${colorInfo.title} (${colorInfo.nguHanh}) đi cùng ${buttonInfo.title} (${buttonInfo.nguThuong}) tạo nên phong thái ${colorInfo.giaiTang} phóng khoáng và cuốn hút!”`;
 
   return {
-    slayScore: slay,
-    heritageScore: heritage,
-    scenario: 'modern_polite',
-    badgeTitle: contextId === 'modern' ? 'Thanh Lịch Đời Thường (Quiet Luxury)' : 'Cách Tân Lịch Sự (Match 70-89%)',
-    stylistQuote: modernQuote,
-    subAdvice: contextId === 'modern'
-      ? `Bản phối Quiet Luxury kết hợp hài hòa giữa nét thanh tao của Áo ngũ thân tay chẽn và phom dáng thời thượng đương đại.`
-      : !hasDonY 
-        ? 'Nhắc nhở: Lớp Áo Đơn Y trắng cổ đứng cao hơn áo ngoài 2mm là biểu tượng cốt cách sạch sẽ, đoan chính của cổ nhân.' 
-        : `Sự kết hợp tinh tế giữa quy chuẩn Ngũ Thường (${buttonInfo.nguThuong}) và bảng màu Ngũ Hành tương sinh, phù hợp bối cảnh tỏa sáng mà bạn lựa chọn.`,
+    slayScore: nativeBrain.slayScore,
+    heritageScore: nativeBrain.heritageScore,
+    scenario,
+    badgeTitle: nativeBrain.verdictTitle,
+    stylistQuote: nativeBrain.stylistQuote,
+    subAdvice: `${nativeBrain.culturalCritique} ✦ Gợi ý: ${nativeBrain.actionableAdvice}`,
     nguThuongAnalysis,
     nguHanhAnalysis,
-    isTaboo: false,
-    isAnachronism: false,
-    canAutoFix: !hasDonY
+    isTaboo: nativeBrain.isTaboo,
+    isAnachronism,
+    canAutoFix: nativeBrain.isTaboo || isAnachronism || layerId === 'layer-no-don-y'
   };
 };
 
@@ -587,6 +419,35 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
 
   // Drawer Triết lý 5 thân & Y quan
   const [isHotspotDrawerOpen, setIsHotspotDrawerOpen] = useState<boolean>(false);
+
+  // Thu gọn / Mở rộng phần đánh giá chi tiết dưới Canvas (Yêu cầu 3 của Giang - Mặc định thu gọn)
+  const [isEvaluationDetailsOpen, setIsEvaluationDetailsOpen] = useState<boolean>(false);
+
+  // Điều hướng cuộn thanh danh mục Tủ Đồ bằng mũi tên vàng neon (Yêu cầu 2 của Giang)
+  const wardrobeTabsScrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollTabsLeft, setCanScrollTabsLeft] = useState<boolean>(false);
+  const [canScrollTabsRight, setCanScrollTabsRight] = useState<boolean>(true);
+
+  const handleScrollWardrobeTabs = (direction: 'left' | 'right') => {
+    if (wardrobeTabsScrollRef.current) {
+      const scrollAmount = direction === 'left' ? -240 : 240;
+      wardrobeTabsScrollRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+  };
+
+  const checkWardrobeTabsScroll = () => {
+    if (wardrobeTabsScrollRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = wardrobeTabsScrollRef.current;
+      setCanScrollTabsLeft(scrollLeft > 12);
+      setCanScrollTabsRight(scrollLeft < scrollWidth - clientWidth - 12);
+    }
+  };
+
+  useEffect(() => {
+    checkWardrobeTabsScroll();
+    window.addEventListener('resize', checkWardrobeTabsScroll);
+    return () => window.removeEventListener('resize', checkWardrobeTabsScroll);
+  }, []);
 
   // Gamified Buff: +10% Slay Boost khi đã vượt qua Khảo Thí Hoàng Triều
   const [hasSlayBoost, setHasSlayBoost] = useState<boolean>(() => {
@@ -878,6 +739,11 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
         hasDonY: selectedLayerId !== 'layer-no-don-y',
         contextTier: currentTier,
         contextName: currentTier === 'heritage' ? 'Chốn Tôn Nghiêm (Lễ Gia Tiên)' : currentTier === 'modern' ? 'Thanh Lịch Đời Thường (Công sở, Dạo phố)' : 'Phố Thị Phá Cách (Concert, Streetwear)',
+        modeName: currentTier === 'heritage' 
+          ? 'Mode 1 - Chốn Tôn Nghiêm (Tạp chí/Biểu tượng)' 
+          : currentTier === 'modern' 
+            ? 'Mode 2 - Đời Thường (Cân bằng)' 
+            : 'Mode 3 - Phố Thị (Phá Cách)',
         isImperialYellow: isImperialYellowSelected,
         isNhatBinhWithKhanDong: selectedGarmentId === 'ao-nhat-binh' && selectedAccessoryIds.includes('acc-khan-dong')
       };
@@ -1209,35 +1075,66 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
       { name: 'Trầm Mặc Đen Khói', hex: '#1C1917', role: 'Phom Quần / Phụ Kiện' }
     ];
 
-    // 🌟 KÍCH HOẠT BỘ NÃO CUSTOM GEM NẾU CÓ KHÓA API
+    // 🌟 KÍCH HOẠT BỘ NÃO CUSTOM GEM (HỖ TRỢ CẢ NATIVE ENGINE LẪN GOOGLE AI STUDIO)
+    setIsEvaluatingGemini(true);
     let geminiVerdict: GeminiEvaluationResult | null = null;
-    if (hasGeminiApiKey()) {
-      setIsEvaluatingGemini(true);
-      try {
-        const payload: OutfitEvaluationPayload = {
-          garmentName: garment.name,
-          garmentType: garment.svgType,
-          colorName: color.name,
-          colorHex: color.hex,
-          nguHanh: color.element || 'Thổ',
-          buttonName: buttonItem.name,
-          isChineseButton: buttonItem.id === 'btn-chinese-cloth',
-          bottomName: bottomItem.name,
-          shoesName: shoesItem.name,
-          accessories: [accessoryItem.name],
-          hasDonY: layerItem.id !== 'layer-no-don-y',
-          contextTier: currentTier,
-          contextName: currentTier === 'heritage' ? 'Chốn Tôn Nghiêm (Lễ Gia Tiên)' : currentTier === 'modern' ? 'Thanh Lịch Đời Thường (Công sở, Dạo phố)' : 'Phố Thị Phá Cách (Concert, Streetwear)',
-          isImperialYellow: Boolean(color.isImperialRestricted),
-          isNhatBinhWithKhanDong: garment.id === 'ao-nhat-binh' && accessoryItem.id === 'acc-khan-dong'
-        };
-        geminiVerdict = await evaluateOutfitWithGemini(payload);
-        setGeminiResult(geminiVerdict);
-      } catch (err: any) {
-        console.warn('Custom Gem evaluation fallback:', err);
-      } finally {
-        setIsEvaluatingGemini(false);
-      }
+    try {
+      const payload: OutfitEvaluationPayload = {
+        garmentName: garment.name,
+        garmentType: garment.svgType,
+        garmentId: garment.id,
+        colorName: color.name,
+        colorHex: color.hex,
+        nguHanh: color.element || 'Thổ',
+        buttonName: buttonItem.name,
+        buttonId: buttonItem.id,
+        isChineseButton: buttonItem.id === 'btn-chinese-cloth',
+        bottomName: bottomItem.name,
+        bottomId: bottomItem.id,
+        shoesName: shoesItem.name,
+        shoesId: shoesItem.id,
+        accessories: [accessoryItem.name],
+        accessoryIds: [accessoryItem.id],
+        hasDonY: layerItem.id !== 'layer-no-don-y',
+        contextTier: currentTier,
+        contextName: currentTier === 'heritage' ? 'Chốn Tôn Nghiêm (Lễ Gia Tiên)' : currentTier === 'modern' ? 'Thanh Lịch Đời Thường (Công sở, Dạo phố)' : 'Phố Thị Phá Cách (Concert, Streetwear)',
+        modeName: currentTier === 'heritage' 
+          ? 'Mode 1 - Chốn Tôn Nghiêm (Tạp chí/Biểu tượng)' 
+          : currentTier === 'modern' 
+            ? 'Mode 2 - Đời Thường (Cân bằng)' 
+            : 'Mode 3 - Phố Thị (Phá Cách)',
+        isImperialYellow: Boolean(color.isImperialRestricted),
+        isNhatBinhWithKhanDong: garment.id === 'ao-nhat-binh' && accessoryItem.id === 'acc-khan-dong'
+      };
+      geminiVerdict = await evaluateOutfitWithGemini(payload);
+      setGeminiResult(geminiVerdict);
+    } catch (err: any) {
+      console.warn('Custom Gem evaluation error, running native engine:', err);
+      geminiVerdict = evaluateWithNativeCustomGemBrain({
+        garmentName: garment.name,
+        garmentType: garment.svgType,
+        garmentId: garment.id,
+        colorName: color.name,
+        colorHex: color.hex,
+        nguHanh: color.element || 'Thổ',
+        buttonName: buttonItem.name,
+        buttonId: buttonItem.id,
+        isChineseButton: buttonItem.id === 'btn-chinese-cloth',
+        bottomName: bottomItem.name,
+        bottomId: bottomItem.id,
+        shoesName: shoesItem.name,
+        shoesId: shoesItem.id,
+        accessories: [accessoryItem.name],
+        accessoryIds: [accessoryItem.id],
+        hasDonY: layerItem.id !== 'layer-no-don-y',
+        contextTier: currentTier,
+        contextName: currentTier === 'heritage' ? 'Chốn Tôn Nghiêm (Lễ Gia Tiên)' : currentTier === 'modern' ? 'Thanh Lịch Đời Thường (Công sở, Dạo phố)' : 'Phố Thị Phá Cách (Concert, Streetwear)',
+        isImperialYellow: Boolean(color.isImperialRestricted),
+        isNhatBinhWithKhanDong: garment.id === 'ao-nhat-binh' && accessoryItem.id === 'acc-khan-dong'
+      });
+      setGeminiResult(geminiVerdict);
+    } finally {
+      setIsEvaluatingGemini(false);
     }
 
     const finalMatchScore = geminiVerdict ? geminiVerdict.heritageScore : totalScore;
@@ -1253,16 +1150,17 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
         shoes: shoesItem,
         accessory: accessoryItem
       },
-      styleVibe,
+      styleVibe: geminiVerdict?.verdictTitle || styleVibe,
       matchScore: finalMatchScore,
       scoreBreakdown: {
         yQuanStandard: geminiVerdict ? geminiVerdict.heritageScore : yQuanScore,
         genZFashion: geminiVerdict ? geminiVerdict.slayScore : genZScore,
-        eleganceVibe: eleganceScore
+        eleganceVibe: geminiVerdict ? geminiVerdict.slayScore : eleganceScore
       },
       taboosTriggered: triggered,
       stylistFeedback: finalFeedback,
-      paletteItems: palette
+      paletteItems: palette,
+      geminiVerdict
     });
     setIsGenerating(false);
     setIsLookbookModalOpen(true);
@@ -1444,36 +1342,71 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
               </button>
             </div>
 
-            {/* THANH TABS NGANG ĐIỀU HƯỚNG CÁC DANH MỤC */}
-            <div className={`flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-thin ${
-              currentTier === 'modern'
-                ? 'border-b border-stone-200/80 pb-2.5'
-                : currentTier === 'fusion'
-                ? 'border-b border-white/10 pb-2.5'
-                : 'scrollbar-thumb-stone-700'
-            }`}>
-              {WARDROBE_TABS.map((tab) => {
-                const isActive = activeWardrobeTab === tab.id;
-                if (currentTier === 'fusion') {
-                  return (
-                    <button
-                      key={tab.id}
-                      onClick={() => {
-                        setActiveWardrobeTab(tab.id);
-                        playDjScratchSound();
-                      }}
-                      className={`px-3 py-1.5 text-xs font-black not-italic font-bold uppercase tracking-wider whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 shrink-0 rounded-xl ${
-                        isActive
-                          ? 'bg-[#00f3ff]/15 text-[#00f3ff] border border-[#00f3ff] shadow-[0_0_12px_rgba(0,243,255,0.2)]'
-                          : 'bg-transparent text-stone-400 border border-transparent hover:border-white/15 hover:text-white hover:bg-white/[0.02]'
-                      }`}
-                    >
-                      <span>{tab.icon}</span>
-                      <span>{tab.label}</span>
-                    </button>
-                  );
-                }
-                if (currentTier === 'modern') {
+            {/* THANH TABS NGANG ĐIỀU HƯỚNG CÁC DANH MỤC (TĂNG 30% KÍCH THƯỚC + MŨI TÊN VÀNG GLOWING NHẤP NHÁY) */}
+            <div className="relative group/tabs my-1">
+              {/* Nút mũi tên lùi trái khi đã cuộn sang phải */}
+              {canScrollTabsLeft && (
+                <button
+                  type="button"
+                  onClick={() => handleScrollWardrobeTabs('left')}
+                  className="absolute -left-2 top-1/2 -translate-y-1/2 z-30 w-8 h-8 rounded-full bg-black/95 border-2 border-yellow-400 text-yellow-300 shadow-[0_0_12px_rgba(255,238,0,0.85)] flex items-center justify-center hover:scale-110 active:scale-95 transition-all cursor-pointer animate-pulse"
+                  title="Cuộn sang trái"
+                >
+                  <ChevronLeft className="w-5 h-5 stroke-[2.5]" />
+                </button>
+              )}
+
+              <div
+                ref={wardrobeTabsScrollRef}
+                onScroll={checkWardrobeTabsScroll}
+                className={`flex items-center gap-2 overflow-x-auto no-scrollbar scroll-smooth py-2 px-1 ${
+                  currentTier === 'modern'
+                    ? 'border-b-2 border-stone-200/80 pb-3'
+                    : currentTier === 'fusion'
+                    ? 'border-b-2 border-white/10 pb-3'
+                    : 'border-b-2 border-white/10 pb-3'
+                }`}
+              >
+                {WARDROBE_TABS.map((tab) => {
+                  const isActive = activeWardrobeTab === tab.id;
+                  if (currentTier === 'fusion') {
+                    return (
+                      <button
+                        key={tab.id}
+                        onClick={() => {
+                          setActiveWardrobeTab(tab.id);
+                          playDjScratchSound();
+                        }}
+                        className={`px-4.5 py-2.5 sm:px-5 sm:py-3 text-sm sm:text-[14.5px] font-black not-italic font-bold uppercase tracking-wider whitespace-nowrap transition-all cursor-pointer flex items-center gap-2 shrink-0 rounded-xl ${
+                          isActive
+                            ? 'bg-[#00f3ff]/20 text-[#00f3ff] border-2 border-[#00f3ff] shadow-[0_0_16px_rgba(0,243,255,0.35)]'
+                            : 'bg-black/40 text-stone-300 border border-white/15 hover:border-white/35 hover:text-white hover:bg-white/[0.04]'
+                        }`}
+                      >
+                        <span className="text-base sm:text-lg">{tab.icon}</span>
+                        <span>{tab.label}</span>
+                      </button>
+                    );
+                  }
+                  if (currentTier === 'modern') {
+                    return (
+                      <button
+                        key={tab.id}
+                        onClick={() => {
+                          setActiveWardrobeTab(tab.id);
+                          playDanTranhTabSound();
+                        }}
+                        className={`px-4.5 py-2.5 sm:px-5 sm:py-3 text-sm sm:text-[14.5px] font-semibold whitespace-nowrap transition-all cursor-pointer flex items-center gap-2 shrink-0 rounded-xl border-2 ${
+                          isActive
+                            ? 'bg-[#8BA888]/15 border-[#5C715E] text-[#1E3A1A] font-bold shadow-xs'
+                            : 'bg-stone-100/70 border-transparent text-stone-600 hover:text-stone-900 hover:bg-stone-200/70'
+                        }`}
+                      >
+                        <span className="text-base sm:text-lg">{tab.icon}</span>
+                        <span>{tab.label}</span>
+                      </button>
+                    );
+                  }
                   return (
                     <button
                       key={tab.id}
@@ -1481,35 +1414,33 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                         setActiveWardrobeTab(tab.id);
                         playDanTranhTabSound();
                       }}
-                      className={`px-3 py-1.5 text-xs font-semibold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 shrink-0 border-b-2 ${
+                      className={`px-4.5 py-2.5 sm:px-5 sm:py-3 rounded-xl text-sm sm:text-[14.5px] font-semibold whitespace-nowrap transition-all cursor-pointer flex items-center gap-2 shrink-0 border ${
                         isActive
-                          ? 'border-[#5C715E] text-[#2C4A28] font-bold'
-                          : 'border-transparent text-stone-500 hover:text-stone-900 hover:border-stone-300'
+                          ? 'bg-gradient-to-r from-[#c5a059] to-[#e5c365] text-stone-950 font-bold shadow-md shadow-[#c5a059]/25 border-[#ffe89e]'
+                          : 'bg-[#0f0f13] text-stone-300 hover:text-white hover:bg-[#1b1b24] border-white/10'
                       }`}
                     >
-                      <span>{tab.icon}</span>
+                      <span className="text-base sm:text-lg">{tab.icon}</span>
                       <span>{tab.label}</span>
                     </button>
                   );
-                }
-                return (
-                  <button
-                    key={tab.id}
-                    onClick={() => {
-                      setActiveWardrobeTab(tab.id);
-                      playDanTranhTabSound();
-                    }}
-                    className={`px-3 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 shrink-0 ${
-                      isActive
-                        ? 'bg-gradient-to-r from-[#c5a059] to-[#e5c365] text-stone-950 font-bold shadow-md shadow-[#c5a059]/20'
-                        : 'bg-[#0f0f13] text-stone-300 hover:text-white hover:bg-[#1b1b24] border border-white/5'
-                    }`}
-                  >
-                    <span>{tab.icon}</span>
-                    <span>{tab.label}</span>
-                  </button>
-                );
-              })}
+                })}
+              </div>
+
+              {/* MŨI TÊN TẠO BỞI GLOWING YELLOW LIGHT LINE NHẤP NHÁY LIÊN TỤC */}
+              {canScrollTabsRight && (
+                <button
+                  type="button"
+                  onClick={() => handleScrollWardrobeTabs('right')}
+                  className="absolute -right-2 top-1/2 -translate-y-1/2 z-30 flex items-center gap-1.5 px-3 py-2 rounded-full bg-black/95 border-2 border-[#FFEE00] animate-neon-glow-yellow hover:scale-110 active:scale-95 transition-all cursor-pointer shadow-[0_0_20px_rgba(255,238,0,0.95)]"
+                  title="Bấm để cuộn xem thêm danh mục tủ đồ"
+                >
+                  <span className="text-[11px] font-bold text-[#FFF9A6] hidden sm:inline tracking-wider uppercase font-mono">Xem thêm</span>
+                  <svg className="w-4.5 h-4.5 text-[#FFEE00] drop-shadow-[0_0_10px_#FFEE00] animate-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="m9 18 6-6-6-6"/>
+                  </svg>
+                </button>
+              )}
             </div>
 
             {/* ======================================================== */}
@@ -3158,101 +3089,153 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
 
               </div>
 
-              {/* LỜI BÌNH AI STYLIST */}
-              <div className={`p-3.5 sm:p-4 border flex items-start gap-3.5 ${
-                geminiResult
-                  ? 'rounded-xl bg-gradient-to-r from-[#241910] via-[#1a1215] to-[#121c18] border-[#e5c365]/50 shadow-[0_0_20px_rgba(229,195,101,0.18)] text-white'
-                  : currentTier === 'fusion'
-                  ? 'rounded-none bg-white/[0.02] border border-white/10 shadow-[0_0_20px_rgba(0,243,255,0.04)] text-white'
-                  : currentTier === 'modern'
-                  ? 'rounded-xl bg-stone-50/90 border-stone-200/80 text-stone-800'
-                  : 'rounded-xl bg-black/55 border-white/10 text-stone-100'
-              }`}>
-                <div className={`w-10 h-10 font-black text-xs sm:text-sm flex items-center justify-center shrink-0 border ${
-                  geminiResult
-                    ? 'rounded-xl bg-gradient-to-br from-[#faedd0] via-[#e5c365] to-[#c5a059] text-stone-950 border-[#f5e6c8] shadow-md'
-                    : currentTier === 'fusion'
-                    ? 'rounded-none bg-[#00f3ff] text-black border border-white/20 shadow-[0_0_15px_rgba(0,243,255,0.3)]'
-                    : currentTier === 'modern'
-                    ? 'rounded-xl bg-[#8BA888] text-white border-white/40'
-                    : 'rounded-xl bg-gradient-to-br from-[#c5a059] to-rose-500 text-stone-950 border-white/20'
-                }`}>
-                  {geminiResult ? '🧠 ✦' : currentTier === 'fusion' ? 'DJ ⚡' : 'AI 💅'}
-                </div>
-                <div className="min-w-0 flex-1 space-y-1.5 text-xs">
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className={`font-black uppercase tracking-wider ${
-                      geminiResult
-                        ? 'text-[#faedd0] font-serif font-bold text-xs'
-                        : currentTier === 'fusion' ? 'text-[#00f3ff] italic' : currentTier === 'modern' ? 'text-[#3E5B3C]' : 'text-[#e5c365]'
-                    }`}>
-                      {geminiResult 
-                        ? '✦ HỘI ĐỒNG GIÁM TUYỂN DI SẢN · HERITSTYLE VERDICT'
-                        : currentTier === 'fusion' ? 'AI DJ STYLIST // VIBE CHECK VERDICT' : currentTier === 'modern' ? 'AI Stylist Thanh Lịch (Editorial Lookbook)' : 'AI Stylist Cổ Phục Viễn Đông'}
+              {/* NÚT THU GỌN / XEM CHI TIẾT THẨM ĐỊNH (GIÚP KHÔNG BỊ DÀY CHỮ - YÊU CẦU 3 CỦA GIANG) */}
+              <div className="pt-0.5">
+                <button
+                  type="button"
+                  onClick={() => setIsEvaluationDetailsOpen(!isEvaluationDetailsOpen)}
+                  className={`w-full py-2.5 px-4 rounded-xl border flex items-center justify-between transition-all cursor-pointer shadow-xs ${
+                    currentTier === 'fusion'
+                      ? 'rounded-none bg-black/75 hover:bg-[#00f3ff]/10 border-white/20 text-[#00f3ff] hover:border-[#00f3ff] font-mono'
+                      : currentTier === 'modern'
+                      ? 'bg-stone-50 hover:bg-stone-100 border-stone-200 text-[#2C4A28] hover:border-[#8BA888]'
+                      : 'bg-[#18141f] hover:bg-[#231b2e] border-[#c5a059]/30 text-[#faedd0] hover:border-[#c5a059]'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <Sparkles className={`w-4 h-4 ${
+                      currentTier === 'fusion' ? 'text-[#00f3ff]' : currentTier === 'modern' ? 'text-[#8BA888]' : 'text-[#e5c365]'
+                    }`} />
+                    <span className="font-bold text-xs sm:text-sm">
+                      {isEvaluationDetailsOpen
+                        ? 'Thu Gọn Lời Bình & Điển Chế Di Sản'
+                        : 'Xem Chi Tiết Lời Bình AI Stylist & Điển Chế Di Sản'}
                     </span>
+                    {!isEvaluationDetailsOpen && (
+                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold hidden sm:inline ${
+                        currentTier === 'fusion'
+                          ? 'bg-[#00f3ff]/15 text-[#00f3ff] border border-[#00f3ff]/30'
+                          : currentTier === 'modern'
+                          ? 'bg-[#8BA888]/20 text-[#304E2E]'
+                          : 'bg-[#c5a059]/20 text-[#e5c365]'
+                      }`}>
+                        Nhấn để mở
+                      </span>
+                    )}
                   </div>
-                  <p className={`leading-relaxed text-sm ${
-                    geminiResult
-                      ? 'font-medium font-serif text-[#faedd0] italic'
-                      : currentTier === 'fusion' ? 'font-medium italic text-white' : currentTier === 'modern' ? 'font-semibold italic font-serif text-stone-800' : 'font-semibold italic font-serif text-stone-100'
-                  }`}>
-                    {effectiveMetrics.stylistQuote}
-                  </p>
-                  <p className={`text-[11px] leading-relaxed ${
-                    geminiResult
-                      ? 'text-[#faedd0]/80 font-sans'
-                      : currentTier === 'fusion' ? 'text-stone-300 font-mono' : currentTier === 'modern' ? 'text-stone-600' : 'text-stone-300/90'
-                  }`}>
-                    {effectiveMetrics.subAdvice}
-                  </p>
-                </div>
+                  <div className="flex items-center gap-1.5 text-xs">
+                    <span className="text-[11px] opacity-75 font-sans">
+                      {isEvaluationDetailsOpen ? 'Thu gọn' : 'Xem chi tiết'}
+                    </span>
+                    {isEvaluationDetailsOpen ? (
+                      <ChevronUp className="w-4 h-4" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4" />
+                    )}
+                  </div>
+                </button>
               </div>
 
-              {/* CHI TIẾT NGŨ THƯỜNG & NGŨ HÀNH GIAI TẦNG (LÀM MỜ OPACITY 60%, FONT NHỎ HƠN ĐỂ TẬP TRUNG VERDICT) */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
-                <div className={`p-2.5 border flex items-start gap-2 ${
-                  currentTier === 'fusion'
-                    ? 'rounded-none bg-white/[0.015] border border-white/10 opacity-60 hover:opacity-100 transition-opacity text-stone-300'
-                    : currentTier === 'modern'
-                    ? 'rounded-xl bg-stone-50/80 border-stone-200/80'
-                    : 'rounded-xl bg-white/[0.03] border-[#c5a059]/20'
-                }`}>
-                  <span className="text-sm shrink-0">🔘</span>
-                  <div className="min-w-0">
-                    <span className={`font-bold block uppercase text-[9px] tracking-wider ${
-                      currentTier === 'fusion' ? 'text-[#00f3ff] font-mono' : currentTier === 'modern' ? 'text-[#4A6448]' : 'text-[#e5c365]'
+              {/* KHỐI NỘI DUNG CHI TIẾT (ẨN MẶC ĐỊNH, CHỈ HIỆN KHI USER NHẤN XEM ĐỂ KHÔNG BỊ DÀY CHỮ) */}
+              {isEvaluationDetailsOpen && (
+                <div className="space-y-3 animate-fadeIn">
+                  {/* LỜI BÌNH AI STYLIST */}
+                  <div className={`p-3.5 sm:p-4 border flex items-start gap-3.5 ${
+                    geminiResult
+                      ? 'rounded-xl bg-gradient-to-r from-[#241910] via-[#1a1215] to-[#121c18] border-[#e5c365]/50 shadow-[0_0_20px_rgba(229,195,101,0.18)] text-white'
+                      : currentTier === 'fusion'
+                      ? 'rounded-none bg-white/[0.02] border border-white/10 shadow-[0_0_20px_rgba(0,243,255,0.04)] text-white'
+                      : currentTier === 'modern'
+                      ? 'rounded-xl bg-stone-50/90 border-stone-200/80 text-stone-800'
+                      : 'rounded-xl bg-black/55 border-white/10 text-stone-100'
+                  }`}>
+                    <div className={`w-10 h-10 font-black text-xs sm:text-sm flex items-center justify-center shrink-0 border ${
+                      geminiResult
+                        ? 'rounded-xl bg-gradient-to-br from-[#faedd0] via-[#e5c365] to-[#c5a059] text-stone-950 border-[#f5e6c8] shadow-md'
+                        : currentTier === 'fusion'
+                        ? 'rounded-none bg-[#00f3ff] text-black border border-white/20 shadow-[0_0_15px_rgba(0,243,255,0.3)]'
+                        : currentTier === 'modern'
+                        ? 'rounded-xl bg-[#8BA888] text-white border-white/40'
+                        : 'rounded-xl bg-gradient-to-br from-[#c5a059] to-rose-500 text-stone-950 border-white/20'
                     }`}>
-                      Đạo Ngũ Thường (Khuy Cúc)
-                    </span>
-                    <span className={`leading-snug block mt-0.5 text-[10px] ${
-                      currentTier === 'fusion' ? 'text-stone-400 font-mono' : currentTier === 'modern' ? 'text-stone-600' : 'text-stone-300'
+                      {geminiResult ? '🧠 ✦' : currentTier === 'fusion' ? 'DJ ⚡' : 'AI 💅'}
+                    </div>
+                    <div className="min-w-0 flex-1 space-y-1.5 text-xs">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className={`font-black uppercase tracking-wider ${
+                          geminiResult
+                            ? 'text-[#faedd0] font-serif font-bold text-xs'
+                            : currentTier === 'fusion' ? 'text-[#00f3ff] italic' : currentTier === 'modern' ? 'text-[#3E5B3C]' : 'text-[#e5c365]'
+                        }`}>
+                          {geminiResult 
+                            ? '✦ HỘI ĐỒNG GIÁM TUYỂN DI SẢN · HERITSTYLE VERDICT'
+                            : currentTier === 'fusion' ? 'AI DJ STYLIST // VIBE CHECK VERDICT' : currentTier === 'modern' ? 'AI Stylist Thanh Lịch (Editorial Lookbook)' : 'AI Stylist Cổ Phục Viễn Đông'}
+                        </span>
+                      </div>
+                      <p className={`leading-relaxed text-sm ${
+                        geminiResult
+                          ? 'font-medium font-serif text-[#faedd0] italic'
+                          : currentTier === 'fusion' ? 'font-medium italic text-white' : currentTier === 'modern' ? 'font-semibold italic font-serif text-stone-800' : 'font-semibold italic font-serif text-stone-100'
+                      }`}>
+                        {effectiveMetrics.stylistQuote}
+                      </p>
+                      <p className={`text-[11px] leading-relaxed ${
+                        geminiResult
+                          ? 'text-[#faedd0]/80 font-sans'
+                          : currentTier === 'fusion' ? 'text-stone-300 font-mono' : currentTier === 'modern' ? 'text-stone-600' : 'text-stone-300/90'
+                      }`}>
+                        {effectiveMetrics.subAdvice}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* CHI TIẾT NGŨ THƯỜNG & NGŨ HÀNH GIAI TẦNG */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
+                    <div className={`p-2.5 border flex items-start gap-2 ${
+                      currentTier === 'fusion'
+                        ? 'rounded-none bg-white/[0.015] border border-white/10 opacity-70 hover:opacity-100 transition-opacity text-stone-300'
+                        : currentTier === 'modern'
+                        ? 'rounded-xl bg-stone-50/80 border-stone-200/80'
+                        : 'rounded-xl bg-white/[0.03] border-[#c5a059]/20'
                     }`}>
-                      {effectiveMetrics.nguThuongAnalysis}
-                    </span>
+                      <span className="text-sm shrink-0">🔘</span>
+                      <div className="min-w-0">
+                        <span className={`font-bold block uppercase text-[9px] tracking-wider ${
+                          currentTier === 'fusion' ? 'text-[#00f3ff] font-mono' : currentTier === 'modern' ? 'text-[#4A6448]' : 'text-[#e5c365]'
+                        }`}>
+                          Đạo Ngũ Thường (Khuy Cúc)
+                        </span>
+                        <span className={`leading-snug block mt-0.5 text-[10px] ${
+                          currentTier === 'fusion' ? 'text-stone-400 font-mono' : currentTier === 'modern' ? 'text-stone-600' : 'text-stone-300'
+                        }`}>
+                          {effectiveMetrics.nguThuongAnalysis}
+                        </span>
+                      </div>
+                    </div>
+                    <div className={`p-2.5 border flex items-start gap-2 ${
+                      currentTier === 'fusion'
+                        ? 'rounded-none bg-white/[0.015] border border-white/10 opacity-70 hover:opacity-100 transition-opacity text-stone-300'
+                        : currentTier === 'modern'
+                        ? 'rounded-xl bg-stone-50/80 border-stone-200/80'
+                        : 'rounded-xl bg-white/[0.03] border-[#c5a059]/20'
+                    }`}>
+                      <span className="text-sm shrink-0">🎨</span>
+                      <div className="min-w-0">
+                        <span className={`font-bold block uppercase text-[9px] tracking-wider ${
+                          currentTier === 'fusion' ? 'text-[#39ff14] font-mono' : currentTier === 'modern' ? 'text-[#4A6448]' : 'text-[#e5c365]'
+                        }`}>
+                          Ngũ Hành & Giai Tầng (Sắc Phục)
+                        </span>
+                        <span className={`leading-snug block mt-0.5 text-[10px] ${
+                          currentTier === 'fusion' ? 'text-stone-400 font-mono' : currentTier === 'modern' ? 'text-stone-600' : 'text-stone-300'
+                        }`}>
+                          {effectiveMetrics.nguHanhAnalysis}
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </div>
-                <div className={`p-2.5 border flex items-start gap-2 ${
-                  currentTier === 'fusion'
-                    ? 'rounded-none bg-white/[0.015] border border-white/10 opacity-60 hover:opacity-100 transition-opacity text-stone-300'
-                    : currentTier === 'modern'
-                    ? 'rounded-xl bg-stone-50/80 border-stone-200/80'
-                    : 'rounded-xl bg-white/[0.03] border-[#c5a059]/20'
-                }`}>
-                  <span className="text-sm shrink-0">🎨</span>
-                  <div className="min-w-0">
-                    <span className={`font-bold block uppercase text-[9px] tracking-wider ${
-                      currentTier === 'fusion' ? 'text-[#39ff14] font-mono' : currentTier === 'modern' ? 'text-[#4A6448]' : 'text-[#e5c365]'
-                    }`}>
-                      Ngũ Hành & Giai Tầng (Sắc Phục)
-                    </span>
-                    <span className={`leading-snug block mt-0.5 text-[10px] ${
-                      currentTier === 'fusion' ? 'text-stone-400 font-mono' : currentTier === 'modern' ? 'text-stone-600' : 'text-stone-300'
-                    }`}>
-                      {effectiveMetrics.nguHanhAnalysis}
-                    </span>
-                  </div>
-                </div>
-              </div>
+              )}
 
               {/* NÚT TẠO OUTFIT REMIX / XUẤT TẠP CHÍ LOOKBOOK */}
               <button
@@ -3277,12 +3260,12 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                 {isGenerating || isEvaluatingGemini ? (
                   <>
                     <Wand2 className={`w-5 h-5 animate-spin ${currentTier === 'fusion' ? 'text-black' : currentTier === 'modern' ? 'text-white' : 'text-stone-950'}`} />
-                    <span>{isEvaluatingGemini ? 'Đang Khâm Định & Thẩm Duyệt Điển Lễ...' : currentTier === 'fusion' ? 'Đang Xử Lý Mixset DJ Track...' : currentTier === 'modern' ? 'Đang Biên Tập Ấn Phẩm Tạp Chí Lookbook...' : 'Đang Khâm Định Y Quan & Thẩm Duyệt Điển Lễ...'}</span>
+                    <span>{isEvaluatingGemini ? 'Đang Thẩm Định Cùng Stylist Custom Gem...' : currentTier === 'fusion' ? 'Đang Xử Lý Mixset Fusion Lookbook...' : currentTier === 'heritage' ? 'Đang Biên Tập Ấn Phẩm Tạp Chí Cung Đình...' : 'Đang Khâm Định Y Quan & Thẩm Duyệt Chi Tiết...'}</span>
                   </>
                 ) : (
                   <>
                     <Sparkles className={`w-5 h-5 ${currentTier === 'fusion' ? 'text-black' : currentTier === 'modern' ? 'text-white' : 'text-stone-950'}`} />
-                    <span>{currentTier === 'fusion' ? 'PHỐI MIXSET & XUẤT LOOKBOOK FUSION ⚡' : currentTier === 'modern' ? 'Tạo Bản Phối Thanh Lịch & Xuất Tạp Chí' : 'Tạo Outfit Remix & Thẩm Định Chi Tiết'}</span>
+                    <span>{currentTier === 'fusion' ? 'PHỐI MIXSET & XUẤT LOOKBOOK FUSION ⚡' : currentTier === 'heritage' ? 'Tạo Bản Phối Thanh Lịch & Xuất Tạp Chí' : 'Tạo Outfit Remix & Thẩm Định Chi Tiết'}</span>
                   </>
                 )}
               </button>
@@ -3648,17 +3631,25 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                     : 'bg-black/40 border-white/10'
                 }`}>
                   <div>
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className={`w-6 h-6 rounded-full font-bold text-xs flex items-center justify-center ${
-                        currentTier === 'modern' ? 'bg-[#8BA888] text-white' : 'bg-[#c5a059] text-stone-950'
-                      }`}>
-                        AI
+                    <div className="flex items-center justify-between gap-2 mb-2 flex-wrap">
+                      <div className="flex items-center gap-2">
+                        <div className={`w-6 h-6 rounded-full font-bold text-xs flex items-center justify-center ${
+                          currentTier === 'modern' ? 'bg-[#8BA888] text-white' : 'bg-[#c5a059] text-stone-950'
+                        }`}>
+                          AI
+                        </div>
+                        <span className={`font-bold text-xs ${
+                          currentTier === 'modern' ? 'text-[#3E5B3C]' : 'text-[#e5c365]'
+                        }`}>
+                          {currentTier === 'modern' ? 'Lời Bình Ban Biên Tập Thời Trang' : 'Lời Bình Stylist Cổ Phục Viễn Đông'}
+                        </span>
                       </div>
-                      <span className={`font-bold text-xs ${
-                        currentTier === 'modern' ? 'text-[#3E5B3C]' : 'text-[#e5c365]'
-                      }`}>
-                        {currentTier === 'modern' ? 'Lời Bình Ban Biên Tập Thời Trang' : 'Lời Bình Stylist Cổ Phục Viễn Đông'}
-                      </span>
+                      {remixResult.geminiVerdict?.modelUsed && (
+                        <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono border shadow-xs bg-emerald-500/10 text-emerald-400 border-emerald-500/30">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                          <span>☁️ {remixResult.geminiVerdict.modelUsed}</span>
+                        </div>
+                      )}
                     </div>
                     <div className={`text-xs sm:text-sm leading-relaxed font-serif p-3.5 rounded-xl border italic ${
                       currentTier === 'modern'
@@ -3669,24 +3660,46 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                     </div>
                   </div>
 
-                  <div className={`p-3 rounded-xl border text-xs space-y-1 ${
+                  <div className={`p-3.5 rounded-xl border text-xs space-y-1.5 ${
                     currentTier === 'modern'
                       ? 'bg-[#F4F6F2] border-[#8BA888]/30 text-stone-800'
                       : 'bg-[#1c1822] border-[#c5a059]/30 text-[#faedd0]'
                   }`}>
-                    <div className={`font-bold flex items-center gap-1.5 ${
+                    <div className={`font-bold flex items-center justify-between gap-1.5 ${
                       currentTier === 'modern' ? 'text-[#3E5B3C]' : 'text-[#e5c365]'
                     }`}>
-                      <Scroll className="w-3.5 h-3.5" />
-                      <span>{currentTier === 'modern' ? 'Cốt Cách Thanh Lịch Đời Thường:' : 'Cốt Cách Y Quan Đại Nam:'}</span>
+                      <div className="flex items-center gap-1.5">
+                        <Scroll className="w-3.5 h-3.5" />
+                        <span>{remixResult.geminiVerdict?.verdictTitle ? `[THẺ NHÃN]: ${remixResult.geminiVerdict.verdictTitle}` : (currentTier === 'modern' ? 'Cốt Cách Thanh Lịch Đời Thường:' : 'Cốt Cách Y Quan Đại Nam:')}</span>
+                      </div>
+                      {remixResult.geminiVerdict?.isTaboo && (
+                        <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/40">
+                          RED ALERT
+                        </span>
+                      )}
                     </div>
-                    <p className={`text-[11px] font-serif leading-relaxed ${
-                      currentTier === 'modern' ? 'text-stone-600' : 'text-stone-300'
-                    }`}>
-                      {currentTier === 'modern'
-                        ? 'Giữ trọn cổ Đơn y đoan chính, khuy rời đúc tinh xảo đại diện Ngũ Thường, phom dáng nhẹ nhàng phối sắc Earth-tone tối giản chuẩn phong cách Quiet Luxury.'
-                        : 'Lớp trong đoan chính với áo lót Đơn y trắng cổ cao, khuy cúc rời đúc đĩnh đạc tượng trưng Ngũ Thường, sắc phục hòa hợp ngũ hành tôn ti trật tự.'}
-                    </p>
+                    {remixResult.geminiVerdict?.culturalCritique ? (
+                      <p className={`text-[11px] leading-relaxed font-sans ${
+                        currentTier === 'modern' ? 'text-stone-700' : 'text-stone-200'
+                      }`}>
+                        {remixResult.geminiVerdict.culturalCritique}
+                      </p>
+                    ) : (
+                      <p className={`text-[11px] font-serif leading-relaxed ${
+                        currentTier === 'modern' ? 'text-stone-600' : 'text-stone-300'
+                      }`}>
+                        {currentTier === 'modern'
+                          ? 'Giữ trọn cổ Đơn y đoan chính, khuy rời đúc tinh xảo đại diện Ngũ Thường, phom dáng nhẹ nhàng phối sắc Earth-tone tối giản chuẩn phong cách Quiet Luxury.'
+                          : 'Lớp trong đoan chính với áo lót Đơn y trắng cổ cao, khuy cúc rời đúc đĩnh đạc tượng trưng Ngũ Thường, sắc phục hòa hợp ngũ hành tôn ti trật tự.'}
+                      </p>
+                    )}
+                    {remixResult.geminiVerdict?.actionableAdvice && (
+                      <div className={`text-[10.5px] pt-1.5 border-t ${
+                        currentTier === 'modern' ? 'border-stone-200 text-[#3E5B3C]' : 'border-white/10 text-[#e5c365]'
+                      }`}>
+                        ✦ Gợi ý: {remixResult.geminiVerdict.actionableAdvice}
+                      </div>
+                    )}
                   </div>
                 </div>
 
