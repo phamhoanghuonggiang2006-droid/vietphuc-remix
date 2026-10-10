@@ -694,90 +694,92 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
 
         const mannequinCenterX = leftCardX + leftCardW / 2; // 360
 
-        // 1. PHỤ KIỆN ĐỘI ĐẦU: Ngự trên đỉnh đầu, hoàn toàn không che trán hay mặt ma nơ canh
+        // 1. PHỤ KIỆN ĐỘI ĐẦU: To lên 30%, ôm chuẩn đỉnh đầu và búi tóc
         const headAccObj = loadedAccessories.find(a => a.slot === 'head' && a.img);
         if (headAccObj && headAccObj.img) {
           const accId = headAccObj.item.id;
-          let hW = 125;
-          let hH = 58;
+          let hW = 160;
+          let hH = 75;
           let hX = mannequinCenterX - hW / 2;
-          let hY = 348; // Đáy khăn đóng ngự tại y = 406px (trên đường chân tóc, không che mắt/mặt)
+          let hY = 332;
 
           if (accId === 'acc-khan-vanh-day') {
-            hW = 145;
-            hH = 75;
+            hW = 188;
+            hH = 98;
             hX = mannequinCenterX - hW / 2;
-            hY = 329; // Đáy vành khăn ngự tại y = 404px
+            hY = 308;
           } else if (accId === 'acc-bucket-hat') {
-            hW = 128;
-            hH = 60;
+            hW = 165;
+            hH = 78;
             hX = mannequinCenterX - hW / 2;
-            hY = 346;
+            hY = 328;
           } else if (accId === 'acc-tram-phuong') {
-            hW = 80;
-            hH = 54;
+            hW = 104;
+            hH = 70;
             hX = mannequinCenterX - hW / 2 + 5;
-            hY = 344;
+            hY = 330;
           }
 
           drawContainedImage(ctx, headAccObj.img, hX, hY, hW, hH);
         }
 
-        // 2. KÍNH MẮT / KÍNH RÂM: Ngang tầm mắt ma nơ canh thanh mảnh
+        // 2. KÍNH MẮT / KÍNH RÂM: To lên 30-40% chuẩn Canvas, ngang tầm mắt
         const faceAccObj = loadedAccessories.find(a => a.slot === 'face' && a.img);
         if (faceAccObj && faceAccObj.img) {
-          const fW = 72;
-          const fH = 28;
-          drawContainedImage(ctx, faceAccObj.img, mannequinCenterX - fW / 2, 412, fW, fH);
+          const fW = 105;
+          const fH = 42;
+          drawContainedImage(ctx, faceAccObj.img, mannequinCenterX - fW / 2, 406, fW, fH);
         }
 
-        // 3. KHUYÊN TAI: Hai bên tai thanh thoát
+        // 3. KHUYÊN TAI: To lên 35%, hiện rõ nét hai bên tai
         const earAccObj = loadedAccessories.find(a => a.slot === 'ear' && a.img);
         if (earAccObj && earAccObj.img) {
-          const eW = 18;
-          const eH = 24;
-          drawContainedImage(ctx, earAccObj.img, 328, 416, eW, eH);
-          drawContainedImage(ctx, earAccObj.img, 374, 416, eW, eH);
+          const eW = 32;
+          const eH = 42;
+          drawContainedImage(ctx, earAccObj.img, 314, 408, eW, eH);
+          drawContainedImage(ctx, earAccObj.img, 374, 408, eW, eH);
         }
 
-        // 4. VÒNG CỔ / KIỀNG BẠC: Ôm vừa vặn cổ áo dưới cằm
+        // 4. VÒNG CỔ / KIỀNG BẠC / XÍCH BẠC CUBAN: To lên 30%, ôm cổ áo và buông rũ trên ngực
         const neckAccObj = loadedAccessories.find(a => a.slot === 'neck' && a.img);
         if (neckAccObj && neckAccObj.img) {
-          const nW = 98;
-          const nH = 56;
-          drawContainedImage(ctx, neckAccObj.img, mannequinCenterX - nW / 2, 445, nW, nH);
+          const nW = 135;
+          const nH = 80;
+          drawContainedImage(ctx, neckAccObj.img, mannequinCenterX - nW / 2, 440, nW, nH);
         }
 
-        // 5. BỘI NGỌC BÍCH: Buông rũ thanh nhã bên hông vạt áo
+        // 5. BỘI NGỌC BÍCH: To lên 30%, buông rũ bên hông vạt áo
         const waistAccObj = loadedAccessories.find(a => a.slot === 'waist' && a.img);
         if (waistAccObj && waistAccObj.img) {
-          const wW = 54;
-          const wH = 90;
-          const wX = (activeGarment.id === 'ao-nhat-binh') ? 285 : 405;
-          const wY = (activeGarment.id === 'ao-nhat-binh') ? 535 : 550;
+          const wW = 72;
+          const wH = 120;
+          const wX = (activeGarment.id === 'ao-nhat-binh') ? 275 : 405;
+          const wY = (activeGarment.id === 'ao-nhat-binh') ? 525 : 540;
           drawContainedImage(ctx, waistAccObj.img, wX, wY, wW, wH);
         }
 
-        // 6. QUẠT GIẤY TRẦM HƯƠNG: Cầm bên tay áo phải
+        // 6. QUẠT GIẤY TRẦM HƯƠNG: To lên 30%, cầm tay phải
         const handAccObj = loadedAccessories.find(a => a.slot === 'hand' && a.img);
         if (handAccObj && handAccObj.img) {
-          drawContainedImage(ctx, handAccObj.img, 425, 600, 84, 84);
+          drawContainedImage(ctx, handAccObj.img, 415, 585, 112, 112);
         }
 
-        // 7. TÚI TOTE DA / CHEST BAG: Bên tay áo trái
+        // 7. TÚI TOTE DA / CHEST BAG: To lên 30% chuẩn Canvas
         const bagAccObj = loadedAccessories.find(a => a.slot === 'bag' && a.img);
         if (bagAccObj && bagAccObj.img) {
           if (bagAccObj.item.id === 'acc-chest-bag') {
-            drawContainedImage(ctx, bagAccObj.img, 320, 485, 80, 80);
+            const bW = 115;
+            const bH = 118;
+            drawContainedImage(ctx, bagAccObj.img, mannequinCenterX - bW / 2, 480, bW, bH);
           } else {
-            drawContainedImage(ctx, bagAccObj.img, 215, 585, 90, 105);
+            drawContainedImage(ctx, bagAccObj.img, 195, 570, 120, 140);
           }
         }
 
-        // 8. CỔ TAY: SMARTWATCH / KIM ƯỚC
+        // 8. CỔ TAY: SMARTWATCH / KIM ƯỚC: To lên 35%, nổi bật trên cổ tay
         const wristAccObj = loadedAccessories.find(a => a.slot === 'wrist' && a.img);
         if (wristAccObj && wristAccObj.img) {
-          drawContainedImage(ctx, wristAccObj.img, 245, 605, 40, 40);
+          drawContainedImage(ctx, wristAccObj.img, 232, 595, 58, 58);
         }
       } else {
         // Fallback: draw stylish color preview pill if image unavailable
