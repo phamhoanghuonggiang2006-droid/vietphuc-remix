@@ -4,7 +4,14 @@
 
 [![Live Demo](https://img.shields.io/badge/Demo-HeritStyle%20AI-gold?style=for-the-badge&logo=vercel)](https://heritstyle-ai.vercel.app)
 [![GitHub Repo](https://img.shields.io/badge/Source-Public%20Repo-blue?style=for-the-badge&logo=github)](https://github.com/phamhoanghuonggiang2006-droid/vietphuc-remix)
+[![Vibecoding Journey](https://img.shields.io/badge/Vibecoding-Nhật%20Ký%20Hành%20Trình-red?style=for-the-badge&logo=gitbook)](./VIBECODING_JOURNEY.md)
 [![Powered by Gemini](https://img.shields.io/badge/AI%20Engine-Google%20AI%20Studio-green?style=for-the-badge&logo=google)](https://aistudio.google.com/)
+
+---
+
+## 🚀 Nhật Ký Phương Pháp Vibecoding (Dành Cho BGK)
+Dự án được sáng tạo và chỉ đạo 100% bằng phương pháp **Vibecoding (Prompt-Driven AI Pair-Programming)** bởi tác giả **Phạm Hoàng Hương Giang** (hoàn toàn không có chuyên môn về lập trình). Toàn bộ bằng chứng lịch sử tương tác thực tế với AI Agent được tổng hợp chi tiết tại:  
+👉 **[Xem toàn bộ Báo cáo Hành trình Vibecoding (VIBECODING_JOURNEY.md)](./VIBECODING_JOURNEY.md)**
 
 ---
 
