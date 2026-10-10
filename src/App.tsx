@@ -219,7 +219,7 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2 text-stone-600">
             <span className={`font-royal font-bold ${isModern ? 'text-stone-900' : isFusion ? 'text-white' : 'text-stone-300'}`}>
-              Việt Phục Remix
+              HeritStyle AI
             </span>
             <span>·</span>
             <span className={isModern ? 'text-stone-600' : isFusion ? 'text-stone-400' : 'text-stone-400'}>

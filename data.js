@@ -1,6 +1,6 @@
 /**
  * ==============================================================================
- * KNOWLEDGE BASE & PRODUCT CATEGORIES: VIỆT PHỤC REMIX - HERITSTYLE AI
+ * KNOWLEDGE BASE & PRODUCT CATEGORIES: HERITSTYLE AI
  * File: data.js (Root Level)
  * ==============================================================================
  * Re-exports the complete dataset from ./src/data/data.js.

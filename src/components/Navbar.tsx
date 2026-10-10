@@ -70,7 +70,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               : 'text-[#f5f2eb] hover:text-[#c5a059]'
           }`}
         >
-          Việt Phục Remix
+          HeritStyle AI
         </button>
 
         {/* Zone 2: Clean text navigation links */}

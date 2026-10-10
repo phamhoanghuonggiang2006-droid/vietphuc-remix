@@ -433,7 +433,7 @@ export async function evaluateOutfitWithGemini(
           : 'Màn hình 3: Phố Thị (PHỐI MIXSET & XUẤT LOOKBOOK FUSION)'
     );
 
-    const userPrompt = `Tôi đang phối một bộ trang phục Việt Phục Remix trên HeritStyle AI và cần Stylist Custom Gem thẩm định chi tiết và độc bản:
+    const userPrompt = `Tôi đang phối một bộ trang phục trên HeritStyle AI và cần Stylist Custom Gem thẩm định chi tiết và độc bản:
 
 [Màn hình / Mode hiện tại]: ${activeMode}
 

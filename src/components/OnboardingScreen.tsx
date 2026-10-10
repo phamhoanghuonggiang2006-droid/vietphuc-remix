@@ -65,7 +65,7 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({
       <div className="absolute top-8 left-8 md:left-12 flex items-center gap-2">
         <span className="w-2 h-2 rounded-full bg-[#D4AF37]" />
         <span className="text-xs uppercase tracking-widest text-stone-500 font-medium">
-          Việt Phục Remix · Quiet Luxury AI
+          HeritStyle AI · Cổ Phục Viễn Đông
         </span>
       </div>
 

@@ -1,6 +1,6 @@
 /**
  * ==============================================================================
- * KNOWLEDGE BASE & PRODUCT CATEGORIES: VIỆT PHỤC REMIX - HERITSTYLE AI
+ * KNOWLEDGE BASE & PRODUCT CATEGORIES: HERITSTYLE AI
  * File: src/data/data.js
  * Version: 1.0 (VietPhuc_Styling_Matrix_GenZ)
  * ==============================================================================
