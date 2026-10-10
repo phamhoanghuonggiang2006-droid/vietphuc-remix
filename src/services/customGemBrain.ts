@@ -396,81 +396,77 @@ export function evaluateWithNativeCustomGemBrain(
     const accText = accessories.length > 0 ? ` điểm xuyết cùng ${accessories.join(', ')}` : '';
     const buttonNote = ` kết hợp hàng ${buttonName}`;
 
-    // === MÀN HÌNH 1: CHỐN TÔN NGHIÊM (TẠO BẢN PHỐI THANH LỊCH & XUẤT TẠP CHÍ) ===
-    if (contextTier === 'heritage') {
-      if (isNhatBinh) {
-        if (isSilkPants) {
-          dynamicVibeCheck = `Woa! Cốt cách mệnh phụ triều đình hiển hiện rõ nét! Tà ${garmentName} sắc ${colorName} (${nguHanh}) buông tà chuẩn mực bên cạnh ${bottomName} và ${shoesName}${accText}. Một bản phối hoàn mỹ dành cho trang bìa Tạp chí Di Sản Cung Đình, tôn nghiêm và quý phái tột bậc!`;
-        } else if (isTrousers) {
-          dynamicVibeCheck = `Ôi đẹp lạ kỳ! Một nét chấm phá đương đại khi đưa ${bottomName} vào phom dáng cung đình quyền quý của ${garmentName}. Bản phối giữ trọn cốt cách tôn nghiêm nhưng thổi vào làn gió Editorial sắc sảo như ấn phẩm Vogue Heritage!`;
-        } else if (isCargoOrJeans) {
-          dynamicVibeCheck = `Woa! Một sự đối lập đầy bất ngờ ngay tại chốn tôn nghiêm! Sự lộng lẫy uy nghiêm của ${garmentName} khi chạm vào chất liệu phóng khoáng của ${bottomName} tạo nên một diện mạo Heritage Inspired vừa đài các vừa sắc sảo!`;
-        } else {
-          dynamicVibeCheck = `Woa! ${garmentName} sắc ${colorName} kết hợp cùng ${bottomName} và ${shoesName} tạo nên khí chất đoan trang, dịu dàng chuẩn mực phụ nữ quý tộc Việt Nam trên trang bìa tạp chí!`;
-        }
-      } else if (isAoTac) {
-        if (isSilkPants) {
-          dynamicVibeCheck = `Woa! Đại lễ phục uy nghi bậc nhất! Tà ${garmentName} tay thụng lướt nhẹ cùng ${bottomName} và ${shoesName}${accText}. Không gian tôn nghiêm như bừng sáng trước vẻ đẹp nho nhã, tôn ti vẹn toàn!`;
-        } else {
-          dynamicVibeCheck = `Ôi đẹp xuất sắc! Tà áo lễ thụng ${garmentName} phối nhịp nhàng cùng ${bottomName} và ${shoesName}. Tinh thần di sản ngàn năm được tái hiện với phong thái đĩnh đạc, đài các!`;
-        }
-      } else {
-        // Áo Ngũ Thân
-        if (isSilkPants) {
-          dynamicVibeCheck = `Woa! Chuẩn mực Nho phong ngàn vàng! ${garmentName} sắc ${colorName} (${nguHanh}) đi cùng ${bottomName} và ${shoesName}${buttonNote}. Phong thái thư sinh đoan chính, giữ trọn hồn cốt Việt, mười điểm không có nhưng!`;
-        } else if (isTrousers) {
-          dynamicVibeCheck = `Ôi đẹp xuất sắc! Thư sinh tân thời chuẩn vibe Quiet Luxury. ${garmentName} kết hợp ${bottomName} và ${shoesName} tạo nên tỷ lệ trang phục cực kỳ thanh thoát, rất hợp với những buổi lễ gia tiên trang trọng hay ấn phẩm tạp chí!`;
-        } else {
-          dynamicVibeCheck = `Woa! Bản phối ${garmentName} và ${bottomName} tôn lên nét đoan trang cổ kính. Sự hài hòa giữa sắc ${colorName} và ${shoesName} tạo nên diện mạo chuẩn mực cho tạp chí thời trang di sản!`;
-        }
-      }
+    // Sinh lời bình chi li bằng cơ chế tổ hợp đa tầng (Dynamic Combinatorial Engine)
+    // Giúp câu chữ luôn độc bản, biến hóa liên tục theo từng món đồ cụ thể, không bị rập khuôn
+    const comboKey = `${garmentName}_${colorHex}_${bottomName}_${shoesName}_${buttonName}_${accessories.join('_')}_${contextTier}`;
+    let hash = 0;
+    for (let i = 0; i < comboKey.length; i++) {
+      hash = ((hash << 5) - hash) + comboKey.charCodeAt(i);
+      hash |= 0;
     }
-    // === MÀN HÌNH 3: PHỐ THỊ PHÁ CÁCH (PHỐI MIXSET & XUẤT LOOKBOOK FUSION) ===
-    else if (contextTier === 'fusion') {
-      if (isNhatBinh) {
-        if (isCargoOrJeans) {
-          dynamicVibeCheck = `Trời ơi đỉnh chóp kịch trần! Ai ngờ tà ${garmentName} dải ngũ sắc cung đình khi mix cùng ${bottomName} và ${shoesName} lại cháy khét lẹt như vậy! Một visual Cyberpunk Á Đông không đụng hàng, slay tuyệt đối khi lên Lookbook Streetwear!`;
-        } else if (isTrousers) {
-          dynamicVibeCheck = `Ôi slay kịch sàn! Sự đối lập giữa vẻ vương giả của ${garmentName} và đường cắt sắc lạnh của ${bottomName} đi cùng ${shoesName} tạo nên thần thái High-Fashion cực chiến. Vibe Acubi Cổ Phong khiến mọi camera đường phố phải ngoái nhìn!`;
-        } else if (isSkirt) {
-          dynamicVibeCheck = `Woa! Royal Y2K slay kịch trần luôn bạn hiền ơi! Tà ${garmentName} cách điệu khoác ngoài ${bottomName} và ${shoesName}${accText} mang lại năng lượng vừa kiêu kỳ vừa ngọt ngào nổi bật giữa phố đêm!`;
-        } else {
-          dynamicVibeCheck = `Đỉnh nóc kịch trần! Tà ${garmentName} biến tấu thành chiếc áo khoác độc bản khi đi cùng ${bottomName} và ${shoesName}. Tinh thần Fusion dạo phố cực kỳ hút mắt!`;
-        }
-      } else {
-        // Áo Ngũ Thân hoặc Áo Tấc
-        if (isCargoOrJeans) {
-          dynamicVibeCheck = `Trời ơi keo lỳ hết nấc! ${garmentName} sắc ${colorName} được bạn biến hóa thành chiếc jacket outerwear thời thượng khi mix cùng ${bottomName} và ${shoesName}. Tinh thần Streetwear Á Đông đỉnh nóc, đúng chất Hypebeast Gen Z!`;
-        } else if (isTrousers) {
-          dynamicVibeCheck = `Ôi đỉnh chóp! ${garmentName} đi cùng ${bottomName} và ${shoesName}${accText} tạo nên một bản phối Neo-Heritage sang xịn mịn. Rất hợp để dạo phố đi bộ, check-in rooftop hay đi concert!`;
-        } else if (isSkirt) {
-          dynamicVibeCheck = `Woa! Bản phối phá cách đầy chất thơ! Sự giao duyên giữa ${garmentName} và ${bottomName} tạo nên tỷ lệ layering lạ mắt, hút trọn spotlight!`;
-        } else {
-          dynamicVibeCheck = `Trời ơi cực cháy luôn bạn hiền ơi! ${garmentName} sắc ${colorName} phối cùng ${bottomName} và ${shoesName} tạo nên một mixset Fusion phá cách, thể hiện cá tính độc bản của bạn!`;
-        }
-      }
+    const seed = Math.abs(hash);
+
+    const exclamationsHeritage = [
+      'Woa! Cốt cách quý phái triều đình hiển hiện rõ nét!',
+      'Ôi đẹp xuất thần! Khí chất di sản ngàn năm bừng sáng!',
+      'Thần thái ngút ngàn! Chuẩn mực y quan đoan chính!',
+      'Tuyệt tác trang nhã! Đẹp chuẩn mực phong vị cung đình xưa!'
+    ];
+
+    const exclamationsModern = [
+      'Ôi đẹp xuất sắc! Thư sinh tân thời chuẩn vibe Quiet Luxury!',
+      'Woa! Bản phối giao thoa cổ phong và đời thường cực kỳ tinh tế!',
+      'Thanh lịch mười điểm không có nhưng! Gọn gàng và đầy chất thơ!',
+      'Trời ơi keo lỳ quá! Vừa hiện đại vừa lưu giữ trọn vẹn nét duyên ngầm!'
+    ];
+
+    const exclamationsFusion = [
+      'Trời ơi đỉnh chóp kịch trần! Visual Cyberpunk Á Đông không đụng hàng!',
+      'Ôi slay kịch sàn! Thần thái High-Fashion đường phố cực chiến!',
+      'Đỉnh nóc kịch trần! Tinh thần Hypebeast đương đại bùng nổ!',
+      'Keo lỳ hết nấc! Một cú twist thời trang đậm chất Gen Z!'
+    ];
+
+    const exclamation = contextTier === 'fusion'
+      ? exclamationsFusion[seed % exclamationsFusion.length]
+      : contextTier === 'modern'
+      ? exclamationsModern[seed % exclamationsModern.length]
+      : exclamationsHeritage[seed % exclamationsHeritage.length];
+
+    // Mô tả chi tiết món thân dưới & giày
+    let bottomShoesCritique = '';
+    if (isCargoOrJeans) {
+      bottomShoesCritique = `Đường cắt phóng khoáng của ${bottomName} khi đi cùng ${shoesName} tạo nên độ tương phản thị giác cực mạnh với phom tà ${garmentName}`;
+    } else if (isTrousers) {
+      bottomShoesCritique = `Phom suông thanh thoát của ${bottomName} kết hợp cùng ${shoesName} mang lại tỷ lệ trang phục nhã nhặn, tôn dáng người mặc`;
+    } else if (isSkirt) {
+      bottomShoesCritique = `Độ rủ bồng bềnh của ${bottomName} đi cùng ${shoesName} tạo nên chuyển động nhịp nhàng, duyên dáng`;
+    } else {
+      bottomShoesCritique = `Sự kết hợp đồng điệu giữa ${bottomName} và ${shoesName} tôn vinh trọn vẹn dáng vẻ nguyên bản`;
     }
-    // === MÀN HÌNH 2: ĐỜI THƯỜNG (TẠO OUTFIT REMIX & THẨM ĐỊNH CHI TIẾT) ===
-    else {
-      if (isNhatBinh) {
-        if (isTrousers) {
-          dynamicVibeCheck = `Woa! Vừa thanh lịch vừa hiện đại! Tà ${garmentName} phối cùng ${bottomName} và ${shoesName} mang đến một diện mạo Quiet Luxury đậm chất Á Đông. Mặc đi làm, đi tiệc nhẹ hay cafe cuối tuần đều sang ngút ngàn!`;
-        } else if (isSilkPants) {
-          dynamicVibeCheck = `Ôi đẹp dịu dàng làm sao! ${garmentName} sắc ${colorName} buông tà tha thướt cùng ${bottomName} và ${shoesName}${buttonNote}. Vừa giữ được nét trang nhã cổ phong vừa tiện lợi cho nhịp sống đương đại!`;
-        } else {
-          dynamicVibeCheck = `Woa! Bản phối Remix của ${garmentName} cùng ${bottomName} và ${shoesName} cực kỳ cân bằng và hút mắt. Vibe thanh lịch mười điểm không có nhưng!`;
-        }
-      } else {
-        // Ngũ Thân
-        if (isTrousers || isLoafer) {
-          dynamicVibeCheck = `Ôi đẹp xuất sắc! Thư sinh thời đại số với ${garmentName} tay chẽn phối cùng ${bottomName} và ${shoesName}. Tà áo lượn cong tà sa thanh thoát, vừa hiện đại vừa giữ trọn chiều sâu văn hóa Việt!`;
-        } else if (isSneaker) {
-          dynamicVibeCheck = `Woa! Năng lượng Gen Z bừng sáng! ${garmentName} đi cùng ${bottomName} và ${shoesName} tạo nên một vẻ đẹp tươi mới, trẻ trung, xóa tan mọi khoảng cách thời gian giữa cổ phục và đời thường!`;
-        } else {
-          dynamicVibeCheck = `Trời ơi keo lỳ quá! ${garmentName} sắc ${colorName} (${nguHanh}) kết hợp tinh tế cùng ${bottomName} và ${shoesName}. Cực kỳ ăn ảnh và duyên dáng khi dạo phố!`;
-        }
-      }
-    }
+
+    // Mô tả chi tiết khuy cúc & màu sắc
+    const buttonDetail = buttonId === 'btn-jade-green'
+      ? `hàng ${buttonName} xanh biếc điểm xuyết nét vương giả`
+      : buttonId === 'btn-wood-agarwood'
+      ? `hàng ${buttonName} trầm ấm toát lên cốt cách nho nhã`
+      : buttonId === 'btn-silver-lotus'
+      ? `hàng ${buttonName} sáng ngời mang tinh thần thanh khiết`
+      : `chi tiết ${buttonName} hoàn thiện vẻ chỉn chu của nẹp áo`;
+
+    // Mô tả lớp áo lót
+    const donYDetail = hasDonY
+      ? 'lớp Áo Đơn Y lụa trắng hé lộ nơi cổ áo giữ trọn phép tắc đoan trang'
+      : 'cách diện phóng khoáng không đơn y mang tinh thần giải cấu trúc hiện đại';
+
+    // Bối cảnh ứng dụng
+    const contextNote = contextTier === 'fusion'
+      ? 'Một mixset xuất thần để diện đi concert, chụp OOTD hay dạo phố đêm rực rỡ!'
+      : contextTier === 'modern'
+      ? 'Rất hoàn hảo để diện đi làm sáng tạo, ghé tiệm cafe cổ hay dự các buổi gặp mặt trang trọng!'
+      : 'Diện mạo hoàn mỹ xứng đáng xuất hiện trên trang bìa Tạp chí Thời trang Di Sản Cung Đình!';
+
+    dynamicVibeCheck = `${exclamation} Tà ${garmentName} sắc ${colorName} (${nguHanh}) ${buttonNote ? `với ${buttonDetail}` : ''}, được phối nhịp nhàng cùng ${bottomName} và ${shoesName}. ${bottomShoesCritique}, trong khi ${donYDetail}${accText}. ${contextNote}`;
   }
 
   const calculationSummary = scoreDeductions.length > 0

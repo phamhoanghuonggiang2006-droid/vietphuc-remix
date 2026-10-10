@@ -1093,8 +1093,8 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
         bottomId: bottomItem.id,
         shoesName: shoesItem.name,
         shoesId: shoesItem.id,
-        accessories: [accessoryItem.name],
-        accessoryIds: [accessoryItem.id],
+        accessories: activeAccessoryItems.length > 0 ? activeAccessoryItems.map(a => a.name) : [accessoryItem.name],
+        accessoryIds: activeAccessoryItems.length > 0 ? activeAccessoryItems.map(a => a.id) : [accessoryItem.id],
         hasDonY: layerItem.id !== 'layer-no-don-y',
         contextTier: currentTier,
         contextName: currentTier === 'heritage' ? 'Chốn Tôn Nghiêm (Lễ Gia Tiên)' : currentTier === 'modern' ? 'Thanh Lịch Đời Thường (Công sở, Dạo phố)' : 'Phố Thị Phá Cách (Concert, Streetwear)',
@@ -1104,7 +1104,7 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
             ? 'Mode 2 - Đời Thường (Cân bằng)' 
             : 'Mode 3 - Phố Thị (Phá Cách)',
         isImperialYellow: Boolean(color.isImperialRestricted),
-        isNhatBinhWithKhanDong: garment.id === 'ao-nhat-binh' && accessoryItem.id === 'acc-khan-dong'
+        isNhatBinhWithKhanDong: garment.id === 'ao-nhat-binh' && selectedAccessoryIds.includes('acc-khan-dong')
       };
       geminiVerdict = await evaluateOutfitWithGemini(payload);
       setGeminiResult(geminiVerdict);
@@ -1124,13 +1124,13 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
         bottomId: bottomItem.id,
         shoesName: shoesItem.name,
         shoesId: shoesItem.id,
-        accessories: [accessoryItem.name],
-        accessoryIds: [accessoryItem.id],
+        accessories: activeAccessoryItems.length > 0 ? activeAccessoryItems.map(a => a.name) : [accessoryItem.name],
+        accessoryIds: activeAccessoryItems.length > 0 ? activeAccessoryItems.map(a => a.id) : [accessoryItem.id],
         hasDonY: layerItem.id !== 'layer-no-don-y',
         contextTier: currentTier,
         contextName: currentTier === 'heritage' ? 'Chốn Tôn Nghiêm (Lễ Gia Tiên)' : currentTier === 'modern' ? 'Thanh Lịch Đời Thường (Công sở, Dạo phố)' : 'Phố Thị Phá Cách (Concert, Streetwear)',
         isImperialYellow: Boolean(color.isImperialRestricted),
-        isNhatBinhWithKhanDong: garment.id === 'ao-nhat-binh' && accessoryItem.id === 'acc-khan-dong'
+        isNhatBinhWithKhanDong: garment.id === 'ao-nhat-binh' && selectedAccessoryIds.includes('acc-khan-dong')
       });
       setGeminiResult(geminiVerdict);
     } finally {
@@ -3161,17 +3161,74 @@ export const RemixStudio: React.FC<RemixStudioProps> = ({
                       {geminiResult ? '🧠 ✦' : currentTier === 'fusion' ? 'DJ ⚡' : 'AI 💅'}
                     </div>
                     <div className="min-w-0 flex-1 space-y-1.5 text-xs">
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className={`font-black uppercase tracking-wider ${
-                          geminiResult
-                            ? 'text-[#faedd0] font-serif font-bold text-xs'
-                            : currentTier === 'fusion' ? 'text-[#00f3ff] italic' : currentTier === 'modern' ? 'text-[#3E5B3C]' : 'text-[#e5c365]'
-                        }`}>
-                          {geminiResult 
-                            ? '✦ HỘI ĐỒNG GIÁM TUYỂN DI SẢN · HERITSTYLE VERDICT'
-                            : currentTier === 'fusion' ? 'AI DJ STYLIST // VIBE CHECK VERDICT' : currentTier === 'modern' ? 'AI Stylist Thanh Lịch (Editorial Lookbook)' : 'AI Stylist Cổ Phục Viễn Đông'}
-                        </span>
+                      <div className="flex items-center justify-between gap-1.5 flex-wrap">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className={`font-black uppercase tracking-wider ${
+                            geminiResult
+                              ? 'text-[#faedd0] font-serif font-bold text-xs'
+                              : currentTier === 'fusion' ? 'text-[#00f3ff] italic' : currentTier === 'modern' ? 'text-[#3E5B3C]' : 'text-[#e5c365]'
+                          }`}>
+                            {geminiResult 
+                              ? '✦ HỘI ĐỒNG GIÁM TUYỂN DI SẢN · HERITSTYLE VERDICT'
+                              : currentTier === 'fusion' ? 'AI DJ STYLIST // VIBE CHECK VERDICT' : currentTier === 'modern' ? 'AI Stylist Thanh Lịch (Editorial Lookbook)' : 'AI Stylist Cổ Phục Viễn Đông'}
+                          </span>
+                          {geminiResult ? (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-sans font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                              Live Custom Gem
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-sans font-medium bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                              <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                              Engine Nội Tại
+                            </span>
+                          )}
+                        </div>
+
+                        {/* NÚT KÍCH HOẠT THẨM ĐỊNH CUSTOM GEM TRỰC TIẾP */}
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleTriggerGeminiEvaluation();
+                          }}
+                          disabled={isEvaluatingGemini}
+                          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all cursor-pointer disabled:opacity-50 border ${
+                            currentTier === 'fusion'
+                              ? 'bg-[#00f3ff]/15 hover:bg-[#00f3ff]/30 text-[#00f3ff] border-[#00f3ff]/40'
+                              : currentTier === 'modern'
+                              ? 'bg-[#8BA888]/20 hover:bg-[#8BA888]/35 text-[#3E5B3C] border-[#8BA888]/50'
+                              : 'bg-[#e5c365]/20 hover:bg-[#e5c365]/35 text-[#faedd0] border-[#e5c365]/40 hover:border-[#e5c365]'
+                          }`}
+                          title="Gửi dữ liệu trực tiếp sang Google AI Studio để Stylist Custom Gem thẩm định độc bản"
+                        >
+                          {isEvaluatingGemini ? (
+                            <>
+                              <Sparkles className="w-3 h-3 animate-spin text-[#e5c365]" />
+                              <span>Đang thẩm định...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Sparkles className="w-3 h-3 text-[#e5c365]" />
+                              <span>{geminiResult ? 'Làm mới nhận xét AI 🧠' : 'Thẩm định Custom Gem 🧠'}</span>
+                            </>
+                          )}
+                        </button>
                       </div>
+
+                      {geminiError && (
+                        <div className="p-2 rounded-lg bg-red-950/40 border border-red-500/30 text-[11px] text-red-200 flex items-center justify-between gap-2">
+                          <span>⚠️ {geminiError} (Đang dùng Engine nội tại)</span>
+                          <button
+                            type="button"
+                            onClick={handleTriggerGeminiEvaluation}
+                            className="underline font-bold text-red-300 hover:text-white"
+                          >
+                            Thử lại
+                          </button>
+                        </div>
+                      )}
+
                       <p className={`leading-relaxed text-sm ${
                         geminiResult
                           ? 'font-medium font-serif text-[#faedd0] italic'

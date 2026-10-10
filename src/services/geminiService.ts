@@ -153,8 +153,9 @@ async function fetchGeminiWithFallback(
 
       clearTimeout(timer);
 
-      // Nếu endpoint proxy trả về 404 (do không ở môi trường dev), chuyển qua direct endpoint
-      if (res.status === 404 && endpoint.startsWith('/api')) {
+      // Nếu endpoint proxy trả về lỗi (404, 500, 502, 504...), chuyển ngay qua direct Google endpoint
+      if (!res.ok && endpoint.startsWith('/api')) {
+        console.warn(`Proxy ${endpoint} trả về HTTP ${res.status}, chuyển ngay sang direct Google endpoint...`);
         continue;
       }
 
@@ -196,7 +197,13 @@ export async function testGeminiConnection(apiKeyToTest?: string): Promise<{ suc
     };
   }
 
-  const modelsToTry = ['gemini-3.5-flash', 'gemini-3.8-flash', 'gemini-3.1-flash-lite', 'gemini-flash-latest'];
+  const modelsToTry = [
+    'gemini-3.1-flash-lite',
+    'gemini-flash-latest',
+    'gemini-3.5-flash-lite',
+    'gemini-3.5-flash',
+    'gemini-3.8-flash'
+  ];
   let specificErrorMsg = '';
 
   // ⚡ BƯỚC 1: FAST PING qua GET Model Metadata (Phản hồi siêu tốc ~0.3s, không tốn thời gian sinh văn bản)
@@ -352,8 +359,8 @@ function parseCustomGemOutput(rawText: string, model: string): GeminiEvaluationR
     // 2. Parse theo định dạng [TAG]: VALUE của Custom Gem (hỗ trợ cả **[TAG]:**, **[TAG]**: v.v.)
     const getTagValue = (tag: string): string => {
       const regex = new RegExp(
-        '(?:\\*{1,2})?\\[\\s*' + tag + '\\s*\\](?:\\*{1,2})?\\s*:\\s*(?:\\*{1,2})?\\s*([^\\n\\[]+?(?:\\n(?!\\s*(?:\\*{1,2})?\\[)[^\\n\\[]+?)*)(?=\\n\\s*(?:\\*{1,2})?\\[|$)',
-        'is'
+        '(?:\\*{1,2})?\\[\\s*' + tag + '\\s*\\](?:\\*{1,2})?\\s*[:：]?\\s*([\\s\\S]*?)(?=(?:\\n\\s*(?:\\*{1,2})?\\[[A-ZÀ-Ỹa-zà-ỹ0-9\\s-]+\\])|$)',
+        'i'
       );
       const match = rawText.match(regex);
       if (!match) return '';
@@ -436,26 +443,33 @@ export async function evaluateOutfitWithGemini(
 - Giày/Guốc: ${payload.shoesName}
 - Khuy cúc: ${payload.buttonName} ${payload.isChineseButton ? '[CẢNH BÁO ĐẶC BIỆT: CÚC VẢI TẾT DÂY / CÚC TÀU - ĐẠI KỴ]' : ''}
 - Áo lót trong (Đơn y): ${payload.hasDonY ? 'Có áo đơn y lụa trắng (chuẩn thức)' : 'Không có áo đơn y (lộ ngực / mặc áo thun)'}
-- Phụ kiện đi kèm: ${payload.accessories.length > 0 ? payload.accessories.join(', ') : 'Không phụ kiện'}
+- Phụ kiện đi kèm: ${payload.accessories && payload.accessories.length > 0 ? payload.accessories.join(', ') : 'Không phụ kiện'}
 - Bối cảnh diện đồ: ${payload.contextName}
 
 [QUY TẮC BẮT BUỘC TỪ GIANG - CÁ NHÂN HÓA 100% THEO TỪNG MÓN ĐỒ]:
-1. Bạn KHÔNG ĐƯỢC trả lời chung chung hoặc rập khuôn! Phải bóc tách đích danh cách phối giữa ${payload.garmentName} với ${payload.bottomName}, đi cùng ${payload.shoesName} và ${payload.buttonName}.
+1. Bạn KHÔNG ĐƯỢC trả lời chung chung hoặc rập khuôn! Phải bóc tách đích danh cách phối giữa ${payload.garmentName} với ${payload.bottomName}, đi cùng ${payload.shoesName}, khuy ${payload.buttonName}${payload.accessories && payload.accessories.length > 0 ? ` và phụ kiện ${payload.accessories.join(', ')}` : ''}.
 2. Cùng 1 loại áo (${payload.garmentName}) nhưng khi người dùng chọn quần khác nhau (VD: Quần lụa vs Quần tây vs Quần cargo vs Chân váy), hoặc giày khác nhau (Guốc mộc vs Sneaker vs Loafer vs Boots), nhận xét [VIBE CHECK] PHẢI HOÀN TOÀN KHÁC NHAU, giải thích rõ nét đẹp/sự tương phản của sự kết hợp này!
 3. Mở đầu [VIBE CHECK] bằng các câu cảm thán giàu cảm xúc và đa dạng (ví dụ: "Woa!...", "Ôi đẹp xuất sắc!...", "Trời ơi keo lỳ quá!...", "Đỉnh nóc kịch trần!...", "Slay kịch sàn!...") tùy theo độ ăn rơ của set đồ.
 4. Điều chỉnh thần thái nhận xét theo đúng Màn hình:
    - Màn hình 1 (Tôn Nghiêm / Tạp chí): Chuẩn Editorial Vogue, sang trọng, quyền quý, tôn vinh điển chế.
    - Màn hình 2 (Đời Thường / Remix Studio): Trẻ trung, thanh lịch, gần gũi, gợi ý đi cafe/dạo phố.
    - Màn hình 3 (Phố Thị Phá Cách / Fusion Streetwear): Cực cháy, Hypebeast, slang Gen Z, khen ngợi sự phá cách độc bản.
+5. CHỈ TRẢ VỀ DUY NHẤT 5 KHỐI THẺ ĐỊNH DẠNG DƯỚI ĐÂY (không viết lời chào hỏi hay tư vấn 3 mode thừa thãi):
 
-Hãy trả về CHÍNH XÁC theo format của Gem:
 [THẺ NHÃN]: (Ví dụ: FUSION STREETWEAR - HERITAGE INSPIRED hoặc HERITAGE CORE)
 [CẢNH BÁO]: (None / Yellow Alert / Red Alert)
 [VIBE CHECK]: (Lời bình cá nhân hóa độc bản bắt đầu bằng 'Woa...', 'Ôi đẹp...', v.v. cho set ${payload.garmentName} + ${payload.bottomName} + ${payload.shoesName})
 [ĐIỂM SLAY SCORE]: (Ví dụ: 95%)
 [ĐIỂM CHUẨN DI SẢN]: (Ví dụ: 85% - giải thích rõ lý do cộng/trừ điểm)`;
 
-    const modelsToTry = ['gemini-3.5-flash', 'gemini-3.8-flash', 'gemini-3.1-flash-lite', 'gemini-flash-latest'];
+    // Ưu tiên các model phản hồi siêu tốc (<1.5s), không bị lỗi 503 high demand spikes
+    const modelsToTry = [
+      'gemini-3.1-flash-lite',
+      'gemini-flash-latest',
+      'gemini-3.5-flash-lite',
+      'gemini-3.5-flash',
+      'gemini-3.8-flash'
+    ];
 
     for (const model of modelsToTry) {
       try {
@@ -470,9 +484,9 @@ Hãy trả về CHÍNH XÁC theo format của Gem:
           generationConfig: {
             temperature: 0.85,
             topP: 0.95,
-            maxOutputTokens: 4096
+            maxOutputTokens: 1200
           }
-        }, 25000);
+        }, 12000);
 
         if (response.ok) {
           const data = await response.json();
