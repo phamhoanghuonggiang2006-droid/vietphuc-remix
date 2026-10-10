@@ -3,7 +3,8 @@ import {
   HeritageItem, 
   ColorOption, 
   ModernRemixItem,
-  getAccessorySlot 
+  getAccessorySlot,
+  getAccessorySlotLabel 
 } from '../data/heritageData';
 import { RobeVisualizer } from './RobeVisualizer';
 import {
@@ -125,28 +126,28 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
     if (id === 'acc-khan-vanh-day') {
       // Khăn Vành Dây Hoàng Cung: Quấn thành vòng cung hào quang trên đỉnh đầu, viền quanh búi tóc và trán
       return {
-        containerClass: '-mb-6 sm:-mb-7',
-        imgClass: 'w-32 h-22 sm:w-36 sm:h-26'
+        containerClass: '-mb-1.5 sm:-mb-2',
+        imgClass: 'w-28 h-18 sm:w-32 sm:h-20'
       };
     }
     if (id === 'acc-tram-phuong') {
       // Trâm Cài Phượng Hoàng: Cài trên búi tóc đỉnh đầu
       return {
-        containerClass: '-mb-4 sm:-mb-5',
-        imgClass: 'w-22 h-16 sm:w-26 sm:h-18'
+        containerClass: '-mb-1 sm:-mb-1.5',
+        imgClass: 'w-20 h-14 sm:w-24 sm:h-16'
       };
     }
     if (id === 'acc-bucket-hat') {
       // Mũ Bucket / Mũ Snapback: Đội trên đỉnh đầu trên hàng lông mày
       return {
-        containerClass: '-mb-5 sm:-mb-6',
-        imgClass: 'w-28 h-18 sm:w-32 sm:h-20'
+        containerClass: '-mb-1.5 sm:-mb-2',
+        imgClass: 'w-24 h-15 sm:w-28 sm:h-17'
       };
     }
     // Mặc định: Khăn Đóng Chữ Nhân (acc-khan-dong) & Khăn Turban
     return {
-      containerClass: '-mb-5 sm:-mb-6',
-      imgClass: 'w-28 h-16 sm:w-32 sm:h-18'
+      containerClass: '-mb-1.5 sm:-mb-2',
+      imgClass: 'w-24 h-14 sm:w-28 sm:h-16'
     };
   };
 
@@ -624,14 +625,17 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
         return null;
       };
 
-      // Load all images in parallel
-      const primaryAccImg = headAccessory
-        ? (headAccessory.canvas2dUrl || headAccessory.thumbnailUrl || '')
-        : (activeAccessories[0]?.canvas2dUrl || activeAccessories[0]?.thumbnailUrl || '');
+      // 1. Tải toàn bộ ảnh phụ kiện đã chọn (kèm phân loại slot)
+      const loadedAccessories = await Promise.all(
+        activeAccessories.map(async (acc) => {
+          const url = acc.canvas2dUrl || acc.thumbnailUrl || '';
+          const img = url ? await loadImage(url) : null;
+          return { item: acc, img, slot: getAccessorySlot(acc.id) };
+        })
+      );
 
-      const [robeImg, accImg, botImg, shoeImg] = await Promise.all([
+      const [robeImg, botImg, shoeImg] = await Promise.all([
         loadRobeImage(),
-        loadImage(primaryAccImg),
         loadImage(bottomCanvasImg),
         loadImage(shoesCanvasImg)
       ]);
@@ -688,13 +692,92 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
       if (robeImg) {
         drawContainedImage(ctx, robeImg, robeZoneX, robeZoneY, robeZoneW, robeZoneH);
 
-        // If Head Accessory is selected, crown the mannequin head in the poster
-        if (headAccessory && accImg) {
-          const turbanW = 165;
-          const turbanH = 105;
-          const turbanX = leftCardX + leftCardW / 2 - turbanW / 2;
-          const turbanY = robeZoneY - 4;
-          drawContainedImage(ctx, accImg, turbanX, turbanY, turbanW, turbanH);
+        const mannequinCenterX = leftCardX + leftCardW / 2; // 360
+
+        // 1. PHỤ KIỆN ĐỘI ĐẦU: Ngự trên đỉnh đầu, hoàn toàn không che trán hay mặt ma nơ canh
+        const headAccObj = loadedAccessories.find(a => a.slot === 'head' && a.img);
+        if (headAccObj && headAccObj.img) {
+          const accId = headAccObj.item.id;
+          let hW = 125;
+          let hH = 58;
+          let hX = mannequinCenterX - hW / 2;
+          let hY = 348; // Đáy khăn đóng ngự tại y = 406px (trên đường chân tóc, không che mắt/mặt)
+
+          if (accId === 'acc-khan-vanh-day') {
+            hW = 145;
+            hH = 75;
+            hX = mannequinCenterX - hW / 2;
+            hY = 329; // Đáy vành khăn ngự tại y = 404px
+          } else if (accId === 'acc-bucket-hat') {
+            hW = 128;
+            hH = 60;
+            hX = mannequinCenterX - hW / 2;
+            hY = 346;
+          } else if (accId === 'acc-tram-phuong') {
+            hW = 80;
+            hH = 54;
+            hX = mannequinCenterX - hW / 2 + 5;
+            hY = 344;
+          }
+
+          drawContainedImage(ctx, headAccObj.img, hX, hY, hW, hH);
+        }
+
+        // 2. KÍNH MẮT / KÍNH RÂM: Ngang tầm mắt ma nơ canh thanh mảnh
+        const faceAccObj = loadedAccessories.find(a => a.slot === 'face' && a.img);
+        if (faceAccObj && faceAccObj.img) {
+          const fW = 72;
+          const fH = 28;
+          drawContainedImage(ctx, faceAccObj.img, mannequinCenterX - fW / 2, 412, fW, fH);
+        }
+
+        // 3. KHUYÊN TAI: Hai bên tai thanh thoát
+        const earAccObj = loadedAccessories.find(a => a.slot === 'ear' && a.img);
+        if (earAccObj && earAccObj.img) {
+          const eW = 18;
+          const eH = 24;
+          drawContainedImage(ctx, earAccObj.img, 328, 416, eW, eH);
+          drawContainedImage(ctx, earAccObj.img, 374, 416, eW, eH);
+        }
+
+        // 4. VÒNG CỔ / KIỀNG BẠC: Ôm vừa vặn cổ áo dưới cằm
+        const neckAccObj = loadedAccessories.find(a => a.slot === 'neck' && a.img);
+        if (neckAccObj && neckAccObj.img) {
+          const nW = 98;
+          const nH = 56;
+          drawContainedImage(ctx, neckAccObj.img, mannequinCenterX - nW / 2, 445, nW, nH);
+        }
+
+        // 5. BỘI NGỌC BÍCH: Buông rũ thanh nhã bên hông vạt áo
+        const waistAccObj = loadedAccessories.find(a => a.slot === 'waist' && a.img);
+        if (waistAccObj && waistAccObj.img) {
+          const wW = 54;
+          const wH = 90;
+          const wX = (activeGarment.id === 'ao-nhat-binh') ? 285 : 405;
+          const wY = (activeGarment.id === 'ao-nhat-binh') ? 535 : 550;
+          drawContainedImage(ctx, waistAccObj.img, wX, wY, wW, wH);
+        }
+
+        // 6. QUẠT GIẤY TRẦM HƯƠNG: Cầm bên tay áo phải
+        const handAccObj = loadedAccessories.find(a => a.slot === 'hand' && a.img);
+        if (handAccObj && handAccObj.img) {
+          drawContainedImage(ctx, handAccObj.img, 425, 600, 84, 84);
+        }
+
+        // 7. TÚI TOTE DA / CHEST BAG: Bên tay áo trái
+        const bagAccObj = loadedAccessories.find(a => a.slot === 'bag' && a.img);
+        if (bagAccObj && bagAccObj.img) {
+          if (bagAccObj.item.id === 'acc-chest-bag') {
+            drawContainedImage(ctx, bagAccObj.img, 320, 485, 80, 80);
+          } else {
+            drawContainedImage(ctx, bagAccObj.img, 215, 585, 90, 105);
+          }
+        }
+
+        // 8. CỔ TAY: SMARTWATCH / KIM ƯỚC
+        const wristAccObj = loadedAccessories.find(a => a.slot === 'wrist' && a.img);
+        if (wristAccObj && wristAccObj.img) {
+          drawContainedImage(ctx, wristAccObj.img, 245, 605, 40, 40);
         }
       } else {
         // Fallback: draw stylish color preview pill if image unavailable
@@ -769,16 +852,156 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
       const rightCardH = 250;
       const cardGap = 20;
 
-      const rightItems = [
-        {
-          badge: `01 • PHỤ KIỆN (${activeAccessories.length})`,
-          name: activeAccessories.map(a => a.name.split('(')[0].trim()).join(' · '),
-          vibe: activeAccessories.map(a => a.styleVibe).slice(0, 2).join(' · '),
-          note: activeAccessories.every(a => a.isCulturallyRespectful) ? '✓ Tôn vinh vẻ tôn nghiêm cung đình' : '⚠️ Chi tiết phối phá cách hiện đại',
-          noteColor: activeAccessories.every(a => a.isCulturallyRespectful) ? '#34D399' : '#FBBF24',
-          sub: 'Chế tác thủ công tinh xảo',
-          img: accImg
-        },
+      // Card 01: PHỤ KIỆN (Multi-Grid hoặc Single Item)
+      const accCardY = 280;
+      ctx.fillStyle = 'rgba(16, 14, 22, 0.85)';
+      ctx.beginPath();
+      ctx.roundRect(rightCardX, accCardY, rightCardW, rightCardH, 16);
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(197, 160, 89, 0.35)';
+      ctx.lineWidth = 1.2;
+      ctx.stroke();
+
+      const accImgBoxX = rightCardX + 18;
+      const accImgBoxY = accCardY + 22;
+      const accImgBoxW = 140;
+      const accImgBoxH = 206;
+
+      ctx.fillStyle = 'rgba(8, 8, 12, 0.9)';
+      ctx.beginPath();
+      ctx.roundRect(accImgBoxX, accImgBoxY, accImgBoxW, accImgBoxH, 12);
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(197, 160, 89, 0.25)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      const accTextX = rightCardX + 175;
+
+      if (activeAccessories.length > 1) {
+        // Multi-Accessory Grid Layout (2x2 hoặc 1x2)
+        const gridItems = loadedAccessories.slice(0, 4);
+        const isTwo = gridItems.length === 2;
+
+        gridItems.forEach((accObj, gIdx) => {
+          let cellX = accImgBoxX + 8;
+          let cellY = accImgBoxY + 8;
+          let cellW = 124;
+          let cellH = 91;
+
+          if (!isTwo) {
+            const col = gIdx % 2;
+            const row = Math.floor(gIdx / 2);
+            cellW = 58;
+            cellH = 91;
+            cellX = accImgBoxX + 8 + col * 66;
+            cellY = accImgBoxY + 8 + row * 98;
+          } else {
+            cellY = accImgBoxY + 8 + gIdx * 98;
+          }
+
+          ctx.fillStyle = 'rgba(22, 19, 28, 0.95)';
+          ctx.beginPath();
+          ctx.roundRect(cellX, cellY, cellW, cellH, 8);
+          ctx.fill();
+          ctx.strokeStyle = 'rgba(197, 160, 89, 0.35)';
+          ctx.lineWidth = 1;
+          ctx.stroke();
+
+          if (accObj.img) {
+            drawContainedImage(ctx, accObj.img, cellX + 4, cellY + 4, cellW - 8, cellH - 8);
+          }
+        });
+
+        if (activeAccessories.length > 4) {
+          const plusX = accImgBoxX + 8 + 66;
+          const plusY = accImgBoxY + 8 + 98;
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
+          ctx.beginPath();
+          ctx.roundRect(plusX, plusY, 58, 91, 8);
+          ctx.fill();
+          ctx.font = 'bold 13px sans-serif';
+          ctx.fillStyle = '#E5C365';
+          ctx.textAlign = 'center';
+          ctx.fillText(`+${activeAccessories.length - 3}`, plusX + 29, plusY + 50);
+        }
+
+        // Text Content
+        ctx.textAlign = 'left';
+        ctx.font = 'bold 11px sans-serif';
+        ctx.fillStyle = '#E5C365';
+        ctx.fillText(`01 • BỘ SƯU TẬP PHỤ KIỆN (${activeAccessories.length} MÓN)`, accTextX, accCardY + 46);
+
+        ctx.font = 'bold 13px serif';
+        ctx.fillStyle = '#FFFFFF';
+        activeAccessories.slice(0, 3).forEach((acc, aIdx) => {
+          const accShortName = acc.name.split('(')[0].trim();
+          const lineText = `◆ ${accShortName.length > 20 ? accShortName.slice(0, 20) + '...' : accShortName}`;
+          ctx.fillText(lineText, accTextX, accCardY + 76 + aIdx * 22);
+        });
+
+        if (activeAccessories.length > 3) {
+          ctx.font = 'italic 12px sans-serif';
+          ctx.fillStyle = '#C5A059';
+          ctx.fillText(`+ ${activeAccessories.length - 3} phụ kiện khác...`, accTextX, accCardY + 76 + 3 * 22);
+        }
+
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(accTextX, accCardY + 148);
+        ctx.lineTo(rightCardX + rightCardW - 20, accCardY + 148);
+        ctx.stroke();
+
+        ctx.font = '500 13px sans-serif';
+        const allRespectful = activeAccessories.every(a => a.isCulturallyRespectful);
+        ctx.fillStyle = allRespectful ? '#34D399' : '#FBBF24';
+        ctx.fillText(allRespectful ? '✓ Đầy đủ bộ phụ kiện cung đình đồng điệu' : '⚠️ Chi tiết phối đa phụ kiện phá cách', accTextX, accCardY + 172);
+
+        ctx.font = '12px sans-serif';
+        ctx.fillStyle = '#8E7B68';
+        ctx.fillText('Chế tác thủ công • Điểm xuyết tinh hoa', accTextX, accCardY + 196);
+      } else {
+        // Single Accessory Layout
+        const singleAcc = activeAccessories[0];
+        const singleAccImg = loadedAccessories[0]?.img;
+
+        if (singleAccImg) {
+          drawContainedImage(ctx, singleAccImg, accImgBoxX + 10, accImgBoxY + 10, accImgBoxW - 20, accImgBoxH - 20);
+        }
+
+        ctx.textAlign = 'left';
+        ctx.font = 'bold 11px sans-serif';
+        ctx.fillStyle = '#E5C365';
+        ctx.fillText('01 • PHỤ KIỆN TIÊU BIỂU', accTextX, accCardY + 48);
+
+        ctx.font = 'bold 20px serif';
+        ctx.fillStyle = '#FFFFFF';
+        const accName = singleAcc ? singleAcc.name.split('(')[0].trim() : 'Không Phụ Kiện';
+        ctx.fillText(accName.length > 20 ? accName.slice(0, 20) + '...' : accName, accTextX, accCardY + 80);
+
+        ctx.font = '500 14px sans-serif';
+        ctx.fillStyle = '#C5A059';
+        ctx.fillText(singleAcc ? singleAcc.styleVibe : 'Phong cách nguyên bản', accTextX, accCardY + 112);
+
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(accTextX, accCardY + 130);
+        ctx.lineTo(rightCardX + rightCardW - 20, accCardY + 130);
+        ctx.stroke();
+
+        ctx.font = '500 13px sans-serif';
+        const isRespectful = singleAcc ? singleAcc.isCulturallyRespectful : true;
+        ctx.fillStyle = isRespectful ? '#34D399' : '#FBBF24';
+        ctx.fillText(isRespectful ? '✓ Tôn vinh vẻ tôn nghiêm cung đình' : '⚠️ Chi tiết phối phá cách hiện đại', accTextX, accCardY + 160);
+
+        ctx.font = '12px sans-serif';
+        ctx.fillStyle = '#8E7B68';
+        ctx.fillText('Chế tác thủ công tinh xảo', accTextX, accCardY + 192);
+      }
+
+      // Card 02 & Card 03: Thân Dưới & Giày / Guốc
+      const bottomItems = [
         {
           badge: '02 • THÂN DƯỚI REMIX',
           name: activeBottomItem.name,
@@ -799,8 +1022,8 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
         }
       ];
 
-      rightItems.forEach((item, index) => {
-        const cardY = 280 + index * (rightCardH + cardGap);
+      bottomItems.forEach((item, bIndex) => {
+        const cardY = 280 + (bIndex + 1) * (rightCardH + cardGap);
 
         // Card Container
         ctx.fillStyle = 'rgba(16, 14, 22, 0.85)';
@@ -919,6 +1142,58 @@ export const OutfitMoodboardCanvas: React.FC<OutfitMoodboardCanvasProps> = ({
         ctx.fillStyle = '#C5A059';
         ctx.fillText(sw.hex, swX + 24, swY + 85);
       });
+
+      // Middle Column: Curated Accessories Capsule Tray (Danh mục phụ kiện tuyển chọn)
+      const capsuleX = btmX + 510;
+      ctx.textAlign = 'left';
+      ctx.font = 'bold 14px sans-serif';
+      ctx.fillStyle = '#E5C365';
+      ctx.fillText('DANH MỤC PHỤ KIỆN TUYỂN CHỌN (ACCESSORIES)', capsuleX, btmY + 45);
+
+      ctx.font = '12px sans-serif';
+      ctx.fillStyle = '#A8A29E';
+      ctx.fillText('Các chi tiết phối điểm xuyết hoàn thiện outfit', capsuleX, btmY + 68);
+
+      if (activeAccessories.length > 0) {
+        const displayAccs = activeAccessories.slice(0, 4);
+        displayAccs.forEach((acc, aIdx) => {
+          const rowY = btmY + 95 + aIdx * 35;
+          const loadedAcc = loadedAccessories.find(la => la.item.id === acc.id);
+
+          // Mini circular badge
+          ctx.fillStyle = 'rgba(28, 25, 35, 0.9)';
+          ctx.beginPath();
+          ctx.arc(capsuleX + 14, rowY + 12, 12, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = '#C5A059';
+          ctx.lineWidth = 1;
+          ctx.stroke();
+
+          if (loadedAcc && loadedAcc.img) {
+            drawContainedImage(ctx, loadedAcc.img, capsuleX + 4, rowY + 2, 20, 20);
+          }
+
+          const slotLabel = getAccessorySlotLabel(getAccessorySlot(acc.id)).toUpperCase();
+          ctx.font = 'bold 10px sans-serif';
+          ctx.fillStyle = '#E5C365';
+          ctx.fillText(`[${slotLabel}]`, capsuleX + 34, rowY + 11);
+
+          ctx.font = '500 12px serif';
+          ctx.fillStyle = '#F5F5F4';
+          const nameTrim = acc.name.split('(')[0].trim();
+          ctx.fillText(nameTrim.length > 24 ? nameTrim.slice(0, 24) + '...' : nameTrim, capsuleX + 34, rowY + 25);
+        });
+
+        if (activeAccessories.length > 4) {
+          ctx.font = 'italic 11px sans-serif';
+          ctx.fillStyle = '#E5C365';
+          ctx.fillText(`+ ${activeAccessories.length - 4} phụ kiện khác trong bộ sưu tập`, capsuleX + 34, btmY + 245);
+        }
+      } else {
+        ctx.font = 'italic 13px serif';
+        ctx.fillStyle = '#78716C';
+        ctx.fillText('✓ Tinh giản nguyên bản • Thuần khiết cổ phong Triều Nguyễn', capsuleX, btmY + 115);
+      }
 
       // Appraisal Status Banner
       ctx.textAlign = 'left';
